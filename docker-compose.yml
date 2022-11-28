@@ -1,0 +1,66 @@
+version: "3.9"
+services:
+  core:
+    build: "./apps/core"
+    volumes:
+      - ./apps/core/src/:/usr/app/src/
+    networks:
+      - backend
+    env_file:
+      - .env
+
+  auth:
+    build: "./apps/auth"
+    volumes:
+      - ./apps/auth/src/:/usr/app/src/
+    networks:
+      - backend
+    env_file:
+      - .env    
+
+  bc-listener:
+    build: "./apps/bc-listener"
+    volumes:
+      - ./apps/bc-listener/src/:/usr/app/src/
+    networks:
+      - backend
+    env_file:
+      - .env
+
+  notifier:
+    build: "./apps/notifier"
+    volumes:
+      - ./apps/notifier/src/:/usr/app/src/
+    networks:
+      - backend
+    env_file:
+      - .env
+
+  api-gateway:
+    build: "./apps/api-gateway"
+    volumes:
+      - ./apps/api-gateway/src/:/usr/app/src/
+    networks:
+      - backend
+    env_file:
+      - .env    
+
+  redis:
+    image: "redis:alpine"
+    networks:
+      - backend
+
+  postgres:
+    image: "postgres:alpine"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    env_file:
+      - .env
+
+networks:
+  backend:
+
+volumes:
+  pg-data:
