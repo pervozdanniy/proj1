@@ -1,66 +1,87 @@
 version: "3.9"
 services:
   core:
-    build: "./apps/core"
+    build: .
     volumes:
-      - ./apps/core/src/:/usr/app/src/
+      - ./apps/core:/usr/src/apps/core
     networks:
       - backend
     env_file:
       - .env
+    command: "start core"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   auth:
-    build: "./apps/auth"
+    build: .
     volumes:
-      - ./apps/auth/src/:/usr/app/src/
+      - ./apps/auth:/usr/src/apps/auth
     networks:
       - backend
     env_file:
       - .env    
+    command: "start auth"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   bc-listener:
-    build: "./apps/bc-listener"
+    build: .
     volumes:
-      - ./apps/bc-listener/src/:/usr/app/src/
+      - ./apps/bc-listener:/usr/src/apps/bc-listener
     networks:
       - backend
     env_file:
       - .env
+    command: "start bc-listener"
 
   notifier:
-    build: "./apps/notifier"
+    build: .
     volumes:
-      - ./apps/notifier/src/:/usr/app/src/
+      - ./apps/notifier:/usr/src/apps/notifier
     networks:
       - backend
     env_file:
       - .env
+    command: "start notifier"
 
   api-gateway:
-    build: "./apps/api-gateway"
+    build: .
     volumes:
-      - ./apps/api-gateway/src/:/usr/app/src/
+      - ./apps/api-gateway:/usr/src/apps/api-gateway
     networks:
       - backend
     env_file:
-      - .env    
+      - .env   
+    command: "start api-gateway"
 
   redis:
     image: "redis:alpine"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
     networks:
       - backend
 
   postgres:
     image: "postgres:alpine"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "--dbname=${POSTGRES_DB}"]
     networks:
       - backend
-    env_file:
-      - .env
 
 networks:
   backend:
 
 volumes:
   pg-data:
+  redis-data:

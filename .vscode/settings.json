@@ -3,5 +3,6 @@
     "typescript.updateImportsOnFileMove.enabled": "always",
     "javascript.preferences.importModuleSpecifierEnding": "minimal",
     "typescript.preferences.importModuleSpecifierEnding": "minimal",
-    "typescript.preferences.includePackageJsonAutoImports": "on"
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "explorer.excludeGitIgnore": false
 }
