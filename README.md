@@ -12,6 +12,19 @@ This README would normally document whatever steps are necessary to get your app
 ### How do I get set up? ###
 
 * Summary of set up
+1. Go to project directory
+```
+    cd skopa
+```
+2. Create `.env` file from sample
+```
+    cp .env.sample .env
+```
+3. Start docker
+```
+    docker-compose up
+```
+
 * Configuration
 * Dependencies
 * Database configuration

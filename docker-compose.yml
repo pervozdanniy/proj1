@@ -55,6 +55,8 @@ services:
     env_file:
       - .env   
     command: "start api-gateway"
+    ports:
+      - ${API_GATEWAY_PORT}:3000
 
   redis:
     image: "redis:alpine"
@@ -64,6 +66,8 @@ services:
       test: ["CMD", "redis-cli", "ping"]
     networks:
       - backend
+    ports:
+      - ${REDIS_PORT}:6379
 
   postgres:
     image: "postgres:alpine"
@@ -78,6 +82,8 @@ services:
         ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "--dbname=${POSTGRES_DB}"]
     networks:
       - backend
+    ports:
+      - ${DB_PORT}:5432
 
 networks:
   backend:
