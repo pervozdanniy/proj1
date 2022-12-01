@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+regex=^SKOPA-[0-9]+\:.+
+message=$(cat $1)
+
+if [[ $message =~ $regex ]]
+then
+	exit 0
+else 
+	# Redirect output to stderr.
+	exec 1>&2
+	echo "Commit message should start with ticket number, e.g. 'SKOPA-12: sample commit message'"
+	echo "See '.git/hooks/commit-msg' for details"
+	exit 1
+fi
