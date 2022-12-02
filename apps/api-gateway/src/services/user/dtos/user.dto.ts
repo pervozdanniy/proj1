@@ -5,9 +5,6 @@ export class UserDTO {
   id: number;
 
   @ApiProperty()
-  region_id: number;
-
-  @ApiProperty()
   name: string;
 
   @ApiProperty()

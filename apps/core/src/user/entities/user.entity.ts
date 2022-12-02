@@ -25,7 +25,7 @@ export class UserEntity implements User {
   @Column('character varying', { length: 200, select: false })
   password?: string;
 
-  @Column('timestamp')
+  @Column('timestamp',{nullable:true})
   email_verified_at: Date;
 
   @CreateDateColumn()

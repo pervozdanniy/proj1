@@ -8,7 +8,10 @@ import {
   Injectable,
   OnModuleInit,
   Param,
+<<<<<<< HEAD
   UseFilters,
+=======
+>>>>>>> 62b31cb (SKOPA-126: add users table using migrations & check postgres connection)
   UseInterceptors,
 } from '@nestjs/common';
 
@@ -41,4 +44,9 @@ export class UserController implements OnModuleInit {
   async get(@Param('id') id: number) {
     return lastValueFrom(this.userService.getById({ id: Number(id) }));
   }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 62b31cb (SKOPA-126: add users table using migrations & check postgres connection)
 }

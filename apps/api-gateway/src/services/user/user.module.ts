@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ClientsModule } from '@nestjs/microservices';
 import { UserController } from './controllers/user.controller';
-import { join } from 'path';
 import { getGrpcClientOptions } from '~command/utils/grpc.util';
 
 @Module({

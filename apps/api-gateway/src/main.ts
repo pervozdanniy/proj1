@@ -7,8 +7,8 @@ import { ApiExceptionFilter } from '~command/filters/api-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
   const config = new DocumentBuilder()
-    .setTitle('Gratitude Services API')
-    .setDescription('Gratitude Services microservice API')
+    .setTitle('Skopa Services API')
+    .setDescription('Skopa Services microservice API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

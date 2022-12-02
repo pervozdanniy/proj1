@@ -30,6 +30,7 @@ export class createUserTable1669901299726 implements MigrationInterface {
           {
             name: 'email_verified_at',
             type: 'timestamp',
+            isNullable: true,
           },
           {
             name: 'created_at',
@@ -42,6 +43,7 @@ export class createUserTable1669901299726 implements MigrationInterface {
           {
             name: 'deleted_at',
             type: 'timestamp',
+            isNullable: true,
           },
         ],
       }),
