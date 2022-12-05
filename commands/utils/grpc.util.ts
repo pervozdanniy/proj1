@@ -39,7 +39,7 @@ export function getGrpcClientOptions(
         defaults: true,
         oneofs: true,
       },
-      protoPath: join(`/usr/src/commands/_proto/${service}.proto`),
+      protoPath: join(`${process.env.DIRNAME}/commands/_proto/${service}.proto`),
     },
   };
 }
