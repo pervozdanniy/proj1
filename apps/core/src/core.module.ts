@@ -3,7 +3,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { UserEntity } from './user/entities/user.entity';
 import { UserService } from './user/services/user.service';
 import { UserController } from './user/controllers/user.controller';
-import { migrations } from './user/db/migrations/getMigrations';
+import { migrations } from './db/migrations/getMigrations';
 
 const entityList = [UserEntity];
 
