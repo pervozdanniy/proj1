@@ -4,6 +4,7 @@ services:
     build: .
     volumes:
       - ./apps/core:/usr/src/apps/core
+      - ./commands:/usr/src/commands
     networks:
       - backend
     env_file:
@@ -50,11 +51,13 @@ services:
     build: .
     volumes:
       - ./apps/api-gateway:/usr/src/apps/api-gateway
+      - ./commands:/usr/src/commands
     networks:
       - backend
     env_file:
-      - .env   
+      - .env
     command: "start api-gateway"
+
     ports:
       - ${API_GATEWAY_PORT}:3000
 
