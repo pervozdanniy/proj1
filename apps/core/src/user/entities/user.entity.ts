@@ -1,12 +1,5 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { User } from '~command/interfaces/user.interface';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { User } from 'common/interfaces/user.interface';
 
 @Entity('users')
 export class UserEntity implements User {

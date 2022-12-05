@@ -21,8 +21,8 @@
       "~svc/*": [
         "apps/*"
       ],
-      "~command/*": [
-        "commands/*"
+      "~common/*": [
+        "common/*"
       ]
     }
   }
