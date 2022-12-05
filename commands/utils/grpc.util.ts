@@ -22,7 +22,6 @@ export async function handleRPC<T>(request: Observable<T>): Promise<T> {
 }
 
 export function getGrpcClientOptions(
-  dirname: string,
   name: string,
   service: string,
   servicePackage: string,
@@ -40,7 +39,7 @@ export function getGrpcClientOptions(
         defaults: true,
         oneofs: true,
       },
-      protoPath: join(dirname, `../../../commands/_proto/${service}.proto`),
+      protoPath: join(`/usr/src/commands/_proto/${service}.proto`),
     },
   };
 }
