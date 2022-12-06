@@ -1,14 +1,19 @@
 import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { GrpcOptions, Transport } from '@nestjs/microservices';
 import { CoreModule } from './core.module';
+import { ConfigService } from '@nestjs/config';
+import { ConfigInterface } from '~common/config/configuration';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(CoreModule, {
+  const context = await NestFactory.createApplicationContext(CoreModule);
+  const config = context.get(ConfigService<ConfigInterface>);
+
+  const app = await NestFactory.createMicroservice<GrpcOptions>(CoreModule, {
     transport: Transport.GRPC,
     options: {
-      url: '0.0.0.0:50000',
-      package: 'core_service',
+      url: `0.0.0.0:${config.get('grpcServices.core.port', { infer: true })}`,
+      package: 'core',
       loader: {
         keepCase: true,
         longs: String,
@@ -16,7 +21,7 @@ async function bootstrap() {
         defaults: true,
         oneofs: true,
       },
-      protoPath: join(process.env.BASE_PATH, 'common/_proto', 'core.proto'),
+      protoPath: join(config.get('basePath'), 'common/_proto/core.proto'),
     },
   });
 
