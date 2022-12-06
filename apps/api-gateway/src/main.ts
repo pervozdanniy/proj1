@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { ApiGatewayModule } from './api-gateway.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
-import * as Sentry from '@sentry/node';
 import { ApiExceptionFilter } from 'common/filters/api-exception.filter';
 import sentryInit from 'common/sentry/init';
 
