@@ -1,7 +1,12 @@
-import { Catch, ArgumentsHost, HttpStatus, ExceptionFilter, HttpException } from '@nestjs/common';
+import {
+  Catch,
+  ArgumentsHost,
+  HttpStatus,
+  ExceptionFilter,
+  HttpException,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Metadata, status } from '@grpc/grpc-js';
-
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter<Error> {
@@ -9,7 +14,6 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
     exception: Error & { metadata: Metadata; code: number; details: string },
     host: ArgumentsHost,
   ) {
-
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();

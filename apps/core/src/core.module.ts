@@ -1,30 +1,42 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './user/entities/user.entity';
-import { UserService } from './user/services/user.service';
-import { UserController } from './user/controllers/user.controller';
 import { migrations } from './db/migrations/getMigrations';
-
-const entityList = [UserEntity];
-
-const connectOptions: TypeOrmModuleOptions = {
-  type: 'postgres',
-  host: process.env.POSTGRES_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-  database: process.env.POSTGRES_DB,
-  entities: entityList,
-  migrations,
-  migrationsRun: true,
-};
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import configuration, { ConfigInterface } from '~common/config/configuration';
+import { UserModule } from './user/user.module';
+import { RedisModule } from 'nestjs-redis';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(connectOptions),
-    TypeOrmModule.forFeature(entityList),
+    ConfigModule.forRoot({ load: [configuration], isGlobal: true }),
+    TypeOrmModule.forRootAsync({
+      useFactory(config: ConfigService<ConfigInterface>) {
+        const { host, port, username, password, database } = config.get('database', { infer: true });
+
+        return {
+          type: 'postgres',
+          host,
+          port,
+          username,
+          password,
+          database,
+          entities: [UserEntity],
+          migrations,
+          migrationsRun: true,
+        };
+      },
+      inject: [ConfigService],
+    }),
+    RedisModule.forRootAsync({
+      useFactory(config: ConfigService<ConfigInterface>) {
+        const { host, port } = config.get('redis', { infer: true });
+
+        return { host, port };
+      },
+      inject: [ConfigService],
+    }),
+    UserModule,
   ],
-  providers: [UserService],
-  controllers: [UserController],
 })
 export class CoreModule {}

@@ -2,8 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { ApiGatewayModule } from './api-gateway.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
-import { ApiExceptionFilter } from '~command/filters/api-exception.filter';
-import {Logger, LoggerErrorInterceptor} from "nestjs-pino";
+import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
+import { ApiExceptionFilter } from 'common/filters/api-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);

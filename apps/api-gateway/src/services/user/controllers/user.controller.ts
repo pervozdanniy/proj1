@@ -15,7 +15,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { UserDTO } from '../dtos/user.dto';
-import { UserService } from '~command/interfaces/user.interface';
+import { UserService } from 'common/interfaces/user.interface';
 
 @ApiTags('User')
 @Injectable()

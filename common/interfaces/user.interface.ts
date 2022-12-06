@@ -13,7 +13,6 @@ export interface User {
   deleted_at?: Date;
 }
 
-
 export interface IdRequest {
   id: number;
 }

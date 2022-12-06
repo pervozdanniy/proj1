@@ -2,8 +2,7 @@ import { RpcException, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { ClientProviderOptions } from '@nestjs/microservices';
 import { lastValueFrom, Observable } from 'rxjs';
-import {CustomRPCException} from "~command/exceptions/custom-rpc.exception";
-
+import { GRPCException } from '~common/exceptions/grpc.exception';
 
 export async function handleRPC<T>(request: Observable<T>): Promise<T> {
   try {
@@ -14,18 +13,13 @@ export async function handleRPC<T>(request: Observable<T>): Promise<T> {
     if (code) {
       const details = JSON.parse(rpcError.getError()['metadata']?.get('details')[0]);
       const { message, error_code } = details;
-      console.log(code, message, error_code);
-      throw new CustomRPCException(code, message, error_code);
+      throw new GRPCException(code, message, error_code);
     }
     return exception;
   }
 }
 
-export function getGrpcClientOptions(
-  name: string,
-  service: string,
-  servicePackage: string,
-): ClientProviderOptions {
+export function getGrpcClientOptions(name: string, service: string, servicePackage: string): ClientProviderOptions {
   return {
     name,
     transport: Transport.GRPC,
@@ -39,7 +33,7 @@ export function getGrpcClientOptions(
         defaults: true,
         oneofs: true,
       },
-      protoPath: join(`${process.env.DIRNAME}/commands/_proto/${service}.proto`),
+      protoPath: join(process.env.BASE_PATH, 'common/_proto', `${service}.proto`),
     },
   };
 }
