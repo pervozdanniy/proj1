@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package core_service;
+package core;
 
 //UserService
 service UserService {

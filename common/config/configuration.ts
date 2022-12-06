@@ -1,16 +1,20 @@
+type Addr = {
+  host: string;
+  port: number;
+};
+
 export interface ConfigInterface {
   basePath: string;
   port: number;
-  database: {
-    host: string;
-    port: number;
+  database: Addr & {
     username: string;
     password: string;
     database: string;
   };
-  redis: {
-    host: string;
-    port: number;
+  redis: Addr;
+  grpcServices: {
+    core: Addr;
+    auth: Addr;
   };
 }
 
@@ -27,5 +31,15 @@ export default (): ConfigInterface => ({
   redis: {
     host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT, 10),
+  },
+  grpcServices: {
+    core: {
+      host: process.env.GRPC_CORE_HOST,
+      port: parseInt(process.env.GRPC_CORE_PORT, 10) || 5000,
+    },
+    auth: {
+      host: process.env.GRPC_AUTH_HOST,
+      port: parseInt(process.env.GRPC_AUTH_PORT, 10) || 5000,
+    },
   },
 });
