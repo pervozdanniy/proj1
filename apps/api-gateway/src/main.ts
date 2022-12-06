@@ -6,7 +6,7 @@ import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
 import { ApiExceptionFilter } from 'common/filters/api-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApiGatewayModule);
+  const app = await NestFactory.create(ApiGatewayModule, { bufferLogs: true });
   const config = new DocumentBuilder()
     .setTitle('Skopa Services API')
     .setDescription('Skopa Services microservice API')
