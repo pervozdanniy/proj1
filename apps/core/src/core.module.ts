@@ -5,7 +5,7 @@ import { migrations } from './db/migrations/getMigrations';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration, { ConfigInterface } from '~common/config/configuration';
 import { UserModule } from './user/user.module';
-import { RedisModule } from 'nestjs-redis';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 
 @Module({
   imports: [
@@ -32,7 +32,7 @@ import { RedisModule } from 'nestjs-redis';
       useFactory(config: ConfigService<ConfigInterface>) {
         const { host, port } = config.get('redis', { infer: true });
 
-        return { host, port };
+        return { config: { host, port } };
       },
       inject: [ConfigService],
     }),
