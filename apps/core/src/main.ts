@@ -16,7 +16,7 @@ async function bootstrap() {
         defaults: true,
         oneofs: true,
       },
-      protoPath: join(__dirname, '../../../commands/_proto/core.proto'),
+      protoPath: join(process.env.BASE_PATH, 'common/_proto', 'core.proto'),
     },
   });
 
