@@ -2,12 +2,7 @@ import { Metadata } from '@grpc/grpc-js';
 import { RpcException } from '@nestjs/microservices';
 
 export class GRPCException extends RpcException {
-  constructor(
-    code: number,
-    message: string,
-    error_code: number,
-    additional_data?: Record<string, unknown>,
-  ) {
+  constructor(code: number, message: string, error_code: number, additional_data?: Record<string, unknown>) {
     const metadata = new Metadata();
     const details = {
       message,
