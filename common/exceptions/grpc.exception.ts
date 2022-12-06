@@ -1,7 +1,7 @@
 import { Metadata } from '@grpc/grpc-js';
 import { RpcException } from '@nestjs/microservices';
 
-export class CustomRPCException extends RpcException {
+export class GRPCException extends RpcException {
   constructor(
     code: number,
     message: string,
