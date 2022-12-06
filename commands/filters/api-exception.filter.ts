@@ -1,7 +1,7 @@
 import { Catch, ArgumentsHost, HttpStatus, ExceptionFilter, HttpException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Metadata, status } from '@grpc/grpc-js';
-
+import * as Sentry from '@sentry/node';
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter<Error> {
@@ -55,13 +55,21 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
       console.log({ code, details });
     }
 
+
+
     if (extras.error_code) delete extras.error_code;
-    response.status(statusCode).json({
+    const errorData = {
       statusCode,
       message,
       timestamp: new Date().toISOString(),
       path: request.url,
       ...extras,
-    });
+    }
+    if(statusCode.toString().charAt(0) === '5'){
+      Sentry.captureException({
+        errorData
+      });
+    }
+    response.status(statusCode).json(errorData);
   }
 }
