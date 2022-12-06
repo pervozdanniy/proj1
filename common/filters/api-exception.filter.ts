@@ -5,11 +5,7 @@ import * as Sentry from '@sentry/node';
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter<Error> {
-  catch(
-    exception: Error & { metadata: Metadata; code: number; details: string },
-    host: ArgumentsHost,
-  ) {
-
+  catch(exception: Error & { metadata: Metadata; code: number; details: string }, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -55,8 +51,6 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
       console.log({ code, details });
     }
 
-
-
     if (extras.error_code) delete extras.error_code;
     const errorData = {
       statusCode,
@@ -64,10 +58,10 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
       timestamp: new Date().toISOString(),
       path: request.url,
       ...extras,
-    }
-    if(statusCode.toString().charAt(0) === '5'){
+    };
+    if (statusCode.toString().charAt(0) === '5') {
       Sentry.captureException({
-        errorData
+        errorData,
       });
     }
     response.status(statusCode).json(errorData);
