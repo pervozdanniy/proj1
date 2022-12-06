@@ -1,8 +1,47 @@
-import { RpcException, Transport } from '@nestjs/microservices';
+import { ClientsProviderAsyncOptions, RpcException, Transport } from '@nestjs/microservices';
 import { join } from 'path';
-import { ClientProviderOptions } from '@nestjs/microservices';
 import { lastValueFrom, Observable } from 'rxjs';
 import { GRPCException } from '~common/exceptions/grpc.exception';
+import { Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { ConfigInterface } from '~common/config/configuration';
+
+const GRPC_PREFIX = '_grpc';
+
+const buildGrpcProviderName = (name: string) => `${GRPC_PREFIX}_${name}`;
+
+export const InjectGrpc = (name: string) => Inject(buildGrpcProviderName(name));
+
+export const asyncClientOptions = (
+  service: keyof ConfigInterface['grpcServices'],
+  packages: string | string[] = service,
+): ClientsProviderAsyncOptions => ({
+  name: buildGrpcProviderName(service),
+  useFactory(config: ConfigService<ConfigInterface>) {
+    const basePath = config.getOrThrow<string>('basePath');
+    const host = config.getOrThrow<string>(`grpcServices.${service}.host`, { infer: true });
+    const protoPath = Array.isArray(packages)
+      ? packages.map((path) => join(basePath, 'common/_proto', `${path}.proto`))
+      : join(basePath, 'common/_proto', `${packages}.proto`);
+
+    return {
+      transport: Transport.GRPC,
+      options: {
+        url: `${host}:5000`,
+        package: packages,
+        loader: {
+          keepCase: true,
+          longs: String,
+          enums: String,
+          defaults: true,
+          oneofs: true,
+        },
+        protoPath,
+      },
+    };
+  },
+  inject: [ConfigService],
+});
 
 export async function handleRPC<T>(request: Observable<T>): Promise<T> {
   try {
@@ -17,23 +56,4 @@ export async function handleRPC<T>(request: Observable<T>): Promise<T> {
     }
     return exception;
   }
-}
-
-export function getGrpcClientOptions(name: string, service: string, servicePackage: string): ClientProviderOptions {
-  return {
-    name,
-    transport: Transport.GRPC,
-    options: {
-      url: `${service}:50000`,
-      package: servicePackage,
-      loader: {
-        keepCase: true,
-        longs: String,
-        enums: String,
-        defaults: true,
-        oneofs: true,
-      },
-      protoPath: join(process.env.BASE_PATH, 'common/_proto', `${service}.proto`),
-    },
-  };
 }

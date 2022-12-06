@@ -4,7 +4,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Inject,
   Injectable,
   OnModuleInit,
   Param,
@@ -16,6 +15,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { UserDTO } from '../dtos/user.dto';
 import { UserService } from 'common/interfaces/user.interface';
+import { InjectGrpc } from '~common/utils/grpc.util';
 
 @ApiTags('User')
 @Injectable()
@@ -27,7 +27,7 @@ import { UserService } from 'common/interfaces/user.interface';
 export class UserController implements OnModuleInit {
   private userService: UserService;
 
-  constructor(@Inject('user') private client: ClientGrpc) {}
+  constructor(@InjectGrpc('core') private readonly client: ClientGrpc) {}
 
   onModuleInit() {
     this.userService = this.client.getService('UserService');
