@@ -10,14 +10,5 @@ export default function sentryInit() {
     tracesSampleRate: 1.0,
   });
 
-  const transaction = Sentry.startTransaction({
-    op: 'transaction',
-    name: 'My Transaction',
-  });
-
-  Sentry.configureScope((scope) => {
-    scope.setSpan(transaction);
-  });
-
   console.log('Sentry initialized!');
 }
