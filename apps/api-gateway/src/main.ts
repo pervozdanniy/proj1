@@ -8,7 +8,8 @@ import sentryInit from 'common/sentry/init';
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApiGatewayModule);
+  const app = await NestFactory.create(ApiGatewayModule, { bufferLogs: true });
+
   sentryInit();
 
   const config = new DocumentBuilder()
