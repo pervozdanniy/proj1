@@ -2,11 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { ApiGatewayModule } from './api-gateway.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
-import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
+
 import { ApiExceptionFilter } from 'common/filters/api-exception.filter';
+import sentryInit from 'common/sentry/init';
+import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule, { bufferLogs: true });
+
+  sentryInit();
+
   const config = new DocumentBuilder()
     .setTitle('Skopa Services API')
     .setDescription('Skopa Services microservice API')
@@ -32,4 +37,5 @@ async function bootstrap() {
 
   await app.listen(3000);
 }
+
 bootstrap();
