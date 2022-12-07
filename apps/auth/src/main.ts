@@ -4,11 +4,14 @@ import { GrpcOptions, Transport } from '@nestjs/microservices';
 import { Logger } from 'nestjs-pino';
 import { join } from 'path';
 import { ConfigInterface } from '~common/config/configuration';
+import sentryInit from '~common/sentry/init';
 import { AuthModule } from './auth.module';
 
 async function bootstrap() {
   const context = await NestFactory.createApplicationContext(AuthModule);
   const config = context.get(ConfigService<ConfigInterface>);
+
+  sentryInit();
 
   const app = await NestFactory.createMicroservice<GrpcOptions>(AuthModule, {
     transport: Transport.GRPC,
