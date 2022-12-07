@@ -5,10 +5,13 @@ import { CoreModule } from './core.module';
 import { ConfigService } from '@nestjs/config';
 import { ConfigInterface } from '~common/config/configuration';
 import { Logger } from 'nestjs-pino';
+import sentryInit from '~common/sentry/init';
 
 async function bootstrap() {
   const context = await NestFactory.createApplicationContext(CoreModule);
   const config = context.get(ConfigService<ConfigInterface>);
+
+  sentryInit();
 
   const app = await NestFactory.createMicroservice<GrpcOptions>(CoreModule, {
     transport: Transport.GRPC,
