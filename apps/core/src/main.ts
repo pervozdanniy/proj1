@@ -4,6 +4,7 @@ import { GrpcOptions, Transport } from '@nestjs/microservices';
 import { CoreModule } from './core.module';
 import { ConfigService } from '@nestjs/config';
 import { ConfigInterface } from '~common/config/configuration';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const context = await NestFactory.createApplicationContext(CoreModule);
@@ -23,7 +24,9 @@ async function bootstrap() {
       },
       protoPath: join(config.get('basePath'), 'common/_proto/core.proto'),
     },
+    bufferLogs: true,
   });
+  app.useLogger(app.get(Logger));
 
   return app.listen();
 }

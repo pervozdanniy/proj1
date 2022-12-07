@@ -18,6 +18,7 @@ services:
     build: .
     volumes:
       - ./apps/auth:/usr/src/apps/auth
+      - ./common:/usr/src/common
     networks:
       - backend
     env_file:
