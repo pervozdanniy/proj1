@@ -1,3 +1,5 @@
+import * as process from 'process';
+
 type Addr = {
   host: string;
   port: number;
@@ -10,6 +12,11 @@ export interface ConfigInterface {
     username: string;
     password: string;
     database: string;
+  };
+  aws: {
+    accessKeyId: string;
+    secretAccessKey: string;
+    region: string;
   };
   redis: Addr;
   grpcServices: {
@@ -27,6 +34,11 @@ export default (): ConfigInterface => ({
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
+  },
+  aws: {
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
+    region: process.env.REGION,
   },
   redis: {
     host: process.env.REDIS_HOST,
