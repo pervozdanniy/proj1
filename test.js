@@ -16,10 +16,5 @@ console.log(
 const signature = crypto.sign(null, Buffer.from(message), privateKey);
 console.log(signature);
 
-const verified = crypto.verify(
-  null,
-  Buffer.from(message),
-  publicKey,
-  signature,
-);
+const verified = crypto.verify(null, Buffer.from(message), publicKey, signature);
 console.log('Match:', verified);

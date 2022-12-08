@@ -6,9 +6,7 @@
   "root": "apps/core",
   "compilerOptions": {
     "webpack": true,
-    "tsConfigPath": "apps/core/tsconfig.app.json",
-    "assets": ["common/_proto/*.proto"],
-    "watchAssets": true
+    "tsConfigPath": "apps/core/tsconfig.app.json"
   },
   "projects": {
     "auth": {

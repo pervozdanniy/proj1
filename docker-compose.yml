@@ -9,7 +9,7 @@ services:
       - backend
     env_file:
       - .env
-    command: "start core"
+    command: "start -w core"
     depends_on:
       postgres:
         condition: service_healthy
@@ -23,7 +23,7 @@ services:
       - backend
     env_file:
       - .env    
-    command: "start auth"
+    command: "start -w auth"
     depends_on:
       postgres:
         condition: service_healthy
@@ -36,7 +36,7 @@ services:
       - backend
     env_file:
       - .env
-    command: "start bc-listener"
+    command: "start -w bc-listener"
 
   notifier:
     build: .
@@ -46,7 +46,7 @@ services:
       - backend
     env_file:
       - .env
-    command: "start notifier"
+    command: "start -w notifier"
 
   api-gateway:
     build: .
@@ -57,7 +57,7 @@ services:
       - backend
     env_file:
       - .env
-    command: "start api-gateway"
+    command: "start -w api-gateway"
 
     ports:
       - ${API_GATEWAY_PORT}:3000
