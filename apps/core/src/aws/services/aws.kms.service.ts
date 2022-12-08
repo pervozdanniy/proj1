@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { KMS } from 'aws-sdk';
-import * as process from 'process';
 import { ConfigInterface } from '~common/config/configuration';
-import { AWSError } from 'aws-sdk/lib/error';
 
 @Injectable()
 export class AwsKmsService {
