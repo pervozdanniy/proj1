@@ -34,6 +34,10 @@ For examle:
     npm run typeorm:create --component=core --name=AlterUsersTable
     ```
 
+* GRPC
+GRPC definitions (`.proto` files) are located in `common/grpc/_proto` directory. After you add or update GRPC definition run `yarn proto:genetate` to generate corresponding Typescript inerfaces.
+You'll be able to find them in `common/grpc/interfaces`.
+
 * Dependencies
 * Database configuration
 * How to run tests
