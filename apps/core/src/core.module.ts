@@ -5,6 +5,7 @@ import configuration, { ConfigInterface } from '~common/config/configuration';
 import { UserModule } from './user/user.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { LoggerModule } from 'nestjs-pino';
+import { AwsModule } from '~svc/core/src/aws/AwsModule';
 import migrations from './db/migrations-list';
 
 @Module({
@@ -51,6 +52,7 @@ import migrations from './db/migrations-list';
       inject: [ConfigService],
     }),
     UserModule,
+    AwsModule,
   ],
 })
 export class CoreModule {}
