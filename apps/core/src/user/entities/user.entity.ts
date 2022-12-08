@@ -1,21 +1,20 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { User } from 'common/interfaces/user.interface';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('users')
-export class UserEntity implements User {
-  @PrimaryGeneratedColumn()
+export class UserEntity {
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column('character varying', { length: 200 })
-  name: string;
+  @Column('character varying')
+  username: string;
 
-  @Column('character varying', { length: 100 })
+  @Column('character varying')
   email: string;
 
-  @Column('character varying', { length: 50 })
+  @Column('character varying', { nullable: true })
   phone: string;
 
-  @Column('character varying', { length: 200, select: false })
+  @Column('character varying', { select: false })
   password?: string;
 
   @Column('timestamp', { nullable: true })
@@ -26,7 +25,4 @@ export class UserEntity implements User {
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @DeleteDateColumn()
-  deleted_at?: Date;
 }

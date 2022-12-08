@@ -2,17 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { KMS } from 'aws-sdk';
 import * as process from 'process';
 import { ConfigInterface } from '~common/config/configuration';
+import { AWSError } from 'aws-sdk/lib/error';
 
 @Injectable()
 export class AwsKmsService {
   private kms: KMS;
-  private kms_key = process.env.KMS_KEY;
+  private readonly kms_key: string;
 
-  constructor(aws: ConfigInterface['aws']) {
+  constructor(aws: ConfigInterface['aws'], kms: ConfigInterface['kms']) {
+    this.kms_key = kms['key'];
     this.kms = new KMS(aws);
   }
 
-  async encrypt(buffer) {
+  encrypt(buffer: Uint8Array): Promise<KMS.CiphertextType> {
     return new Promise((resolve, reject) => {
       const params = {
         KeyId: this.kms_key,
@@ -28,7 +30,7 @@ export class AwsKmsService {
     });
   }
 
-  async decrypt(buffer) {
+  decrypt(buffer: Uint8Array): Promise<KMS.PlaintextType> {
     return new Promise((resolve, reject) => {
       const params = {
         CiphertextBlob: buffer,

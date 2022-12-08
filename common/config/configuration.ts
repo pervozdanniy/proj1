@@ -18,6 +18,9 @@ export interface ConfigInterface {
     secretAccessKey: string;
     region: string;
   };
+  kms: {
+    key: string;
+  };
   redis: Addr;
   grpcServices: {
     core: Addr;
@@ -39,6 +42,9 @@ export default (): ConfigInterface => ({
     accessKeyId: process.env.ACCESS_KEY_ID,
     secretAccessKey: process.env.SECRET_ACCESS_KEY,
     region: process.env.REGION,
+  },
+  kms: {
+    key: process.env.KMS_KEY,
   },
   redis: {
     host: process.env.REDIS_HOST,

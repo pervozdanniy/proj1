@@ -2,14 +2,12 @@ FROM node:18-alpine
 
 WORKDIR /usr/src
 
-
-COPY nest-cli.json ./
 COPY package.json ./
 COPY yarn.lock ./
-COPY tsconfig.json ./
-
 RUN yarn install --frozen-lockfile
 
+COPY nest-cli.json ./
+COPY tsconfig.json ./
 
 EXPOSE 3000
 

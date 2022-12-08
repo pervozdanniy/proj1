@@ -21,8 +21,8 @@ export const asyncClientOptions = (
     const basePath = config.getOrThrow<string>('basePath');
     const host = config.getOrThrow<string>(`grpcServices.${service}.host`, { infer: true });
     const protoPath = Array.isArray(packages)
-      ? packages.map((path) => join(basePath, 'common/_proto', `${path}.proto`))
-      : join(basePath, 'common/_proto', `${packages}.proto`);
+      ? packages.map((path) => join(basePath, 'common/grpc/_proto', `${path}.proto`))
+      : join(basePath, 'common/grpc/_proto', `${packages}.proto`);
 
     return {
       transport: Transport.GRPC,
@@ -52,8 +52,10 @@ export async function handleRPC<T>(request: Observable<T>): Promise<T> {
     if (code) {
       const details = JSON.parse(rpcError.getError()['metadata']?.get('details')[0]);
       const { message, error_code } = details;
+
       throw new GRPCException(code, message, error_code);
     }
+
     return exception;
   }
 }

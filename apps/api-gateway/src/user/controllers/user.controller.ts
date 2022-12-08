@@ -9,13 +9,12 @@ import {
   Param,
   UseInterceptors,
 } from '@nestjs/common';
-
 import { ClientGrpc } from '@nestjs/microservices';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { UserDTO } from '../dtos/user.dto';
-import { UserService } from 'common/interfaces/user.interface';
-import { InjectGrpc } from '~common/utils/grpc.util';
+import { InjectGrpc } from '~common/grpc/helpers';
+import { UserServiceClient } from '~common/grpc/interfaces/core';
 
 @ApiTags('User')
 @Injectable()
@@ -25,7 +24,7 @@ import { InjectGrpc } from '~common/utils/grpc.util';
   path: 'users',
 })
 export class UserController implements OnModuleInit {
-  private userService: UserService;
+  private userService: UserServiceClient;
 
   constructor(@InjectGrpc('core') private readonly client: ClientGrpc) {}
 
