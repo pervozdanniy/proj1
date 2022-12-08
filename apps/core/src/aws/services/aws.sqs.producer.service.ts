@@ -27,9 +27,8 @@ export class AwsSqsProducerService {
   async createQueue(name: string): Promise<CreateQueueCommandOutput> {
     const params = { QueueName: name };
     const command = new CreateQueueCommand(params);
-    const response = await this.sqsClient.send(command);
 
-    return response;
+    return await this.sqsClient.send(command);
   }
 
   async sendMessage(QueueUrl: string, MessageBody): Promise<SendMessageCommandOutput> {
@@ -37,15 +36,13 @@ export class AwsSqsProducerService {
       MessageBody,
       QueueUrl,
     });
-    const response = await this.sqsClient.send(command);
 
-    return response;
+    return await this.sqsClient.send(command);
   }
 
   async getQueueUrl(QueueName: string): Promise<GetQueueUrlResult> {
     const command = new GetQueueUrlCommand({ QueueName });
-    const response = await this.sqsClient.send(command);
 
-    return response;
+    return await this.sqsClient.send(command);
   }
 }
