@@ -20,7 +20,13 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/core/test/jest-e2e.json",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
+    "typeorm:run": "npm run typeorm -- -d ./apps/$npm_config_component/src/db/data-source.ts migration:run",
+    "typeorm:generate": "npm run typeorm -- -d ./apps/$npm_config_component/src/db/data-source.ts migration:generate ./apps/$npm_config_component/src/db/migrations/$npm_config_name",
+    "typeorm:create": "npm run typeorm -- migration:create ./apps/$npm_config_component/src/db/migrations/$npm_config_name",
+    "typeorm:revert": "npm run typeorm -- -d ./apps/$npm_config_component/src/db/data-source.ts migration:revert",
+    "proto:generate": "node_modules/.bin/protoc --plugin=node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_opt=nestJs=true --ts_proto_opt=snakeToCamel=false --ts_proto_out=./common/grpc/interfaces --proto_path=./common/grpc/_proto  ./common/grpc/_proto/*.proto"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.7.3",
@@ -67,11 +73,13 @@
     "husky": "^8.0.2",
     "jest": "28.1.3",
     "prettier": "^2.3.2",
+    "protoc": "^1.1.3",
     "source-map-support": "^0.5.20",
     "supertest": "^6.1.3",
     "ts-jest": "28.0.8",
     "ts-loader": "^9.4.2",
     "ts-node": "^10.0.0",
+    "ts-proto": "^1.135.0",
     "tsconfig-paths": "^4.1.1",
     "typescript": "^4.7.4"
   },

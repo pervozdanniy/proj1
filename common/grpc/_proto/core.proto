@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package core;
+
+service UserService {
+  rpc GetById (IdRequest) returns (User);
+
+  rpc FindByLogin (LoginRequest) returns (User);
+
+  rpc Create (CreateRequest) returns (User);
+
+  rpc Delete (IdRequest) returns (DeleteResponse);
+}
+
+message IdRequest {
+  uint32 id = 1;
+}
+
+message CreateRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+  optional string phone = 4;
+}
+
+message LoginRequest {
+  string login = 1;
+}
+
+message User {
+  uint32 id = 1;
+  string username = 2;
+  string email = 3;
+  string created_at = 6;
+  string updated_at = 7;
+  optional string phone = 8;
+  optional string email_verified_at = 9;
+}
+
+message DeleteResponse {
+  bool success = 1;
+}

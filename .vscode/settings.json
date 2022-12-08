@@ -5,6 +5,7 @@
     "typescript.preferences.importModuleSpecifierEnding": "minimal",
     "typescript.preferences.includePackageJsonAutoImports": "on",
     "explorer.excludeGitIgnore": false,
+    "eslint.validate": ["typescript"],
     "eslint.alwaysShowStatus": true,
     "eslint.packageManager": "yarn",
     "prettier.requireConfig": true,

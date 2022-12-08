@@ -25,7 +25,15 @@ This README would normally document whatever steps are necessary to get your app
     docker-compose up
 ```
 
-* Configuration
+* Migrations
+To use `typerom` CLI command you should use `npm`. There is a set of `typeorm:` commands which requires 2 parameters: 
+1. `--component` to select proper service (e.g. core, auth, etc)
+2. `--name` to set migration name you are going to `create` or `generate`
+For examle: 
+    ```
+    npm run typeorm:create --component=core --name=AlterUsersTable
+    ```
+
 * Dependencies
 * Database configuration
 * How to run tests

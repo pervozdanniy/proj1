@@ -25,7 +25,7 @@ async function bootstrap() {
         defaults: true,
         oneofs: true,
       },
-      protoPath: join(config.get('basePath'), 'common/_proto/core.proto'),
+      protoPath: join(config.get('basePath'), 'common/grpc/_proto/core.proto'),
     },
     bufferLogs: true,
   });
