@@ -24,25 +24,25 @@ export class AwsSqsProducerService {
     });
   }
 
-  async createQueue(name: string): Promise<CreateQueueCommandOutput> {
+  createQueue(name: string): Promise<CreateQueueCommandOutput> {
     const params = { QueueName: name };
     const command = new CreateQueueCommand(params);
 
-    return await this.sqsClient.send(command);
+    return this.sqsClient.send(command);
   }
 
-  async sendMessage(QueueUrl: string, MessageBody): Promise<SendMessageCommandOutput> {
+  sendMessage(QueueUrl: string, MessageBody): Promise<SendMessageCommandOutput> {
     const command = new SendMessageCommand({
       MessageBody,
       QueueUrl,
     });
 
-    return await this.sqsClient.send(command);
+    return this.sqsClient.send(command);
   }
 
-  async getQueueUrl(QueueName: string): Promise<GetQueueUrlResult> {
+  getQueueUrl(QueueName: string): Promise<GetQueueUrlResult> {
     const command = new GetQueueUrlCommand({ QueueName });
 
-    return await this.sqsClient.send(command);
+    return this.sqsClient.send(command);
   }
 }
