@@ -12,11 +12,13 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
     @Inject(AwsKmsService)
     private awsService: AwsKmsService,
+
     @Inject(AwsSqsProducerService)
     private sqsMessageProducer: AwsSqsProducerService,
   ) {}
 
   async get(id: number): Promise<UserEntity> {
+    await this.sqsMessageProducer.getQueueUrl('nor');
     return this.userRepository.findOneByOrFail({ id });
   }
 }
