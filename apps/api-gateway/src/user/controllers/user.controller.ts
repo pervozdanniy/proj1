@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { UserDTO } from '../dtos/user.dto';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
@@ -26,10 +26,10 @@ import { UserServiceClient } from '~common/grpc/interfaces/core';
 export class UserController implements OnModuleInit {
   private userService: UserServiceClient;
 
-  constructor(@InjectGrpc('core') private readonly client: ClientGrpc) {}
+  constructor(@InjectGrpc('core') private readonly core: ClientGrpc) {}
 
-  onModuleInit() {
-    this.userService = this.client.getService('UserService');
+  async onModuleInit() {
+    this.userService = this.core.getService('UserService');
   }
 
   @ApiOperation({ summary: 'Get user by ID' })
@@ -37,6 +37,6 @@ export class UserController implements OnModuleInit {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async get(@Param('id') id: number) {
-    return lastValueFrom(this.userService.getById({ id: Number(id) }));
+    return firstValueFrom(this.userService.getById({ id: Number(id) }));
   }
 }

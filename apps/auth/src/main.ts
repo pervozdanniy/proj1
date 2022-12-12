@@ -17,7 +17,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       url: `0.0.0.0:${config.get('grpcServices.auth.port', { infer: true })}`,
-      package: 'auth',
+      package: 'skopa.auth',
       loader: {
         keepCase: true,
         longs: String,

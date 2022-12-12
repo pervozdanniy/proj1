@@ -1,10 +1,14 @@
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { ClientsModule } from '@nestjs/microservices';
 import { LoggerModule } from 'nestjs-pino';
 import configuration, { ConfigInterface } from '~common/config/configuration';
+import { asyncClientOptions } from '~common/grpc/helpers';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { RedisStore } from '~common/grpc/session';
 
 @Module({
   imports: [
@@ -31,8 +35,16 @@ import { AuthService } from './auth.service';
       },
       inject: [ConfigService],
     }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (config: ConfigService<ConfigInterface>) => ({
+        secret: config.get('auth.jwt.secret', { infer: true }),
+      }),
+      inject: [ConfigService],
+    }),
+    ClientsModule.registerAsync([asyncClientOptions('core')]),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, RedisStore],
 })
 export class AuthModule {}

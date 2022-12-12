@@ -14,10 +14,8 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
     let message = 'Internal Server Error';
     let extras: Record<string, unknown> = {};
 
-    if (exception.details && exception.metadata && exception.code) {
-      const metadata = exception.metadata?.get('details')[0] as string;
-
-      message = exception.details;
+    if (exception.details && exception.details && exception.code) {
+      const metadata = exception.details;
       if (metadata) {
         extras = JSON.parse(metadata);
       }

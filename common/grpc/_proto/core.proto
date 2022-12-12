@@ -1,13 +1,15 @@
 syntax = "proto3";
 
-package core;
+package skopa.core;
+
+import "common.proto";
 
 service UserService {
-  rpc GetById (IdRequest) returns (User);
+  rpc GetById (IdRequest) returns (common.User);
 
-  rpc FindByLogin (LoginRequest) returns (User);
+  rpc FindByLogin (LoginRequest) returns (common.User);
 
-  rpc Create (CreateRequest) returns (User);
+  rpc Create (CreateRequest) returns (common.User);
 
   rpc Delete (IdRequest) returns (DeleteResponse);
 }
@@ -25,16 +27,6 @@ message CreateRequest {
 
 message LoginRequest {
   string login = 1;
-}
-
-message User {
-  uint32 id = 1;
-  string username = 2;
-  string email = 3;
-  string created_at = 6;
-  string updated_at = 7;
-  optional string phone = 8;
-  optional string email_verified_at = 9;
 }
 
 message DeleteResponse {

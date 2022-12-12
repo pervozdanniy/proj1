@@ -1,8 +1,10 @@
 /* eslint-disable */
+import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
+import { User } from "./common";
 
-export const protobufPackage = "auth";
+export const protobufPackage = "skopa.auth";
 
 export interface AuthRequest {
   login: string;
@@ -10,27 +12,34 @@ export interface AuthRequest {
 }
 
 export interface AuthData {
-  accessToken: string;
-  refreshToken: string;
+  access_token: string;
 }
 
-export const AUTH_PACKAGE_NAME = "auth";
+export interface MeRequest {
+}
 
-/** AuthService */
+export interface AuthorizedUser {
+  id: number;
+  username: string;
+}
+
+export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
 
 export interface AuthServiceClient {
-  login(request: AuthRequest): Observable<AuthData>;
+  me(request: MeRequest, metadata?: Metadata): Observable<User>;
+
+  login(request: AuthRequest, metadata?: Metadata): Observable<AuthData>;
 }
 
-/** AuthService */
-
 export interface AuthServiceController {
-  login(request: AuthRequest): Promise<AuthData> | Observable<AuthData> | AuthData;
+  me(request: MeRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
+
+  login(request: AuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["login"];
+    const grpcMethods: string[] = ["me", "login"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);

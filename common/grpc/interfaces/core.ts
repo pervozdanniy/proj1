@@ -1,8 +1,10 @@
 /* eslint-disable */
+import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
+import { User } from "./common";
 
-export const protobufPackage = "core";
+export const protobufPackage = "skopa.core";
 
 export interface IdRequest {
   id: number;
@@ -19,40 +21,33 @@ export interface LoginRequest {
   login: string;
 }
 
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  created_at: string;
-  updated_at: string;
-  phone?: string | undefined;
-  email_verified_at?: string | undefined;
-}
-
 export interface DeleteResponse {
   success: boolean;
 }
 
-export const CORE_PACKAGE_NAME = "core";
+export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface UserServiceClient {
-  getById(request: IdRequest): Observable<User>;
+  getById(request: IdRequest, metadata?: Metadata): Observable<User>;
 
-  findByLogin(request: LoginRequest): Observable<User>;
+  findByLogin(request: LoginRequest, metadata?: Metadata): Observable<User>;
 
-  create(request: CreateRequest): Observable<User>;
+  create(request: CreateRequest, metadata?: Metadata): Observable<User>;
 
-  delete(request: IdRequest): Observable<DeleteResponse>;
+  delete(request: IdRequest, metadata?: Metadata): Observable<DeleteResponse>;
 }
 
 export interface UserServiceController {
-  getById(request: IdRequest): Promise<User> | Observable<User> | User;
+  getById(request: IdRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
 
-  findByLogin(request: LoginRequest): Promise<User> | Observable<User> | User;
+  findByLogin(request: LoginRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
 
-  create(request: CreateRequest): Promise<User> | Observable<User> | User;
+  create(request: CreateRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
 
-  delete(request: IdRequest): Promise<DeleteResponse> | Observable<DeleteResponse> | DeleteResponse;
+  delete(
+    request: IdRequest,
+    metadata?: Metadata,
+  ): Promise<DeleteResponse> | Observable<DeleteResponse> | DeleteResponse;
 }
 
 export function UserServiceControllerMethods() {
