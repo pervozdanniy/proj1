@@ -2,7 +2,6 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
-  Headers,
   HttpCode,
   HttpStatus,
   Injectable,
