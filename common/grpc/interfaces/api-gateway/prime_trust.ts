@@ -12,6 +12,7 @@ export interface UserData {
 }
 
 export interface CreateRequest {
+  user_id: number;
   data: UserData;
 }
 

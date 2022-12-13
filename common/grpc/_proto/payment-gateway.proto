@@ -20,7 +20,8 @@ message PG_UserData {
 }
 
 message PG_CreateRequest {
-  PG_UserData data = 1;
+  uint32 user_id = 1;
+  PG_UserData data = 2;
 }
 
 message PG_User {

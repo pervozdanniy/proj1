@@ -12,11 +12,11 @@ import {
 } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { lastValueFrom, Observable } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { UserDTO } from '../dtos/user.dto';
 import { CreateUserDto } from '../dtos/create.user.dto';
-import { PaymentGatewayService, PrimeTrustUser } from '~common/grpc/interfaces/api-gateway/prime_trust';
+import { PaymentGatewayService } from '~common/grpc/interfaces/api-gateway/prime_trust';
 
 @ApiTags('Payment Gateway')
 @Injectable()
@@ -43,6 +43,10 @@ export class PaymentGatewayController implements OnModuleInit {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createUser(@Body() payload: CreateUserDto, @Res({ passthrough: true }) response: Response): Promise<UserDTO> {
-    return lastValueFrom(this.paymentGatewayService.createUser(payload));
+    const user_id = 1;
+    const request = { user_id, ...payload };
+    console.log(response);
+
+    return lastValueFrom(this.paymentGatewayService.createUser(request));
   }
 }
