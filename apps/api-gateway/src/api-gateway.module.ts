@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from '~common/config/configuration';
 import { UserModule } from './user/user.module';
 import { LoggerModule } from 'nestjs-pino';
+import { PaymentGatewayModule } from './payment-gateway/payment.gateway.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { LoggerModule } from 'nestjs-pino';
       },
     }),
     UserModule,
+    PaymentGatewayModule,
   ],
   controllers: [],
   providers: [],
