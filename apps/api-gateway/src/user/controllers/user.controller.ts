@@ -1,55 +1,39 @@
-import {
-  ClassSerializerInterceptor,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Injectable,
-  OnModuleInit,
-  Param,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
+import { Controller, Get, HttpCode, HttpStatus, Injectable, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { firstValueFrom } from 'rxjs';
-import { UserDTO } from '../dtos/user.dto';
-import { InjectGrpc } from '~common/grpc/helpers';
-import { UserServiceClient } from '~common/grpc/interfaces/core';
 import { User } from '~common/grpc/interfaces/common';
-import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { UserService } from '../user.service';
+import { PublicUserDto } from '../../utils/public-user.dto';
+import { plainToInstance } from 'class-transformer';
 
 @ApiTags('User')
 @Injectable()
-@UseInterceptors(ClassSerializerInterceptor)
-@RpcController({
+@Controller({
   version: '1',
   path: 'users',
 })
-export class UserController implements OnModuleInit {
-  private userService: UserServiceClient;
-
-  constructor(@InjectGrpc('core') private readonly core: ClientGrpc) {}
-
-  async onModuleInit() {
-    this.userService = this.core.getService('UserService');
-  }
+export class UserController {
+  constructor(private readonly userService: UserService) {}
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get authorized user' })
-  @ApiResponse({ status: HttpStatus.OK, type: UserDTO })
+  @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtSessionGuard)
   @Get('current')
-  getCurrent(@JwtSessionUser() { id }: User) {
-    return firstValueFrom(this.userService.getById({ id }));
+  async getCurrent(@JwtSessionUser() { id }: User) {
+    const user = await this.userService.getById(id);
+
+    return plainToInstance(PublicUserDto, user);
   }
 
   @ApiOperation({ summary: 'Get user by ID' })
-  @ApiResponse({ status: HttpStatus.OK, type: UserDTO })
+  @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  async get(@Param('id') id: number) {
-    return firstValueFrom(this.userService.getById({ id: Number(id) }));
+  async get(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.getById(id);
+
+    return plainToInstance(PublicUserDto, user);
   }
 }

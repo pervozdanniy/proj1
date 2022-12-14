@@ -33,7 +33,7 @@ export class AuthService {
     }
     if (user) {
       const isEq = await bcrypt.compare(pass, user.password);
-      if (!user.password || isEq) {
+      if (isEq) {
         delete user.password;
 
         return user;
