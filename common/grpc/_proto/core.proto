@@ -7,7 +7,7 @@ import "common.proto";
 service UserService {
   rpc GetById (IdRequest) returns (common.User);
 
-  rpc FindByLogin (LoginRequest) returns (common.User);
+  rpc FindByLogin (LoginRequest) returns (NullableUser);
 
   rpc Create (CreateRequest) returns (common.User);
 
@@ -16,6 +16,10 @@ service UserService {
 
 message IdRequest {
   uint32 id = 1;
+}
+
+message NullableUser {
+  optional common.User user = 1;
 }
 
 message CreateRequest {

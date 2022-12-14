@@ -19,4 +19,8 @@ export class RedisStore {
   async set(sessionId: SessionKey, value: string): Promise<void> {
     await this.redis.set(this.buildKey(sessionId), value);
   }
+
+  async destroy(sessionId: SessionKey) {
+    await this.redis.del(this.buildKey(sessionId));
+  }
 }

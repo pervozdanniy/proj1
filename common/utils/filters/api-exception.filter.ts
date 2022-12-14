@@ -3,9 +3,11 @@ import { Request, Response } from 'express';
 import { Metadata, status } from '@grpc/grpc-js';
 import * as Sentry from '@sentry/node';
 
+``;
+
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter<Error> {
-  catch(exception: Error & { metadata: Metadata; code: number; details: string }, host: ArgumentsHost) {
+  catch(exception: Error & { metadata: Metadata; code: number; error_code: number }, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -14,13 +16,8 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
     let message = 'Internal Server Error';
     let extras: Record<string, unknown> = {};
 
-    if (exception.details && exception.details && exception.code) {
-      const metadata = exception.details;
-      if (metadata) {
-        extras = JSON.parse(metadata);
-      }
-
-      if (extras.error_code) statusCode = extras.error_code as number;
+    if (exception.metadata && exception.code) {
+      if (exception.error_code) statusCode = exception.error_code as number;
       else {
         switch (exception.code) {
           case status.NOT_FOUND:
@@ -35,6 +32,9 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
           case status.INTERNAL:
             statusCode = HttpStatus.SERVICE_UNAVAILABLE;
             message = 'Service Unavailable';
+          case status.UNAUTHENTICATED:
+            statusCode = HttpStatus.UNAUTHORIZED;
+            message = 'Unauthorized';
             break;
         }
       }
@@ -45,8 +45,8 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
       if (typeof res === 'string') extras.details = res;
       else extras = res as Record<string, unknown>;
     } else {
-      const { code, details } = exception;
-      console.log({ code, details });
+      const { code, message } = exception;
+      console.log({ code, message });
     }
 
     if (extras.error_code) delete extras.error_code;

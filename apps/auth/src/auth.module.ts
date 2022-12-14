@@ -8,7 +8,7 @@ import configuration, { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { RedisStore } from '~common/grpc/session';
+import { SessionModule } from '~common/session/session.module';
 
 @Module({
   imports: [
@@ -43,8 +43,9 @@ import { RedisStore } from '~common/grpc/session';
       inject: [ConfigService],
     }),
     ClientsModule.registerAsync([asyncClientOptions('core')]),
+    SessionModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, RedisStore],
+  providers: [AuthService],
 })
 export class AuthModule {}

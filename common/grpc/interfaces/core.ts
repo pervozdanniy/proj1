@@ -10,6 +10,10 @@ export interface IdRequest {
   id: number;
 }
 
+export interface NullableUser {
+  user?: User | undefined;
+}
+
 export interface CreateRequest {
   username: string;
   email: string;
@@ -30,7 +34,7 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface UserServiceClient {
   getById(request: IdRequest, metadata?: Metadata): Observable<User>;
 
-  findByLogin(request: LoginRequest, metadata?: Metadata): Observable<User>;
+  findByLogin(request: LoginRequest, metadata?: Metadata): Observable<NullableUser>;
 
   create(request: CreateRequest, metadata?: Metadata): Observable<User>;
 
@@ -40,7 +44,10 @@ export interface UserServiceClient {
 export interface UserServiceController {
   getById(request: IdRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
 
-  findByLogin(request: LoginRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
+  findByLogin(
+    request: LoginRequest,
+    metadata?: Metadata,
+  ): Promise<NullableUser> | Observable<NullableUser> | NullableUser;
 
   create(request: CreateRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
 

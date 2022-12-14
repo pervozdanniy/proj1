@@ -2,25 +2,15 @@ syntax = "proto3";
 
 package skopa.auth;
 
-import "common.proto";
-
 service AuthService {
-  rpc Me (MeRequest) returns (common.User) {};
   rpc Login (AuthRequest) returns (AuthData) {};
 }
 
 message AuthRequest {
-    string login = 1;
-    string password = 2;
+  string login = 1;
+  string password = 2;
 }
 
 message AuthData {
     string access_token = 1;
-}
-
-message MeRequest {}
-
-message AuthorizedUser {
-  uint32 id = 1;
-  string username = 2;
 }
