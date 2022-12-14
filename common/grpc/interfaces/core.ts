@@ -27,6 +27,7 @@ export interface User {
   updated_at: string;
   phone?: string | undefined;
   email_verified_at?: string | undefined;
+  payment_gateway:string;
 }
 
 export interface DeleteResponse {

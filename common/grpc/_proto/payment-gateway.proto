@@ -3,27 +3,18 @@ import "google/protobuf/any.proto";
 package core;
 
 service PaymentGatewayService {
-  rpc CreateUser (PG_CreateRequest) returns (PG_User);
+  rpc GetToken (PG_GetTokenRequest) returns (PG_Token);
 }
 
 
-message PG_Attributes {
-  string username = 1;
-  string email = 2;
-  string password = 3;
-}
-
-
-message PG_UserData {
-  string type = 1;
-  PG_Attributes attributes = 2;
-}
-
-message PG_CreateRequest {
+message PG_GetTokenRequest {
   uint32 user_id = 1;
-  PG_UserData data = 2;
 }
 
-message PG_User {
-  google.protobuf.Any data = 1;
+message PG_Token {
+  Token_Data data = 1;
+}
+
+message Token_Data {
+  string token = 1;
 }

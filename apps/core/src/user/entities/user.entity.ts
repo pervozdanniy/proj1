@@ -17,6 +17,9 @@ export class UserEntity {
   @Column('character varying', { select: false })
   password?: string;
 
+  @Column('character varying', { nullable: false })
+  payment_gateway: string;
+
   @Column('timestamp', { nullable: true })
   email_verified_at: Date;
 

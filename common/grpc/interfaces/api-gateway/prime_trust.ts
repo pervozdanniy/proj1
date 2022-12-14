@@ -1,25 +1,17 @@
 import { Observable } from 'rxjs';
 
-export interface Attributes {
-  name: string;
-  email: string;
-  password: string;
-}
-
-export interface UserData {
-  type: string;
-  attributes: Attributes;
-}
-
-export interface CreateRequest {
+export interface GetTokenRequest {
   user_id: number;
-  data: UserData;
 }
 
-export interface PrimeTrustUser {
-  data: any;
+export interface Token {
+  token: string;
+}
+
+export interface TokenData {
+  data: Token;
 }
 
 export interface PaymentGatewayService {
-  createUser(request: CreateRequest): Observable<PrimeTrustUser>;
+  getToken(request: GetTokenRequest): Observable<TokenData>;
 }

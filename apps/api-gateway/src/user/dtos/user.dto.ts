@@ -5,7 +5,7 @@ export class UserDTO {
   id: number;
 
   @ApiProperty()
-  name: string;
+  username: string;
 
   @ApiProperty()
   email: string;
@@ -14,10 +14,16 @@ export class UserDTO {
   phone?: string;
 
   @ApiProperty()
-  created_at: Date;
+  created_at: string;
 
   @ApiProperty()
-  updated_at: Date;
+  updated_at: string;
+
+  @ApiProperty()
+  email_verified_at?: string;
+
+  @ApiProperty()
+  payment_gateway: string;
 
   constructor(partial: Partial<UserDTO>) {
     Object.assign(this, partial);

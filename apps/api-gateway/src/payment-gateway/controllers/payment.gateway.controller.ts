@@ -14,8 +14,6 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { UserDTO } from '../dtos/user.dto';
-import { CreateUserDto } from '../dtos/create.user.dto';
 import { PaymentGatewayService } from '~common/grpc/interfaces/api-gateway/prime_trust';
 
 @ApiTags('Payment Gateway')
@@ -34,19 +32,15 @@ export class PaymentGatewayController implements OnModuleInit {
     this.paymentGatewayService = this.client.getService('PaymentGatewayService');
   }
 
-  @ApiOperation({ summary: 'Create user.' })
+  @ApiOperation({ summary: 'Get Token.' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'The user created successfully.',
-    type: UserDTO,
+    status: HttpStatus.OK,
   })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async createUser(@Body() payload: CreateUserDto, @Res({ passthrough: true }) response: Response): Promise<UserDTO> {
+  async getToken(@Res({ passthrough: true }) response: Response) {
     const user_id = 1;
-    const request = { user_id, ...payload };
-    console.log(response);
 
-    return lastValueFrom(this.paymentGatewayService.createUser(request));
+    return lastValueFrom(this.paymentGatewayService.getToken({ user_id }));
   }
 }

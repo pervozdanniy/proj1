@@ -21,4 +21,5 @@ export class UserResponseDto implements User {
 
   @Exclude()
   password: never;
+  payment_gateway: string;
 }
