@@ -26,6 +26,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
     'prettier/prettier': 'error',
     'padding-line-between-statements': [
       "error",
@@ -35,6 +36,6 @@ module.exports = {
       { blankLine: "any", prev: "export", next: "export" },
       { blankLine: "never", prev: "import", next: "import" },
     ],
-    'import/newline-after-import': 'error'
+    'import/newline-after-import': 'error',
   },
 };

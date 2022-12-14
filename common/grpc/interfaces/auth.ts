@@ -1,8 +1,9 @@
 /* eslint-disable */
+import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 
-export const protobufPackage = "auth";
+export const protobufPackage = "skopa.auth";
 
 export interface AuthRequest {
   login: string;
@@ -10,22 +11,17 @@ export interface AuthRequest {
 }
 
 export interface AuthData {
-  accessToken: string;
-  refreshToken: string;
+  access_token: string;
 }
 
-export const AUTH_PACKAGE_NAME = "auth";
-
-/** AuthService */
+export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
 
 export interface AuthServiceClient {
-  login(request: AuthRequest): Observable<AuthData>;
+  login(request: AuthRequest, metadata?: Metadata): Observable<AuthData>;
 }
 
-/** AuthService */
-
 export interface AuthServiceController {
-  login(request: AuthRequest): Promise<AuthData> | Observable<AuthData> | AuthData;
+  login(request: AuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
 }
 
 export function AuthServiceControllerMethods() {
