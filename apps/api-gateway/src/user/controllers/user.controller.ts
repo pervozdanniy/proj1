@@ -1,4 +1,15 @@
-import { Controller, Get, HttpCode, HttpStatus, Injectable, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Injectable,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
@@ -12,6 +23,7 @@ import { plainToInstance } from 'class-transformer';
   version: '1',
   path: 'users',
 })
+@UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

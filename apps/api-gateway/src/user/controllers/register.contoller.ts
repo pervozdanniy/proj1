@@ -1,4 +1,14 @@
-import { Injectable, Controller, Body, ConflictException, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Injectable,
+  Controller,
+  Body,
+  ConflictException,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
 import { ApiConflictResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { PublicUserDto } from '../../utils/public-user.dto';
@@ -11,6 +21,7 @@ import { UserService } from '../user.service';
   version: '1',
   path: 'register',
 })
+@UseInterceptors(ClassSerializerInterceptor)
 export class RegisterController {
   constructor(private readonly userService: UserService) {}
 

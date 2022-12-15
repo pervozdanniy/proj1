@@ -25,7 +25,5 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     AuthModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class ApiGatewayModule {}
