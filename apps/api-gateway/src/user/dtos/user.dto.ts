@@ -22,9 +22,6 @@ export class UserDTO {
   @ApiProperty()
   email_verified_at?: string;
 
-  @ApiProperty()
-  payment_gateway: string;
-
   constructor(partial: Partial<UserDTO>) {
     Object.assign(this, partial);
   }

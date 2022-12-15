@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   // IsPhoneNumber,
   IsPositive,
@@ -31,9 +32,14 @@ export class CreateUserDTO {
   @Length(2, 50)
   phone?: string;
 
-  @ApiProperty({ example: '123456' })
+  @ApiProperty({ example: '12345678' })
   @IsString()
   @IsNotEmpty()
   @Length(8, 200)
   password: string;
+
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  @IsNotEmpty()
+  country_id: number;
 }

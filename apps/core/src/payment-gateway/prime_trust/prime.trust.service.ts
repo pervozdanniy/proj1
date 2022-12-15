@@ -2,22 +2,29 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, map } from 'rxjs';
 import { CreateRequestDto } from '~svc/core/src/user/dto/create.request.dto';
 import { GRPCException } from '~common/exceptions/grpc.exception';
+import { status } from '@grpc/grpc-js';
 
 export class PrimeTrustService {
   constructor(private readonly httpService: HttpService) {}
 
-  async createUser(user: CreateRequestDto) {
+  async createUser({ email, name, password }) {
     const createData = {
       data: {
         type: 'user',
         attributes: {
-          email: user.email,
-          name: user.username,
-          password: user.password,
+          email,
+          name,
+          password,
         },
       },
     };
-    const result = await lastValueFrom(this.httpService.post('https://sandbox.primetrust.com/v2/users', createData));
+    const result = await lastValueFrom(
+      this.httpService.post('https://sandbox.primetrust.com/v2/users', createData).pipe(
+        catchError((e) => {
+          throw new GRPCException(status.ABORTED, e.response.data, e.response.status);
+        }),
+      ),
+    );
 
     return result.data;
   }

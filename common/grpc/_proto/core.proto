@@ -22,6 +22,7 @@ message CreateRequest {
   string email = 2;
   string password = 3;
   optional string phone = 4;
+  uint32 country_id = 5;
 }
 
 message LoginRequest {
@@ -36,7 +37,6 @@ message User {
   string updated_at = 7;
   optional string phone = 8;
   optional string email_verified_at = 9;
-  string payment_gateway = 10;
 }
 
 message DeleteResponse {

@@ -13,6 +13,8 @@ export interface CreateRequest {
   email: string;
   password: string;
   phone?: string | undefined;
+
+  country_id:number;
 }
 
 export interface LoginRequest {
@@ -27,7 +29,13 @@ export interface User {
   updated_at: string;
   phone?: string | undefined;
   email_verified_at?: string | undefined;
-  payment_gateway:string;
+  country:Country;
+}
+
+export interface Country {
+  name:string;
+
+  code:string;
 }
 
 export interface DeleteResponse {

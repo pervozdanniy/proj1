@@ -1,4 +1,14 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { PaymentGatewayEntity } from '~svc/core/src/user/entities/payment.gateway.entity';
+import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -11,14 +21,17 @@ export class UserEntity {
   @Column('character varying')
   email: string;
 
+  @Column('integer')
+  country_id: number;
+
   @Column('character varying', { nullable: true })
   phone: string;
 
+  @Column('character varying')
+  status: string;
+
   @Column('character varying', { select: false })
   password?: string;
-
-  @Column('character varying', { nullable: false })
-  payment_gateway: string;
 
   @Column('timestamp', { nullable: true })
   email_verified_at: Date;
@@ -28,4 +41,8 @@ export class UserEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @ManyToOne(() => CountryEntity, (country) => country.users)
+  @JoinColumn({ name: 'country_id' })
+  country: CountryEntity;
 }

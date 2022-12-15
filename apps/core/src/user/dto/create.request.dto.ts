@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { CreateRequest } from '~common/grpc/interfaces/core';
 
 export class CreateRequestDto implements CreateRequest {
@@ -18,4 +18,8 @@ export class CreateRequestDto implements CreateRequest {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  country_id;
 }
