@@ -7,6 +7,7 @@ import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.us
 import { Queue } from 'bull';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { Status } from '@grpc/grpc-js/build/src/constants';
+import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime.trust.status';
 
 @Injectable()
 export class PrimeTrustService {
@@ -24,7 +25,7 @@ export class PrimeTrustService {
         user_id,
         password,
         disabled: true,
-        status: 'pending',
+        status: PrimeTrustStatus.PENDING,
       }),
     );
 
@@ -48,7 +49,7 @@ export class PrimeTrustService {
         await this.primeUserRepository.save({
           ...user,
           uuid: response.data.data.id,
-          status: 'active',
+          status: PrimeTrustStatus.ACTIVE,
           disabled: response.data.data.attributes.disabled,
         });
       })
@@ -61,7 +62,12 @@ export class PrimeTrustService {
       });
   }
 
-  async getToken(user: CreateRequestDto) {
+  async getToken(email) {
+    const user = await this.primeUserRepository.findOne({ where: { email } });
+
+    if (!user) {
+      throw new GrpcException(Status.NOT_FOUND, 'Payment Gateway user not found!', 204);
+    }
     const headersRequest = {
       'Content-Type': 'application/json', // afaik this one is not needed
       Authorization: `Basic ${Buffer.from(`${user.email}:${user.password}`).toString('base64')}`,

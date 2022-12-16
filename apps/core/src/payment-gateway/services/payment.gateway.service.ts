@@ -18,11 +18,9 @@ export class PaymentGatewayService {
   async getToken(request: GetTokenRequest) {
     const { user_id } = request;
     const user = await this.userService.get(user_id);
-    // if (!keys[user.payment_gateway]) {
-    //   throw new GRPCException(400, 'Current payment gateway not supported!', 400);
-    // }
-    // const payment_gateway = this.paymentGatewayManager.callApiGatewayService(user.payment_gateway);
-    // const caller = paymentGatewayRunner(new keys[user.payment_gateway](this.httpService));
-    // const pg_user = caller.createUser(request);
+    const paymentGateway = await this.userService.getPaymentGatewayByUser(user);
+    const token = await paymentGateway.getToken(user.email);
+
+    return { data: token };
   }
 }

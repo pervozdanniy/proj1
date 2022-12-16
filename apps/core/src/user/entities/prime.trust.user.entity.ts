@@ -23,7 +23,7 @@ export class PrimeTrustUserEntity {
   @Column('integer')
   user_id: number;
 
-  @Column('character varying', { select: false })
+  @Column('character varying')
   password: string;
 
   @CreateDateColumn()

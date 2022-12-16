@@ -6,16 +6,20 @@ import {
   Injectable,
   OnModuleInit,
   Post,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { PaymentGatewayService } from '~common/grpc/interfaces/prime_trust';
+import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { User } from '~common/grpc/interfaces/common';
 
 @ApiTags('Payment Gateway')
 @Injectable()
+@ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
@@ -35,9 +39,10 @@ export class PaymentGatewayController implements OnModuleInit {
     status: HttpStatus.OK,
   })
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtSessionGuard)
   @Post()
-  async getToken() {
-    const user_id = 1;
+  async getToken(@JwtSessionUser() { id }: User) {
+    const user_id = id;
 
     return lastValueFrom(this.paymentGatewayService.getToken({ user_id }));
   }

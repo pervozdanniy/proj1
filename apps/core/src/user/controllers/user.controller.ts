@@ -13,6 +13,7 @@ import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from '../dto/user.response.dto';
 import { User } from '~common/grpc/interfaces/common';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
+import { AuthUserResponseDto } from '~svc/core/src/user/dto/auth.user.response.dto';
 
 @RpcController()
 @UseFilters(TypeOrmExceptionFilter)
@@ -23,7 +24,7 @@ export class UserController implements UserServiceController {
   async findByLogin({ login }: LoginRequest): Promise<NullableUser> {
     const user = await this.userService.findByLogin(login);
     if (user) {
-      return { user: plainToInstance(UserResponseDto, user) };
+      return { user: plainToInstance(AuthUserResponseDto, user) };
     }
 
     return {};

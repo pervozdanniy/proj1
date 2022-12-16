@@ -39,18 +39,8 @@ export class UserService {
   async create(payload: CreateRequestDto): Promise<UserEntity> {
     const { username, email } = payload;
     const user = await this.userRepository.save(this.userRepository.create(payload));
-    const userDetails = await this.userRepository
-      .createQueryBuilder('u')
-      .leftJoinAndSelect('u.country', 'c')
-      .leftJoinAndSelect('c.payment_gateway', 'p')
-      .where('u.id = :id', { id: user.id })
-      .getOne();
+    const paymentGateway = await this.getPaymentGatewayByUser(user.id);
     const password = generatePassword(true, true, 16);
-    const paymentGateway = this.paymentGatewayManager.callApiGatewayService(
-      userDetails.country.payment_gateway.alias,
-      this.primeUserRepository,
-      this.failedRequestsQueue,
-    );
     const payment_gateway_user = await paymentGateway.createUserInDB({
       name: username,
       password,
@@ -62,7 +52,23 @@ export class UserService {
     return user;
   }
 
-  findByLogin(login: string) {
+  async getPaymentGatewayByUser(user) {
+    const userDetails = await this.userRepository
+      .createQueryBuilder('u')
+      .leftJoinAndSelect('u.country', 'c')
+      .leftJoinAndSelect('c.payment_gateway', 'p')
+      .where('u.id = :id', { id: user.id })
+      .getOne();
+    const paymentGateway = this.paymentGatewayManager.callApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+      this.primeUserRepository,
+      this.failedRequestsQueue,
+    );
+
+    return paymentGateway;
+  }
+
+  async findByLogin(login: string) {
     return this.userRepository.findOneBy({ email: login });
   }
 
