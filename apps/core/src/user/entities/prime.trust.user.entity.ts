@@ -39,4 +39,10 @@ export class PrimeTrustUserEntity {
   @OneToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
   skopa_user: UserEntity;
+
+  @Column('character varying')
+  status: string;
+
+  @Column('character varying')
+  uuid: string;
 }

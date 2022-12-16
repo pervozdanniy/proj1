@@ -1,47 +1,55 @@
+import { lastValueFrom } from 'rxjs';
+import { UserDTO } from '../dtos/user.dto';
+import { CreateUserDTO } from '~svc/api-gateway/src/user/dtos/create-user.dto';
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   Injectable,
-  OnModuleInit,
   Param,
+  ParseIntPipe,
   Post,
   Res,
-  UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { lastValueFrom } from 'rxjs';
-import { UserDTO } from '../dtos/user.dto';
-import { InjectGrpc } from '~common/grpc/helpers';
-import { User, UserServiceClient } from '~common/grpc/interfaces/core';
-import { CreateUserDTO } from '~svc/api-gateway/src/user/dtos/create-user.dto';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { UserService } from '../user.service';
+import { PublicUserDto } from '../../utils/public-user.dto';
+import { plainToInstance } from 'class-transformer';
+import { User } from '~common/grpc/interfaces/common';
 
 @ApiTags('User')
 @Injectable()
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
   path: 'users',
 })
-export class UserController implements OnModuleInit {
-  private userService: UserServiceClient;
+export class UserController {
+  constructor(private readonly userService: UserService) {}
 
-  constructor(@InjectGrpc('core') private readonly client: ClientGrpc) {}
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get authorized user' })
+  @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtSessionGuard)
+  @Get('current')
+  async getCurrent(@JwtSessionUser() { id }: User) {
+    const user = await this.userService.getById(id);
 
-  onModuleInit() {
-    this.userService = this.client.getService('UserService');
+    return plainToInstance(PublicUserDto, user);
   }
 
   @ApiOperation({ summary: 'Get user by ID' })
-  @ApiResponse({ status: HttpStatus.OK, type: UserDTO })
+  @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  async get(@Param('id') id: number) {
-    return lastValueFrom(this.userService.getById({ id: Number(id) }));
+  async get(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.getById(id);
+
+    return plainToInstance(PublicUserDto, user);
   }
 
   @ApiOperation({ summary: 'Create user.' })
@@ -53,6 +61,6 @@ export class UserController implements OnModuleInit {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createUser(@Body() payload: CreateUserDTO, @Res({ passthrough: true }) response: Response): Promise<UserDTO> {
-    return await lastValueFrom(this.userService.create(payload));
+    return await this.userService.create(payload);
   }
 }

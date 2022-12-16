@@ -26,6 +26,11 @@ export interface ConfigInterface {
     core: Addr;
     auth: Addr;
   };
+  auth: {
+    jwt: {
+      secret: string;
+    };
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -58,6 +63,11 @@ export default (): ConfigInterface => ({
     auth: {
       host: process.env.GRPC_AUTH_HOST,
       port: parseInt(process.env.GRPC_AUTH_PORT, 10) || 5000,
+    },
+  },
+  auth: {
+    jwt: {
+      secret: process.env.AUTH_SECRET ?? 'jwt_sercret',
     },
   },
 });

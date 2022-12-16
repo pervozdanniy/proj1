@@ -14,7 +14,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { PaymentGatewayService } from '~common/grpc/interfaces/api-gateway/prime_trust';
+import { PaymentGatewayService } from '~common/grpc/interfaces/prime_trust';
 
 @ApiTags('Payment Gateway')
 @Injectable()

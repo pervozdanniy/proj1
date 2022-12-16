@@ -1,7 +1,6 @@
 import { Exclude, Transform, Type } from 'class-transformer';
-import { User } from '~common/grpc/interfaces/core';
-import { Column, JoinColumn, OneToOne } from 'typeorm';
-import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
+import { Column } from 'typeorm';
+import { User } from '~common/grpc/interfaces/common';
 
 export class UserResponseDto implements User {
   id: number;
@@ -26,8 +25,4 @@ export class UserResponseDto implements User {
 
   @Column('integer')
   country_id: number;
-
-  @OneToOne(() => CountryEntity)
-  @JoinColumn({ name: 'country_id' })
-  country: CountryEntity;
 }

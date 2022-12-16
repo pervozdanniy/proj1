@@ -14,6 +14,10 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+
+    @InjectRepository(PrimeTrustUserEntity)
+    private primeUserRepository: Repository<PrimeTrustUserEntity>,
+
     @Inject(AwsKmsService)
     private awsService: AwsKmsService,
 
@@ -22,8 +26,6 @@ export class UserService {
 
     @Inject(PaymentGatewayManager)
     private paymentGatewayManager: PaymentGatewayManager,
-
-    private dataSource: DataSource,
   ) {}
 
   async get(id: number): Promise<UserEntity> {
@@ -40,31 +42,17 @@ export class UserService {
       .where('u.id = :id', { id: user.id })
       .getOne();
     const password = generatePassword(true, true, 16);
-    const paymentGateway = this.paymentGatewayManager.callApiGatewayService(userDetails.country.payment_gateway.alias);
-    const userResponse = await paymentGateway.createUser({ name: username, password, email });
-    console.log(userResponse);
-    await this.dataSource
-      .createQueryBuilder()
-      .insert()
-      .into(PrimeTrustUserEntity)
-      .values([
-        {
-          name: userResponse.attributes.name,
-          email: userResponse.attributes.email,
-          password,
-          disabled: userResponse.attributes.disabled,
-          user_id: user.id,
-        },
-      ])
-      .execute();
-    await this.userRepository
-      .createQueryBuilder()
-      .update(UserEntity)
-      .set({
-        status: 'active',
-      })
-      .where('id = :id', { id: user.id })
-      .execute();
+    const paymentGateway = this.paymentGatewayManager.callApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+      this.primeUserRepository,
+    );
+    const payment_gateway_user = await paymentGateway.createUserInDB({
+      name: username,
+      password,
+      email,
+      user_id: user.id,
+    });
+    await paymentGateway.createUser(payment_gateway_user);
 
     return user;
   }

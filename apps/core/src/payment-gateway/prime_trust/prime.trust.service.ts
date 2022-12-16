@@ -1,32 +1,63 @@
 import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, map } from 'rxjs';
 import { CreateRequestDto } from '~svc/core/src/user/dto/create.request.dto';
-import { GRPCException } from '~common/exceptions/grpc.exception';
-import { status } from '@grpc/grpc-js';
+import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
 
+@Injectable()
 export class PrimeTrustService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly primeUserRepository: Repository<PrimeTrustUserEntity>,
+  ) {}
 
-  async createUser({ email, name, password }) {
+  async createUserInDB({ email, name, password, user_id }) {
+    const user = await this.primeUserRepository.save(
+      this.primeUserRepository.create({
+        email,
+        name,
+        user_id,
+        password,
+        disabled: true,
+        status: 'pending',
+      }),
+    );
+
+    return user;
+  }
+
+  async createUser(user) {
     const createData = {
       data: {
         type: 'user',
         attributes: {
-          email,
-          name,
-          password,
+          email: user.email,
+          name: user.name,
+          password: user.password,
         },
       },
     };
-    const result = await lastValueFrom(
+
+    const { data } = await lastValueFrom(
       this.httpService.post('https://sandbox.primetrust.com/v2/users', createData).pipe(
         catchError((e) => {
-          throw new GRPCException(status.ABORTED, e.response.data, e.response.status);
+          console.log(e.response.data);
+
+          throw new GrpcException(400, e.response.data, e.response.status);
         }),
       ),
     );
 
-    return result.data;
+    if (data) {
+      await this.primeUserRepository.save({
+        ...user,
+        uuid: data.data.id,
+        status: 'active',
+        disabled: data.data.attributes.disabled,
+      });
+    }
   }
 
   async getToken(user: CreateRequestDto) {

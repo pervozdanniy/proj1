@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { ApiGatewayModule } from './api-gateway.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
-import { ApiExceptionFilter } from 'common/filters/api-exception.filter';
+import { ClassSerializerInterceptor, ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
+import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
 import sentryInit from 'common/sentry/init';
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
 
@@ -25,7 +25,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalFilters(new ApiExceptionFilter());
   app.useLogger(app.get(Logger));
-  app.useGlobalInterceptors(new LoggerErrorInterceptor());
+  app.useGlobalInterceptors(new LoggerErrorInterceptor(), app.get(ClassSerializerInterceptor));
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, {

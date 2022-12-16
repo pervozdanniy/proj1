@@ -1,21 +1,32 @@
-import { Controller, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import { TypeOrmExceptionFilter } from 'common/filters/type-orm-exception.filter';
+import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
 import { CreateRequestDto } from '../dto/create.request.dto';
 import { IdRequestDto } from '../dto/id.request.dto';
-import { LoginRequest, User, UserServiceController, UserServiceControllerMethods } from '~common/grpc/interfaces/core';
+import {
+  LoginRequest,
+  NullableUser,
+  UserServiceController,
+  UserServiceControllerMethods,
+} from '~common/grpc/interfaces/core';
 import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from '../dto/user.response.dto';
+import { User } from '~common/grpc/interfaces/common';
+import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 
-@Controller()
+@RpcController()
 @UseFilters(TypeOrmExceptionFilter)
 @UserServiceControllerMethods()
 export class UserController implements UserServiceController {
   constructor(private userService: UserService) {}
-  async findByLogin({ login }: LoginRequest): Promise<User | null> {
-    const user = await this.userService.findByLogin(login);
 
-    return user ? plainToInstance(UserResponseDto, user) : null;
+  async findByLogin({ login }: LoginRequest): Promise<NullableUser> {
+    const user = await this.userService.findByLogin(login);
+    if (user) {
+      return { user: plainToInstance(UserResponseDto, user) };
+    }
+
+    return {};
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))

@@ -4,6 +4,7 @@ import configuration from '~common/config/configuration';
 import { UserModule } from './user/user.module';
 import { LoggerModule } from 'nestjs-pino';
 import { PaymentGatewayModule } from './payment-gateway/payment.gateway.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PaymentGatewayModule } from './payment-gateway/payment.gateway.module';
     }),
     UserModule,
     PaymentGatewayModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

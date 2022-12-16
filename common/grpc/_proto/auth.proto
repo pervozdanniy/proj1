@@ -1,17 +1,16 @@
 syntax = "proto3";
 
-package auth;
+package skopa.auth;
 
 service AuthService {
   rpc Login (AuthRequest) returns (AuthData) {};
 }
 
 message AuthRequest {
-    string login = 1;
-    string password = 2;
+  string login = 1;
+  string password = 2;
 }
 
 message AuthData {
-    string accessToken = 1;
-    string refreshToken = 2;
+    string access_token = 1;
 }
