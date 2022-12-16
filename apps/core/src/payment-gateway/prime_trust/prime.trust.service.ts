@@ -1,6 +1,5 @@
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
-import { CreateRequestDto } from '~svc/core/src/user/dto/create.request.dto';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';

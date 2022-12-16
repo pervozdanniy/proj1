@@ -4,12 +4,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
-import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
 
 @Entity('users')
 export class UserEntity {

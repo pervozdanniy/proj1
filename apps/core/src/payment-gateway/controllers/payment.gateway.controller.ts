@@ -1,4 +1,4 @@
-import { Controller, UseFilters } from '@nestjs/common';
+import { UseFilters } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { PaymentGatewayService } from '../services/payment.gateway.service';
 import { GetTokenRequest, PaymentGatewayControllerMethods } from '~common/grpc/interfaces/prime_trust';
