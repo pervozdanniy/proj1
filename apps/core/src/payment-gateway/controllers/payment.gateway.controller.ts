@@ -11,7 +11,6 @@ import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception
 export class PaymentGatewayController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
-  @GrpcMethod('PaymentGatewayService', 'GetToken')
   async getToken(request: GetTokenRequest) {
     return this.paymentGatewayService.getToken(request);
   }
