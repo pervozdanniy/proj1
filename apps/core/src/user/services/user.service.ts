@@ -1,13 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/user.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { AwsKmsService } from '~svc/core/src/aws/services/aws.kms.service';
 import { AwsSqsProducerService } from '~svc/core/src/aws/services/aws.sqs.producer.service';
 import { CreateRequestDto } from '../dto/create.request.dto';
 import { PaymentGatewayManager } from '~svc/core/src/payment-gateway/manager/payment.gateway.manager';
 import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
 import { generatePassword } from '~common/helpers';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class UserService {
@@ -26,6 +28,8 @@ export class UserService {
 
     @Inject(PaymentGatewayManager)
     private paymentGatewayManager: PaymentGatewayManager,
+
+    @InjectQueue('prime_trust_failed') private failedRequestsQueue: Queue,
   ) {}
 
   async get(id: number): Promise<UserEntity> {
@@ -45,6 +49,7 @@ export class UserService {
     const paymentGateway = this.paymentGatewayManager.callApiGatewayService(
       userDetails.country.payment_gateway.alias,
       this.primeUserRepository,
+      this.failedRequestsQueue,
     );
     const payment_gateway_user = await paymentGateway.createUserInDB({
       name: username,

@@ -2,9 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { UserService } from '~svc/core/src/user/services/user.service';
 import { GetTokenRequest } from '~common/grpc/interfaces/prime_trust';
 import { PaymentGatewayManager } from '../manager/payment.gateway.manager';
-import { PrimeTrustService } from '../prime_trust/prime.trust.service';
-import keys from '../constants/keys';
-import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 
 @Injectable()

@@ -1,16 +1,19 @@
 import { HttpService } from '@nestjs/axios';
-import { catchError, lastValueFrom, map } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { CreateRequestDto } from '~svc/core/src/user/dto/create.request.dto';
-import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
+import { Queue } from 'bull';
+import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { Status } from '@grpc/grpc-js/build/src/constants';
 
 @Injectable()
 export class PrimeTrustService {
   constructor(
     private readonly httpService: HttpService,
     private readonly primeUserRepository: Repository<PrimeTrustUserEntity>,
+    private readonly failedRequestsQueue: Queue,
   ) {}
 
   async createUserInDB({ email, name, password, user_id }) {
@@ -40,24 +43,22 @@ export class PrimeTrustService {
       },
     };
 
-    const { data } = await lastValueFrom(
-      this.httpService.post('https://sandbox.primetrust.com/v2/users', createData).pipe(
-        catchError((e) => {
-          console.log(e.response.data);
-
-          throw new GrpcException(400, e.response.data, e.response.status);
-        }),
-      ),
-    );
-
-    if (data) {
-      await this.primeUserRepository.save({
-        ...user,
-        uuid: data.data.id,
-        status: 'active',
-        disabled: data.data.attributes.disabled,
+    await lastValueFrom(this.httpService.post('https://sandbox.primetrust.com/v2/users', createData))
+      .then(async (response) => {
+        await this.primeUserRepository.save({
+          ...user,
+          uuid: response.data.data.id,
+          status: 'active',
+          disabled: response.data.data.attributes.disabled,
+        });
+      })
+      .catch(async (e) => {
+        if (e.code == 'ENOTFOUND') {
+          await this.failedRequestsQueue.add('no_connection_jobs', { ...user, payment_gateway: 'prime_trust' });
+        } else {
+          throw new GrpcException(Status.ABORTED, e.response.data, 400);
+        }
       });
-    }
   }
 
   async getToken(user: CreateRequestDto) {

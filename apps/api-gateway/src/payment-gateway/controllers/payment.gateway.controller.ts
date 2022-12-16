@@ -1,5 +1,4 @@
 import {
-  Body,
   ClassSerializerInterceptor,
   Controller,
   HttpCode,
@@ -38,7 +37,7 @@ export class PaymentGatewayController implements OnModuleInit {
   })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async getToken(@Res({ passthrough: true }) response: Response) {
+  async getToken() {
     const user_id = 1;
 
     return lastValueFrom(this.paymentGatewayService.getToken({ user_id }));

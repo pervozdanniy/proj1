@@ -7,7 +7,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PaymentGatewayEntity } from '~svc/core/src/user/entities/payment.gateway.entity';
 import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
 
 @Entity('users')

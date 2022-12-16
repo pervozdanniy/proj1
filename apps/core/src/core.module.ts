@@ -8,6 +8,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AwsModule } from '~svc/core/src/aws/AwsModule';
 import migrations from './db/migrations-list';
 import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment.gateway.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -50,6 +51,13 @@ import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment.gate
 
         return { config: { host, port } };
       },
+      inject: [ConfigService],
+    }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (config: ConfigService<ConfigInterface>) => ({
+        redis: config.get('redis', { infer: true }),
+      }),
       inject: [ConfigService],
     }),
     UserModule,

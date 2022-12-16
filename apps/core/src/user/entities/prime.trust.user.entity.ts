@@ -8,7 +8,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
-import { IsBoolean } from 'class-validator';
 
 @Entity('prime_trust_users')
 export class PrimeTrustUserEntity {
