@@ -6,7 +6,6 @@ import {
   Injectable,
   OnModuleInit,
   Post,
-  Res,
   UseInterceptors,
 } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';

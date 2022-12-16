@@ -1,4 +1,3 @@
-import { lastValueFrom } from 'rxjs';
 import { UserDTO } from '../dtos/user.dto';
 import { CreateUserDTO } from '~svc/api-gateway/src/user/dtos/create-user.dto';
 import {
@@ -11,7 +10,6 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -60,7 +58,7 @@ export class UserController {
   })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async createUser(@Body() payload: CreateUserDTO, @Res({ passthrough: true }) response: Response): Promise<UserDTO> {
+  async createUser(@Body() payload: CreateUserDTO): Promise<UserDTO> {
     return await this.userService.create(payload);
   }
 }
