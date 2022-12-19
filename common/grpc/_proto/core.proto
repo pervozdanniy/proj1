@@ -37,7 +37,7 @@ message CreateRequest {
   string password = 3;
   optional string phone = 4;
   uint32 country_id = 5;
-  UserDetails details = 6;
+  optional UserDetails details = 6;
 }
 
 message LoginRequest {

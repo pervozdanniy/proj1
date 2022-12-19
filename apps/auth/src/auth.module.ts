@@ -36,9 +36,9 @@ import { SessionModule } from '~common/session/session.module';
       inject: [ConfigService],
     }),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
       useFactory: async (config: ConfigService<ConfigInterface>) => ({
         secret: config.get('auth.jwt.secret', { infer: true }),
+        signOptions: { expiresIn: '1y' },
       }),
       inject: [ConfigService],
     }),

@@ -18,7 +18,7 @@ import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
 import { CreateUserDTO } from '~svc/api-gateway/src/user/dtos/create-user.dto';
 import { PublicUserDto } from '../../utils/public-user.dto';
-import { UserDTO } from '../dtos/user.dto';
+import { RegistrationResponseDto } from '../dtos/user.dto';
 import { UserService } from '../user.service';
 
 @ApiTags('User')
@@ -48,7 +48,12 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async get(@Param('id', ParseIntPipe) id: number) {
-    const user = await this.userService.getById(id);
+    let user;
+    try {
+      user = await this.userService.getById(id);
+    } catch (error) {
+      console.log(error);
+    }
 
     return plainToInstance(PublicUserDto, user);
   }
@@ -57,11 +62,11 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The user created successfully.',
-    type: UserDTO,
+    type: RegistrationResponseDto,
   })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async createUser(@Body() payload: CreateUserDTO): Promise<UserDTO> {
-    return await this.userService.create(payload);
+  createUser(@Body() payload: CreateUserDTO): Promise<RegistrationResponseDto> {
+    return this.userService.create(payload);
   }
 }

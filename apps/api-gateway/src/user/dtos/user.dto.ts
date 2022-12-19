@@ -26,3 +26,11 @@ export class UserDTO {
     Object.assign(this, partial);
   }
 }
+
+export class RegistrationResponseDto {
+  @ApiProperty({ type: UserDTO })
+  user: UserDTO;
+
+  @ApiProperty()
+  providerRegistered: boolean;
+}

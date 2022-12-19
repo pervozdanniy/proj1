@@ -1,4 +1,4 @@
-import { Exclude, Transform, Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 
 export class UserResponseDto implements User {
@@ -6,6 +6,7 @@ export class UserResponseDto implements User {
   username: string;
   email: string;
   phone: string;
+  password: string;
 
   @Type(() => Date)
   @Transform(({ value }) => value?.toString(), { toClassOnly: true })
@@ -18,7 +19,4 @@ export class UserResponseDto implements User {
   @Type(() => Date)
   @Transform(({ value }) => value.toString(), { toClassOnly: true })
   updated_at: string;
-
-  @Exclude()
-  password: never;
 }

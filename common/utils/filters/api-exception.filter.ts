@@ -1,7 +1,7 @@
-import { Catch, ArgumentsHost, HttpStatus, ExceptionFilter, HttpException } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { Metadata, status } from '@grpc/grpc-js';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
+import { Request, Response } from 'express';
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter<Error> {
@@ -30,6 +30,7 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
           case status.INTERNAL:
             statusCode = HttpStatus.SERVICE_UNAVAILABLE;
             message = 'Service Unavailable';
+            break;
           case status.UNAUTHENTICATED:
             statusCode = HttpStatus.UNAUTHORIZED;
             message = 'Unauthorized';
