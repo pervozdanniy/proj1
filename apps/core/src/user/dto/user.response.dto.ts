@@ -1,5 +1,4 @@
 import { Exclude, Transform, Type } from 'class-transformer';
-import { Column } from 'typeorm';
 import { User } from '~common/grpc/interfaces/common';
 
 export class UserResponseDto implements User {
@@ -22,7 +21,4 @@ export class UserResponseDto implements User {
 
   @Exclude()
   password: never;
-
-  @Column('integer')
-  country_id: number;
 }

@@ -3,7 +3,7 @@ package skopa.core;
 
 import "common.proto";
 import "payment-gateway.proto";
-
+import "google/protobuf/timestamp.proto";
 service UserService {
   rpc GetById (IdRequest) returns (common.User);
 
@@ -22,12 +22,23 @@ message NullableUser {
   optional common.User user = 1;
 }
 
+message UserDetails {
+  string  first_name = 1;
+  string  last_name = 2;
+  string  date_of_birth = 3;
+  string  city = 4;
+  string  street = 5;
+  uint32  postal_code = 6;
+  uint32  tax_id_number = 7;
+}
+
 message CreateRequest {
   string username = 1;
   string email = 2;
   string password = 3;
   optional string phone = 4;
   uint32 country_id = 5;
+  UserDetails details = 6;
 }
 
 message LoginRequest {

@@ -18,7 +18,7 @@ import { AuthUserResponseDto } from '~svc/core/src/user/dto/auth.user.response.d
 @RpcController()
 @UseFilters(TypeOrmExceptionFilter)
 @UserServiceControllerMethods()
-export class UserController implements UserServiceController {
+export class UserController implements Omit<UserServiceController, 'create'> {
   constructor(private userService: UserService) {}
 
   async findByLogin({ login }: LoginRequest): Promise<NullableUser> {
@@ -33,13 +33,6 @@ export class UserController implements UserServiceController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async getById({ id }: IdRequestDto): Promise<User> {
     const user = await this.userService.get(id);
-
-    return plainToInstance(UserResponseDto, user);
-  }
-
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async create(payload: CreateRequestDto): Promise<User> {
-    const user = await this.userService.create(payload);
 
     return plainToInstance(UserResponseDto, user);
   }

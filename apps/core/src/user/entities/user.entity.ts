@@ -4,10 +4,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
+import { UserDetailsEntity } from '~svc/core/src/user/entities/user.details.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -44,4 +46,7 @@ export class UserEntity {
   @ManyToOne(() => CountryEntity, (country) => country.users)
   @JoinColumn({ name: 'country_id' })
   country: CountryEntity;
+
+  @OneToOne(() => UserDetailsEntity, (details) => details.user)
+  details: UserDetailsEntity;
 }

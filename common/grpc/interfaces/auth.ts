@@ -40,4 +40,3 @@ export function AuthServiceControllerMethods() {
 }
 
 export const AUTH_SERVICE_NAME = "AuthService";
-

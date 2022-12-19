@@ -9,9 +9,11 @@ import { AwsModule } from '~svc/core/src/aws/AwsModule';
 import migrations from './db/migrations-list';
 import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment.gateway.module';
 import { BullModule } from '@nestjs/bull';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ load: [configuration], isGlobal: true }),
     LoggerModule.forRoot({
       pinoHttp: {

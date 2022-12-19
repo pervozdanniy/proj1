@@ -3,6 +3,8 @@ import { AlterUsersTable2167043583659 } from './migrations/1670435836592-AlterUs
 import { CreateCountriesTable1671025190389 } from '~svc/core/src/db/migrations/1671085183650-CreateCountriesTable';
 import { AlterUsersTable1671025295745 } from '~svc/core/src/db/migrations/1671085206872-AlterUsersTable';
 import { CreatePrimeTrustTable1671090646320 } from '~svc/core/src/db/migrations/1671090646320-CreatePrimeTrustTable';
+import { createUserDetailsTable1671438132874 } from '~svc/core/src/db/migrations/1671438132874-createUserDetailsTable';
+import { SeedPaymentGateway1671466516817 } from '~svc/core/src/db/seeds/1671466516817-SeedPaymentGateway';
 
 export default [
   createUserTable1669901299726,
@@ -10,4 +12,6 @@ export default [
   CreateCountriesTable1671025190389,
   AlterUsersTable1671025295745,
   CreatePrimeTrustTable1671090646320,
+  createUserDetailsTable1671438132874,
+  SeedPaymentGateway1671466516817,
 ];

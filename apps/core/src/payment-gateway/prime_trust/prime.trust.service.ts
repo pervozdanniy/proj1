@@ -3,17 +3,18 @@ import { lastValueFrom } from 'rxjs';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
-import { Queue } from 'bull';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime.trust.status';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class PrimeTrustService {
   constructor(
     private readonly httpService: HttpService,
+
+    @InjectRepository(PrimeTrustUserEntity)
     private readonly primeUserRepository: Repository<PrimeTrustUserEntity>,
-    private readonly failedRequestsQueue: Queue,
   ) {}
 
   async createUserInDB({ email, name, password, user_id }) {
@@ -42,23 +43,20 @@ export class PrimeTrustService {
         },
       },
     };
+    let response;
 
-    await lastValueFrom(this.httpService.post('https://sandbox.primetrust.com/v2/users', createData))
-      .then(async (response) => {
-        await this.primeUserRepository.save({
-          ...user,
-          uuid: response.data.data.id,
-          status: PrimeTrustStatus.ACTIVE,
-          disabled: response.data.data.attributes.disabled,
-        });
-      })
-      .catch(async (e) => {
-        if (e.code == 'ENOTFOUND') {
-          await this.failedRequestsQueue.add('no_connection_jobs', { ...user, payment_gateway: 'prime_trust' });
-        } else {
-          throw new GrpcException(Status.ABORTED, e.response.data, 400);
-        }
-      });
+    try {
+      response = await lastValueFrom(this.httpService.post('https://sandbox.primetrust.com/v2/users', createData));
+    } catch (e) {
+      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+    }
+
+    await this.primeUserRepository.save({
+      ...user,
+      uuid: response.data.data.id,
+      status: PrimeTrustStatus.ACTIVE,
+      disabled: response.data.data.attributes.disabled,
+    });
   }
 
   async getToken(email) {
@@ -78,4 +76,29 @@ export class PrimeTrustService {
 
     return result.data;
   }
+
+  // async uploadDocumentKYC(file) {
+  //   const bodyFormData = new FormData();
+  //   bodyFormData.append('contact-id', 'a09de1db-9db0-4449-a84e-faa3fb61b2c5');
+  //   bodyFormData.append('label', 'drivers_license');
+  //   bodyFormData.append('public', 'false');
+  //   bodyFormData.append('file', file.buffer, file.originalname);
+  //
+  //   const http = new HttpService();
+  //   const headersRequest = {
+  //     Authorization: `Bearer eyJhbGciOiJSUzI1NiJ9.eyJhdXRoX3NlY3JldCI6ImU0MWNlNmE4LWQ5ODQtNDI1YS1iMGZlLWZhMjUwYzBiZTRkYyIsInVzZXJfZ3JvdXBzIjpbXSwibm93IjoxNjcxNDI3NzM1LCJleHAiOjE2NzIwMzI1MzV9.adsykzsxlePsje8Zm0BBwjA86NP5jJTAd3h6x2rB9_KESunk4AtK1AxfNqj7JWyaGRFuGtcTtJI8E-NEb4Db2D4rijVuN9khn6-ytwE-FKJ47yWN_glj2ziCgQturxY__ZOe9BWammgRJjLcDDhbmApvN6uN_rlb_faM9iV8g-YN5GmF-adpcKvpAK2ujOvSKpIsoZcKvroHcqDb9D7uyVJFjixmMRpXObUkS34Pze-_aDJDyTqEf-ZKSBVpxwKUgea8pBuHUhEIjZrvdpRJIOXFz7bonMCUXersKT3xFHwl9RjYs3bjg97kNd7cDuvwqTFRIbZBker2PflEm6ixoQ`,
+  //   };
+  //
+  //   const result = await lastValueFrom(
+  //     http.post('https://sandbox.primetrust.com/v2/uploaded-documents', bodyFormData, {
+  //       headers: headersRequest,
+  //     }),
+  //   )
+  //     .then((data) => {
+  //       console.log(data);
+  //     })
+  //     .catch((e) => {
+  //       console.log(e);
+  //     });
+  // }
 }
