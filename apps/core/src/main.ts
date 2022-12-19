@@ -1,11 +1,11 @@
-import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { GrpcOptions, Transport } from '@nestjs/microservices';
-import { CoreModule } from './core.module';
-import { ConfigService } from '@nestjs/config';
-import { ConfigInterface } from '~common/config/configuration';
 import { Logger } from 'nestjs-pino';
+import { join } from 'path';
+import { ConfigInterface } from '~common/config/configuration';
 import sentryInit from '~common/sentry/init';
+import { CoreModule } from './core.module';
 
 async function bootstrap() {
   const context = await NestFactory.createApplicationContext(CoreModule);

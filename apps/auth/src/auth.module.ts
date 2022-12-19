@@ -6,9 +6,9 @@ import { ClientsModule } from '@nestjs/microservices';
 import { LoggerModule } from 'nestjs-pino';
 import configuration, { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
+import { SessionModule } from '~common/session/session.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { SessionModule } from '~common/session/session.module';
 
 @Module({
   imports: [

@@ -1,8 +1,13 @@
 import { RedisModule } from '@liaoliaots/nestjs-redis';
+<<<<<<< HEAD
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+=======
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+>>>>>>> 492ba48 (SKOPA-99: added integration tests)
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
 import configuration, { ConfigInterface } from '~common/config/configuration';

@@ -16,8 +16,8 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
-import { CreateUserDTO } from '~svc/api-gateway/src/user/dtos/create-user.dto';
 import { PublicUserDto } from '../../utils/public-user.dto';
+import { CreateUserDTO } from '../dtos/create-user.dto';
 import { RegistrationResponseDto } from '../dtos/user.dto';
 import { UserService } from '../user.service';
 

@@ -1,10 +1,14 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+<<<<<<< HEAD
 import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
 import { PaymentGatewayEntity } from '~svc/core/src/user/entities/payment-gateway.entity';
 import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
+=======
+import { AwsModule } from '~svc/core/src/aws/AwsModule';
+>>>>>>> 492ba48 (SKOPA-99: added integration tests)
 import { UserController } from './controllers/user.controller';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './services/user.service';

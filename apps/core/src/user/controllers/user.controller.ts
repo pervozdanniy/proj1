@@ -9,10 +9,16 @@ import {
 } from '~common/grpc/interfaces/core';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
+<<<<<<< HEAD
 import { AuthUserResponseDto } from '../dto/auth-user-response.dto';
 import { CreateRequestDto } from '../dto/create-request.dto';
 import { IdRequestDto } from '../dto/id-request.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
+=======
+import { CreateRequestDto } from '../dto/create.request.dto';
+import { IdRequestDto } from '../dto/id.request.dto';
+import { UserResponseDto } from '../dto/user.response.dto';
+>>>>>>> 492ba48 (SKOPA-99: added integration tests)
 import { UserService } from '../services/user.service';
 
 @RpcController()
