@@ -4,7 +4,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/prime_trust';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
 import { HttpService } from '@nestjs/axios';
 import { CreateRequestDto } from '~svc/core/src/user/dto/create-request.dto';
-import { CreateAccountRequest, PG_Token } from '~common/grpc/interfaces/payment-gateway';
+import { TokenSendRequest, PG_Token } from '~common/grpc/interfaces/payment-gateway';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 import { IdRequest } from '~common/grpc/interfaces/common';
 
@@ -42,7 +42,7 @@ export class PaymentGatewayService {
     return user;
   }
 
-  async createAccount(payload: CreateAccountRequest): Promise<SuccessResponse> {
+  async createAccount(payload: TokenSendRequest): Promise<SuccessResponse> {
     const { id, token } = payload;
     const userDetails = await this.userService.getUserInfo(id);
 
@@ -50,8 +50,16 @@ export class PaymentGatewayService {
       userDetails.country.payment_gateway.alias,
     );
 
-    const accountResponse = await paymentGateway.getAccountData(userDetails, token);
+    return await paymentGateway.createAccount(userDetails, token);
+  }
 
-    return await paymentGateway.createAccount(accountResponse.data, userDetails.prime_user.id);
+  async createContact(payload: TokenSendRequest): Promise<SuccessResponse> {
+    const { id, token } = payload;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return await paymentGateway.createContact(userDetails, token);
   }
 }

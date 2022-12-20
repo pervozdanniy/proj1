@@ -58,6 +58,17 @@ export class PaymentGatewayController implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayService.createAccount({ id, ...payload }));
   }
 
+  @ApiOperation({ summary: 'Create Contact.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtSessionGuard)
+  @Post('/kyc/contact')
+  async createContact(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
+    return lastValueFrom(this.paymentGatewayService.createContact({ id, ...payload }));
+  }
+
   // @Post('kyc/upload-document')
   // @ApiConsumes('multipart/form-data')
   // @ApiOperation({ summary: 'Upload new file.' })

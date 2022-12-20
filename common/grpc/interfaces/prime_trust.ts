@@ -4,7 +4,7 @@ import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import {IdRequest} from "~common/grpc/interfaces/common";
 
 
-export interface CreateAccountRequest {
+export interface TokenSendRequest {
   id: number;
   token:string;
 }
@@ -24,13 +24,15 @@ export interface SuccessResponse {
 export interface PaymentGatewayService {
   getToken(request: IdRequest): Observable<TokenData>;
 
-  createAccount(request: CreateAccountRequest): Observable<SuccessResponse>;
+  createAccount(request: TokenSendRequest): Observable<SuccessResponse>;
+
+  createContact(request: TokenSendRequest): Observable<SuccessResponse>;
 }
 
 export function PaymentGatewayControllerMethods() {
 
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['getToken','createAccount'];
+    const grpcMethods: string[] = ['getToken','createAccount','createContact'];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod('PaymentGatewayService', method)(constructor.prototype[method], method, descriptor);

@@ -26,7 +26,7 @@ class UserDetails {
   @IsNotEmpty()
   region: string;
 
-  @ApiProperty({ example: '1995-07-12' })
+  @ApiProperty({ format: 'date' })
   @IsString()
   @IsNotEmpty()
   date_of_birth: string;

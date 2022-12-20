@@ -2,7 +2,7 @@ import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { PaymentGatewayService } from '../services/payment.gateway.service';
 import {
   PaymentGatewayControllerMethods,
-  CreateAccountRequest,
+  TokenSendRequest,
   SuccessResponse,
 } from '~common/grpc/interfaces/prime_trust';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
@@ -24,8 +24,12 @@ export class PaymentGatewayController {
     return this.paymentGatewayService.getToken(request);
   }
 
-  async createAccount(request: CreateAccountRequest): Promise<SuccessResponse> {
+  async createAccount(request: TokenSendRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.createAccount(request);
+  }
+
+  async createContact(request: TokenSendRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.createContact(request);
   }
 
   @GrpcMethod('UserService', 'Create')

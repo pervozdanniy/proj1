@@ -5,14 +5,15 @@ package skopa.core;
 
 service PaymentGatewayService {
   rpc GetToken (common.IdRequest) returns (PG_Token);
-  rpc CreateAccount (CreateAccountRequest) returns (SuccessResponse);
+  rpc CreateAccount (TokenSendRequest) returns (SuccessResponse);
+  rpc CreateContact (TokenSendRequest) returns (SuccessResponse);
 }
 
 message SuccessResponse {
   bool success = 1;
 }
 
-message CreateAccountRequest{
+message TokenSendRequest{
   uint32 id = 1;
   string token = 2;
 }
