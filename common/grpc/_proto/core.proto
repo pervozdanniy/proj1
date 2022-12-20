@@ -3,7 +3,7 @@ package skopa.core;
 
 import "common.proto";
 import "payment-gateway.proto";
-import "google/protobuf/timestamp.proto";
+
 service UserService {
   rpc GetById (IdRequest) returns (common.User);
 
