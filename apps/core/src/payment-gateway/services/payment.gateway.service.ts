@@ -4,7 +4,6 @@ import { SuccessResponse, UserIdRequest } from '~common/grpc/interfaces/prime_tr
 import { PaymentGatewayManager } from '../manager/payment.gateway.manager';
 import { HttpService } from '@nestjs/axios';
 import { CreateRequestDto } from '~svc/core/src/user/dto/create.request.dto';
-import { generatePassword } from '~common/helpers';
 import { CreateAccountRequest, PG_Token } from '~common/grpc/interfaces/payment-gateway';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
