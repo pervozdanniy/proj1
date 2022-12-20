@@ -3,12 +3,21 @@ import "google/protobuf/any.proto";
 package skopa.core;
 
 service PaymentGatewayService {
-  rpc GetToken (PG_GetTokenRequest) returns (PG_Token);
+  rpc GetToken (UserIdRequest) returns (PG_Token);
+  rpc CreateAccount (CreateAccountRequest) returns (SuccessResponse);
 }
 
+message SuccessResponse {
+  bool success = 1;
+}
 
-message PG_GetTokenRequest {
+message UserIdRequest {
   uint32 user_id = 1;
+}
+
+message CreateAccountRequest{
+  uint32 user_id = 1;
+  string token = 2;
 }
 
 message PG_Token {

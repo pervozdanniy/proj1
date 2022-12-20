@@ -1,6 +1,10 @@
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { PaymentGatewayService } from '../services/payment.gateway.service';
-import { GetTokenRequest, PaymentGatewayControllerMethods } from '~common/grpc/interfaces/prime_trust';
+import {
+  UserIdRequest,
+  PaymentGatewayControllerMethods,
+  CreateAccountRequest,
+} from '~common/grpc/interfaces/prime_trust';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
 import { CreateRequestDto } from '~svc/core/src/user/dto/create.request.dto';
@@ -15,8 +19,12 @@ import { GrpcMethod } from '@nestjs/microservices';
 export class PaymentGatewayController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
-  async getToken(request: GetTokenRequest) {
+  async getToken(request: UserIdRequest) {
     return this.paymentGatewayService.getToken(request);
+  }
+
+  async createAccount(request: CreateAccountRequest) {
+    return this.paymentGatewayService.createAccount(request);
   }
 
   @GrpcMethod('UserService', 'Create')

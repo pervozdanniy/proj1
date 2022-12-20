@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserController } from './controllers/user.controller';
 import { UserEntity } from './entities/user.entity';
@@ -20,7 +20,7 @@ import { UserDetailsEntity } from '~svc/core/src/user/entities/user.details.enti
       PaymentGatewayEntity,
       PrimeTrustUserEntity,
       UserDetailsEntity,
-    ])
+    ]),
   ],
   providers: [UserService],
   controllers: [UserController],

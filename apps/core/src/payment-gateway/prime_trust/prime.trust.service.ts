@@ -7,6 +7,8 @@ import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime.trust.status';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PrimeTrustAccountEntity } from '~svc/core/src/user/entities/prime.trust.account.entity';
+import { SuccessResponse } from '~common/grpc/interfaces/prime_trust';
 
 @Injectable()
 export class PrimeTrustService {
@@ -15,6 +17,9 @@ export class PrimeTrustService {
 
     @InjectRepository(PrimeTrustUserEntity)
     private readonly primeUserRepository: Repository<PrimeTrustUserEntity>,
+
+    @InjectRepository(PrimeTrustAccountEntity)
+    private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
   ) {}
 
   async createUserInDB({ email, name, password, user_id }) {
@@ -66,7 +71,6 @@ export class PrimeTrustService {
       throw new GrpcException(Status.NOT_FOUND, 'Payment Gateway user not found!', 204);
     }
     const headersRequest = {
-      'Content-Type': 'application/json', // afaik this one is not needed
       Authorization: `Basic ${Buffer.from(`${user.email}:${user.password}`).toString('base64')}`,
     };
 
@@ -75,6 +79,84 @@ export class PrimeTrustService {
     );
 
     return result.data;
+  }
+
+  async getAccountData(userDetails, token) {
+    const formData = {
+      data: {
+        type: 'account',
+        attributes: {
+          'account-type': 'custodial',
+          name: `${userDetails.details.first_name} ${userDetails.details.last_name}s Account`,
+          'authorized-signature': `${userDetails.prime_user.uuid}`,
+          owner: {
+            'contact-type': 'natural_person',
+            name: `${userDetails.details.first_name} ${userDetails.details.last_name}`,
+            email: `${userDetails.email}`,
+            'tax-id-number': `${userDetails.details.tax_id_number}`,
+            'tax-country': `${userDetails.country.code}`,
+            'date-of-birth': `${userDetails.details.date_of_birth}`,
+            'primary-phone-number': {
+              country: `${userDetails.country.code}`,
+              number: `${userDetails.phone}`,
+              sms: true,
+            },
+            'primary-address': {
+              'street-1': `${userDetails.details.street}`,
+              'postal-code': `${userDetails.details.postal_code}`,
+              city: `${userDetails.details.city}`,
+              region: `${userDetails.details.region}`,
+              country: `${userDetails.country.code}`,
+            },
+          },
+        },
+      },
+    };
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      const accountResponse = await lastValueFrom(
+        this.httpService.post('https://sandbox.primetrust.com/v2/accounts', formData, { headers: headersRequest }),
+      );
+
+      const openResponse = await lastValueFrom(
+        this.httpService.post(
+          `https://sandbox.primetrust.com/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
+          null,
+          { headers: headersRequest },
+        ),
+      );
+
+      return openResponse.data;
+    } catch (e) {
+      console.log(e.response.data.errors);
+
+      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+    }
+  }
+
+  async createAccount(accountData, user_id): Promise<SuccessResponse> {
+    try {
+      const accountPayload = {
+        uuid: accountData.id,
+        user_id,
+        name: accountData.attributes.name,
+        number: accountData.attributes.number,
+        contributions_frozen: accountData.attributes['contributions-frozen'],
+        disbursements_frozen: accountData.attributes['disbursements-frozen'],
+        statements: accountData.attributes['contributions-frozen'],
+        solid_freeze: accountData.attributes['solid-freeze'],
+        offline_cold_storage: accountData.attributes['offline-cold-storage'],
+        status: accountData.attributes.status,
+      };
+      await this.primeAccountRepository.save(this.primeAccountRepository.create(accountPayload));
+
+      return { success: true };
+    } catch (e) {
+      throw new GrpcException(Status.ABORTED, e.message, 400);
+    }
   }
 
   // async uploadDocumentKYC(file) {

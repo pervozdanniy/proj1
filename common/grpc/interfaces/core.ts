@@ -22,6 +22,7 @@ export interface UserDetails {
   street: string;
   postal_code: number;
   tax_id_number: number;
+  region: string;
 }
 
 export interface CreateRequest {

@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user.details.entity';
+import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -49,4 +50,7 @@ export class UserEntity {
 
   @OneToOne(() => UserDetailsEntity, (details) => details.user)
   details: UserDetailsEntity;
+
+  @OneToOne(() => PrimeTrustUserEntity, (prime) => prime.skopa_user)
+  prime_user: PrimeTrustUserEntity;
 }

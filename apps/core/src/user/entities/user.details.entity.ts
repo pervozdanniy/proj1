@@ -26,6 +26,9 @@ export class UserDetailsEntity {
   @Column('character varying')
   street: string;
 
+  @Column('character varying')
+  region: string;
+
   @Column('integer')
   user_id: number;
 

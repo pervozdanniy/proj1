@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class UserDetails {
@@ -20,6 +20,11 @@ class UserDetails {
   @IsNotEmpty()
   @Length(2, 50)
   city: string;
+
+  @ApiProperty({ example: 'NV' })
+  @IsString()
+  @IsNotEmpty()
+  region: string;
 
   @ApiProperty({ example: '1995-07-12' })
   @IsString()

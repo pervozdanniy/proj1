@@ -1,4 +1,4 @@
-import { IsDate, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
 import { CreateRequest } from '~common/grpc/interfaces/core';
 import { Type } from 'class-transformer';
 
@@ -21,6 +21,10 @@ export class UserDetails {
   @IsNotEmpty()
   @Length(2, 50)
   street: string;
+
+  @IsString()
+  @IsNotEmpty()
+  region: string;
 
   @IsString()
   @IsNotEmpty()

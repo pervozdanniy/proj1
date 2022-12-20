@@ -1,7 +1,6 @@
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
-import { CreateRequestDto } from '../dto/create.request.dto';
 import { IdRequestDto } from '../dto/id.request.dto';
 import {
   LoginRequest,

@@ -8,9 +8,10 @@ import { PrimeTrustService } from '~svc/core/src/payment-gateway/prime_trust/pri
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
 import { PaymentGatewayCron } from '~svc/core/src/payment-gateway/cron/payment.gateway.cron';
+import { PrimeTrustAccountEntity } from '~svc/core/src/user/entities/prime.trust.account.entity';
 
 @Module({
-  imports: [HttpModule, UserModule, TypeOrmModule.forFeature([PrimeTrustUserEntity])],
+  imports: [HttpModule, UserModule, TypeOrmModule.forFeature([PrimeTrustUserEntity, PrimeTrustAccountEntity])],
   providers: [PaymentGatewayService, PaymentGatewayManager, PrimeTrustService, PaymentGatewayCron],
   controllers: [PaymentGatewayController],
   exports: [PaymentGatewayManager],

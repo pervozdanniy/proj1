@@ -1,4 +1,5 @@
 import {
+  Body,
   ClassSerializerInterceptor,
   Controller,
   HttpCode,
@@ -18,6 +19,8 @@ import { PaymentGatewayService } from '~common/grpc/interfaces/prime_trust';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
 import { User } from '~common/grpc/interfaces/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateUserDTO } from '~svc/api-gateway/src/user/dtos/create-user.dto';
+import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send.token.dto';
 
 @ApiTags('Payment Gateway')
 @Injectable()
@@ -42,34 +45,45 @@ export class PaymentGatewayController implements OnModuleInit {
   })
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtSessionGuard)
-  @Post()
+  @Post('/token')
   async getToken(@JwtSessionUser() { id }: User) {
     const user_id = id;
 
     return lastValueFrom(this.paymentGatewayService.getToken({ user_id }));
   }
 
-  @Post('kyc/upload-document')
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Upload new file.' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
+  @ApiOperation({ summary: 'Create Account.' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'The file successfully uploaded.',
+    status: HttpStatus.OK,
   })
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: any) {}
+  @UseGuards(JwtSessionGuard)
+  @Post('/account')
+  async createAccount(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
+    const user_id = id;
 
+    return lastValueFrom(this.paymentGatewayService.createAccount({ user_id, ...payload }));
+  }
 
+  // @Post('kyc/upload-document')
+  // @ApiConsumes('multipart/form-data')
+  // @ApiOperation({ summary: 'Upload new file.' })
+  // @ApiBody({
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       file: {
+  //         type: 'string',
+  //         format: 'binary',
+  //       },
+  //     },
+  //   },
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   description: 'The file successfully uploaded.',
+  // })
+  // @HttpCode(HttpStatus.CREATED)
+  // @UseInterceptors(FileInterceptor('file'))
+  // async uploadFile(@UploadedFile() file: any) {}
 }

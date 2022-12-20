@@ -30,6 +30,7 @@ message UserDetails {
   string  street = 5;
   uint32  postal_code = 6;
   uint32  tax_id_number = 7;
+  string region = 8;
 }
 
 message CreateRequest {
