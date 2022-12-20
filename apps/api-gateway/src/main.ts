@@ -1,10 +1,9 @@
+import { ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { ApiGatewayModule } from './api-gateway.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ClassSerializerInterceptor, ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
-import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
 import sentryInit from 'common/sentry/init';
-import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
+import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
+import { ApiGatewayModule } from './api-gateway.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule, { bufferLogs: true });
@@ -25,8 +24,9 @@ async function bootstrap() {
   };
   app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalFilters(new ApiExceptionFilter());
-  app.useLogger(app.get(Logger));
-  app.useGlobalInterceptors(new LoggerErrorInterceptor(), app.get(ClassSerializerInterceptor));
+  // app.useLogger(app.get(Logger));
+  // app.useGlobalInterceptors(new LoggerErrorInterceptor(), app.get(ClassSerializerInterceptor));
+  // app.useGlobalInterceptors(app.get(ClassSerializerInterceptor));
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, {

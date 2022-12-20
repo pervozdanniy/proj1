@@ -60,12 +60,11 @@ services:
     env_file:
       - .env
     command: "start -w api-gateway"
+    ports:
+      - ${API_LOCAL_PORT}:3000
     depends_on:
       redis:
         condition: service_healthy
-
-    ports:
-      - ${API_GATEWAY_PORT}:3000
 
   redis:
     image: "redis:alpine"
@@ -92,7 +91,7 @@ services:
     networks:
       - backend
     ports:
-      - ${DB_PORT}:5432
+      - ${DB_LOCAL_PORT}:5432
 
 networks:
   backend:

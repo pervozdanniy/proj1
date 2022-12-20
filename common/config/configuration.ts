@@ -1,6 +1,6 @@
 import * as process from 'process';
 
-type Addr = {
+export type Addr = {
   host: string;
   port: number;
 };

@@ -1,17 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UserService } from '~svc/core/src/user/services/user.service';
 import { SuccessResponse } from '~common/grpc/interfaces/prime_trust';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
-import { HttpService } from '@nestjs/axios';
-import { CreateRequestDto } from '~svc/core/src/user/dto/create-request.dto';
 import { TokenSendRequest, PG_Token } from '~common/grpc/interfaces/payment-gateway';
-import { UserEntity } from '~svc/core/src/user/entities/user.entity';
-import { IdRequest } from '~common/grpc/interfaces/common';
 
 @Injectable()
 export class PaymentGatewayService {
+  private readonly logger = new Logger(PaymentGatewayService.name);
+
   constructor(
-    private readonly httpService: HttpService,
     @Inject(UserService)
     private userService: UserService,
 
@@ -19,8 +16,7 @@ export class PaymentGatewayService {
     private paymentGatewayManager: PaymentGatewayManager,
   ) {}
 
-  async getToken(request: IdRequest): Promise<PG_Token> {
-    const { id } = request;
+  async getToken(id: number): Promise<PG_Token> {
     const user = await this.userService.get(id);
     const details = await this.userService.getUserInfo(user.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
@@ -31,15 +27,20 @@ export class PaymentGatewayService {
     return { data: token };
   }
 
-  async createUser(payload: CreateRequestDto): Promise<UserEntity> {
-    const user = await this.userService.create(payload);
-    const userInfo = await this.userService.getUserInfo(user.id);
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
-      userInfo.country.payment_gateway.alias,
-    );
-    await paymentGateway.createUser(userInfo);
+  async createUser(id: number): Promise<boolean> {
+    try {
+      const user = await this.userService.getUserInfo(id);
+      const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+        user.country.payment_gateway.alias,
+      );
+      await paymentGateway.createUser(user);
+    } catch (error) {
+      this.logger.error('Payment gateway create user: failed', error.stack, { id, error });
 
-    return user;
+      return false;
+    }
+
+    return true;
   }
 
   async createAccount(payload: TokenSendRequest): Promise<SuccessResponse> {

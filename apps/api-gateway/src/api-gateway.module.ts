@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import configuration from '~common/config/configuration';
-import { UserModule } from './user/user.module';
 import { LoggerModule } from 'nestjs-pino';
 import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
+import configuration from '~common/config/configuration';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -27,7 +27,5 @@ import { AuthModule } from './auth/auth.module';
     PaymentGatewayModule,
     AuthModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class ApiGatewayModule {}

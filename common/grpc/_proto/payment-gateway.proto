@@ -4,6 +4,7 @@ package skopa.core;
 
 
 service PaymentGatewayService {
+  rpc CreateUser(common.IdRequest) returns (SuccessResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
   rpc CreateAccount (TokenSendRequest) returns (SuccessResponse);
   rpc CreateContact (TokenSendRequest) returns (SuccessResponse);

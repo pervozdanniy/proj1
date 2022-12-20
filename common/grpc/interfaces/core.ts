@@ -27,7 +27,7 @@ export interface CreateRequest {
   password: string;
   phone?: string | undefined;
   country_id: number;
-  details: UserDetails | undefined;
+  details?: UserDetails | undefined;
 }
 
 export interface LoginRequest {
@@ -68,7 +68,7 @@ export interface UserServiceController {
 
 export function UserServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getById", "findByLogin", "delete"];
+    const grpcMethods: string[] = ["getById", "findByLogin", "create", "delete"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);

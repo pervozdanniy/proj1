@@ -16,7 +16,8 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<GrpcOptions>(AuthModule, {
     transport: Transport.GRPC,
     options: {
-      url: `0.0.0.0:${config.get('grpcServices.auth.port', { infer: true })}`,
+      // url: `0.0.0.0:${config.get('grpcServices.auth.port', { infer: true })}`,
+      url: '0.0.0.0:5000',
       package: 'skopa.auth',
       loader: {
         keepCase: true,

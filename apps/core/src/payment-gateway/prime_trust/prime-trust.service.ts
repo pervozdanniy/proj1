@@ -1,17 +1,17 @@
-import { HttpService } from '@nestjs/axios';
-import { lastValueFrom } from 'rxjs';
-import { Injectable, Logger } from '@nestjs/common';
-import { Column, Repository } from 'typeorm';
-import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
-import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime-trust.status';
+import { HttpService } from '@nestjs/axios';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PrimeTrustAccountEntity } from '~svc/core/src/user/entities/prime-trust-account.entity';
+import { lastValueFrom } from 'rxjs';
+import { Repository } from 'typeorm';
 import { SuccessResponse } from '~common/grpc/interfaces/prime_trust';
 import { generatePassword } from '~common/helpers';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime-trust-contact.entity';
+import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime-trust.status';
+import { PrimeTrustAccountEntity } from '~svc/core/src/user/entities/prime-trust-account.entity';
+import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
 
 @Injectable()
 export class PrimeTrustService {

@@ -1,20 +1,24 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import bcrypt from 'bcrypt';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
-import bcrypt from 'bcrypt';
-import { CreateUserDTO } from '~svc/api-gateway/src/user/dtos/create-user.dto';
+import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
+import { CreateUserDTO } from './dtos/create-user.dto';
+import { RegistrationResponseDto } from './dtos/user.dto';
 
 @Injectable()
 export class UserService implements OnModuleInit {
   private userService: UserServiceClient;
+  private paymentGateway: PaymentGatewayServiceClient;
 
   constructor(@InjectGrpc('core') private readonly core: ClientGrpc) {}
 
   async onModuleInit() {
     this.userService = this.core.getService('UserService');
+    this.paymentGateway = this.core.getService('PaymentGatewayService');
   }
 
   getById(id: number) {
@@ -27,9 +31,12 @@ export class UserService implements OnModuleInit {
     return user;
   }
 
-  async create(data: CreateUserDTO) {
+  async create(data: CreateUserDTO): Promise<RegistrationResponseDto> {
     data.password = await bcrypt.hash(data.password, 10);
 
-    return firstValueFrom(this.userService.create(data));
+    const user = await firstValueFrom(this.userService.create(data));
+    const { success } = await firstValueFrom(this.paymentGateway.createUser({ id: user.id }));
+
+    return { user, providerRegistered: success };
   }
 }

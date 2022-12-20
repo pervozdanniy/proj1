@@ -1,5 +1,4 @@
-// NPM Modules
-import { Entity, Column, PrimaryColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 import { PaymentGatewayEntity } from '~svc/core/src/user/entities/payment-gateway.entity';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 

@@ -26,6 +26,8 @@ export interface Token_Data {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface PaymentGatewayServiceClient {
+  createUser(request: IdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
   getToken(request: IdRequest, metadata?: Metadata): Observable<PG_Token>;
 
   createAccount(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
@@ -34,6 +36,11 @@ export interface PaymentGatewayServiceClient {
 }
 
 export interface PaymentGatewayServiceController {
+  createUser(
+    request: IdRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
   getToken(request: IdRequest, metadata?: Metadata): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
 
   createAccount(
@@ -49,7 +56,7 @@ export interface PaymentGatewayServiceController {
 
 export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getToken", "createAccount", "createContact"];
+    const grpcMethods: string[] = ["createUser", "getToken", "createAccount"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("PaymentGatewayService", method)(constructor.prototype[method], method, descriptor);

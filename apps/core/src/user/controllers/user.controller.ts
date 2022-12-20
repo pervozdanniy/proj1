@@ -1,24 +1,32 @@
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
-import { UserService } from '../services/user.service';
-import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
-import { IdRequestDto } from '../dto/id-request.dto';
+import { plainToInstance } from 'class-transformer';
+import { User } from '~common/grpc/interfaces/common';
 import {
   LoginRequest,
   NullableUser,
   UserServiceController,
   UserServiceControllerMethods,
 } from '~common/grpc/interfaces/core';
-import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from '../dto/user-response.dto';
-import { User } from '~common/grpc/interfaces/common';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { AuthUserResponseDto } from '~svc/core/src/user/dto/auth-user-response.dto';
+import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
+import { AuthUserResponseDto } from '../dto/auth-user-response.dto';
+import { CreateRequestDto } from '../dto/create-request.dto';
+import { IdRequestDto } from '../dto/id-request.dto';
+import { UserResponseDto } from '../dto/user-response.dto';
+import { UserService } from '../services/user.service';
 
 @RpcController()
 @UseFilters(TypeOrmExceptionFilter)
 @UserServiceControllerMethods()
-export class UserController implements Omit<UserServiceController, 'create'> {
+export class UserController implements UserServiceController {
   constructor(private userService: UserService) {}
+
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async create(payload: CreateRequestDto): Promise<User> {
+    const user = await this.userService.create(payload);
+
+    return plainToInstance(UserResponseDto, user);
+  }
 
   async findByLogin({ login }: LoginRequest): Promise<NullableUser> {
     const user = await this.userService.findByLogin(login);

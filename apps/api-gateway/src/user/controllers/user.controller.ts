@@ -1,7 +1,6 @@
-import { UserDTO } from '../dtos/user.dto';
-import { CreateUserDTO } from '~svc/api-gateway/src/user/dtos/create-user.dto';
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   HttpCode,
@@ -11,13 +10,16 @@ import {
   ParseIntPipe,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtSessionGuard, JwtSessionUser } from '~common/session';
-import { UserService } from '../user.service';
-import { PublicUserDto } from '../../utils/public-user.dto';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
+import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { PublicUserDto } from '../../utils/public-user.dto';
+import { CreateUserDTO } from '../dtos/create-user.dto';
+import { RegistrationResponseDto } from '../dtos/user.dto';
+import { UserService } from '../user.service';
 
 @ApiTags('User')
 @Injectable()
@@ -25,6 +27,7 @@ import { User } from '~common/grpc/interfaces/common';
   version: '1',
   path: 'users',
 })
+@UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -45,7 +48,12 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async get(@Param('id', ParseIntPipe) id: number) {
-    const user = await this.userService.getById(id);
+    let user;
+    try {
+      user = await this.userService.getById(id);
+    } catch (error) {
+      console.log(error);
+    }
 
     return plainToInstance(PublicUserDto, user);
   }
@@ -54,11 +62,11 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The user created successfully.',
-    type: UserDTO,
+    type: RegistrationResponseDto,
   })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async createUser(@Body() payload: CreateUserDTO): Promise<UserDTO> {
-    return await this.userService.create(payload);
+  createUser(@Body() payload: CreateUserDTO): Promise<RegistrationResponseDto> {
+    return this.userService.create(payload);
   }
 }
