@@ -7,9 +7,13 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { LoggerModule } from 'nestjs-pino';
 import { AwsModule } from '~svc/core/src/aws/AwsModule';
 import migrations from './db/migrations-list';
+import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment-gateway.module';
+import { BullModule } from '@nestjs/bull';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ load: [configuration], isGlobal: true }),
     LoggerModule.forRoot({
       pinoHttp: {
@@ -51,7 +55,15 @@ import migrations from './db/migrations-list';
       },
       inject: [ConfigService],
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (config: ConfigService<ConfigInterface>) => ({
+        redis: config.get('redis', { infer: true }),
+      }),
+      inject: [ConfigService],
+    }),
     UserModule,
+    PaymentGatewayModule,
     AwsModule,
   ],
 })

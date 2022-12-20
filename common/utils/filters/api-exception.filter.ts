@@ -3,8 +3,6 @@ import { Request, Response } from 'express';
 import { Metadata, status } from '@grpc/grpc-js';
 import * as Sentry from '@sentry/node';
 
-``;
-
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter<Error> {
   catch(exception: Error & { metadata: Metadata; code: number; error_code: number }, host: ArgumentsHost) {
@@ -57,6 +55,7 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
       path: request.url,
       ...extras,
     };
+
     if (statusCode.toString().charAt(0) === '5') {
       Sentry.captureException({
         errorData,

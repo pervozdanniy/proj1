@@ -13,4 +13,8 @@ export interface User {
   email_verified_at?: string | undefined;
 }
 
+export interface IdRequest {
+  id: number;
+}
+
 export const SKOPA_COMMON_PACKAGE_NAME = "skopa.common";
