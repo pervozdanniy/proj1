@@ -1,5 +1,4 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
 
 @Entity('prime_trust_accounts')

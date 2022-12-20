@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserService } from '~svc/core/src/user/services/user.service';
-import { SuccessResponse, UserIdRequest } from '~common/grpc/interfaces/prime_trust';
+import { UserIdRequest } from '~common/grpc/interfaces/prime_trust';
 import { PaymentGatewayManager } from '../manager/payment.gateway.manager';
 import { HttpService } from '@nestjs/axios';
 import { CreateRequestDto } from '~svc/core/src/user/dto/create.request.dto';

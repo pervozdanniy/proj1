@@ -7,19 +7,16 @@ import {
   Injectable,
   OnModuleInit,
   Post,
-  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { PaymentGatewayService } from '~common/grpc/interfaces/prime_trust';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
 import { User } from '~common/grpc/interfaces/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateUserDTO } from '~svc/api-gateway/src/user/dtos/create-user.dto';
 import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send.token.dto';
 
 @ApiTags('Payment Gateway')
