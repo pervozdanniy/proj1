@@ -23,7 +23,7 @@ export class PaymentGatewayService {
     const { user_id } = request;
     const user = await this.userService.get(user_id);
     const details = await this.userService.getUserInfo(user.id);
-    const paymentGateway = await this.paymentGatewayManager.callApiGatewayService(
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       details.country.payment_gateway.alias,
     );
     const token = await paymentGateway.getToken(user.email);
@@ -35,7 +35,7 @@ export class PaymentGatewayService {
     const { username, email } = payload;
     const user = await this.userService.create(payload);
     const details = await this.userService.getUserInfo(user.id);
-    const paymentGateway = await this.paymentGatewayManager.callApiGatewayService(
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       details.country.payment_gateway.alias,
     );
     const pg_password = generatePassword(true, true, 16);
@@ -53,7 +53,7 @@ export class PaymentGatewayService {
   async createAccount(payload: CreateAccountRequest): Promise<SuccessResponse> {
     const { user_id, token } = payload;
     const userDetails = await this.userService.getUserInfo(user_id);
-    const paymentGateway = await this.paymentGatewayManager.callApiGatewayService(
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
