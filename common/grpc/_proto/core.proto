@@ -1,7 +1,6 @@
 syntax = "proto3";
 package skopa.core;
 
-
 import "payment-gateway.proto";
 import "common.proto";
 
