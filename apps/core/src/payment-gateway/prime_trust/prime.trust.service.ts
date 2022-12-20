@@ -9,6 +9,7 @@ import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime.
 import { InjectRepository } from '@nestjs/typeorm';
 import { PrimeTrustAccountEntity } from '~svc/core/src/user/entities/prime.trust.account.entity';
 import { SuccessResponse } from '~common/grpc/interfaces/prime_trust';
+import { generatePassword } from '~common/helpers';
 
 @Injectable()
 export class PrimeTrustService {
@@ -22,15 +23,12 @@ export class PrimeTrustService {
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
   ) {}
 
-  async createUserInDB({ email, name, password, user_id }) {
+  async createPendingPrimeUser(password: string, user_id: number) {
     const user = await this.primeUserRepository.save(
       this.primeUserRepository.create({
-        email,
-        name,
         user_id,
         password,
         disabled: true,
-        status: PrimeTrustStatus.PENDING,
       }),
     );
 
@@ -38,13 +36,15 @@ export class PrimeTrustService {
   }
 
   async createUser(user) {
+    const pg_password = generatePassword(true, true, 16);
+    const prime_user = await this.createPendingPrimeUser(pg_password, user.id);
     const createData = {
       data: {
         type: 'user',
         attributes: {
           email: user.email,
-          name: user.name,
-          password: user.password,
+          name: user.username,
+          password: pg_password,
         },
       },
     };
@@ -53,25 +53,24 @@ export class PrimeTrustService {
     try {
       response = await lastValueFrom(this.httpService.post('https://sandbox.primetrust.com/v2/users', createData));
     } catch (e) {
+      console.log(e.response.data.errors);
+
       throw new GrpcException(Status.ABORTED, e.response.data, 400);
     }
 
     await this.primeUserRepository.save({
-      ...user,
+      ...prime_user,
       uuid: response.data.data.id,
       status: PrimeTrustStatus.ACTIVE,
       disabled: response.data.data.attributes.disabled,
     });
   }
 
-  async getToken(email) {
-    const user = await this.primeUserRepository.findOne({ where: { email } });
-
-    if (!user) {
-      throw new GrpcException(Status.NOT_FOUND, 'Payment Gateway user not found!', 204);
-    }
+  async getToken(userDetails) {
     const headersRequest = {
-      Authorization: `Basic ${Buffer.from(`${user.email}:${user.password}`).toString('base64')}`,
+      Authorization: `Basic ${Buffer.from(`${userDetails.email}:${userDetails.prime_user.password}`).toString(
+        'base64',
+      )}`,
     };
 
     const result = await lastValueFrom(

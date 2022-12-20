@@ -5,13 +5,11 @@ export class CreatePrimeTrustTable1671090646320 implements MigrationInterface {
     await queryRunner.query(`CREATE TABLE "prime_trust_users"(
                                             id SERIAL PRIMARY KEY,
                                             uuid VARCHAR(255),
-                                            name VARCHAR(255),
-                                            email VARCHAR(255),
-                                            user_id INT REFERENCES users(id) ON DELETE CASCADE,
+                                            user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL UNIQUE,
                                             disabled BOOLEAN,
                                             status VARCHAR(255) NOT NULL DEFAULT 'pending',
                                             password  VARCHAR(255) NOT NULL,
-                                            created_at TIMESTAMP,
+                                            created_at TIMESTAMP DEFAULT NOW(),
                                             updated_at TIMESTAMP
                                 );`);
   }

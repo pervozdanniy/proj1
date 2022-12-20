@@ -26,26 +26,18 @@ export class PaymentGatewayService {
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       details.country.payment_gateway.alias,
     );
-    const token = await paymentGateway.getToken(user.email);
+    const token = await paymentGateway.getToken(details);
 
     return { data: token };
   }
 
   async createUser(payload: CreateRequestDto): Promise<UserEntity> {
-    const { username, email } = payload;
     const user = await this.userService.create(payload);
-    const details = await this.userService.getUserInfo(user.id);
+    const userInfo = await this.userService.getUserInfo(user.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
-      details.country.payment_gateway.alias,
+      userInfo.country.payment_gateway.alias,
     );
-    const pg_password = generatePassword(true, true, 16);
-    const payment_gateway_user = await paymentGateway.createUserInDB({
-      name: username,
-      password: pg_password,
-      email,
-      user_id: user.id,
-    });
-    await paymentGateway.createUser(payment_gateway_user);
+    await paymentGateway.createUser(userInfo);
 
     return user;
   }

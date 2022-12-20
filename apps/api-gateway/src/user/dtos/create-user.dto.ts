@@ -37,12 +37,12 @@ class UserDetails {
   @Length(2, 50)
   street: string;
 
-  @ApiProperty({ example: 1213234 })
+  @ApiProperty({ example: 89145 })
   @IsNumber()
   @IsOptional()
   postal_code: number;
 
-  @ApiProperty({ example: 1213234 })
+  @ApiProperty({ example: 123123123 })
   @IsNumber()
   @IsNotEmpty()
   tax_id_number: number;
@@ -55,14 +55,14 @@ export class CreateUserDTO {
   @Length(2, 200)
   username: string;
 
-  @ApiProperty({ example: 'gevor276@gmail.com' })
+  @ApiProperty({ example: 'test453_sd@gmail.com' })
   @IsString()
   @IsNotEmpty()
   @IsEmail()
   @Length(2, 100)
   email: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: true, example: '+37495017680' })
   @IsString()
   @IsOptional()
   // @IsPhoneNumber()

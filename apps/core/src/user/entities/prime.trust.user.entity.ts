@@ -14,12 +14,6 @@ export class PrimeTrustUserEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column('character varying')
-  name: string;
-
-  @Column('character varying')
-  email: string;
-
   @Column('integer')
   user_id: number;
 
