@@ -10,6 +10,7 @@ import {
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
 import { PaymentGatewayService } from '../services/payment.gateway.service';
+import { Observable } from 'rxjs';
 
 @RpcController()
 @UseFilters(TypeOrmExceptionFilter)

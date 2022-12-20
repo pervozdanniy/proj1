@@ -4,7 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
-import { SuccessResponse } from '~common/grpc/interfaces/prime_trust';
+import { SuccessResponse } from '~common/grpc/interfaces/payment-gateway';
 import { generatePassword } from '~common/helpers';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime-trust-contact.entity';

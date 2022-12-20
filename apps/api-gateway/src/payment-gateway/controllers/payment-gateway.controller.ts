@@ -14,7 +14,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { PaymentGatewayService } from '~common/grpc/interfaces/prime_trust';
+import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
 import { User } from '~common/grpc/interfaces/common';
 import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
@@ -28,7 +28,7 @@ import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
   path: 'payment_gateway',
 })
 export class PaymentGatewayController implements OnModuleInit {
-  private paymentGatewayService: PaymentGatewayService;
+  private paymentGatewayService: PaymentGatewayServiceClient;
 
   constructor(@InjectGrpc('core') private readonly client: ClientGrpc) {}
 

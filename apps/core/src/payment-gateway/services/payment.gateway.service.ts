@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UserService } from '~svc/core/src/user/services/user.service';
-import { SuccessResponse } from '~common/grpc/interfaces/prime_trust';
+import { SuccessResponse } from '~common/grpc/interfaces/payment-gateway';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
 import { TokenSendRequest, PG_Token } from '~common/grpc/interfaces/payment-gateway';
 

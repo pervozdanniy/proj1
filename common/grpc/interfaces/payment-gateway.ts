@@ -56,7 +56,7 @@ export interface PaymentGatewayServiceController {
 
 export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createUser", "getToken", "createAccount"];
+    const grpcMethods: string[] = ["createUser", "getToken", "createAccount", "createContact"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("PaymentGatewayService", method)(constructor.prototype[method], method, descriptor);
