@@ -30,6 +30,7 @@ export class PrimeTrustService {
         user_id,
         password,
         disabled: true,
+        status: PrimeTrustStatus.PENDING,
       }),
     );
 
@@ -46,7 +47,6 @@ export class PrimeTrustService {
           email: user.email,
           name: user.username,
           password: pg_password,
-          status: PrimeTrustStatus.PENDING,
         },
       },
     };
