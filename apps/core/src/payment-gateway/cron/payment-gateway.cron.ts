@@ -1,13 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
+import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
 import { Not, Repository } from 'typeorm';
-import { PrimeTrustService } from '~svc/core/src/payment-gateway/prime_trust/prime.trust.service';
+import { PrimeTrustService } from '~svc/core/src/payment-gateway/prime_trust/prime-trust.service';
 
 @Injectable()
 export class PaymentGatewayCron {
+  private readonly logger = new Logger(PaymentGatewayCron.name);
   constructor(
     private readonly httpService: HttpService,
 
@@ -28,7 +29,7 @@ export class PaymentGatewayCron {
       try {
         await this.primeTrustService.createUser(user);
       } catch (e) {
-        console.log(e.response.data);
+        this.logger.error(e.response.data);
       }
     });
   }

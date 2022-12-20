@@ -1,18 +1,19 @@
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
+import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime.trust.status';
+import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime-trust.status';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PrimeTrustAccountEntity } from '~svc/core/src/user/entities/prime.trust.account.entity';
+import { PrimeTrustAccountEntity } from '~svc/core/src/user/entities/prime-trust-account.entity';
 import { SuccessResponse } from '~common/grpc/interfaces/prime_trust';
 import { generatePassword } from '~common/helpers';
 
 @Injectable()
 export class PrimeTrustService {
+  private readonly logger = new Logger(PrimeTrustService.name);
   constructor(
     private readonly httpService: HttpService,
 
@@ -45,6 +46,7 @@ export class PrimeTrustService {
           email: user.email,
           name: user.username,
           password: pg_password,
+          status: PrimeTrustStatus.PENDING,
         },
       },
     };
@@ -53,7 +55,7 @@ export class PrimeTrustService {
     try {
       response = await lastValueFrom(this.httpService.post('https://sandbox.primetrust.com/v2/users', createData));
     } catch (e) {
-      console.log(e.response.data.errors);
+      this.logger.error(e.response.data.errors);
 
       throw new GrpcException(Status.ABORTED, e.response.data, 400);
     }
@@ -130,7 +132,7 @@ export class PrimeTrustService {
 
       return openResponse.data;
     } catch (e) {
-      console.log(e.response.data.errors);
+      this.logger.error(e.response.data.errors);
 
       throw new GrpcException(Status.ABORTED, e.response.data, 400);
     }

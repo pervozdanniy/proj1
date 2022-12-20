@@ -1,7 +1,7 @@
 import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
-import { IdRequestDto } from '../dto/id.request.dto';
+import { IdRequestDto } from '../dto/id-request.dto';
 import {
   LoginRequest,
   NullableUser,
@@ -9,10 +9,10 @@ import {
   UserServiceControllerMethods,
 } from '~common/grpc/interfaces/core';
 import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from '../dto/user.response.dto';
+import { UserResponseDto } from '../dto/user-response.dto';
 import { User } from '~common/grpc/interfaces/common';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { AuthUserResponseDto } from '~svc/core/src/user/dto/auth.user.response.dto';
+import { AuthUserResponseDto } from '~svc/core/src/user/dto/auth-user-response.dto';
 
 @RpcController()
 @UseFilters(TypeOrmExceptionFilter)

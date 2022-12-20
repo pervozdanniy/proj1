@@ -17,7 +17,7 @@ import { InjectGrpc } from '~common/grpc/helpers';
 import { PaymentGatewayService } from '~common/grpc/interfaces/prime_trust';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
 import { User } from '~common/grpc/interfaces/common';
-import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send.token.dto';
+import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
 
 @ApiTags('Payment Gateway')
 @Injectable()
@@ -44,9 +44,7 @@ export class PaymentGatewayController implements OnModuleInit {
   @UseGuards(JwtSessionGuard)
   @Post('/token')
   async getToken(@JwtSessionUser() { id }: User) {
-    const user_id = id;
-
-    return lastValueFrom(this.paymentGatewayService.getToken({ user_id }));
+    return lastValueFrom(this.paymentGatewayService.getToken({ id }));
   }
 
   @ApiOperation({ summary: 'Create Account.' })
@@ -57,9 +55,7 @@ export class PaymentGatewayController implements OnModuleInit {
   @UseGuards(JwtSessionGuard)
   @Post('/account')
   async createAccount(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
-    const user_id = id;
-
-    return lastValueFrom(this.paymentGatewayService.createAccount({ user_id, ...payload }));
+    return lastValueFrom(this.paymentGatewayService.createAccount({ id, ...payload }));
   }
 
   // @Post('kyc/upload-document')

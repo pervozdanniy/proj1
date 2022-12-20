@@ -12,3 +12,7 @@ message User {
     optional string phone = 8;
     optional string email_verified_at = 9;
 }
+
+message IdRequest {
+    uint32 id = 1;
+}

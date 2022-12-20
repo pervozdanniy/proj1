@@ -4,9 +4,9 @@ import { UserEntity } from '../entities/user.entity';
 import { Repository } from 'typeorm';
 import { AwsKmsService } from '~svc/core/src/aws/services/aws.kms.service';
 import { AwsSqsProducerService } from '~svc/core/src/aws/services/aws.sqs.producer.service';
-import { CreateRequestDto } from '../dto/create.request.dto';
-import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime.trust.user.entity';
-import { UserDetailsEntity } from '~svc/core/src/user/entities/user.details.entity';
+import { CreateRequestDto } from '../dto/create-request.dto';
+import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
+import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 
 @Injectable()
 export class UserService {

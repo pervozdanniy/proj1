@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from '~common/config/configuration';
 import { UserModule } from './user/user.module';
 import { LoggerModule } from 'nestjs-pino';
-import { PaymentGatewayModule } from './payment-gateway/payment.gateway.module';
+import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({

@@ -1,14 +1,11 @@
 /* eslint-disable */
 import { Observable } from 'rxjs';
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import {IdRequest} from "~common/grpc/interfaces/common";
 
-export interface UserIdRequest {
-  user_id: number;
-}
 
 export interface CreateAccountRequest {
-  user_id: number;
-
+  id: number;
   token:string;
 }
 
@@ -25,7 +22,7 @@ export interface SuccessResponse {
 }
 
 export interface PaymentGatewayService {
-  getToken(request: UserIdRequest): Observable<TokenData>;
+  getToken(request: IdRequest): Observable<TokenData>;
 
   createAccount(request: CreateAccountRequest): Observable<SuccessResponse>;
 }

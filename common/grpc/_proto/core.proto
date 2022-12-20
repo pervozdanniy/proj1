@@ -1,22 +1,21 @@
 syntax = "proto3";
 package skopa.core;
 
-import "common.proto";
+
 import "payment-gateway.proto";
+import "common.proto";
 
 service UserService {
-  rpc GetById (IdRequest) returns (common.User);
+  rpc GetById (common.IdRequest) returns (common.User);
 
   rpc FindByLogin (LoginRequest) returns (NullableUser);
 
   rpc Create (CreateRequest) returns (common.User);
 
-  rpc Delete (IdRequest) returns (DeleteResponse);
+  rpc Delete (common.IdRequest) returns (DeleteResponse);
 }
 
-message IdRequest {
-  uint32 id = 1;
-}
+
 
 message NullableUser {
   optional common.User user = 1;

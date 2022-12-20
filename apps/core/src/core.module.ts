@@ -7,7 +7,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { LoggerModule } from 'nestjs-pino';
 import { AwsModule } from '~svc/core/src/aws/AwsModule';
 import migrations from './db/migrations-list';
-import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment.gateway.module';
+import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment-gateway.module';
 import { BullModule } from '@nestjs/bull';
 import { ScheduleModule } from '@nestjs/schedule';
 
