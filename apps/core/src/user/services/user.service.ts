@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-<<<<<<< HEAD
-import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 import { CreateRequestDto } from '../dto/create-request.dto';
-=======
-import { AwsKmsService } from '~svc/core/src/aws/services/aws.kms.service';
-import { AwsSqsProducerService } from '~svc/core/src/aws/services/aws.sqs.producer.service';
-import { CreateRequestDto } from '../dto/create.request.dto';
->>>>>>> 492ba48 (SKOPA-99: added integration tests)
+import { UserDetailsEntity } from '../entities/user-details.entity';
 import { UserEntity } from '../entities/user.entity';
 
 @Injectable()
