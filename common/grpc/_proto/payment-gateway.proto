@@ -1,0 +1,26 @@
+syntax = "proto3";
+import "common.proto";
+package skopa.core;
+
+
+service PaymentGatewayService {
+  rpc GetToken (common.IdRequest) returns (PG_Token);
+  rpc CreateAccount (CreateAccountRequest) returns (SuccessResponse);
+}
+
+message SuccessResponse {
+  bool success = 1;
+}
+
+message CreateAccountRequest{
+  uint32 id = 1;
+  string token = 2;
+}
+
+message PG_Token {
+  Token_Data data = 1;
+}
+
+message Token_Data {
+  string token = 1;
+}

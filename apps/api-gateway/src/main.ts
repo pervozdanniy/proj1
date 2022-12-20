@@ -20,6 +20,7 @@ async function bootstrap() {
   const validationOptions: ValidationPipeOptions = {
     forbidNonWhitelisted: true,
     whitelist: true,
+    transform: true,
   };
   app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalFilters(new ApiExceptionFilter());

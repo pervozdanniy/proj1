@@ -1,4 +1,5 @@
 import {
+  Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
@@ -7,15 +8,18 @@ import {
   Injectable,
   Param,
   ParseIntPipe,
+  Post,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
-import { UserService } from '../user.service';
+import { CreateUserDTO } from '~svc/api-gateway/src/user/dtos/create-user.dto';
 import { PublicUserDto } from '../../utils/public-user.dto';
-import { plainToInstance } from 'class-transformer';
+import { UserDTO } from '../dtos/user.dto';
+import { UserService } from '../user.service';
 
 @ApiTags('User')
 @Injectable()
@@ -47,5 +51,17 @@ export class UserController {
     const user = await this.userService.getById(id);
 
     return plainToInstance(PublicUserDto, user);
+  }
+
+  @ApiOperation({ summary: 'Create user.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'The user created successfully.',
+    type: UserDTO,
+  })
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  async createUser(@Body() payload: CreateUserDTO): Promise<UserDTO> {
+    return await this.userService.create(payload);
   }
 }

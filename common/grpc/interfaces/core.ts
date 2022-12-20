@@ -2,16 +2,23 @@
 import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { User } from "./common";
+import { IdRequest, User } from "./common";
 
 export const protobufPackage = "skopa.core";
 
-export interface IdRequest {
-  id: number;
-}
-
 export interface NullableUser {
   user?: User | undefined;
+}
+
+export interface UserDetails {
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  city: string;
+  street: string;
+  postal_code: number;
+  tax_id_number: number;
+  region: string;
 }
 
 export interface CreateRequest {
@@ -19,6 +26,8 @@ export interface CreateRequest {
   email: string;
   password: string;
   phone?: string | undefined;
+  country_id: number;
+  details: UserDetails | undefined;
 }
 
 export interface LoginRequest {
@@ -59,7 +68,7 @@ export interface UserServiceController {
 
 export function UserServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getById", "findByLogin", "create", "delete"];
+    const grpcMethods: string[] = ["getById", "findByLogin", "delete"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);

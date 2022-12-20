@@ -1,4 +1,16 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
+import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
+import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -11,10 +23,16 @@ export class UserEntity {
   @Column('character varying')
   email: string;
 
+  @Column('integer')
+  country_id: number;
+
   @Column('character varying', { nullable: true })
   phone: string;
 
-  @Column('character varying', { select: false })
+  @Column('character varying')
+  status: string;
+
+  @Column('character varying')
   password?: string;
 
   @Column('timestamp', { nullable: true })
@@ -25,4 +43,14 @@ export class UserEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @ManyToOne(() => CountryEntity, (country) => country.users)
+  @JoinColumn({ name: 'country_id' })
+  country: CountryEntity;
+
+  @OneToOne(() => UserDetailsEntity, (details) => details.user)
+  details: UserDetailsEntity;
+
+  @OneToOne(() => PrimeTrustUserEntity, (prime) => prime.skopa_user)
+  prime_user: PrimeTrustUserEntity;
 }
