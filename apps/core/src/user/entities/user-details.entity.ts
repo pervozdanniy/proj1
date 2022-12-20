@@ -49,5 +49,5 @@ export class UserDetailsEntity {
 
   @OneToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
-  user: UserEntity;
+  user?: UserEntity;
 }

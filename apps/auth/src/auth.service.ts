@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { ClientGrpc } from '@nestjs/microservices';
-import { InjectGrpc } from '~common/grpc/helpers';
-import { UserServiceClient } from '~common/grpc/interfaces/core';
 import bcrypt from 'bcrypt';
 import { firstValueFrom } from 'rxjs';
-import { JwtService } from '@nestjs/jwt';
-import { SessionService } from '~common/session';
+import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
+import { UserServiceClient } from '~common/grpc/interfaces/core';
+import { SessionService } from '~common/session';
 
 @Injectable()
 export class AuthService {

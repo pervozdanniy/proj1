@@ -1,15 +1,15 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration, { ConfigInterface } from '~common/config/configuration';
-import { UserModule } from './user/user.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { LoggerModule } from 'nestjs-pino';
-import { AwsModule } from '~svc/core/src/aws/AwsModule';
-import migrations from './db/migrations-list';
-import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment-gateway.module';
 import { BullModule } from '@nestjs/bull';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggerModule } from 'nestjs-pino';
+import configuration, { ConfigInterface } from '~common/config/configuration';
+import { AwsModule } from '~svc/core/src/aws/AwsModule';
+import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment-gateway.module';
+import migrations from './db/migrations-list';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [

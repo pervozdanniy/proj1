@@ -1,9 +1,9 @@
-import { NestFactory } from '@nestjs/core';
-import { ApiGatewayModule } from './api-gateway.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
-import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import sentryInit from 'common/sentry/init';
+import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
+import { ApiGatewayModule } from './api-gateway.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule, { bufferLogs: true });

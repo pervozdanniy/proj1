@@ -2,7 +2,7 @@ import { ClientsProviderAsyncOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ConfigInterface } from '~common/config/configuration';
+import { Addr, ConfigInterface } from '~common/config/configuration';
 
 const GRPC_PREFIX = '_grpc';
 
@@ -29,12 +29,12 @@ export const asyncClientOptions = (
     const resolve = buildProtoPath(config.getOrThrow<string>('basePath'));
     const protoPath = Array.isArray(packages) ? packages.map(resolve) : resolve(packages);
 
-    const host = config.getOrThrow<string>(`grpcServices.${service}.host`, { infer: true });
+    const { host, port } = config.getOrThrow<Addr>(`grpcServices.${service}`, { infer: true });
 
     return {
       transport: Transport.GRPC,
       options: {
-        url: `${host}:5000`,
+        url: `${host}:${port}`,
         package: packages,
         loader: {
           keepCase: true,

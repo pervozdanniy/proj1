@@ -1,6 +1,6 @@
+import { Type } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
 import { CreateRequest } from '~common/grpc/interfaces/core';
-import { Type } from 'class-transformer';
 
 export class UserDetails {
   @IsString()
@@ -62,7 +62,7 @@ export class CreateRequestDto implements CreateRequest {
   country_id;
 
   @ValidateNested()
-  @IsNotEmpty()
   @Type(() => UserDetails)
-  details: UserDetails;
+  @IsOptional()
+  details?: UserDetails;
 }

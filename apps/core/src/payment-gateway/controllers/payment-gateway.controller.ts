@@ -1,38 +1,33 @@
-import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
-import { PaymentGatewayService } from '../services/payment.gateway.service';
+import { UseFilters } from '@nestjs/common';
+import { IdRequest } from '~common/grpc/interfaces/common';
 import {
-  PaymentGatewayControllerMethods,
-  CreateAccountRequest,
+  PaymentGatewayServiceController,
+  PaymentGatewayServiceControllerMethods,
+  PG_Token,
   SuccessResponse,
-} from '~common/grpc/interfaces/prime_trust';
+} from '~common/grpc/interfaces/payment-gateway';
+import { CreateAccountRequest } from '~common/grpc/interfaces/prime_trust';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
-import { CreateRequestDto } from '~svc/core/src/user/dto/create-request.dto';
-import { IdRequest, User } from '~common/grpc/interfaces/common';
-import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from '~svc/core/src/user/dto/user-response.dto';
-import { GrpcMethod } from '@nestjs/microservices';
-import { PG_Token } from '~common/grpc/interfaces/payment-gateway';
+import { PaymentGatewayService } from '../services/payment.gateway.service';
 
 @RpcController()
 @UseFilters(TypeOrmExceptionFilter)
-@PaymentGatewayControllerMethods()
-export class PaymentGatewayController {
+@PaymentGatewayServiceControllerMethods()
+export class PaymentGatewayController implements PaymentGatewayServiceController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
-  async getToken(request: IdRequest): Promise<PG_Token> {
-    return this.paymentGatewayService.getToken(request);
+  async createUser({ id }: IdRequest): Promise<SuccessResponse> {
+    const success = await this.paymentGatewayService.createUser(id);
+
+    return { success };
+  }
+
+  async getToken({ id }: IdRequest): Promise<PG_Token> {
+    return this.paymentGatewayService.getToken(id);
   }
 
   async createAccount(request: CreateAccountRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.createAccount(request);
-  }
-
-  @GrpcMethod('UserService', 'Create')
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async create(payload: CreateRequestDto): Promise<User> {
-    const user = this.paymentGatewayService.createUser(payload);
-
-    return plainToInstance(UserResponseDto, user);
   }
 }

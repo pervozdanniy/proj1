@@ -1,10 +1,10 @@
+import { status } from '@grpc/grpc-js';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { AuthServiceController, AuthServiceControllerMethods } from '~common/grpc/interfaces/auth';
-import { LoginRequestDto } from './dto/login.dto';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { status } from '@grpc/grpc-js';
+import { AuthService } from './auth.service';
+import { LoginRequestDto } from './dto/login.dto';
 
 @RpcController()
 @AuthServiceControllerMethods()
