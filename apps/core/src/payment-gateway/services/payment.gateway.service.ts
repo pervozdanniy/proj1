@@ -1,8 +1,12 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  PG_Token,
+  SuccessResponse,
+  TokenSendRequest,
+  UploadDocumentRequest,
+} from '~common/grpc/interfaces/payment-gateway';
 import { UserService } from '~svc/core/src/user/services/user.service';
-import { SuccessResponse, UploadDocumentRequest } from '~common/grpc/interfaces/payment-gateway';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
-import { TokenSendRequest, PG_Token } from '~common/grpc/interfaces/payment-gateway';
 
 @Injectable()
 export class PaymentGatewayService {
