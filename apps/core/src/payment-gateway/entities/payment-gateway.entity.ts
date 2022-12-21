@@ -1,5 +1,5 @@
 // NPM Modules
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('payment_gateways')
 export class PaymentGatewayEntity {

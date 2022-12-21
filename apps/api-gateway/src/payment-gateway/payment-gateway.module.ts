@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
+import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 
 @Module({
   imports: [ClientsModule.registerAsync([asyncClientOptions('core')])],

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
-import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
 import configuration from '~common/config/configuration';
 import { AuthModule } from './auth/auth.module';
+import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
 import { UserModule } from './user/user.module';
 
 @Module({

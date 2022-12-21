@@ -12,16 +12,16 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
+import { DocumentTypesEnum } from '~common/enum/document-types.enum';
 import { InjectGrpc } from '~common/grpc/helpers';
+import { User } from '~common/grpc/interfaces/common';
 import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
-import { User } from '~common/grpc/interfaces/common';
-import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { SendDocumentDto } from '~svc/api-gateway/src/user/dtos/send-document.dto';
-import { DocumentTypesEnum } from '~common/enum/document-types.enum';
+import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
 
 @ApiTags('Payment Gateway')
 @Injectable()
