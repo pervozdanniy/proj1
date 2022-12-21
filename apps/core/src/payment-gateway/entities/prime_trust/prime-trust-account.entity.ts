@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
+import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
+import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 
 @Entity('prime_trust_accounts')
 export class PrimeTrustAccountEntity {
@@ -39,4 +40,7 @@ export class PrimeTrustAccountEntity {
   @OneToOne(() => PrimeTrustUserEntity)
   @JoinColumn({ name: 'user_id' })
   user: PrimeTrustUserEntity;
+
+  @OneToOne(() => PrimeTrustContactEntity, (contact) => contact.account)
+  contact?: PrimeTrustContactEntity;
 }

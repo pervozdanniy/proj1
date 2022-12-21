@@ -7,17 +7,21 @@ import {
   Injectable,
   OnModuleInit,
   Post,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
 import { User } from '~common/grpc/interfaces/common';
 import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { SendDocumentDto } from '~svc/api-gateway/src/user/dtos/send-document.dto';
+import { DocumentTypesEnum } from '~common/enum/document-types.enum';
 
 @ApiTags('Payment Gateway')
 @Injectable()
@@ -69,25 +73,39 @@ export class PaymentGatewayController implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayService.createContact({ id, ...payload }));
   }
 
-  // @Post('kyc/upload-document')
-  // @ApiConsumes('multipart/form-data')
-  // @ApiOperation({ summary: 'Upload new file.' })
-  // @ApiBody({
-  //   schema: {
-  //     type: 'object',
-  //     properties: {
-  //       file: {
-  //         type: 'string',
-  //         format: 'binary',
-  //       },
-  //     },
-  //   },
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  //   description: 'The file successfully uploaded.',
-  // })
-  // @HttpCode(HttpStatus.CREATED)
-  // @UseInterceptors(FileInterceptor('file'))
-  // async uploadFile(@UploadedFile() file: any) {}
+  @Post('kyc/upload-document')
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload new file.' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        label: {
+          type: 'array',
+          items: {
+            enum: Object.values(DocumentTypesEnum),
+            example: Object.values(DocumentTypesEnum),
+          },
+        },
+        token: { type: 'string' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'The file successfully uploaded.',
+  })
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtSessionGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadDocument(@JwtSessionUser() { id }: User, @UploadedFile() file: any, @Body() payload: SendDocumentDto) {
+    const { label, token } = payload;
+    const tokenData = { id, token };
+
+    return lastValueFrom(this.paymentGatewayService.uploadDocument({ file, label, tokenData }));
+  }
 }

@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UserService } from '~svc/core/src/user/services/user.service';
-import { SuccessResponse } from '~common/grpc/interfaces/payment-gateway';
+import { SuccessResponse, UploadDocumentRequest } from '~common/grpc/interfaces/payment-gateway';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
 import { TokenSendRequest, PG_Token } from '~common/grpc/interfaces/payment-gateway';
 
@@ -62,5 +62,19 @@ export class PaymentGatewayService {
     );
 
     return await paymentGateway.createContact(userDetails, token);
+  }
+
+  async uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
+    const {
+      file,
+      label,
+      tokenData: { id, token },
+    } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return await paymentGateway.uploadDocument(userDetails, file, label, token);
   }
 }

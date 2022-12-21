@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { PrimeTrustAccountEntity } from '~svc/core/src/user/entities/prime-trust-account.entity';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
+import { PrimeTrustKycDocumentEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
 
 @Entity('prime_trust_contacts')
 export class PrimeTrustContactEntity {
@@ -41,5 +42,9 @@ export class PrimeTrustContactEntity {
 
   @OneToOne(() => PrimeTrustAccountEntity)
   @JoinColumn({ name: 'account_id' })
-  user: PrimeTrustAccountEntity;
+  account?: PrimeTrustAccountEntity;
+
+  @OneToMany(() => PrimeTrustKycDocumentEntity, (document) => document.contact)
+  @JoinColumn({ name: 'contact_id' })
+  documents?: PrimeTrustKycDocumentEntity[];
 }

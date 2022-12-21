@@ -6,6 +6,7 @@ import {
   PG_Token,
   SuccessResponse,
   TokenSendRequest,
+  UploadDocumentRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
@@ -33,5 +34,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   async createContact(request: TokenSendRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.createContact(request);
+  }
+
+  async uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.uploadDocument(request);
   }
 }

@@ -6,6 +6,21 @@ import { IdRequest } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface FileData {
+  buffer: Uint8Array;
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+}
+
+export interface UploadDocumentRequest {
+  label: string;
+  file: FileData | undefined;
+  tokenData: TokenSendRequest | undefined;
+}
+
 export interface SuccessResponse {
   success: boolean;
 }
@@ -33,6 +48,8 @@ export interface PaymentGatewayServiceClient {
   createAccount(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   createContact(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  uploadDocument(request: UploadDocumentRequest, metadata?: Metadata): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -52,11 +69,16 @@ export interface PaymentGatewayServiceController {
     request: TokenSendRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  uploadDocument(
+    request: UploadDocumentRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createUser", "getToken", "createAccount", "createContact"];
+    const grpcMethods: string[] = ["createUser", "getToken", "createAccount", "createContact", "uploadDocument"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("PaymentGatewayService", method)(constructor.prototype[method], method, descriptor);

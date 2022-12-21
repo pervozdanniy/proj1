@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
+import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 
 @Entity('prime_trust_users')
 export class PrimeTrustUserEntity {
@@ -38,4 +39,7 @@ export class PrimeTrustUserEntity {
 
   @Column('character varying')
   uuid: string;
+
+  @OneToOne(() => PrimeTrustAccountEntity, (account) => account.user)
+  account?: PrimeTrustAccountEntity;
 }

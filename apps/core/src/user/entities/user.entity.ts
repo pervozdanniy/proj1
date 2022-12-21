@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
-import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
+import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 
 @Entity('users')

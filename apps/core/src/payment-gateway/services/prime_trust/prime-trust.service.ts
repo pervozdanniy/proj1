@@ -7,11 +7,13 @@ import { Repository } from 'typeorm';
 import { SuccessResponse } from '~common/grpc/interfaces/payment-gateway';
 import { generatePassword } from '~common/helpers';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
-import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime-trust-contact.entity';
+import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime-trust.status';
-import { PrimeTrustAccountEntity } from '~svc/core/src/user/entities/prime-trust-account.entity';
-import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
+import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
+import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
+import { PrimeTrustKycDocumentEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
+import FormData from 'form-data';
 
 @Injectable()
 export class PrimeTrustService {
@@ -27,6 +29,9 @@ export class PrimeTrustService {
 
     @InjectRepository(PrimeTrustContactEntity)
     private readonly primeTrustContactEntityRepository: Repository<PrimeTrustContactEntity>,
+
+    @InjectRepository(PrimeTrustKycDocumentEntity)
+    private readonly primeTrustKycDocumentEntityRepository: Repository<PrimeTrustKycDocumentEntity>,
   ) {}
 
   async createPendingPrimeUser(password: string, user_id: number) {
@@ -165,35 +170,13 @@ export class PrimeTrustService {
     }
   }
 
-  // async uploadDocumentKYC(file) {
-  //   const bodyFormData = new FormData();
-  //   bodyFormData.append('contact-id', 'a09de1db-9db0-4449-a84e-faa3fb61b2c5');
-  //   bodyFormData.append('label', 'drivers_license');
-  //   bodyFormData.append('public', 'false');
-  //   bodyFormData.append('file', file.buffer, file.originalname);
-  //
-  //   const http = new HttpService();
-  //   const headersRequest = {
-  //     Authorization: `Bearer eyJhbGciOiJSUzI1NiJ9.eyJhdXRoX3NlY3JldCI6ImU0MWNlNmE4LWQ5ODQtNDI1YS1iMGZlLWZhMjUwYzBiZTRkYyIsInVzZXJfZ3JvdXBzIjpbXSwibm93IjoxNjcxNDI3NzM1LCJleHAiOjE2NzIwMzI1MzV9.adsykzsxlePsje8Zm0BBwjA86NP5jJTAd3h6x2rB9_KESunk4AtK1AxfNqj7JWyaGRFuGtcTtJI8E-NEb4Db2D4rijVuN9khn6-ytwE-FKJ47yWN_glj2ziCgQturxY__ZOe9BWammgRJjLcDDhbmApvN6uN_rlb_faM9iV8g-YN5GmF-adpcKvpAK2ujOvSKpIsoZcKvroHcqDb9D7uyVJFjixmMRpXObUkS34Pze-_aDJDyTqEf-ZKSBVpxwKUgea8pBuHUhEIjZrvdpRJIOXFz7bonMCUXersKT3xFHwl9RjYs3bjg97kNd7cDuvwqTFRIbZBker2PflEm6ixoQ`,
-  //   };
-  //
-  //   const result = await lastValueFrom(
-  //     http.post('https://sandbox.primetrust.com/v2/uploaded-documents', bodyFormData, {
-  //       headers: headersRequest,
-  //     }),
-  //   )
-  //     .then((data) => {
-  //       console.log(data);
-  //     })
-  //     .catch((e) => {
-  //       console.log(e);
-  //     });
-  // }
   async createContact(userDetails: UserEntity, token: string) {
     const primeUser = userDetails.prime_user;
-    const account = await this.primeAccountRepository.findOne({ where: { user_id: primeUser.id } });
-    const contact = await this.primeTrustContactEntityRepository.findOne({ where: { account_id: account.id } });
-    if (contact) {
+    const account = await this.primeAccountRepository.findOne({
+      where: { user_id: primeUser.id },
+      relations: ['contact'],
+    });
+    if (account.contact) {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Contact already exist!', 400);
     }
 
@@ -254,6 +237,104 @@ export class PrimeTrustService {
         cip_cleared: contactData.data.attributes['cip-cleared'],
       }),
     );
+
+    return { success: true };
+  }
+
+  async uploadDocument(userDetails: UserEntity, file: any, label: string, token: string) {
+    const country_code = userDetails.country.code;
+    const primeUser = userDetails.prime_user;
+    const account = await this.primeAccountRepository.findOne({
+      where: { user_id: primeUser.id },
+      relations: ['contact'],
+    });
+
+    const documentResponse = await this.sendDocument(file, label, token, account.contact.uuid);
+
+    const documentCheckResponse = await this.kycDocumentCheck(
+      documentResponse.data.id,
+      account.contact.uuid,
+      label,
+      country_code,
+      token,
+    );
+
+    return await this.saveDocument(documentResponse.data, account.contact.id, documentCheckResponse.data);
+  }
+
+  async kycDocumentCheck(document_uuid, contact_uuid, label, country_code, token) {
+    const formData = {
+      data: {
+        type: 'kyc-document-checks',
+        attributes: {
+          'contact-id': contact_uuid,
+          'uploaded-document-id': document_uuid,
+          identity: true,
+          'identity-photo': true,
+          'proof-of-address': true,
+          'kyc-document-country': country_code,
+          'kyc-document-type': label,
+        },
+      },
+    };
+
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+    try {
+      const result = await lastValueFrom(
+        this.httpService.post('https://sandbox.primetrust.com/v2/kyc-document-checks', formData, {
+          headers: headersRequest,
+        }),
+      );
+
+      return result.data;
+    } catch (e) {
+      console.log(e.response.data);
+    }
+  }
+
+  async sendDocument(file, label, token, contact_uuid) {
+    const bodyFormData = new FormData();
+    bodyFormData.append('contact-id', contact_uuid);
+    bodyFormData.append('label', label);
+    bodyFormData.append('public', 'false');
+    bodyFormData.append('file', file.buffer, file.originalname);
+
+    const headersRequest = {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    };
+    try {
+      const result = await lastValueFrom(
+        this.httpService.post('https://sandbox.primetrust.com/v2/uploaded-documents', bodyFormData, {
+          headers: headersRequest,
+          ...bodyFormData.getHeaders(),
+        }),
+      );
+
+      return result.data;
+    } catch (e) {
+      console.log(e.response.data);
+    }
+  }
+
+  async saveDocument(documentData, contact_id, documentCheckResponse) {
+    try {
+      await this.primeTrustKycDocumentEntityRepository.save(
+        this.primeTrustKycDocumentEntityRepository.create({
+          contact_id,
+          uuid: documentData.id,
+          file_url: documentData.attributes['file-url'],
+          extension: documentData.attributes['extension'],
+          label: documentData.attributes['label'],
+          kyc_check_uuid: documentCheckResponse.id,
+          status: documentCheckResponse.attributes.status,
+        }),
+      );
+    } catch (e) {
+      console.log(e);
+    }
 
     return { success: true };
   }

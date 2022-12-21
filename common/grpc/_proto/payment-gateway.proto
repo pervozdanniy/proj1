@@ -8,6 +8,22 @@ service PaymentGatewayService {
   rpc GetToken (common.IdRequest) returns (PG_Token);
   rpc CreateAccount (TokenSendRequest) returns (SuccessResponse);
   rpc CreateContact (TokenSendRequest) returns (SuccessResponse);
+  rpc UploadDocument (UploadDocumentRequest) returns (SuccessResponse);
+}
+message FileData  {
+  bytes buffer = 1;
+  string fieldname = 2;
+  string originalname = 3;
+  string encoding = 4;
+  string mimetype = 5;
+  uint32 size = 6;
+}
+
+message UploadDocumentRequest {
+  string label = 1;
+  FileData file = 2;
+  TokenSendRequest tokenData = 3;
+
 }
 
 message SuccessResponse {
