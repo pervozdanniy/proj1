@@ -17,22 +17,22 @@ export class UserEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column('character varying')
+  @Column('varchar')
   username: string;
 
-  @Column('character varying')
+  @Column('varchar', { unique: true })
   email: string;
 
   @Column('integer')
   country_id: number;
 
-  @Column('character varying', { nullable: true })
+  @Column('varchar', { nullable: true })
   phone?: string;
 
-  @Column('character varying')
+  @Column('varchar', { default: 'active' })
   status: string;
 
-  @Column('character varying')
+  @Column('varchar')
   password?: string;
 
   @Column('timestamp', { nullable: true })
@@ -44,7 +44,7 @@ export class UserEntity {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => CountryEntity, (country) => country.users)
+  @ManyToOne(() => CountryEntity, (country) => country.users, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'country_id' })
   country?: CountryEntity;
 

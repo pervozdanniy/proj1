@@ -53,6 +53,6 @@ export class PaymentGatewayService {
 
     const accountResponse = await paymentGateway.getAccountData(userDetails, token);
 
-    return await paymentGateway.createAccount(accountResponse.data, userDetails.prime_user.id);
+    return await paymentGateway.createAccount(accountResponse.data, userDetails.id);
   }
 }

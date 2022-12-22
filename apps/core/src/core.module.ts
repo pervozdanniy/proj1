@@ -10,11 +10,12 @@ import { AwsModule } from '~svc/core/src/aws/AwsModule';
 import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment-gateway.module';
 import migrations from './db/migrations-list';
 import { UserModule } from './user/user.module';
+import dbConfig from './db/db.config';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    ConfigModule.forRoot({ load: [configuration], isGlobal: true }),
+    ConfigModule.forRoot({ load: [configuration, dbConfig], isGlobal: true }),
     LoggerModule.forRoot({
       pinoHttp: {
         transport: {

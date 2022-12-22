@@ -1,14 +1,13 @@
-// NPM Modules
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('payment_gateways')
 export class PaymentGatewayEntity {
-  @PrimaryColumn('integer')
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column('varchar')
+  @Column('varchar', { length: 255 })
   name: string;
 
-  @Column('varchar')
+  @Column('varchar', { length: 255 })
   alias: string;
 }

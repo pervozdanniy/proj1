@@ -1,42 +1,44 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
+import { UserEntity } from './user.entity';
 
 @Entity('prime_trust_accounts')
 export class PrimeTrustAccountEntity {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
-
-  @Column('character varying')
-  name: string;
-
-  @Column('character varying')
-  uuid: string;
-
-  @Column('integer')
+  @PrimaryColumn('integer', { generated: false })
   user_id: number;
 
-  @Column('character varying')
-  number: string;
+  @Column('varchar', { length: 50, nullable: true })
+  name?: string;
 
-  @Column('boolean')
-  contributions_frozen: boolean;
+  @Column('varchar', { length: 50, nullable: true })
+  uuid?: string;
 
-  @Column('boolean')
-  disbursements_frozen: boolean;
+  @Column('varchar', { length: 50, nullable: true })
+  number?: string;
 
-  @Column('boolean')
-  statements: boolean;
+  @Column('boolean', { nullable: true })
+  contributions_frozen?: boolean;
 
-  @Column('boolean')
-  solid_freeze: boolean;
+  @Column('boolean', { nullable: true })
+  disbursements_frozen?: boolean;
 
-  @Column('character varying')
-  status: string;
+  @Column('boolean', { nullable: true })
+  statements?: boolean;
 
-  @Column('character varying')
-  offline_cold_storage: string;
+  @Column('boolean', { nullable: true })
+  solid_freeze?: boolean;
 
-  @OneToOne(() => PrimeTrustUserEntity)
+  @Column('varchar', { length: 50, nullable: true })
+  status?: string;
+
+  @Column('varchar', { length: 50, nullable: true })
+  offline_cold_storage?: string;
+
+  @OneToOne(() => PrimeTrustUserEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
+  user?: PrimeTrustUserEntity;
+
+  @OneToOne(() => UserEntity, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'user_id' })
-  user: PrimeTrustUserEntity;
+  skopa_user?: UserEntity;
 }

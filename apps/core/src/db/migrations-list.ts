@@ -6,6 +6,7 @@ import { CreatePrimeTrustTable1671090646320 } from '~svc/core/src/db/migrations/
 import { createUserDetailsTable1671438132874 } from '~svc/core/src/db/migrations/1671438132874-createUserDetailsTable';
 import { SeedPaymentGateway1671466516817 } from '~svc/core/src/db/seeds/1671466516817-SeedPaymentGateway';
 import { CreatePrimeTrustAccount1671467664497 } from '~svc/core/src/db/migrations/1671467664497-CreatePrimeTrustAccount';
+import { FixTypesAndRelations1671733995143 } from './migrations/1671733995143-FixTypesAndRelations';
 
 export default [
   createUserTable1669901299726,
@@ -16,4 +17,5 @@ export default [
   createUserDetailsTable1671438132874,
   SeedPaymentGateway1671466516817,
   CreatePrimeTrustAccount1671467664497,
+  FixTypesAndRelations1671733995143,
 ];
