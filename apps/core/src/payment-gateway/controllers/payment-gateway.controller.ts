@@ -1,11 +1,13 @@
 import { UseFilters } from '@nestjs/common';
 import { IdRequest } from '~common/grpc/interfaces/common';
 import {
+  AccountIdRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
   SuccessResponse,
   TokenSendRequest,
+  UpdateAccountRequest,
   UploadDocumentRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
@@ -38,5 +40,12 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   async uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.uploadDocument(request);
+  }
+
+  updateAccount(request: UpdateAccountRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.updateAccount(request);
+  }
+  documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.documentCheck(request);
   }
 }

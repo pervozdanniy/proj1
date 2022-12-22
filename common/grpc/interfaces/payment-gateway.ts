@@ -6,6 +6,17 @@ import { IdRequest } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface AccountIdRequest {
+  id: string;
+  payment_gateway: string;
+}
+
+export interface UpdateAccountRequest {
+  id: string;
+  status: string;
+  payment_gateway: string;
+}
+
 export interface FileData {
   buffer: Uint8Array;
   fieldname: string;
@@ -47,9 +58,13 @@ export interface PaymentGatewayServiceClient {
 
   createAccount(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
+  updateAccount(request: UpdateAccountRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
   createContact(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   uploadDocument(request: UploadDocumentRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  documentCheck(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -65,6 +80,11 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
+  updateAccount(
+    request: UpdateAccountRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
   createContact(
     request: TokenSendRequest,
     metadata?: Metadata,
@@ -74,11 +94,24 @@ export interface PaymentGatewayServiceController {
     request: UploadDocumentRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  documentCheck(
+    request: AccountIdRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createUser", "getToken", "createAccount", "createContact", "uploadDocument"];
+    const grpcMethods: string[] = [
+      "createUser",
+      "getToken",
+      "createAccount",
+      "updateAccount",
+      "createContact",
+      "uploadDocument",
+      "documentCheck",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("PaymentGatewayService", method)(constructor.prototype[method], method, descriptor);

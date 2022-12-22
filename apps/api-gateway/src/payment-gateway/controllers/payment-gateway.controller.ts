@@ -2,8 +2,10 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Injectable,
   OnModuleInit,
   Post,
@@ -20,6 +22,7 @@ import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
 import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { HandlerService } from '~svc/api-gateway/src/payment-gateway/webhook/handlers/handler.service';
 import { SendDocumentDto } from '~svc/api-gateway/src/user/dtos/send-document.dto';
 import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
 
@@ -32,6 +35,9 @@ import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
   path: 'payment_gateway',
 })
 export class PaymentGatewayController implements OnModuleInit {
+  @Inject(HandlerService)
+  private handlerService: HandlerService;
+
   private paymentGatewayService: PaymentGatewayServiceClient;
 
   constructor(@InjectGrpc('core') private readonly client: ClientGrpc) {}
@@ -60,6 +66,11 @@ export class PaymentGatewayController implements OnModuleInit {
   @Post('/account')
   async createAccount(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
     return lastValueFrom(this.paymentGatewayService.createAccount({ id, ...payload }));
+  }
+
+  @Post('/account/webhook')
+  async webhook(@Body() payload: any) {
+    return this.handlerService.handler(payload, this.paymentGatewayService);
   }
 
   @ApiOperation({ summary: 'Create Contact.' })

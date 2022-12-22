@@ -7,9 +7,25 @@ service PaymentGatewayService {
   rpc CreateUser(common.IdRequest) returns (SuccessResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
   rpc CreateAccount (TokenSendRequest) returns (SuccessResponse);
+  rpc UpdateAccount (UpdateAccountRequest) returns (SuccessResponse);
   rpc CreateContact (TokenSendRequest) returns (SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (SuccessResponse);
+  rpc DocumentCheck (AccountIdRequest) returns (SuccessResponse);
 }
+
+
+message AccountIdRequest{
+  string id = 1;
+  string payment_gateway = 2;
+}
+
+message UpdateAccountRequest{
+  string id = 1;
+  string status = 2;
+  string payment_gateway = 3;
+}
+
+
 message FileData  {
   bytes buffer = 1;
   string fieldname = 2;

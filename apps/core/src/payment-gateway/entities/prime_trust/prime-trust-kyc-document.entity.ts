@@ -22,6 +22,9 @@ export class PrimeTrustKycDocumentEntity {
   kyc_check_uuid: string;
 
   @Column('character varying')
+  failure_details?: string;
+
+  @Column('character varying')
   file_url: string;
 
   @Column('character varying')

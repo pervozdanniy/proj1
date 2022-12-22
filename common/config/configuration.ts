@@ -31,6 +31,11 @@ export interface ConfigInterface {
       secret: string;
     };
   };
+
+  app: {
+    domain: string;
+    prime_trust_url: string;
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -69,5 +74,9 @@ export default (): ConfigInterface => ({
     jwt: {
       secret: process.env.AUTH_SECRET ?? 'jwt_sercret',
     },
+  },
+  app: {
+    domain: process.env.APP_DOMAIN,
+    prime_trust_url: process.env.PRIME_TRUST_URL,
   },
 });
