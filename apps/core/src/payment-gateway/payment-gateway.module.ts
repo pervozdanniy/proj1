@@ -1,4 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
+import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PaymentGatewayCron } from '~svc/core/src/payment-gateway/cron/payment-gateway.cron';
@@ -18,6 +19,16 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
 
 @Module({
   imports: [
+    BullModule.registerQueue({
+      name: 'failed',
+      defaultJobOptions: {
+        attempts: 5,
+        backoff: {
+          type: 'fixed',
+          delay: 5000,
+        },
+      },
+    }),
     HttpModule,
     UserModule,
     TypeOrmModule.forFeature([

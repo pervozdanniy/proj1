@@ -1,6 +1,6 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as process from 'process';
@@ -10,6 +10,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
+import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -22,6 +23,9 @@ export class PrimeAccountManager {
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
+
+    @Inject(PrimeKycManager)
+    private readonly primeKycManager: PrimeKycManager,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -69,7 +73,6 @@ export class PrimeAccountManager {
       );
 
       //hang webhook on account
-
       await lastValueFrom(
         this.httpService.post(
           `${this.prime_trust_url}/v2/webhook-configs`,
@@ -88,7 +91,9 @@ export class PrimeAccountManager {
           },
         ),
       );
+      //
 
+      // account open from development
       if (process.env.NODE_ENV === 'dev') {
         await lastValueFrom(
           this.httpService.post(
@@ -98,8 +103,18 @@ export class PrimeAccountManager {
           ),
         );
       }
+      //
 
-      return await this.saveAccount(accountResponse.data.data, userDetails.prime_user.id);
+      //create contact after creating account
+      const account = await this.saveAccount(accountResponse.data.data, userDetails.prime_user.user_id);
+
+      const contactResponse = await lastValueFrom(
+        this.httpService.get(`${this.prime_trust_url}/v2/contacts`, { headers: headersRequest }),
+      );
+      const contactData = { data: contactResponse.data.data[0] };
+
+      return await this.primeKycManager.saveContact(contactData, account.user_id);
+      //
     } catch (e) {
       this.logger.error(e.response.data.errors);
 
@@ -107,7 +122,7 @@ export class PrimeAccountManager {
     }
   }
 
-  async saveAccount(accountData, user_id): Promise<SuccessResponse> {
+  async saveAccount(accountData, user_id): Promise<PrimeTrustAccountEntity> {
     try {
       const accountPayload = {
         uuid: accountData.id,
@@ -121,9 +136,9 @@ export class PrimeAccountManager {
         offline_cold_storage: accountData.attributes['offline-cold-storage'],
         status: accountData.attributes.status,
       };
-      await this.primeAccountRepository.save(this.primeAccountRepository.create(accountPayload));
+      const account = await this.primeAccountRepository.save(this.primeAccountRepository.create(accountPayload));
 
-      return { success: true };
+      return account;
     } catch (e) {
       throw new GrpcException(Status.ABORTED, e.message, 400);
     }

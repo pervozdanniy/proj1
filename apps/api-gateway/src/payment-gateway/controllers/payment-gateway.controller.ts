@@ -69,6 +69,8 @@ export class PaymentGatewayController implements OnModuleInit {
 
   @Post('/account/webhook')
   async webhook(@Body() payload: any) {
+    console.log(payload);
+
     return this.handlerService.handler(payload, this.paymentGatewayService);
   }
 

@@ -1,8 +1,10 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
+import { InjectQueue } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Queue } from 'bull';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
@@ -20,6 +22,8 @@ export class PrimeUserManager {
     private readonly httpService: HttpService,
     @InjectRepository(PrimeTrustUserEntity)
     private readonly primeUserRepository: Repository<PrimeTrustUserEntity>,
+
+    @InjectQueue('failed') private failedQueue: Queue,
   ) {
     const { prime_trust_url } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -56,6 +60,7 @@ export class PrimeUserManager {
     try {
       response = await lastValueFrom(this.httpService.post(`${this.prime_trust_url}/v2/users`, createData));
     } catch (e) {
+      await this.failedQueue.add('registration', { user_id: user.id });
       this.logger.error(e.response.data.errors);
 
       throw new GrpcException(Status.ABORTED, e.response.data, 400);

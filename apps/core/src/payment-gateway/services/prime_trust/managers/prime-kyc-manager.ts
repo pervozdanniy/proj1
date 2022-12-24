@@ -4,6 +4,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import FormData from 'form-data';
+import process from 'process';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
@@ -44,7 +45,7 @@ export class PrimeKycManager {
   async createContact(userDetails: UserEntity, token: string) {
     const primeUser = userDetails.prime_user;
     const account = await this.primeAccountRepository.findOne({
-      where: { user_id: primeUser.id },
+      where: { user_id: primeUser.user_id },
       relations: ['contact'],
     });
     if (account.contact) {
@@ -87,7 +88,7 @@ export class PrimeKycManager {
         this.httpService.post(`${this.prime_trust_url}/v2/contacts`, formData, { headers: headersRequest }),
       );
 
-      return await this.saveContact(contactResponse.data, account.id);
+      return await this.saveContact(contactResponse.data, account.user_id);
     } catch (e) {
       throw new GrpcException(Status.ABORTED, e.message, 400);
     }
@@ -107,11 +108,11 @@ export class PrimeKycManager {
     };
   }
 
-  async saveContact(contactData, account_id) {
+  async saveContact(contactData, user_id) {
     const data = this.collectContractData(contactData);
     await this.primeTrustContactEntityRepository.save(
       this.primeTrustContactEntityRepository.create({
-        account_id,
+        user_id,
         ...data,
       }),
     );
@@ -123,7 +124,7 @@ export class PrimeKycManager {
     const country_code = userDetails.country.code;
     const primeUser = userDetails.prime_user;
     const account = await this.primeAccountRepository.findOne({
-      where: { user_id: primeUser.id },
+      where: { user_id: primeUser.user_id },
       relations: ['contact'],
     });
 
@@ -137,7 +138,7 @@ export class PrimeKycManager {
       token,
     );
 
-    return await this.saveDocument(documentResponse.data, account.contact.id, documentCheckResponse.data);
+    return await this.saveDocument(documentResponse.data, account.contact.user_id, documentCheckResponse.data);
   }
 
   async kycDocumentCheck(document_uuid, contact_uuid, label, country_code, token) {
@@ -165,6 +166,17 @@ export class PrimeKycManager {
           headers: headersRequest,
         }),
       );
+
+      //document verify from development
+      if (process.env.NODE_ENV === 'dev') {
+        await lastValueFrom(
+          this.httpService.post(
+            `${this.prime_trust_url}/v2/kyc-document-checks/${result.data.data.id}/sandbox/verify`,
+            null,
+            { headers: headersRequest },
+          ),
+        );
+      }
 
       return result.data;
     } catch (e) {
@@ -201,11 +213,11 @@ export class PrimeKycManager {
     }
   }
 
-  async saveDocument(documentData, contact_id, documentCheckResponse) {
+  async saveDocument(documentData, user_id, documentCheckResponse) {
     try {
       await this.primeTrustKycDocumentEntityRepository.save(
         this.primeTrustKycDocumentEntityRepository.create({
-          contact_id,
+          user_id,
           uuid: documentData.id,
           file_url: documentData.attributes['file-url'],
           extension: documentData.attributes['extension'],
@@ -227,13 +239,19 @@ export class PrimeKycManager {
     try {
       const accountData = await this.primeAccountRepository
         .createQueryBuilder('a')
-        .leftJoinAndSelect('a.user', 'p')
+        .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
         .leftJoinAndSelect('p.skopa_user', 'u')
         .leftJoinAndSelect('a.contact', 'c')
         .leftJoinAndSelect('c.documents', 'd')
-        .select(['d.kyc_check_uuid as kyc_check_uuid,a.uuid as account_id,u.email as email,p.password as password'])
+        .select([
+          'd.kyc_check_uuid as kyc_check_uuid,a.uuid as account_id,u.email as email,p.password as password,c.uuid as contact_id',
+        ])
         .where('a.uuid = :id', { id })
         .getRawMany();
+      console.log(accountData);
+
+      const contact_id = accountData[0].contact_id;
+
       const userDetails = {
         email: accountData[0].email,
         prime_user: { password: accountData[0].password },
@@ -251,14 +269,13 @@ export class PrimeKycManager {
           }),
         );
         if (result.data) {
-          const document = await this.primeTrustKycDocumentEntityRepository.findOne({
-            where: { kyc_check_uuid: result.data.data.id },
-          });
-          await this.primeTrustKycDocumentEntityRepository.save({
-            ...document,
-            status: result.data.data.attributes.status,
-            failure_details: result.data.data.attributes['failure-details'],
-          });
+          await this.primeTrustKycDocumentEntityRepository.update(
+            { kyc_check_uuid: result.data.data.id },
+            {
+              status: result.data.data.attributes.status,
+              failure_details: result.data.data.attributes['failure-details'],
+            },
+          );
         }
       });
       const contactResponse = await lastValueFrom(
@@ -267,7 +284,11 @@ export class PrimeKycManager {
         }),
       );
 
-      const contactData = { data: contactResponse.data.data[0] };
+      const cData = contactResponse.data.data.find((c) => {
+        return c.id === contact_id;
+      });
+
+      const contactData = { data: cData };
 
       const contact = await this.primeTrustContactEntityRepository.findOne({
         where: { uuid: contactData.data.id },
