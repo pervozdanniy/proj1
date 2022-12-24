@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Job } from 'bull';
 import { lastValueFrom } from 'rxjs';
-import { Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime-trust.status';
 import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
@@ -72,6 +72,9 @@ export class PaymentGatewayCron {
     if (job.opts.attempts === job.attemptsMade) {
       const { user_id } = job.data;
       await this.primeUserRepository.update({ user_id }, { status: 'failed' });
+    }
+    if (err) {
+      this.logger.error(err);
     }
   }
 }

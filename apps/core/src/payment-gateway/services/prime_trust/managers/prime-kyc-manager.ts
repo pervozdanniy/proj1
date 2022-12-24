@@ -178,6 +178,20 @@ export class PrimeKycManager {
         );
       }
 
+      //approve cip for development
+      if (process.env.NODE_ENV === 'dev') {
+        const cipData = await lastValueFrom(
+          this.httpService.get(`${this.prime_trust_url}/v2/cip-checks`, { headers: headersRequest }),
+        );
+
+        const cipNum = cipData.data.data[0].id;
+        await lastValueFrom(
+          this.httpService.post(`${this.prime_trust_url}/v2/cip-checks/${cipNum}/sandbox/approve`, null, {
+            headers: headersRequest,
+          }),
+        );
+      }
+
       return result.data;
     } catch (e) {
       this.logger.error(e.response.data);
@@ -248,8 +262,10 @@ export class PrimeKycManager {
         ])
         .where('a.uuid = :id', { id })
         .getRawMany();
-      console.log(accountData);
 
+      if (accountData.length == 0) {
+        throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
+      }
       const contact_id = accountData[0].contact_id;
 
       const userDetails = {
