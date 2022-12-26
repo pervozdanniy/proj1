@@ -1,9 +1,6 @@
-import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
-import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
-import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
 

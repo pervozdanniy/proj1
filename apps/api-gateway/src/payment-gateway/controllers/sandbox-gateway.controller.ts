@@ -11,12 +11,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { JwtSessionGuard } from '~common/session';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
 import { SandboxService } from '~svc/api-gateway/src/payment-gateway/sandbox/sandbox.service';
-import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
 
 @ApiTags('Sandbox')
 @Injectable()
