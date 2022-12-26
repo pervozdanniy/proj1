@@ -5,6 +5,7 @@ import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
 import configuration from '~common/config/configuration';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { ClientModule } from './client/client.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UserModule } from './user/user.module';
     UserModule,
     PaymentGatewayModule,
     AuthModule,
+    ClientModule,
   ],
 })
 export class ApiGatewayModule {}

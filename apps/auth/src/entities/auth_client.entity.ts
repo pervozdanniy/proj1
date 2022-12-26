@@ -11,6 +11,6 @@ export class AuthClient {
   @Column('varchar')
   key: string;
 
-  @Column('varchar', { nullable: true })
+  @Column('text', { nullable: true })
   secret?: string;
 }

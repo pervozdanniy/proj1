@@ -11,6 +11,7 @@ import {
 import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
 import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
+import { UserSourceEnum } from '../constants/user';
 
 @Entity('users')
 export class UserEntity {
@@ -32,7 +33,7 @@ export class UserEntity {
   @Column('varchar', { default: 'active' })
   status: string;
 
-  @Column('varchar')
+  @Column('varchar', { nullable: true })
   password?: string;
 
   @Column('timestamp', { nullable: true })
@@ -43,6 +44,9 @@ export class UserEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column('varchar', { length: 50, default: UserSourceEnum.Api })
+  source: UserSourceEnum;
 
   @ManyToOne(() => CountryEntity, (country) => country.users, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'country_id' })

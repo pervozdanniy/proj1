@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Injectable,
   Param,
   ParseIntPipe,
   Post,
@@ -22,7 +21,6 @@ import { RegistrationResponseDto } from '../dtos/user.dto';
 import { UserService } from '../user.service';
 
 @ApiTags('User')
-@Injectable()
 @Controller({
   version: '1',
   path: 'users',

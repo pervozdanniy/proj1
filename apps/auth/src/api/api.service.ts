@@ -9,8 +9,8 @@ import { UserServiceClient } from '~common/grpc/interfaces/core';
 import { SessionService } from '~common/session';
 
 @Injectable()
-export class AuthService {
-  private logger = new Logger(AuthService.name);
+export class AuthApiService {
+  private logger = new Logger(AuthApiService.name);
   private userService: UserServiceClient;
 
   constructor(
@@ -26,8 +26,7 @@ export class AuthService {
   async validateUser(login: string, pass: string): Promise<User | null> {
     let user: User | undefined;
     try {
-      const resp = await firstValueFrom(this.userService.findByLogin({ login }));
-      user = resp.user;
+      user = await this.findByLogin(login);
     } catch (error) {
       this.logger.error('Validate user: ', error.stack, { error });
     }
@@ -41,6 +40,12 @@ export class AuthService {
     }
 
     return null;
+  }
+
+  async findByLogin(login: string) {
+    const { user } = await firstValueFrom(this.userService.findByLogin({ login }));
+
+    return user;
   }
 
   async login(user: User) {

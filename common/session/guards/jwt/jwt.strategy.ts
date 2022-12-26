@@ -19,6 +19,7 @@ export class JwtSessionStrategy extends PassportStrategy(Strategy, 'jwt-session'
 
   async validate(payload: JwtPayload): Promise<JwtAuthentication> {
     const session = await this.session.get(payload.sub);
+    console.log(payload.sub, session);
     if (!session?.user) {
       throw new UnauthorizedException();
     }

@@ -1,10 +1,9 @@
 import { UseFilters } from '@nestjs/common';
-import { IdRequest } from '~common/grpc/interfaces/common';
+import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
-  SuccessResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { CreateAccountRequest } from '~common/grpc/interfaces/prime_trust';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';

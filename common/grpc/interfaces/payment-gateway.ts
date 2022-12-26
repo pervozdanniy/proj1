@@ -2,13 +2,9 @@
 import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { IdRequest } from "./common";
+import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
-
-export interface SuccessResponse {
-  success: boolean;
-}
 
 export interface CreateAccountRequest {
   id: number;

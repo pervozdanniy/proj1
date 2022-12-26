@@ -7,6 +7,7 @@ import { GrpcException } from '../exceptions/grpc.exception';
 @Catch()
 export class AllExceptionFilter implements RpcExceptionFilter<unknown> {
   catch(exception: unknown): Observable<any> {
+    console.log('HOBA', exception);
     if (exception instanceof HttpException) {
       const wrap = GrpcException.fromHttp(exception);
 

@@ -16,3 +16,7 @@ message User {
 message IdRequest {
     uint32 id = 1;
 }
+
+message SuccessResponse {
+    bool success = 1;
+  }

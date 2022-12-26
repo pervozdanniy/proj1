@@ -3,13 +3,13 @@ import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthServiceController, AuthServiceControllerMethods } from '~common/grpc/interfaces/auth';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { AuthService } from './auth.service';
+import { AuthApiService } from './api.service';
 import { LoginRequestDto } from './dto/login.dto';
 
 @RpcController()
 @AuthServiceControllerMethods()
-export class AuthController implements AuthServiceController {
-  constructor(private readonly authService: AuthService) {}
+export class AuthApiController implements AuthServiceController {
+  constructor(private readonly authService: AuthApiService) {}
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async login(req: LoginRequestDto) {

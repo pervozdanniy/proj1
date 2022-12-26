@@ -17,4 +17,8 @@ export interface IdRequest {
   id: number;
 }
 
+export interface SuccessResponse {
+  success: boolean;
+}
+
 export const SKOPA_COMMON_PACKAGE_NAME = "skopa.common";

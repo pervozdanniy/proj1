@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
 import { CreateRequest } from '~common/grpc/interfaces/core';
+import { UserSourceEnum } from '../constants/user';
 
 export class UserDetails {
   @IsString()
@@ -46,12 +47,11 @@ export class CreateRequestDto implements CreateRequest {
 
   @IsNotEmpty()
   @IsString()
-  @IsEmail()
   email: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  password: string;
+  password?: string;
 
   @IsOptional()
   @IsString()
@@ -59,7 +59,10 @@ export class CreateRequestDto implements CreateRequest {
 
   @IsNotEmpty()
   @IsNumber()
-  country_id;
+  country_id: number;
+
+  @IsOptional()
+  source: UserSourceEnum;
 
   @ValidateNested()
   @Type(() => UserDetails)

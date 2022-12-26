@@ -11,9 +11,8 @@ service UserService {
 
   rpc Create (CreateRequest) returns (common.User);
 
-  rpc Delete (common.IdRequest) returns (DeleteResponse);
+  rpc Delete (common.IdRequest) returns (common.SuccessResponse);
 }
-
 
 
 message NullableUser {
@@ -34,18 +33,13 @@ message UserDetails {
 message CreateRequest {
   string username = 1;
   string email = 2;
-  string password = 3;
+  optional string password = 3;
   optional string phone = 4;
   uint32 country_id = 5;
-  optional UserDetails details = 6;
+  optional string source = 6;
+  optional UserDetails details = 7;
 }
 
 message LoginRequest {
   string login = 1;
 }
-
-message DeleteResponse {
-  bool success = 1;
-}
-
-

@@ -65,7 +65,6 @@ export class CreateUserDTO {
   @ApiProperty({ required: true, example: '+37495017680' })
   @IsString()
   @IsOptional()
-  // @IsPhoneNumber()
   @Length(2, 50)
   phone?: string;
 

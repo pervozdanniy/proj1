@@ -5,15 +5,15 @@ import { Logger } from 'nestjs-pino';
 import { join } from 'path';
 import { ConfigInterface } from '~common/config/configuration';
 import sentryInit from '~common/sentry/init';
-import { AuthModule } from './auth.module';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const context = await NestFactory.createApplicationContext(AuthModule);
+  const context = await NestFactory.createApplicationContext(AppModule);
   const config = context.get(ConfigService<ConfigInterface>);
 
   sentryInit();
 
-  const app = await NestFactory.createMicroservice<GrpcOptions>(AuthModule, {
+  const app = await NestFactory.createMicroservice<GrpcOptions>(AppModule, {
     transport: Transport.GRPC,
     options: {
       // url: `0.0.0.0:${config.get('grpcServices.auth.port', { infer: true })}`,
