@@ -5,6 +5,7 @@ import {
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
+  PrimeTrustData,
   SuccessResponse,
   TokenSendRequest,
   UpdateAccountRequest,
@@ -47,5 +48,13 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
   documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.documentCheck(request);
+  }
+
+  createReference(request: TokenSendRequest): Promise<PrimeTrustData> {
+    return this.paymentGatewayService.createReference(request);
+  }
+
+  updateBalance(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.updateBalance(request);
   }
 }

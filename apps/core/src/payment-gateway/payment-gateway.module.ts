@@ -13,6 +13,7 @@ import { PrimeAccountManager } from '~svc/core/src/payment-gateway/services/prim
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
 import { PrimeUserManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-user-manager';
+import { PrimeWireManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-wire.manager';
 import { PrimeTrustService } from '~svc/core/src/payment-gateway/services/prime_trust/prime-trust.service';
 import { UserModule } from '~svc/core/src/user/user.module';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
@@ -47,6 +48,7 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
     PrimeUserManager,
     PrimeAccountManager,
     PrimeKycManager,
+    PrimeWireManager,
   ],
   controllers: [PaymentGatewayController],
   exports: [PaymentGatewayManager],

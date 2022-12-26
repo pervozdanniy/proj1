@@ -97,4 +97,21 @@ export class PaymentGatewayService {
 
     return await paymentGateway.documentCheck(id);
   }
+
+  async createReference(request: TokenSendRequest) {
+    const { id, token } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return await paymentGateway.createReference(userDetails, token);
+  }
+
+  async updateBalance(request: AccountIdRequest) {
+    const { payment_gateway, id } = request;
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
+
+    return await paymentGateway.updateAccountBalance(id);
+  }
 }

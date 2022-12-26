@@ -4,6 +4,7 @@ import { PrimeAccountManager } from '~svc/core/src/payment-gateway/services/prim
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
 import { PrimeUserManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-user-manager';
+import { PrimeWireManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-wire.manager';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
@@ -23,6 +24,9 @@ export class PrimeTrustService {
 
     @Inject(PrimeKycManager)
     private readonly primeKycManager: PrimeKycManager,
+
+    @Inject(PrimeWireManager)
+    private readonly primeWireManager: PrimeWireManager,
   ) {}
 
   createUser(user) {
@@ -51,5 +55,13 @@ export class PrimeTrustService {
 
   documentCheck(id: string) {
     return this.primeKycManager.documentCheck(id);
+  }
+
+  createReference(userDetails: UserEntity, token: string) {
+    return this.primeWireManager.createReference(userDetails, token);
+  }
+
+  async updateAccountBalance(id: string) {
+    return this.primeWireManager.updateAccountBalance(id);
   }
 }

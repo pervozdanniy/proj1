@@ -11,6 +11,13 @@ service PaymentGatewayService {
   rpc CreateContact (TokenSendRequest) returns (SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (SuccessResponse);
   rpc DocumentCheck (AccountIdRequest) returns (SuccessResponse);
+  rpc CreateReference (TokenSendRequest) returns (PrimeTrustData);
+  rpc UpdateBalance (AccountIdRequest) returns (SuccessResponse);
+}
+
+
+message PrimeTrustData {
+  string data = 1;
 }
 
 

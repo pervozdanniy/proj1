@@ -44,33 +44,9 @@ export class PrimeUserManager {
 
   async createUser(user) {
     const pg_password = generatePassword(true, true, 16);
-    const prime_user = await this.createPendingPrimeUser(pg_password, user.id);
-    const createData = {
-      data: {
-        type: 'user',
-        attributes: {
-          email: user.email,
-          name: user.username,
-          password: pg_password,
-        },
-      },
-    };
-    let response;
+    await this.createPendingPrimeUser(pg_password, user.id);
+    await this.failedQueue.add('registration', { user_id: user.id });
 
-    try {
-      response = await lastValueFrom(this.httpService.post(`${this.prime_trust_url}/v2/users`, createData));
-    } catch (e) {
-      await this.failedQueue.add('registration', { user_id: user.id });
-      this.logger.error(e.response.data.errors);
-
-      throw new GrpcException(Status.ABORTED, e.response.data, 400);
-    }
-
-    await this.primeUserRepository.save({
-      ...prime_user,
-      uuid: response.data.data.id,
-      status: PrimeTrustStatus.ACTIVE,
-      disabled: response.data.data.attributes.disabled,
-    });
+    return true;
   }
 }

@@ -11,6 +11,8 @@ export class HandlerService {
       return lastValueFrom(client.updateAccount({ id, status: 'opened', payment_gateway: 'prime_trust' }));
     } else if (resource_type === 'kyc_document_checks' && action === 'update') {
       return lastValueFrom(client.documentCheck({ id, payment_gateway: 'prime_trust' }));
+    } else if (resource_type === 'funds_transfers' && action === 'update') {
+      return lastValueFrom(client.updateBalance({ id, payment_gateway: 'prime_trust' }));
     }
   }
 }

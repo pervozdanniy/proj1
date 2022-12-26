@@ -74,7 +74,7 @@ export class PaymentGatewayController implements OnModuleInit {
     return this.handlerService.handler(payload, this.paymentGatewayService);
   }
 
-  @ApiOperation({ summary: 'Create Contact.' })
+  @ApiOperation({ summary: 'Add New Contact.' })
   @ApiResponse({
     status: HttpStatus.OK,
   })
@@ -119,5 +119,18 @@ export class PaymentGatewayController implements OnModuleInit {
     const tokenData = { id, token };
 
     return lastValueFrom(this.paymentGatewayService.uploadDocument({ file, label, tokenData }));
+  }
+
+  @ApiOperation({ summary: 'Add Wire transfer reference.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtSessionGuard)
+  @Post('/wire/reference')
+  async createReference(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
+    const response = await lastValueFrom(this.paymentGatewayService.createReference({ id, ...payload }));
+
+    return { data: JSON.parse(response.data) };
   }
 }

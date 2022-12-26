@@ -33,6 +33,11 @@ export class PrimeAccountManager {
   }
 
   async createAccount(userDetails, token) {
+    const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
+    if (account) {
+      throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
+    }
+
     const formData = {
       data: {
         type: 'account',
