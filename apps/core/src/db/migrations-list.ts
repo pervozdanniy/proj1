@@ -5,6 +5,7 @@ import { createUserDetailsTable1671438132874 } from '~svc/core/src/db/migrations
 import { CreatePrimeTrustAccount1671467664497 } from '~svc/core/src/db/migrations/1671467664497-CreatePrimeTrustAccount';
 import { CreateKYCTables1671868325708 } from '~svc/core/src/db/migrations/1671868325708-CreateKYCTables';
 import { AlterKycTable1671874610946 } from '~svc/core/src/db/migrations/1671874610946-AlterKycTable';
+import { CreateBalanceTable1672139130150 } from '~svc/core/src/db/migrations/1672139130150-CreateBalanceTable';
 import { SeedPaymentGateway1671466516817 } from '~svc/core/src/db/seeds/1671466516817-SeedPaymentGateway';
 import { createUserTable1669901299726 } from './migrations/1669901299726-create-user-table';
 import { AlterUsersTable2167043583659 } from './migrations/1670435836592-AlterUsersTable';
@@ -22,4 +23,5 @@ export default [
   FixTypesAndRelations1671733995143,
   CreateKYCTables1671868325708,
   AlterKycTable1671874610946,
+  CreateBalanceTable1672139130150,
 ];

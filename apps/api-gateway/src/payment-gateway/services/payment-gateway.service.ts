@@ -9,16 +9,18 @@ import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle
 export class PaymentGatewayService {
   constructor(private readonly httpService: HttpService) {}
 
-  async handler(payload, client: PaymentGatewayServiceClient) {
-    const { resource_type, action } = payload;
-    const id: string = payload['account-id'];
-    if (resource_type === 'accounts' && action === 'update') {
-      return lastValueFrom(client.updateAccount({ id, status: 'opened', payment_gateway: 'prime_trust' }));
-    } else if (resource_type === 'kyc_document_checks' && action === 'update') {
-      return lastValueFrom(client.documentCheck({ id, payment_gateway: 'prime_trust' }));
-    } else if (resource_type === 'funds_transfers' && action === 'update') {
-      return lastValueFrom(client.updateBalance({ id, payment_gateway: 'prime_trust' }));
-    }
+  async updateAccount(client: PaymentGatewayServiceClient, data) {
+    const formData = { ...data, status: 'opened' };
+
+    return lastValueFrom(client.updateAccount(formData));
+  }
+
+  async documentCheck(client: PaymentGatewayServiceClient, data) {
+    return lastValueFrom(client.documentCheck(data));
+  }
+
+  async updateBalance(client: PaymentGatewayServiceClient, data) {
+    return lastValueFrom(client.updateBalance(data));
   }
 
   async depositFunds(payload: DepositFundsDto) {
