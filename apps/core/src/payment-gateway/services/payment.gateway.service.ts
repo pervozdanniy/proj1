@@ -116,7 +116,7 @@ export class PaymentGatewayService {
   }
 
   async getBalance(request: TokenSendRequest) {
-    const { id, token } = request;
+    const { id } = request;
     const userDetails = await this.userService.getUserInfo(id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
