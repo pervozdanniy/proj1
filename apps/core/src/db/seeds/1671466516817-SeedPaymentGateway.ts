@@ -19,7 +19,6 @@ export class SeedPaymentGateway1671466516817 implements MigrationInterface {
         name: 'USA',
       }),
     );
-    console.log(country);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

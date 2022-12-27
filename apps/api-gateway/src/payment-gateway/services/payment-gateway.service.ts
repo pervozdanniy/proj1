@@ -50,8 +50,6 @@ export class PaymentGatewayService {
 
       return transferRefResponse.data;
     } catch (e) {
-      console.log(e.response.data);
-
       throw new Error(e.response.data);
     }
   }
@@ -86,8 +84,6 @@ export class PaymentGatewayService {
 
       return contributionResponse.data;
     } catch (e) {
-      console.log(e.response.data.errors);
-
       throw new Error(e.response.data);
     }
   }
