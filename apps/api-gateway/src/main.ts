@@ -29,21 +29,6 @@ async function bootstrap() {
   // app.useLogger(app.get(Logger));
   // app.useGlobalInterceptors(new LoggerErrorInterceptor(), app.get(ClassSerializerInterceptor));
 
-  // const rawBodyBuffer = (req: RawBodyRequest<Request>, _res, buffer: Buffer) => {
-  //   if (Buffer.isBuffer(buffer)) {
-  //     req.rawBody = buffer;
-  //   }
-
-  //   return true;
-  // };
-
-  // app.use(
-  //   raw({
-  //     type: EncryptedContentType,
-  //     verify: rawBodyBuffer,
-  //   }),
-  // );
-
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: {

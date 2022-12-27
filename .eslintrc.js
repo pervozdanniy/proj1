@@ -37,5 +37,6 @@ module.exports = {
       { blankLine: "never", prev: "import", next: "import" },
     ],
     'import/newline-after-import': 'error',
+    'no-console': 'warn'
   },
 };
