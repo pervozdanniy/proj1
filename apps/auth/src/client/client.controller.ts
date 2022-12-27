@@ -1,46 +1,51 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Metadata } from '@grpc/grpc-js';
+import { UnauthorizedException, ValidationPipe } from '@nestjs/common';
 import {
+  AuthClient,
   AuthData,
   ClientCreateRequest,
-  ClientCreateResponse,
-  ClientEncryptedRequest,
   ClientServiceController,
   ClientServiceControllerMethods,
-  ClientValidateEncryptedResponse,
-  ClientValidateRequest,
+  SignedRequest,
 } from '~common/grpc/interfaces/auth';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { LoginRequestDto } from './dto/login.request.dto';
 import { ClientService } from './client.service';
+import { SignedLoginRequestDto, UnsignedLoginRequestDto } from './dto/login.request.dto';
 
 @RpcController()
 @ClientServiceControllerMethods()
 export class ClientController implements ClientServiceController {
   constructor(private readonly clientService: ClientService) {}
 
-  async login(request: ClientEncryptedRequest): Promise<AuthData> {
-    const { decrypted_data } = await this.clientService.validateEncrypted(request.api_key, request.encrypted_data);
-    const data = JSON.parse(decrypted_data);
-    const pipe = new ValidationPipe({
-      validateCustomDecorators: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
+  async create(payload: ClientCreateRequest): Promise<AuthClient> {
+    const client = await this.clientService.create(payload);
+
+    return {
+      name: client.name,
+      key: client.key,
+      is_secure: !!client.secret,
+    };
+  }
+
+  async validate(request: SignedRequest, metadata: Metadata): Promise<AuthClient> {
+    const [apiKey] = metadata.get('api_key');
+
+    return this.clientService.validate(request, apiKey?.toString());
+  }
+
+  async login(request: SignedRequest, metdata: Metadata): Promise<AuthData> {
+    const [apiKey] = metdata.get('api_key');
+    const client = await this.clientService.validate(request, apiKey?.toString());
+    if (!client) {
+      throw new UnauthorizedException();
+    }
+    const data = JSON.parse(Buffer.from(request.data).toString('utf8'));
+    const pipe = new ValidationPipe({ transform: true, whitelist: true });
+    const payload: SignedLoginRequestDto = await pipe.transform(data, {
+      type: 'body',
+      metatype: client.is_secure ? SignedLoginRequestDto : UnsignedLoginRequestDto,
     });
-    const { login } = await pipe.transform(data, { type: 'custom', metatype: LoginRequestDto });
 
-    return this.clientService.login(login);
-  }
-
-  validate(request: ClientValidateRequest): Promise<ClientCreateResponse> {
-    return this.clientService.validate(request.api_key);
-  }
-
-  validateEncrypted(request: ClientEncryptedRequest): Promise<ClientValidateEncryptedResponse> {
-    return this.clientService.validateEncrypted(request.api_key, request.encrypted_data);
-  }
-
-  create(payload: ClientCreateRequest): Promise<ClientCreateResponse> {
-    return this.clientService.create(payload);
+    return this.clientService.login(payload, client);
   }
 }

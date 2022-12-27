@@ -46,12 +46,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async get(@Param('id', ParseIntPipe) id: number) {
-    let user;
-    try {
-      user = await this.userService.getById(id);
-    } catch (error) {
-      console.log(error);
-    }
+    const user = await this.userService.getById(id);
 
     return plainToInstance(PublicUserDto, user);
   }

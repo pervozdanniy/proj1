@@ -19,25 +19,20 @@ export interface ClientCreateRequest {
   pub_key?: string | undefined;
 }
 
-export interface ClientCreateResponse {
+export interface AuthClient {
   name: string;
   key: string;
-  secret?: string | undefined;
+  is_secure: boolean;
 }
 
-export interface ClientValidateRequest {
-  api_key: string;
+export interface SignedRequest {
+  data: Uint8Array;
+  signature?: Uint8Array | undefined;
 }
 
-export interface ClientEncryptedRequest {
-  api_key: string;
-  encrypted_data: Uint8Array;
-}
-
-export interface ClientValidateEncryptedResponse {
-  name: string;
-  key: string;
-  decrypted_data: string;
+export interface ClientLoginRequest {
+  login: string;
+  password?: string | undefined;
 }
 
 export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
@@ -68,40 +63,24 @@ export function AuthServiceControllerMethods() {
 export const AUTH_SERVICE_NAME = "AuthService";
 
 export interface ClientServiceClient {
-  create(request: ClientCreateRequest, metadata?: Metadata): Observable<ClientCreateResponse>;
+  create(request: ClientCreateRequest, metadata?: Metadata): Observable<AuthClient>;
 
-  validate(request: ClientValidateRequest, metadata?: Metadata): Observable<ClientCreateResponse>;
+  validate(request: SignedRequest, metadata?: Metadata): Observable<AuthClient>;
 
-  validateEncrypted(request: ClientEncryptedRequest, metadata?: Metadata): Observable<ClientValidateEncryptedResponse>;
-
-  login(request: ClientEncryptedRequest, metadata?: Metadata): Observable<AuthData>;
+  login(request: SignedRequest, metadata?: Metadata): Observable<AuthData>;
 }
 
 export interface ClientServiceController {
-  create(
-    request: ClientCreateRequest,
-    metadata?: Metadata,
-  ): Promise<ClientCreateResponse> | Observable<ClientCreateResponse> | ClientCreateResponse;
+  create(request: ClientCreateRequest, metadata?: Metadata): Promise<AuthClient> | Observable<AuthClient> | AuthClient;
 
-  validate(
-    request: ClientValidateRequest,
-    metadata?: Metadata,
-  ): Promise<ClientCreateResponse> | Observable<ClientCreateResponse> | ClientCreateResponse;
+  validate(request: SignedRequest, metadata?: Metadata): Promise<AuthClient> | Observable<AuthClient> | AuthClient;
 
-  validateEncrypted(
-    request: ClientEncryptedRequest,
-    metadata?: Metadata,
-  ):
-    | Promise<ClientValidateEncryptedResponse>
-    | Observable<ClientValidateEncryptedResponse>
-    | ClientValidateEncryptedResponse;
-
-  login(request: ClientEncryptedRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
+  login(request: SignedRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
 }
 
 export function ClientServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["create", "validate", "validateEncrypted", "login"];
+    const grpcMethods: string[] = ["create", "validate", "login"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("ClientService", method)(constructor.prototype[method], method, descriptor);

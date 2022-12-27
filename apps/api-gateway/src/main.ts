@@ -1,14 +1,12 @@
-import { ClassSerializerInterceptor, RawBodyRequest, ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import sentryInit from 'common/sentry/init';
 import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
 import { ApiGatewayModule } from './api-gateway.module';
-import { raw, Request } from 'express';
-import { Buffer } from 'node:buffer';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApiGatewayModule, { bodyParser: true });
+  const app = await NestFactory.create(ApiGatewayModule, { rawBody: true });
 
   sentryInit();
 
@@ -31,20 +29,20 @@ async function bootstrap() {
   // app.useLogger(app.get(Logger));
   // app.useGlobalInterceptors(new LoggerErrorInterceptor(), app.get(ClassSerializerInterceptor));
 
-  const rawBodyBuffer = (req: RawBodyRequest<Request>, res, buffer: Buffer) => {
-    if (Buffer.isBuffer(buffer)) {
-      req.rawBody = buffer;
-    }
+  // const rawBodyBuffer = (req: RawBodyRequest<Request>, _res, buffer: Buffer) => {
+  //   if (Buffer.isBuffer(buffer)) {
+  //     req.rawBody = buffer;
+  //   }
 
-    return true;
-  };
+  //   return true;
+  // };
 
-  app.use(
-    raw({
-      type: 'application/vnd.skopa.encrypted',
-      verify: rawBodyBuffer,
-    }),
-  );
+  // app.use(
+  //   raw({
+  //     type: EncryptedContentType,
+  //     verify: rawBodyBuffer,
+  //   }),
+  // );
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, {

@@ -10,8 +10,8 @@ import { UserController } from '~svc/core/src/user/controllers/user.controller';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 import { UserService } from '~svc/core/src/user/services/user.service';
-import userRepoMock from './user.repository';
 import userDetailRepoMock from './user-detail.repository';
+import userRepoMock from './user.repository';
 
 export default async (config: ConfigService<ConfigInterface>) => {
   const moduleFixture = await Test.createTestingModule({

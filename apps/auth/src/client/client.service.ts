@@ -1,11 +1,16 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { AuthClient } from '../entities/auth_client.entity';
 import crypto from 'node:crypto';
 import util from 'node:util';
-import { ClientCreateRequest } from '~common/grpc/interfaces/auth';
+import { Repository } from 'typeorm';
+import {
+  AuthClient as AuthClientInterface,
+  ClientCreateRequest,
+  ClientLoginRequest,
+  SignedRequest,
+} from '~common/grpc/interfaces/auth';
 import { AuthApiService } from '../api/api.service';
+import { AuthClient } from '../entities/auth_client.entity';
 
 @Injectable()
 export class ClientService {
@@ -14,26 +19,30 @@ export class ClientService {
     private readonly authService: AuthApiService,
   ) {}
 
-  async validate(apiKey: string) {
+  async validate({ data, signature }: SignedRequest, apiKey: string): Promise<AuthClientInterface> {
     const client = await this.authClientRepo.findOneBy({ key: apiKey });
     if (!client) {
       throw new UnauthorizedException();
     }
 
-    return client;
-  }
-
-  async validateEncrypted(apiKey: string, encryptedData: Uint8Array) {
-    const client = await this.authClientRepo.findOneBy({ key: apiKey });
-    if (!client?.secret) {
-      throw new UnauthorizedException();
+    if (signature) {
+      if (!client.secret) {
+        throw new UnauthorizedException();
+      }
+      const publicKey = crypto.createPublicKey({
+        key: Buffer.from(client.secret, 'hex'),
+        format: 'der',
+        type: 'spki',
+      });
+      if (!crypto.verify(null, data, publicKey, signature)) {
+        throw new UnauthorizedException();
+      }
     }
-    const data = crypto.publicDecrypt(client.secret, encryptedData).toString('utf8');
 
     return {
       name: client.name,
       key: client.key,
-      decrypted_data: data,
+      is_secure: !!(signature && client.secret),
     };
   }
 
@@ -45,10 +54,16 @@ export class ClientService {
     return this.authClientRepo.save(this.authClientRepo.create({ name, key, secret: pub_key }));
   }
 
-  async login(login: string) {
-    const user = await this.authService.findByLogin(login);
-    console.log('AUTH_CLIENT', user, login);
+  async login(payload: ClientLoginRequest, client: AuthClientInterface) {
+    const user = await this.authService.findByLogin(payload.login);
+    if (
+      user &&
+      user.source === client.name &&
+      (client.is_secure || (payload.password && payload.password === user.password))
+    ) {
+      return this.authService.login(user);
+    }
 
-    return this.authService.login(user);
+    throw new UnauthorizedException();
   }
 }

@@ -14,9 +14,9 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
+import { User } from '~common/grpc/interfaces/common';
 import { PaymentGatewayService } from '~common/grpc/interfaces/prime_trust';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
-import { User } from '~common/grpc/interfaces/common';
 import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
 
 @ApiTags('Payment Gateway')

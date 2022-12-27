@@ -2,7 +2,6 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
-  Headers,
   HttpStatus,
   Post,
   RawBodyRequest,
@@ -10,14 +9,17 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBody, ApiConsumes, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { plainToInstance } from 'class-transformer';
-import { PublicUserDto } from '../utils/public-user.dto';
-import { ClientService } from './client.service';
-import { CreateRequestDto } from './dto/create.request.dto';
-import { DecryptedData, EncryptedGuard } from './guards/encrypted.guard';
-import { BaseRegisterRequestDto } from './dto/register.request.dto';
+import { ApiBody, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { Buffer } from 'node:buffer';
+import { AuthClient as AuthClientInterface } from '~common/grpc/interfaces/auth';
+import { SuccessDto } from '../utils/success.dto';
+import { ClientService } from './client.service';
+import { AuthClient } from './decorators/auth-client.decorator';
+import { CreateRequestDto } from './dto/create.request.dto';
+import { LoginRequestDto } from './dto/login.request.dto';
+import { RegisterRequestDto } from './dto/register.request.dto';
+import { AuthClientGuard } from './guards/auth-client.guard';
 
 @ApiTags('Client')
 @Controller({
@@ -34,22 +36,28 @@ export class ClientController {
   }
 
   @Post('register')
-  @ApiConsumes('application/vnd.skopa.encrypted')
-  @ApiBody({ schema: { type: 'string' } })
+  @UseGuards(AuthClientGuard)
+  @ApiBody({ type: RegisterRequestDto })
+  @ApiHeader({ name: 'signature' })
   @ApiHeader({ name: 'api_key' })
-  @UseGuards(EncryptedGuard)
-  @ApiResponse({ status: HttpStatus.CREATED, type: PublicUserDto })
-  async register(@DecryptedData() decrypted: BaseRegisterRequestDto) {
-    const user = await this.clientService.registerSecure(decrypted);
+  @ApiResponse({ status: HttpStatus.CREATED, type: SuccessDto })
+  async register(@Body() payload: RegisterRequestDto, @AuthClient() client: AuthClientInterface) {
+    await this.clientService.registerUser(payload, client);
 
-    return plainToInstance(PublicUserDto, user);
+    return { success: true };
   }
 
   @Post('login')
-  @ApiConsumes('application/vnd.skopa.encrypted')
-  @ApiBody({ schema: { type: 'string' } })
+  @ApiBody({ type: LoginRequestDto })
+  @ApiHeader({ name: 'signature' })
   @ApiHeader({ name: 'api_key' })
-  login(@Req() req: RawBodyRequest<Request>, @Headers('api_key') apiKey: string) {
-    return this.clientService.login(req.rawBody, apiKey);
+  login(@Req() req: RawBodyRequest<Request>) {
+    const sign = req.header('signature');
+    const apiKey = req.header('api_key');
+
+    return this.clientService.loginUser(
+      { data: req.rawBody, signature: sign ? Buffer.from(sign, 'hex') : undefined },
+      apiKey,
+    );
   }
 }

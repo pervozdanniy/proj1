@@ -7,13 +7,11 @@ service AuthService {
 }
 
 service ClientService {
-  rpc Create (ClientCreateRequest) returns (ClientCreateResponse);
+  rpc Create (ClientCreateRequest) returns (AuthClient);
 
-  rpc Validate(ClientValidateRequest) returns (ClientCreateResponse);
+  rpc Validate(SignedRequest) returns (AuthClient);
 
-  rpc ValidateEncrypted(ClientEncryptedRequest) returns (ClientValidateEncryptedResponse);
-
-  rpc Login(ClientEncryptedRequest) returns (AuthData);
+  rpc Login(SignedRequest) returns (AuthData);
 }
 
 message AuthRequest {
@@ -30,23 +28,18 @@ message ClientCreateRequest {
   optional string pub_key = 2;
 }
 
-message ClientCreateResponse {
+message AuthClient {
   string name = 1;
   string key = 2;
-  optional string secret = 3;
+  bool is_secure = 3;
 }
 
-message ClientValidateRequest {
-  string api_key = 1;
+message SignedRequest {
+  bytes data = 1;
+  optional bytes signature = 2;
 }
 
-message ClientEncryptedRequest {
-  string api_key = 1;
-  bytes encrypted_data = 2;
-}
-
-message ClientValidateEncryptedResponse {
-  string name = 1;
-  string key = 2;
-  string decrypted_data = 3;
+message ClientLoginRequest {
+  string login = 1;
+  optional string password = 2;
 }

@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
-import migrations from './migrations-list';
 import dbConfig from './db.config';
+import migrations from './migrations-list';
 
 config();
 const { username, password, database } = dbConfig();

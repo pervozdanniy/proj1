@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
 import { CreateRequest } from '~common/grpc/interfaces/core';
 import { UserSourceEnum } from '../constants/user';
 
