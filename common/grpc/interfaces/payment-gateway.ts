@@ -6,6 +6,11 @@ import { IdRequest } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface BalanceResponse {
+  settled: string;
+  currency_type: string;
+}
+
 export interface PrimeTrustData {
   data: string;
 }
@@ -73,6 +78,8 @@ export interface PaymentGatewayServiceClient {
   createReference(request: TokenSendRequest, metadata?: Metadata): Observable<PrimeTrustData>;
 
   updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  getBalance(request: TokenSendRequest, metadata?: Metadata): Observable<BalanceResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -117,6 +124,11 @@ export interface PaymentGatewayServiceController {
     request: AccountIdRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  getBalance(
+    request: TokenSendRequest,
+    metadata?: Metadata,
+  ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -131,6 +143,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "documentCheck",
       "createReference",
       "updateBalance",
+      "getBalance",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

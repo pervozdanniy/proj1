@@ -59,4 +59,8 @@ export class PrimeTrustService {
   async updateAccountBalance(id: string) {
     return this.primeWireManager.updateAccountBalance(id);
   }
+
+  async getBalance(id: number) {
+    return this.primeWireManager.getAccountBalance(id);
+  }
 }

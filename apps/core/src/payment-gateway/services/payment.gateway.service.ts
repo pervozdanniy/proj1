@@ -114,4 +114,14 @@ export class PaymentGatewayService {
 
     return await paymentGateway.updateAccountBalance(id);
   }
+
+  async getBalance(request: TokenSendRequest) {
+    const { id, token } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return await paymentGateway.getBalance(id);
+  }
 }

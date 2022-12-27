@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { PrimeTrustData, SuccessResponse } from '~common/grpc/interfaces/payment-gateway';
+import { BalanceResponse, PrimeTrustData, SuccessResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
@@ -179,5 +179,14 @@ export class PrimeWireManager {
     }
 
     return { success: true };
+  }
+
+  async getAccountBalance(id: number): Promise<BalanceResponse> {
+    const balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
+
+    return {
+      settled: balance.settled,
+      currency_type: balance.currency_type,
+    };
   }
 }

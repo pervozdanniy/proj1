@@ -113,4 +113,14 @@ export class PaymentGatewayController implements OnModuleInit {
 
     return { data: JSON.parse(response.data) };
   }
+
+  @ApiOperation({ summary: 'Add Wire transfer reference.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @UseGuards(JwtSessionGuard)
+  @Post('/balance')
+  async getBalance(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getBalance({ id, ...payload }));
+  }
 }

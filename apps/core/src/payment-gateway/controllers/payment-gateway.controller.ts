@@ -2,6 +2,7 @@ import { UseFilters } from '@nestjs/common';
 import { IdRequest } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
+  BalanceResponse,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
@@ -56,5 +57,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   updateBalance(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.updateBalance(request);
+  }
+
+  getBalance(request: TokenSendRequest): Promise<BalanceResponse> {
+    return this.paymentGatewayService.getBalance(request);
   }
 }

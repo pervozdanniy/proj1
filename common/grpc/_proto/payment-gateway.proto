@@ -13,8 +13,13 @@ service PaymentGatewayService {
   rpc DocumentCheck (AccountIdRequest) returns (SuccessResponse);
   rpc CreateReference (TokenSendRequest) returns (PrimeTrustData);
   rpc UpdateBalance (AccountIdRequest) returns (SuccessResponse);
+  rpc GetBalance (TokenSendRequest) returns (BalanceResponse);
 }
 
+message BalanceResponse{
+  string settled = 1;
+  string currency_type = 2;
+}
 
 message PrimeTrustData {
   string data = 1;
