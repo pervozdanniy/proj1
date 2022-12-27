@@ -13,31 +13,26 @@ export class PrimeTrustService {
   constructor(
     private readonly httpService: HttpService,
 
-    @Inject(PrimeTokenManager)
     private readonly primeTokenManager: PrimeTokenManager,
 
-    @Inject(PrimeUserManager)
     private readonly primeUserManager: PrimeUserManager,
 
-    @Inject(PrimeAccountManager)
     private readonly primeAccountManager: PrimeAccountManager,
 
-    @Inject(PrimeKycManager)
     private readonly primeKycManager: PrimeKycManager,
 
-    @Inject(PrimeWireManager)
     private readonly primeWireManager: PrimeWireManager,
   ) {}
 
-  createUser(user) {
+  createUser(user: UserEntity) {
     return this.primeUserManager.createUser(user);
   }
 
-  getToken(userDetails) {
+  getToken(userDetails: UserEntity) {
     return this.primeTokenManager.getToken(userDetails);
   }
 
-  createAccount(userDetails, token) {
+  createAccount(userDetails: UserEntity, token) {
     return this.primeAccountManager.createAccount(userDetails, token);
   }
 

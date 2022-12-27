@@ -12,9 +12,9 @@ import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/pri
 import { PrimeTrustService } from '~svc/core/src/payment-gateway/services/prime_trust/prime-trust.service';
 
 @Injectable()
-@Processor('failed')
-export class PaymentGatewayCron {
-  private readonly logger = new Logger(PaymentGatewayCron.name);
+@Processor('users_registration')
+export class PaymentGatewayQueueHandler {
+  private readonly logger = new Logger(PaymentGatewayQueueHandler.name);
 
   private readonly prime_trust_url: string;
   constructor(
@@ -32,7 +32,7 @@ export class PaymentGatewayCron {
     this.prime_trust_url = prime_trust_url;
   }
 
-  @Process('registration')
+  @Process('failed')
   async handleFailedRegistrations(job: Job) {
     const { user_id } = job.data;
     const failedUser = await this.primeUserRepository.findOne({

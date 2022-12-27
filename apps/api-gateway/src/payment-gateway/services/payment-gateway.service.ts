@@ -1,12 +1,26 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
+import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
 
 @Injectable()
-export class SandboxService {
+export class PaymentGatewayService {
   constructor(private readonly httpService: HttpService) {}
+
+  async handler(payload, client: PaymentGatewayServiceClient) {
+    const { resource_type, action } = payload;
+    const id: string = payload['account-id'];
+    if (resource_type === 'accounts' && action === 'update') {
+      return lastValueFrom(client.updateAccount({ id, status: 'opened', payment_gateway: 'prime_trust' }));
+    } else if (resource_type === 'kyc_document_checks' && action === 'update') {
+      return lastValueFrom(client.documentCheck({ id, payment_gateway: 'prime_trust' }));
+    } else if (resource_type === 'funds_transfers' && action === 'update') {
+      return lastValueFrom(client.updateBalance({ id, payment_gateway: 'prime_trust' }));
+    }
+  }
+
   async depositFunds(payload: DepositFundsDto) {
     const { token, transfer_reference_id, data } = payload;
     const formData = {
@@ -36,6 +50,8 @@ export class SandboxService {
 
       return transferRefResponse.data;
     } catch (e) {
+      console.log(e.response.data);
+
       throw new Error(e.response.data);
     }
   }

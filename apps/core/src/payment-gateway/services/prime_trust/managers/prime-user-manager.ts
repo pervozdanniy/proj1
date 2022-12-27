@@ -19,7 +19,7 @@ export class PrimeUserManager {
     @InjectRepository(PrimeTrustUserEntity)
     private readonly primeUserRepository: Repository<PrimeTrustUserEntity>,
 
-    @InjectQueue('failed') private failedQueue: Queue,
+    @InjectQueue('users_registration') private usersRegistrationQueue: Queue,
   ) {
     const { prime_trust_url } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -41,7 +41,7 @@ export class PrimeUserManager {
   async createUser(user) {
     const pg_password = generatePassword(true, true, 16);
     await this.createPendingPrimeUser(pg_password, user.id);
-    await this.failedQueue.add('registration', { user_id: user.id });
+    await this.usersRegistrationQueue.add('failed', { user_id: user.id });
 
     return true;
   }

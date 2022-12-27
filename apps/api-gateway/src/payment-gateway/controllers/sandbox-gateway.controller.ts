@@ -5,7 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
-  Injectable,
   Post,
   UseGuards,
   UseInterceptors,
@@ -14,10 +13,9 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { JwtSessionGuard } from '~common/session';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
-import { SandboxService } from '~svc/api-gateway/src/payment-gateway/sandbox/sandbox.service';
+import { PaymentGatewayService } from '~svc/api-gateway/src/payment-gateway/services/payment-gateway.service';
 
 @ApiTags('Sandbox')
-@Injectable()
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
@@ -25,28 +23,25 @@ import { SandboxService } from '~svc/api-gateway/src/payment-gateway/sandbox/san
   path: 'sandbox',
 })
 export class SandboxGatewayController {
-  @Inject(SandboxService)
-  private sandboxService: SandboxService;
+  constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   @ApiOperation({ summary: 'Send Deposit Funds request (testing mode).' })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.CREATED,
   })
-  @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtSessionGuard)
   @Post('/deposit/funds')
   async depositFunds(@Body() payload: DepositFundsDto) {
-    return this.sandboxService.depositFunds(payload);
+    return this.paymentGatewayService.depositFunds(payload);
   }
 
   @ApiOperation({ summary: 'Send Deposit Funds request (testing mode).' })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.CREATED,
   })
-  @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtSessionGuard)
   @Post('/settle/funds')
   async settleFunds(@Body() payload: SettleFundsDto) {
-    return this.sandboxService.settleFunds(payload);
+    return this.paymentGatewayService.settleFunds(payload);
   }
 }

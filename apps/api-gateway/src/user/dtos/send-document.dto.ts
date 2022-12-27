@@ -13,4 +13,7 @@ export class SendDocumentDto {
   @IsString()
   @IsNotEmpty()
   token: string;
+
+  @ApiProperty({ format: 'binary' })
+  file: string;
 }

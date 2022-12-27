@@ -51,7 +51,7 @@ export class PrimeWireManager {
     return { data: JSON.stringify(refInfo.data) };
   }
 
-  async getReferenceInfo(user_id, token) {
+  async getReferenceInfo(user_id: number, token: string) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id } });
     try {
       const headersRequest = {
@@ -75,7 +75,7 @@ export class PrimeWireManager {
     }
   }
 
-  async createFundsReference(user_id, token) {
+  async createFundsReference(user_id: number, token: string) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id } });
     const contact = await this.primeTrustContactEntityRepository.findOne({ where: { user_id } });
     const formData = {
