@@ -9,6 +9,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { PrimeTrustData, SuccessResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
+import { PrimeTrustBalanceEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
@@ -29,6 +30,9 @@ export class PrimeWireManager {
 
     @InjectRepository(PrimeTrustContactEntity)
     private readonly primeTrustContactEntityRepository: Repository<PrimeTrustContactEntity>,
+
+    @InjectRepository(PrimeTrustBalanceEntity)
+    private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
 
     @Inject(PrimeKycManager)
     private readonly primeKycManager: PrimeKycManager,
@@ -112,38 +116,68 @@ export class PrimeWireManager {
       .createQueryBuilder('a')
       .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
       .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['a.uuid as account_id,u.email as email,p.password as password'])
+      .select(['a.user_id as user_id,u.email as email,p.password as password'])
       .where('a.uuid = :id', { id })
       .getRawMany();
 
     if (accountData.length == 0) {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
+    const user_id = accountData[0].user_id;
 
     const userDetails = {
       email: accountData[0].email,
       prime_user: { password: accountData[0].password },
     };
 
+    const cacheData = await this.getBalanceInfo(userDetails);
+
+    return await this.saveBalance(user_id, cacheData);
+  }
+
+  async getBalanceInfo(userDetails) {
     const { token } = await this.primeTokenManager.getToken(userDetails);
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };
 
     try {
-      await lastValueFrom(
+      const cacheResponse = await lastValueFrom(
         this.httpService.get(`${this.prime_trust_url}/v2/account-cash-totals`, {
           headers: headersRequest,
         }),
       );
 
-      /**
-       * will be finished in another task
-       */
-
-      return { success: true };
+      return cacheResponse.data.data[0].attributes;
     } catch (e) {
+      this.logger.error(e.response.data);
+
       throw new GrpcException(Status.ABORTED, e.response.data, 400);
     }
+  }
+
+  async saveBalance(user_id, cacheData) {
+    const currentBalance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id } });
+    const balancePayload = {
+      settled: cacheData['settled'],
+      disbursable: cacheData['disbursable'],
+      pending_transfer: cacheData['pending-transfer'],
+      currency_type: cacheData['currency-type'],
+      contingent_hold: cacheData['contingent-hold'],
+      non_contingent_hold: cacheData['non-contingent-hold'],
+    };
+
+    if (!currentBalance) {
+      await this.primeTrustBalanceEntityRepository.save(
+        this.primeTrustBalanceEntityRepository.create({
+          user_id,
+          ...balancePayload,
+        }),
+      );
+    } else {
+      await this.primeTrustBalanceEntityRepository.update({ user_id }, { ...balancePayload });
+    }
+
+    return { success: true };
   }
 }
