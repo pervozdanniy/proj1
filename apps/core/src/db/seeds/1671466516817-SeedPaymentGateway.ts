@@ -12,7 +12,7 @@ export class SeedPaymentGateway1671466516817 implements MigrationInterface {
     );
     const paymentGateway = await queryRunner.manager.findOne(PaymentGatewayEntity, { where: { alias: 'prime_trust' } });
 
-    const country = await queryRunner.manager.save(
+    await queryRunner.manager.save(
       queryRunner.manager.create<CountryEntity>(CountryEntity, {
         payment_gateway_id: paymentGateway.id,
         code: 'US',
