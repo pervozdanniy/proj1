@@ -41,7 +41,7 @@ export class PrimeUserManager {
   async createUser(user) {
     const pg_password = generatePassword(true, true, 16);
     await this.createPendingPrimeUser(pg_password, user.id);
-    await this.usersRegistrationQueue.add('failed', { user_id: user.id });
+    await this.usersRegistrationQueue.add('registration', { user_id: user.id });
 
     return true;
   }

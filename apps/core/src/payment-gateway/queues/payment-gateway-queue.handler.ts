@@ -32,7 +32,7 @@ export class PaymentGatewayQueueHandler {
     this.prime_trust_url = prime_trust_url;
   }
 
-  @Process('failed')
+  @Process('registration')
   async handleFailedRegistrations(job: Job) {
     const { user_id } = job.data;
     const failedUser = await this.primeUserRepository.findOne({
