@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { PrimeTrustService } from '~svc/core/src/payment-gateway/prime_trust/prime-trust.service';
+import { PrimeTrustService } from '~svc/core/src/payment-gateway/services/prime_trust/prime-trust.service';
 
 @Injectable()
 export class PaymentGatewayManager {

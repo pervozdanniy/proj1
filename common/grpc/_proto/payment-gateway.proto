@@ -7,10 +7,56 @@ package skopa.core;
 service PaymentGatewayService {
   rpc CreateUser(common.IdRequest) returns (common.SuccessResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
-  rpc CreateAccount (CreateAccountRequest) returns (common.SuccessResponse);
+  rpc CreateAccount (TokenSendRequest) returns (common.SuccessResponse);
+  rpc UpdateAccount (UpdateAccountRequest) returns (common.SuccessResponse);
+  rpc CreateContact (TokenSendRequest) returns (common.SuccessResponse);
+  rpc UploadDocument (UploadDocumentRequest) returns (common.SuccessResponse);
+  rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
+  rpc CreateReference (TokenSendRequest) returns (PrimeTrustData);
+  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
+  rpc GetBalance (TokenSendRequest) returns (BalanceResponse);
 }
 
-message CreateAccountRequest{
+message BalanceResponse{
+  string settled = 1;
+  string currency_type = 2;
+}
+
+message PrimeTrustData {
+  string data = 1;
+}
+
+
+message AccountIdRequest{
+  string id = 1;
+  string payment_gateway = 2;
+}
+
+message UpdateAccountRequest{
+  string id = 1;
+  string status = 2;
+  string payment_gateway = 3;
+}
+
+
+message FileData  {
+  bytes buffer = 1;
+  string fieldname = 2;
+  string originalname = 3;
+  string encoding = 4;
+  string mimetype = 5;
+  uint32 size = 6;
+}
+
+message UploadDocumentRequest {
+  string label = 1;
+  FileData file = 2;
+  TokenSendRequest tokenData = 3;
+
+}
+
+
+message TokenSendRequest{
   uint32 id = 1;
   string token = 2;
 }

@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
-import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
-import { UserEntity } from './user.entity';
+import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
+import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Entity('prime_trust_accounts')
 export class PrimeTrustAccountEntity {
@@ -35,10 +36,13 @@ export class PrimeTrustAccountEntity {
   offline_cold_storage?: string;
 
   @OneToOne(() => PrimeTrustUserEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
+  @JoinColumn({ name: 'user_id' })
   user?: PrimeTrustUserEntity;
 
   @OneToOne(() => UserEntity, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'user_id' })
   skopa_user?: UserEntity;
+
+  @OneToOne(() => PrimeTrustContactEntity, (contact) => contact.account)
+  contact?: PrimeTrustContactEntity;
 }

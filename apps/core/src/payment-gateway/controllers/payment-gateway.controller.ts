@@ -1,11 +1,16 @@
 import { UseFilters } from '@nestjs/common';
 import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
 import {
+  AccountIdRequest,
+  BalanceResponse,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
+  PrimeTrustData,
+  TokenSendRequest,
+  UpdateAccountRequest,
+  UploadDocumentRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { CreateAccountRequest } from '~common/grpc/interfaces/prime_trust';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
 import { PaymentGatewayService } from '../services/payment.gateway.service';
@@ -26,7 +31,34 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.getToken(id);
   }
 
-  async createAccount(request: CreateAccountRequest): Promise<SuccessResponse> {
+  async createAccount(request: TokenSendRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.createAccount(request);
+  }
+
+  async createContact(request: TokenSendRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.createContact(request);
+  }
+
+  async uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.uploadDocument(request);
+  }
+
+  updateAccount(request: UpdateAccountRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.updateAccount(request);
+  }
+  documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.documentCheck(request);
+  }
+
+  createReference(request: TokenSendRequest): Promise<PrimeTrustData> {
+    return this.paymentGatewayService.createReference(request);
+  }
+
+  updateBalance(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.updateBalance(request);
+  }
+
+  getBalance(request: TokenSendRequest): Promise<BalanceResponse> {
+    return this.paymentGatewayService.getBalance(request);
   }
 }

@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Entity('prime_trust_users')
@@ -27,4 +28,7 @@ export class PrimeTrustUserEntity {
 
   @Column('varchar', { length: 255, default: 'pending' })
   status: string;
+
+  @OneToOne(() => PrimeTrustAccountEntity, (account) => account.user)
+  account?: PrimeTrustAccountEntity;
 }

@@ -6,7 +6,42 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
-export interface CreateAccountRequest {
+export interface BalanceResponse {
+  settled: string;
+  currency_type: string;
+}
+
+export interface PrimeTrustData {
+  data: string;
+}
+
+export interface AccountIdRequest {
+  id: string;
+  payment_gateway: string;
+}
+
+export interface UpdateAccountRequest {
+  id: string;
+  status: string;
+  payment_gateway: string;
+}
+
+export interface FileData {
+  buffer: Uint8Array;
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+}
+
+export interface UploadDocumentRequest {
+  label: string;
+  file: FileData | undefined;
+  tokenData: TokenSendRequest | undefined;
+}
+
+export interface TokenSendRequest {
   id: number;
   token: string;
 }
@@ -26,7 +61,21 @@ export interface PaymentGatewayServiceClient {
 
   getToken(request: IdRequest, metadata?: Metadata): Observable<PG_Token>;
 
-  createAccount(request: CreateAccountRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  createAccount(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  updateAccount(request: UpdateAccountRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  createContact(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  uploadDocument(request: UploadDocumentRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  documentCheck(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  createReference(request: TokenSendRequest, metadata?: Metadata): Observable<PrimeTrustData>;
+
+  updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  getBalance(request: TokenSendRequest, metadata?: Metadata): Observable<BalanceResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -38,14 +87,60 @@ export interface PaymentGatewayServiceController {
   getToken(request: IdRequest, metadata?: Metadata): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
 
   createAccount(
-    request: CreateAccountRequest,
+    request: TokenSendRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  updateAccount(
+    request: UpdateAccountRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  createContact(
+    request: TokenSendRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  uploadDocument(
+    request: UploadDocumentRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  documentCheck(
+    request: AccountIdRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  createReference(
+    request: TokenSendRequest,
+    metadata?: Metadata,
+  ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
+
+  updateBalance(
+    request: AccountIdRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  getBalance(
+    request: TokenSendRequest,
+    metadata?: Metadata,
+  ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createUser", "getToken", "createAccount"];
+    const grpcMethods: string[] = [
+      "createUser",
+      "getToken",
+      "createAccount",
+      "updateAccount",
+      "createContact",
+      "uploadDocument",
+      "documentCheck",
+      "createReference",
+      "updateBalance",
+      "getBalance",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("PaymentGatewayService", method)(constructor.prototype[method], method, descriptor);

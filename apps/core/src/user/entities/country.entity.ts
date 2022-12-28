@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { PaymentGatewayEntity } from '~svc/core/src/user/entities/payment-gateway.entity';
+import { PaymentGatewayEntity } from '~svc/core/src/payment-gateway/entities/payment-gateway.entity';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Entity('countries')
