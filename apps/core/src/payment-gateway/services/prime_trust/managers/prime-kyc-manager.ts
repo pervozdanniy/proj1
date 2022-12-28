@@ -88,7 +88,7 @@ export class PrimeKycManager {
         this.httpService.post(`${this.prime_trust_url}/v2/contacts`, formData, { headers: headersRequest }),
       );
 
-      return this.saveContact(contactResponse.data, account.user_id);
+      return await this.saveContact(contactResponse.data, account.user_id);
     } catch (e) {
       throw new GrpcException(Status.ABORTED, e.message, 400);
     }
