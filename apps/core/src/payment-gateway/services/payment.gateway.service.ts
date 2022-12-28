@@ -1,8 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   PG_Token,
-  SuccessResponse,
   TokenSendRequest,
   UpdateAccountRequest,
   UploadDocumentRequest,

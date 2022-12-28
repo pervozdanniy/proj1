@@ -7,13 +7,13 @@ package skopa.core;
 service PaymentGatewayService {
   rpc CreateUser(common.IdRequest) returns (common.SuccessResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
-  rpc CreateAccount (TokenSendRequest) returns (SuccessResponse);
-  rpc UpdateAccount (UpdateAccountRequest) returns (SuccessResponse);
-  rpc CreateContact (TokenSendRequest) returns (SuccessResponse);
-  rpc UploadDocument (UploadDocumentRequest) returns (SuccessResponse);
-  rpc DocumentCheck (AccountIdRequest) returns (SuccessResponse);
+  rpc CreateAccount (TokenSendRequest) returns (common.SuccessResponse);
+  rpc UpdateAccount (UpdateAccountRequest) returns (common.SuccessResponse);
+  rpc CreateContact (TokenSendRequest) returns (common.SuccessResponse);
+  rpc UploadDocument (UploadDocumentRequest) returns (common.SuccessResponse);
+  rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateReference (TokenSendRequest) returns (PrimeTrustData);
-  rpc UpdateBalance (AccountIdRequest) returns (SuccessResponse);
+  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc GetBalance (TokenSendRequest) returns (BalanceResponse);
 }
 
@@ -55,9 +55,6 @@ message UploadDocumentRequest {
 
 }
 
-message SuccessResponse {
-  bool success = 1;
-}
 
 message TokenSendRequest{
   uint32 id = 1;
