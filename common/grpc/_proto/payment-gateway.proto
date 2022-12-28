@@ -1,10 +1,11 @@
 syntax = "proto3";
+
 import "common.proto";
+
 package skopa.core;
 
-
 service PaymentGatewayService {
-  rpc CreateUser(common.IdRequest) returns (SuccessResponse);
+  rpc CreateUser(common.IdRequest) returns (common.SuccessResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
   rpc CreateAccount (TokenSendRequest) returns (SuccessResponse);
   rpc UpdateAccount (UpdateAccountRequest) returns (SuccessResponse);

@@ -3,7 +3,15 @@ syntax = "proto3";
 package skopa.auth;
 
 service AuthService {
-  rpc Login (AuthRequest) returns (AuthData) {};
+  rpc Login (AuthRequest) returns (AuthData);
+}
+
+service ClientService {
+  rpc Create (ClientCreateRequest) returns (AuthClient);
+
+  rpc Validate(SignedRequest) returns (AuthClient);
+
+  rpc Login(SignedRequest) returns (AuthData);
 }
 
 message AuthRequest {
@@ -12,5 +20,26 @@ message AuthRequest {
 }
 
 message AuthData {
-    string access_token = 1;
+  string access_token = 1;
+}
+
+message ClientCreateRequest {
+  string name = 1;
+  optional string pub_key = 2;
+}
+
+message AuthClient {
+  string name = 1;
+  string key = 2;
+  bool is_secure = 3;
+}
+
+message SignedRequest {
+  bytes data = 1;
+  optional bytes signature = 2;
+}
+
+message ClientLoginRequest {
+  string login = 1;
+  optional string password = 2;
 }

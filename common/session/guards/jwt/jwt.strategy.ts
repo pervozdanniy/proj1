@@ -1,9 +1,9 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ConfigInterface } from '~common/config/configuration';
+import { PassportStrategy } from '@nestjs/passport';
 import { JwtPayload } from 'jsonwebtoken';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ConfigInterface } from '~common/config/configuration';
 import { JwtAuthentication } from '../../interfaces/auth.interface';
 import { SessionService } from '../../session.service';
 

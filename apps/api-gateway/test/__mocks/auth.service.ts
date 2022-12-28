@@ -7,8 +7,8 @@ import { join } from 'path';
 import configuration, { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionModule } from '~common/session';
-import { AuthController } from '~svc/auth/src/auth.controller';
-import { AuthService } from '~svc/auth/src/auth.service';
+import { AuthApiController } from '~svc/auth/src/api/api.controller';
+import { AuthApiService } from '~svc/auth/src/api/api.service';
 import testConfig from './configuration';
 import redisClients from './redis';
 
@@ -26,8 +26,8 @@ export default async (config: ConfigService<ConfigInterface>) => {
       ClientsModule.registerAsync([asyncClientOptions('core')]),
       SessionModule,
     ],
-    controllers: [AuthController],
-    providers: [AuthService],
+    controllers: [AuthApiController],
+    providers: [AuthApiService],
   })
     .overrideProvider(REDIS_CLIENTS)
     .useValue(redisClients)

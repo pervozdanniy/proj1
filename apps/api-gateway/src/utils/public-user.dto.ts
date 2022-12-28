@@ -26,4 +26,7 @@ export class PublicUserDto implements User {
 
   @ApiProperty()
   email_verified_at?: string;
+
+  @Exclude()
+  source: string;
 }

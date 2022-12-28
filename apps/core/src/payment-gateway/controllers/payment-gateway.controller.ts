@@ -1,5 +1,5 @@
 import { UseFilters } from '@nestjs/common';
-import { IdRequest } from '~common/grpc/interfaces/common';
+import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BalanceResponse,
@@ -7,7 +7,6 @@ import {
   PaymentGatewayServiceControllerMethods,
   PG_Token,
   PrimeTrustData,
-  SuccessResponse,
   TokenSendRequest,
   UpdateAccountRequest,
   UploadDocumentRequest,

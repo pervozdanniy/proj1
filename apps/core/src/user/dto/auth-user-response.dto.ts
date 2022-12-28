@@ -1,5 +1,4 @@
 import { Transform, Type } from 'class-transformer';
-import { Column } from 'typeorm';
 import { User } from '~common/grpc/interfaces/common';
 
 export class AuthUserResponseDto implements User {
@@ -7,6 +6,9 @@ export class AuthUserResponseDto implements User {
   username: string;
   email: string;
   phone: string;
+  source: string;
+  password: string;
+  country_id: number;
 
   @Type(() => Date)
   @Transform(({ value }) => value?.toString(), { toClassOnly: true })
@@ -19,10 +21,4 @@ export class AuthUserResponseDto implements User {
   @Type(() => Date)
   @Transform(({ value }) => value.toString(), { toClassOnly: true })
   updated_at: string;
-
-  @Column('string')
-  password: string;
-
-  @Column('integer')
-  country_id: number;
 }

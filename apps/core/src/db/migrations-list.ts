@@ -10,6 +10,7 @@ import { SeedPaymentGateway1671466516817 } from '~svc/core/src/db/seeds/16714665
 import { createUserTable1669901299726 } from './migrations/1669901299726-create-user-table';
 import { AlterUsersTable2167043583659 } from './migrations/1670435836592-AlterUsersTable';
 import { FixTypesAndRelations1671733995143 } from './migrations/1671733995143-FixTypesAndRelations';
+import { AlterUserTableForSDKRegistration1671971668825 } from './migrations/1671971668825-AlterUserTableForSDKRegistration';
 
 export default [
   createUserTable1669901299726,
@@ -24,4 +25,5 @@ export default [
   CreateKYCTables1671868325708,
   AlterKycTable1671874610946,
   CreateBalanceTable1672139130150,
+  AlterUserTableForSDKRegistration1671971668825,
 ];

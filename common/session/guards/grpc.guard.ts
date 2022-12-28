@@ -1,5 +1,5 @@
-import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Metadata, status } from '@grpc/grpc-js';
+import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { SessionService } from '../session.service';
 
