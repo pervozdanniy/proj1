@@ -133,7 +133,7 @@ export class PrimeWireManager {
 
     const cacheData = await this.getBalanceInfo(userDetails);
 
-    return await this.saveBalance(user_id, cacheData);
+    return this.saveBalance(user_id, cacheData);
   }
 
   async getBalanceInfo(userDetails) {

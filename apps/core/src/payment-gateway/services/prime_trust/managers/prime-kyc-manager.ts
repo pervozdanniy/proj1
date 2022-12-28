@@ -88,7 +88,7 @@ export class PrimeKycManager {
         this.httpService.post(`${this.prime_trust_url}/v2/contacts`, formData, { headers: headersRequest }),
       );
 
-      return await this.saveContact(contactResponse.data, account.user_id);
+      return this.saveContact(contactResponse.data, account.user_id);
     } catch (e) {
       throw new GrpcException(Status.ABORTED, e.message, 400);
     }
@@ -138,7 +138,7 @@ export class PrimeKycManager {
       token,
     );
 
-    return await this.saveDocument(documentResponse.data, account.contact.user_id, documentCheckResponse.data);
+    return this.saveDocument(documentResponse.data, account.contact.user_id, documentCheckResponse.data);
   }
 
   async kycDocumentCheck(document_uuid, contact_uuid, label, country_code, token) {
