@@ -37,7 +37,7 @@ export interface ConfigInterface {
     prime_trust_url: string;
   };
 
-  bull: {
+  user_registration_queue: {
     attempts: number;
     delay: number;
   };
@@ -84,8 +84,8 @@ export default (): ConfigInterface => ({
     domain: process.env.APP_DOMAIN,
     prime_trust_url: process.env.PRIME_TRUST_URL,
   },
-  bull: {
-    attempts: parseInt(process.env.BULLQM_ATTEMPTS, 10) || 5,
+  user_registration_queue: {
+    attempts: parseInt(process.env.USER_ATTEMPTS, 10) || 5,
     delay: parseInt(process.env.BULLQM_DELAY, 10) || 5000,
   },
 });

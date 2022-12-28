@@ -26,7 +26,7 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
     BullModule.registerQueueAsync({
       name: 'users_registration',
       useFactory(config: ConfigService<ConfigInterface>) {
-        const { attempts, delay } = config.get('bull', { infer: true });
+        const { attempts, delay } = config.get('user_registration_queue', { infer: true });
 
         return {
           defaultJobOptions: {
