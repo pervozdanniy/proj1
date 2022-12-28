@@ -57,7 +57,7 @@ export class PaymentGatewayService {
       userDetails.country.payment_gateway.alias,
     );
 
-    return await paymentGateway.createAccount(userDetails, token);
+    return paymentGateway.createAccount(userDetails, token);
   }
 
   async createContact(payload: TokenSendRequest): Promise<SuccessResponse> {
@@ -67,7 +67,7 @@ export class PaymentGatewayService {
       userDetails.country.payment_gateway.alias,
     );
 
-    return await paymentGateway.createContact(userDetails, token);
+    return paymentGateway.createContact(userDetails, token);
   }
 
   async uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
@@ -81,21 +81,21 @@ export class PaymentGatewayService {
       userDetails.country.payment_gateway.alias,
     );
 
-    return await paymentGateway.uploadDocument(userDetails, file, label, token);
+    return paymentGateway.uploadDocument(userDetails, file, label, token);
   }
 
   async updateAccount(request: UpdateAccountRequest) {
     const { payment_gateway, status, id } = request;
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
 
-    return await paymentGateway.updateAccount(id, status);
+    return paymentGateway.updateAccount(id, status);
   }
 
   async documentCheck(request: AccountIdRequest) {
     const { payment_gateway, id } = request;
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
 
-    return await paymentGateway.documentCheck(id);
+    return paymentGateway.documentCheck(id);
   }
 
   async createReference(request: TokenSendRequest) {
@@ -105,14 +105,14 @@ export class PaymentGatewayService {
       userDetails.country.payment_gateway.alias,
     );
 
-    return await paymentGateway.createReference(userDetails, token);
+    return paymentGateway.createReference(userDetails, token);
   }
 
   async updateBalance(request: AccountIdRequest) {
     const { payment_gateway, id } = request;
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
 
-    return await paymentGateway.updateAccountBalance(id);
+    return paymentGateway.updateAccountBalance(id);
   }
 
   async getBalance(request: TokenSendRequest) {
@@ -122,6 +122,6 @@ export class PaymentGatewayService {
       userDetails.country.payment_gateway.alias,
     );
 
-    return await paymentGateway.getBalance(id);
+    return paymentGateway.getBalance(id);
   }
 }
