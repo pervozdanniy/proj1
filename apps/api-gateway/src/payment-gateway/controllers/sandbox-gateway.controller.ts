@@ -33,7 +33,7 @@ export class SandboxGatewayController {
     return this.paymentGatewayService.depositFunds(payload);
   }
 
-  @ApiOperation({ summary: 'Send Deposit Funds request (testing mode).' })
+  @ApiOperation({ summary: 'Approve Deposit Funds request (testing mode).' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })

@@ -1,6 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
-import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
+import { Injectable } from '@nestjs/common';
 import { PrimeAccountManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-account.manager';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
@@ -10,7 +9,6 @@ import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
 export class PrimeTrustService {
-  private readonly logger = new Logger(PrimeTrustService.name);
   constructor(
     private readonly httpService: HttpService,
 
