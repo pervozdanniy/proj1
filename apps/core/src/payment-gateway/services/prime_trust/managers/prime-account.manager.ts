@@ -118,7 +118,7 @@ export class PrimeAccountManager {
       );
       const contactData = { data: contactResponse.data.data[0] };
 
-      return this.primeKycManager.saveContact(contactData, account.user_id);
+      return await this.primeKycManager.saveContact(contactData, account.user_id);
       //
     } catch (e) {
       this.logger.error(e.response.data.errors);
