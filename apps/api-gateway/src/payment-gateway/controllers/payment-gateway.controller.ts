@@ -29,17 +29,8 @@ import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
   version: '1',
   path: 'payment_gateway',
 })
-export class PaymentGatewayController implements OnModuleInit {
-  private paymentGatewayServiceClient: PaymentGatewayServiceClient;
-
-  constructor(
-    @InjectGrpc('core') private readonly client: ClientGrpc,
-    private paymentGatewayService: PaymentGatewayService,
-  ) {}
-
-  onModuleInit() {
-    this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');
-  }
+export class PaymentGatewayController {
+  constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   @ApiOperation({ summary: 'Get Token.' })
   @ApiResponse({
@@ -49,7 +40,7 @@ export class PaymentGatewayController implements OnModuleInit {
   @UseGuards(JwtSessionGuard)
   @Post('/token')
   async getToken(@JwtSessionUser() { id }: User) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
+    return this.paymentGatewayService.getToken(id);
   }
 
   @ApiOperation({ summary: 'Create Account.' })
@@ -59,7 +50,7 @@ export class PaymentGatewayController implements OnModuleInit {
   @UseGuards(JwtSessionGuard)
   @Post('/account')
   async createAccount(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.createAccount({ id, ...payload }));
+    return this.paymentGatewayService.createAccount({ id, ...payload });
   }
 
   @Post('/account/webhook')
@@ -68,11 +59,11 @@ export class PaymentGatewayController implements OnModuleInit {
     const id: string = payload['account-id'];
     const sendData = { id, payment_gateway: 'prime_trust' };
     if (resource_type === 'accounts' && action === 'update') {
-      return this.paymentGatewayService.updateAccount(this.paymentGatewayServiceClient, sendData);
+      return this.paymentGatewayService.updateAccount(sendData);
     } else if (resource_type === 'kyc_document_checks' && action === 'update') {
-      return this.paymentGatewayService.documentCheck(this.paymentGatewayServiceClient, sendData);
+      return this.paymentGatewayService.documentCheck(sendData);
     } else if (resource_type === 'funds_transfers' && action === 'update') {
-      return this.paymentGatewayService.updateBalance(this.paymentGatewayServiceClient, sendData);
+      return this.paymentGatewayService.updateBalance(sendData);
     }
   }
 
@@ -83,7 +74,7 @@ export class PaymentGatewayController implements OnModuleInit {
   @UseGuards(JwtSessionGuard)
   @Post('/kyc/contact')
   async createContact(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.createContact({ id, ...payload }));
+    return this.paymentGatewayService.createContact({ id, ...payload });
   }
 
   @Post('kyc/upload-document')
@@ -99,7 +90,7 @@ export class PaymentGatewayController implements OnModuleInit {
     const { label, token } = payload;
     const tokenData = { id, token };
 
-    return lastValueFrom(this.paymentGatewayServiceClient.uploadDocument({ file, label, tokenData }));
+    return this.paymentGatewayService.uploadDocument({ file, label, tokenData });
   }
 
   @ApiOperation({ summary: 'Add Wire transfer reference.' })
@@ -109,9 +100,7 @@ export class PaymentGatewayController implements OnModuleInit {
   @UseGuards(JwtSessionGuard)
   @Post('/wire/reference')
   async createReference(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
-    const response = await lastValueFrom(this.paymentGatewayServiceClient.createReference({ id, ...payload }));
-
-    return { data: JSON.parse(response.data) };
+    return this.paymentGatewayService.createReference({ id, ...payload });
   }
 
   @ApiOperation({ summary: 'Add Wire transfer reference.' })
@@ -121,6 +110,6 @@ export class PaymentGatewayController implements OnModuleInit {
   @UseGuards(JwtSessionGuard)
   @Post('/balance')
   async getBalance(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getBalance({ id, ...payload }));
+    return this.paymentGatewayService.getBalance({ id, ...payload });
   }
 }

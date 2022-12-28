@@ -1,26 +1,43 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
+import { InjectGrpc } from '~common/grpc/helpers';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
+import {
+  AccountIdRequest,
+  PaymentGatewayServiceClient,
+  TokenSendRequest,
+  UploadDocumentRequest,
+} from '~common/grpc/interfaces/payment-gateway';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
 
 @Injectable()
-export class PaymentGatewayService {
-  constructor(private readonly httpService: HttpService) {}
+export class PaymentGatewayService implements OnModuleInit {
+  private paymentGatewayServiceClient: PaymentGatewayServiceClient;
 
-  async updateAccount(client: PaymentGatewayServiceClient, data) {
+  constructor(
+    @InjectGrpc('core') private readonly client: ClientGrpc,
+
+    private readonly httpService: HttpService,
+  ) {}
+  onModuleInit() {
+    this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');
+  }
+
+  updateAccount(data) {
     const formData = { ...data, status: 'opened' };
 
-    return lastValueFrom(client.updateAccount(formData));
+    return lastValueFrom(this.paymentGatewayServiceClient.updateAccount(formData));
   }
 
-  async documentCheck(client: PaymentGatewayServiceClient, data) {
-    return lastValueFrom(client.documentCheck(data));
+  documentCheck(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.documentCheck(data));
   }
 
-  async updateBalance(client: PaymentGatewayServiceClient, data) {
-    return lastValueFrom(client.updateBalance(data));
+  updateBalance(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateBalance(data));
   }
 
   async depositFunds(payload: DepositFundsDto) {
@@ -88,5 +105,31 @@ export class PaymentGatewayService {
     } catch (e) {
       throw new Error(e.response.data);
     }
+  }
+
+  getToken(id: number) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
+  }
+
+  createAccount(data: TokenSendRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.createAccount(data));
+  }
+
+  createContact(data: TokenSendRequest): Promise<SuccessResponse> {
+    return lastValueFrom(this.paymentGatewayServiceClient.createContact(data));
+  }
+
+  uploadDocument(data: UploadDocumentRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.uploadDocument(data));
+  }
+
+  getBalance(data: TokenSendRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getBalance(data));
+  }
+
+  async createReference(data: TokenSendRequest) {
+    const response = await lastValueFrom(this.paymentGatewayServiceClient.createReference(data));
+
+    return { data: JSON.parse(response.data) };
   }
 }
