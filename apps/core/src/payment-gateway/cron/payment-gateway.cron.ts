@@ -1,10 +1,10 @@
+import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
 import { Not, Repository } from 'typeorm';
 import { PrimeTrustService } from '~svc/core/src/payment-gateway/prime_trust/prime-trust.service';
+import { PrimeTrustUserEntity } from '~svc/core/src/user/entities/prime-trust-user.entity';
 
 @Injectable()
 export class PaymentGatewayCron {

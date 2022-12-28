@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Injectable,
   Param,
   ParseIntPipe,
   Post,
@@ -22,7 +21,6 @@ import { RegistrationResponseDto } from '../dtos/user.dto';
 import { UserService } from '../user.service';
 
 @ApiTags('User')
-@Injectable()
 @Controller({
   version: '1',
   path: 'users',
@@ -48,12 +46,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async get(@Param('id', ParseIntPipe) id: number) {
-    let user;
-    try {
-      user = await this.userService.getById(id);
-    } catch (error) {
-      console.log(error);
-    }
+    const user = await this.userService.getById(id);
 
     return plainToInstance(PublicUserDto, user);
   }

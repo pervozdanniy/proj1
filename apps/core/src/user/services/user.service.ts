@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { isEmail } from 'class-validator';
 import { Repository } from 'typeorm';
 import { CreateRequestDto } from '../dto/create-request.dto';
 import { UserDetailsEntity } from '../entities/user-details.entity';
@@ -43,9 +42,7 @@ export class UserService {
   }
 
   async findByLogin(login: string) {
-    const field: keyof UserEntity = isEmail(login) ? 'email' : 'username';
-
-    return this.userRepository.findOneBy({ [field]: login });
+    return this.userRepository.findOneBy({ email: login });
   }
 
   async delete(id: number) {

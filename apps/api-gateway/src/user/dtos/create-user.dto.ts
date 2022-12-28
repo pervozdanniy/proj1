@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
 
 class UserDetails {
   @ApiProperty({ example: 'gevorg' })
@@ -65,7 +65,6 @@ export class CreateUserDTO {
   @ApiProperty({ required: true, example: '+37495017680' })
   @IsString()
   @IsOptional()
-  // @IsPhoneNumber()
   @Length(2, 50)
   phone?: string;
 
