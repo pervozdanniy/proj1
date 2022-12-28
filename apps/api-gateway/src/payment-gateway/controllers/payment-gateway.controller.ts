@@ -4,19 +4,14 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  OnModuleInit,
   Post,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { lastValueFrom } from 'rxjs';
-import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
-import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
 import { PaymentGatewayService } from '~svc/api-gateway/src/payment-gateway/services/payment-gateway.service';
 import { SendDocumentDto } from '~svc/api-gateway/src/user/dtos/send-document.dto';
