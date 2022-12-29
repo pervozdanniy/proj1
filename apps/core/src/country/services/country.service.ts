@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CountryListResponse } from '~common/grpc/interfaces/country';
-import { PaymentGatewayListResponse } from '~common/grpc/interfaces/payment-gateway';
 import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
 
 @Injectable()
