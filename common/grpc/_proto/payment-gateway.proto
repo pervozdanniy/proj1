@@ -5,6 +5,7 @@ import "common.proto";
 package skopa.core;
 
 service PaymentGatewayService {
+  rpc List(PaymentGatewayListQuery) returns (PaymentGatewayListResponse);
   rpc CreateUser(common.IdRequest) returns (common.SuccessResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
   rpc CreateAccount (TokenSendRequest) returns (common.SuccessResponse);
@@ -13,8 +14,48 @@ service PaymentGatewayService {
   rpc UploadDocument (UploadDocumentRequest) returns (common.SuccessResponse);
   rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateReference (TokenSendRequest) returns (PrimeTrustData);
-  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc GetBalance (TokenSendRequest) returns (BalanceResponse);
+  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
+  rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalParamsResponse);
+  rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
+  rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
+}
+
+message PaymentGatewayListQuery {
+  uint32 limit = 1;
+  uint32 offset = 2;
+}
+
+message PaymentGatewayListResponse {
+  repeated PaymentGateway items = 1;
+  uint32 count = 2;
+}
+
+message PaymentGateway {
+  uint32 id =1;
+  string alias = 2;
+  string name = 3;
+}
+
+
+message TransferMethodRequest {
+  uint32 id = 1;
+  string token = 2;
+  string funds_transfer_method_id = 3;
+  string amount = 4;
+}
+
+message WithdrawalParamsResponse{
+   string transfer_method_id = 1;
+}
+
+message WithdrawalParams{
+  uint32 id = 1;
+  string token =2;
+  string bank_account_number = 3;
+  string routing_number = 4;
+  string funds_transfer_type = 5;
+  string bank_account_name = 6;
 }
 
 message BalanceResponse{

@@ -2,9 +2,11 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -13,6 +15,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { PaymentGatewaysListDto } from '~svc/api-gateway/src/payment-gateway/dtos/payment-gateways-list.dto';
+import { WithdrawalMakeDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-make.dto';
+import { WithdrawalParamsDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-params.dto';
 import { PaymentGatewayService } from '~svc/api-gateway/src/payment-gateway/services/payment-gateway.service';
 import { SendDocumentDto } from '~svc/api-gateway/src/user/dtos/send-document.dto';
 import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
@@ -26,6 +31,14 @@ import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
 })
 export class PaymentGatewayController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
+
+  @ApiOperation({ summary: 'Get list of payment gateways' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async list(@Query() query: PaymentGatewaysListDto) {
+    return this.paymentGatewayService.list(query);
+  }
 
   @ApiOperation({ summary: 'Get Token.' })
   @ApiResponse({
@@ -59,6 +72,10 @@ export class PaymentGatewayController {
       return this.paymentGatewayService.documentCheck(sendData);
     } else if (resource_type === 'funds_transfers' && action === 'update') {
       return this.paymentGatewayService.updateBalance(sendData);
+    } else if (resource_type === 'disbursements' && action === 'update') {
+      sendData.id = payload['resource_id'];
+
+      return this.paymentGatewayService.updateWithdraw(sendData);
     }
   }
 
@@ -106,5 +123,25 @@ export class PaymentGatewayController {
   @Post('/balance')
   async getBalance(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
     return this.paymentGatewayService.getBalance({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Add Bank params for withdrawal.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @UseGuards(JwtSessionGuard)
+  @Post('/withdrawal/params')
+  async addWithdrawalParams(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalParamsDto) {
+    return this.paymentGatewayService.addWithdrawalParams({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Make withdrawal.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @UseGuards(JwtSessionGuard)
+  @Post('/withdrawal/make')
+  async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
+    return this.paymentGatewayService.makeWithdrawal({ id, ...payload });
   }
 }

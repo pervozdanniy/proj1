@@ -7,12 +7,20 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { BalanceResponse, PrimeTrustData } from '~common/grpc/interfaces/payment-gateway';
+import {
+  BalanceResponse,
+  PrimeTrustData,
+  TransferMethodRequest,
+  WithdrawalParams,
+  WithdrawalParamsResponse,
+} from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
+import { WithdrawalParamsEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal-params.entity';
+import { WithdrawalEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
@@ -34,6 +42,12 @@ export class PrimeWireManager {
 
     @InjectRepository(PrimeTrustBalanceEntity)
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
+
+    @InjectRepository(WithdrawalEntity)
+    private readonly withdrawalEntityRepository: Repository<WithdrawalEntity>,
+
+    @InjectRepository(WithdrawalParamsEntity)
+    private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
 
     @Inject(PrimeKycManager)
     private readonly primeKycManager: PrimeKycManager,
@@ -189,5 +203,173 @@ export class PrimeWireManager {
       settled: balance.settled,
       currency_type: balance.currency_type,
     };
+  }
+
+  async addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalParamsResponse> {
+    const { id, bank_account_name, bank_account_number, funds_transfer_type, routing_number } = request;
+    const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
+    const transferMethod = await this.withdrawalParamsEntityRepository.findOneBy({
+      user_id: id,
+      bank_account_number,
+      routing_number,
+    });
+    let transferMethodId;
+    if (!transferMethod) {
+      transferMethodId = await this.createFundsTransferMethod(request, contact.uuid);
+      await this.withdrawalParamsEntityRepository.save(
+        this.withdrawalParamsEntityRepository.create({
+          user_id: id,
+          uuid: transferMethodId,
+          routing_number,
+          bank_account_name,
+          bank_account_number,
+          funds_transfer_type,
+        }),
+      );
+    } else {
+      transferMethodId = transferMethod.uuid;
+    }
+
+    return { transfer_method_id: transferMethodId };
+  }
+
+  async createFundsTransferMethod(request: WithdrawalParams, contact_id) {
+    const { token, bank_account_name, bank_account_number, funds_transfer_type, routing_number } = request;
+    const formData = {
+      data: {
+        type: 'funds-transfer-methods',
+        attributes: {
+          'contact-id': contact_id,
+          'bank-account-name': bank_account_name,
+          'bank-account-number': bank_account_number,
+          'routing-number': routing_number,
+          'funds-transfer-type': funds_transfer_type,
+          role: ['owner'],
+        },
+      },
+    };
+
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      const fundsResponse = await lastValueFrom(
+        this.httpService.post(`${this.prime_trust_url}/v2/funds-transfer-methods?include=bank`, formData, {
+          headers: headersRequest,
+        }),
+      );
+
+      return fundsResponse.data.data.id;
+    } catch (e) {
+      this.logger.error(e.response.data);
+
+      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+    }
+  }
+
+  async makeWithdrawal(request: TransferMethodRequest) {
+    const { id, funds_transfer_method_id, amount } = request;
+    const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
+    const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({
+      uuid: funds_transfer_method_id,
+    });
+
+    const withdrawalResponse = await this.sendWithdrawalRequest(request, account.uuid);
+
+    await this.withdrawalEntityRepository.save(
+      this.withdrawalEntityRepository.create({
+        user_id: id,
+        amount,
+        uuid: withdrawalResponse.id,
+        params_id: withdrawalParams.id,
+        status: withdrawalResponse.attributes['status'],
+        currency_type: withdrawalResponse.attributes['currency-type'],
+      }),
+    );
+
+    return { data: JSON.stringify(withdrawalResponse) };
+  }
+
+  async sendWithdrawalRequest(request, account_id) {
+    const { token, amount, funds_transfer_method_id } = request;
+    const formData = {
+      data: {
+        type: 'disbursements',
+        attributes: {
+          'account-id': account_id,
+          'funds-transfer-method-id': funds_transfer_method_id,
+          amount: amount,
+        },
+      },
+    };
+
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      const fundsResponse = await lastValueFrom(
+        this.httpService.post(
+          `${this.prime_trust_url}/v2/disbursements?include=funds-transfer,disbursement-authorization`,
+          formData,
+          {
+            headers: headersRequest,
+          },
+        ),
+      );
+
+      return fundsResponse.data.data;
+    } catch (e) {
+      this.logger.error(e.response.data);
+
+      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+    }
+  }
+
+  async updateWithdraw(id: string) {
+    const withdrawData = await this.withdrawalEntityRepository
+      .createQueryBuilder('w')
+      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'w.user_id = p.user_id')
+      .leftJoinAndSelect('p.skopa_user', 'u')
+      .select(['u.email as email,p.password as password'])
+      .where('w.uuid = :id', { id })
+      .getRawMany();
+
+    const userDetails = {
+      email: withdrawData[0].email,
+      prime_user: { password: withdrawData[0].password },
+    };
+
+    const withdrawResponse = await this.getWithdrawInfo(userDetails, id);
+    await this.withdrawalEntityRepository.update(
+      { uuid: id },
+      {
+        status: withdrawResponse['status'],
+      },
+    );
+
+    return { success: true };
+  }
+
+  async getWithdrawInfo(userDetails, disbursements_id) {
+    const { token } = await this.primeTokenManager.getToken(userDetails);
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      const withDrawResponse = await lastValueFrom(
+        this.httpService.get(`${this.prime_trust_url}/v2/disbursements/${disbursements_id}`, {
+          headers: headersRequest,
+        }),
+      );
+
+      return withDrawResponse.data.data.attributes;
+    } catch (e) {
+      this.logger.error(e.response.data);
+
+      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+    }
   }
 }

@@ -4,11 +4,14 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigInterface } from '~common/config/configuration';
+import { PaymentGatewayEntity } from '~svc/core/src/payment-gateway/entities/payment-gateway.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
 import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
+import { WithdrawalParamsEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal-params.entity';
+import { WithdrawalEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { PaymentGatewayManager } from '~svc/core/src/payment-gateway/manager/payment-gateway.manager';
 import { PaymentGatewayQueueHandler } from '~svc/core/src/payment-gateway/queues/payment-gateway-queue.handler';
 import { PaymentGatewayService } from '~svc/core/src/payment-gateway/services/payment.gateway.service';
@@ -43,11 +46,14 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
     HttpModule,
     UserModule,
     TypeOrmModule.forFeature([
+      PaymentGatewayEntity,
       PrimeTrustUserEntity,
       PrimeTrustAccountEntity,
       PrimeTrustContactEntity,
       PrimeTrustKycDocumentEntity,
       PrimeTrustBalanceEntity,
+      WithdrawalParamsEntity,
+      WithdrawalEntity,
     ]),
   ],
   providers: [

@@ -3,13 +3,18 @@ import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BalanceResponse,
+  PaymentGatewayListQuery,
+  PaymentGatewayListResponse,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
   PrimeTrustData,
   TokenSendRequest,
+  TransferMethodRequest,
   UpdateAccountRequest,
   UploadDocumentRequest,
+  WithdrawalParams,
+  WithdrawalParamsResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
@@ -60,5 +65,21 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   getBalance(request: TokenSendRequest): Promise<BalanceResponse> {
     return this.paymentGatewayService.getBalance(request);
+  }
+
+  addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalParamsResponse> {
+    return this.paymentGatewayService.addWithdrawalParams(request);
+  }
+
+  makeWithdrawal(request: TransferMethodRequest): Promise<PrimeTrustData> {
+    return this.paymentGatewayService.makeWithdrawal(request);
+  }
+
+  updateWithdraw(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.updateWithdraw(request);
+  }
+
+  list(request: PaymentGatewayListQuery): Promise<PaymentGatewayListResponse> {
+    return this.paymentGatewayService.list(request);
   }
 }
