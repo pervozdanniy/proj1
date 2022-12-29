@@ -11,6 +11,8 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { JwtSessionGuard } from '~common/session';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
+import { SettleWithdrawDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-withdraw.dto';
+import { VerifyOwnerDto } from '~svc/api-gateway/src/payment-gateway/dtos/verify-owner.dto';
 import { PaymentGatewayService } from '~svc/api-gateway/src/payment-gateway/services/payment-gateway.service';
 
 @ApiTags('Sandbox')
@@ -41,5 +43,25 @@ export class SandboxGatewayController {
   @Post('/settle/funds')
   async settleFunds(@Body() payload: SettleFundsDto) {
     return this.paymentGatewayService.settleFunds(payload);
+  }
+
+  @ApiOperation({ summary: 'Verify owner for after make withdrawal (testing mode).' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @UseGuards(JwtSessionGuard)
+  @Post('/verify/owner')
+  async verifyOwner(@Body() payload: VerifyOwnerDto) {
+    return this.paymentGatewayService.verifyOwner(payload);
+  }
+
+  @ApiOperation({ summary: 'Settle withdraw (testing mode).' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @UseGuards(JwtSessionGuard)
+  @Post('/settle/withdraw')
+  async settleWithdraw(@Body() payload: SettleWithdrawDto) {
+    return this.paymentGatewayService.settleWithdraw(payload);
   }
 }

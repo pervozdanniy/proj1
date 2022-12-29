@@ -12,6 +12,8 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
+import { SettleWithdrawDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-withdraw.dto';
+import { VerifyOwnerDto } from '~svc/api-gateway/src/payment-gateway/dtos/verify-owner.dto';
 
 @Injectable()
 export class PaymentGatewayService implements OnModuleInit {
@@ -38,6 +40,96 @@ export class PaymentGatewayService implements OnModuleInit {
 
   updateBalance(data: AccountIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.updateBalance(data));
+  }
+
+  getToken(id: number) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
+  }
+
+  createAccount(data: TokenSendRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.createAccount(data));
+  }
+
+  createContact(data: TokenSendRequest): Promise<SuccessResponse> {
+    return lastValueFrom(this.paymentGatewayServiceClient.createContact(data));
+  }
+
+  uploadDocument(data: UploadDocumentRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.uploadDocument(data));
+  }
+
+  updateWithdraw(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateWithdraw(data));
+  }
+
+  getBalance(data: TokenSendRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getBalance(data));
+  }
+
+  async createReference(data: TokenSendRequest) {
+    const response = await lastValueFrom(this.paymentGatewayServiceClient.createReference(data));
+
+    return { data: JSON.parse(response.data) };
+  }
+
+  addWithdrawalParams(data) {
+    return lastValueFrom(this.paymentGatewayServiceClient.addWithdrawalParams(data));
+  }
+
+  async makeWithdrawal(data) {
+    const response = await lastValueFrom(this.paymentGatewayServiceClient.makeWithdrawal(data));
+
+    return { data: JSON.parse(response.data) };
+  }
+
+  /**
+   * Sandbox
+   */
+
+  async settleWithdraw(payload: SettleWithdrawDto) {
+    const { token, funds_transfer_id } = payload;
+    try {
+      const headersRequest = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const withdrawResponse = await lastValueFrom(
+        this.httpService.post(
+          `https://sandbox.primetrust.com/v2/funds-transfers/${funds_transfer_id}/sandbox/settle`,
+          null,
+          {
+            headers: headersRequest,
+          },
+        ),
+      );
+
+      return withdrawResponse.data;
+    } catch (e) {
+      throw new Error(e.response.data);
+    }
+  }
+
+  async verifyOwner(payload: VerifyOwnerDto) {
+    const { token, disbursement_authorizations_id } = payload;
+    try {
+      const headersRequest = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const verifyResponse = await lastValueFrom(
+        this.httpService.post(
+          `https://sandbox.primetrust.com/v2/disbursement-authorizations/${disbursement_authorizations_id}/sandbox/verify-owner`,
+          null,
+          {
+            headers: headersRequest,
+          },
+        ),
+      );
+
+      return verifyResponse.data;
+    } catch (e) {
+      throw new Error(e.response.data);
+    }
   }
 
   async depositFunds(payload: DepositFundsDto) {
@@ -105,31 +197,5 @@ export class PaymentGatewayService implements OnModuleInit {
     } catch (e) {
       throw new Error(e.response.data);
     }
-  }
-
-  getToken(id: number) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
-  }
-
-  createAccount(data: TokenSendRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.createAccount(data));
-  }
-
-  createContact(data: TokenSendRequest): Promise<SuccessResponse> {
-    return lastValueFrom(this.paymentGatewayServiceClient.createContact(data));
-  }
-
-  uploadDocument(data: UploadDocumentRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.uploadDocument(data));
-  }
-
-  getBalance(data: TokenSendRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getBalance(data));
-  }
-
-  async createReference(data: TokenSendRequest) {
-    const response = await lastValueFrom(this.paymentGatewayServiceClient.createReference(data));
-
-    return { data: JSON.parse(response.data) };
   }
 }

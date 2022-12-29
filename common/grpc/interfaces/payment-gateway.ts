@@ -6,6 +6,26 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface TransferMethodRequest {
+  id: number;
+  token: string;
+  funds_transfer_method_id: string;
+  amount: string;
+}
+
+export interface WithdrawalParamsResponse {
+  transfer_method_id: string;
+}
+
+export interface WithdrawalParams {
+  id: number;
+  token: string;
+  bank_account_number: string;
+  routing_number: string;
+  funds_transfer_type: string;
+  bank_account_name: string;
+}
+
 export interface BalanceResponse {
   settled: string;
   currency_type: string;
@@ -73,9 +93,15 @@ export interface PaymentGatewayServiceClient {
 
   createReference(request: TokenSendRequest, metadata?: Metadata): Observable<PrimeTrustData>;
 
+  getBalance(request: TokenSendRequest, metadata?: Metadata): Observable<BalanceResponse>;
+
   updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
-  getBalance(request: TokenSendRequest, metadata?: Metadata): Observable<BalanceResponse>;
+  addWithdrawalParams(request: WithdrawalParams, metadata?: Metadata): Observable<WithdrawalParamsResponse>;
+
+  makeWithdrawal(request: TransferMethodRequest, metadata?: Metadata): Observable<PrimeTrustData>;
+
+  updateWithdraw(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -116,15 +142,30 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
 
+  getBalance(
+    request: TokenSendRequest,
+    metadata?: Metadata,
+  ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
+
   updateBalance(
     request: AccountIdRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  getBalance(
-    request: TokenSendRequest,
+  addWithdrawalParams(
+    request: WithdrawalParams,
     metadata?: Metadata,
-  ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
+  ): Promise<WithdrawalParamsResponse> | Observable<WithdrawalParamsResponse> | WithdrawalParamsResponse;
+
+  makeWithdrawal(
+    request: TransferMethodRequest,
+    metadata?: Metadata,
+  ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
+
+  updateWithdraw(
+    request: AccountIdRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -138,8 +179,11 @@ export function PaymentGatewayServiceControllerMethods() {
       "uploadDocument",
       "documentCheck",
       "createReference",
-      "updateBalance",
       "getBalance",
+      "updateBalance",
+      "addWithdrawalParams",
+      "makeWithdrawal",
+      "updateWithdraw",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

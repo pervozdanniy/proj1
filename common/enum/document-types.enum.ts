@@ -10,3 +10,7 @@ export enum DocumentTypesEnum {
 
   OTHER = 'other',
 }
+
+export enum WithdrawalTypes {
+  WIRE = 'wire',
+}

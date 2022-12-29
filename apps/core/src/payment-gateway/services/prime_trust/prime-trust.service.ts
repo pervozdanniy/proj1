@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { TransferMethodRequest, WithdrawalParams } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-account.manager';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
@@ -61,5 +62,17 @@ export class PrimeTrustService {
 
   async getBalance(id: number) {
     return this.primeWireManager.getAccountBalance(id);
+  }
+
+  addWithdrawalParams(request: WithdrawalParams) {
+    return this.primeWireManager.addWithdrawalParams(request);
+  }
+
+  makeWithdrawal(request: TransferMethodRequest) {
+    return this.primeWireManager.makeWithdrawal(request);
+  }
+
+  updateWithdraw(id: string) {
+    return this.primeWireManager.updateWithdraw(id);
   }
 }

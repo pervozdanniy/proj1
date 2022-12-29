@@ -4,8 +4,10 @@ import {
   AccountIdRequest,
   PG_Token,
   TokenSendRequest,
+  TransferMethodRequest,
   UpdateAccountRequest,
   UploadDocumentRequest,
+  WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { UserService } from '~svc/core/src/user/services/user.service';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
@@ -123,5 +125,32 @@ export class PaymentGatewayService {
     );
 
     return paymentGateway.getBalance(id);
+  }
+
+  async addWithdrawalParams(request: WithdrawalParams) {
+    const { id } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.addWithdrawalParams(request);
+  }
+
+  async makeWithdrawal(request: TransferMethodRequest) {
+    const { id } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.makeWithdrawal(request);
+  }
+
+  async updateWithdraw(request: AccountIdRequest) {
+    const { payment_gateway, id } = request;
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
+
+    return paymentGateway.updateWithdraw(id);
   }
 }
