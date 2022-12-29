@@ -5,6 +5,7 @@ import "common.proto";
 package skopa.core;
 
 service PaymentGatewayService {
+  rpc List(PaymentGatewayListQuery) returns (PaymentGatewayListResponse);
   rpc CreateUser(common.IdRequest) returns (common.SuccessResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
   rpc CreateAccount (TokenSendRequest) returns (common.SuccessResponse);
@@ -18,6 +19,22 @@ service PaymentGatewayService {
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalParamsResponse);
   rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
+}
+
+message PaymentGatewayListQuery {
+  uint32 limit = 1;
+  uint32 offset = 2;
+}
+
+message PaymentGatewayListResponse {
+  repeated PaymentGateway items = 1;
+  uint32 count = 2;
+}
+
+message PaymentGateway {
+  uint32 id =1;
+  string alias = 2;
+  string name = 3;
 }
 
 

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import configuration from '~common/config/configuration';
+import { CountryModule } from '~svc/api-gateway/src/country/country.module';
 import { AuthModule } from './auth/auth.module';
 import { ClientModule } from './client/client.module';
 import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
@@ -28,6 +29,7 @@ import { UserModule } from './user/user.module';
     PaymentGatewayModule,
     AuthModule,
     ClientModule,
+    CountryModule,
   ],
 })
 export class ApiGatewayModule {}

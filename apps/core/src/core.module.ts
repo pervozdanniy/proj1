@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
 import configuration, { ConfigInterface } from '~common/config/configuration';
 import { AwsModule } from '~svc/core/src/aws/AwsModule';
+import { CountryModule } from '~svc/core/src/country/country.module';
 import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment-gateway.module';
 import dbConfig from './db/db.config';
 import migrations from './db/migrations-list';
@@ -66,6 +67,7 @@ import { UserModule } from './user/user.module';
     UserModule,
     PaymentGatewayModule,
     AwsModule,
+    CountryModule,
   ],
 })
 export class CoreModule {}

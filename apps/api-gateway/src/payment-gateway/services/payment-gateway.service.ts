@@ -11,6 +11,7 @@ import {
   UploadDocumentRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
+import { PaymentGatewaysListDto } from '~svc/api-gateway/src/payment-gateway/dtos/payment-gateways-list.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-withdraw.dto';
 import { VerifyOwnerDto } from '~svc/api-gateway/src/payment-gateway/dtos/verify-owner.dto';
@@ -28,7 +29,11 @@ export class PaymentGatewayService implements OnModuleInit {
     this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');
   }
 
-  updateAccount(data) {
+  list(query: PaymentGatewaysListDto) {
+    return lastValueFrom(this.paymentGatewayServiceClient.list(query));
+  }
+
+  updateAccount(data: AccountIdRequest) {
     const formData = { ...data, status: 'opened' };
 
     return lastValueFrom(this.paymentGatewayServiceClient.updateAccount(formData));

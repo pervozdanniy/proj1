@@ -2,9 +2,11 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -13,6 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { PaymentGatewaysListDto } from '~svc/api-gateway/src/payment-gateway/dtos/payment-gateways-list.dto';
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-make.dto';
 import { WithdrawalParamsDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-params.dto';
 import { PaymentGatewayService } from '~svc/api-gateway/src/payment-gateway/services/payment-gateway.service';
@@ -28,6 +31,14 @@ import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
 })
 export class PaymentGatewayController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
+
+  @ApiOperation({ summary: 'Get list of payment gateways' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async list(@Query() query: PaymentGatewaysListDto) {
+    return this.paymentGatewayService.list(query);
+  }
 
   @ApiOperation({ summary: 'Get Token.' })
   @ApiResponse({

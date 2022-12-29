@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { CountryEntity } from '~svc/core/src/user/entities/country.entity';
+import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
 import { CreateRequestDto } from '../dto/create-request.dto';
 import { UserDetailsEntity } from '../entities/user-details.entity';
 import { UserEntity } from '../entities/user.entity';

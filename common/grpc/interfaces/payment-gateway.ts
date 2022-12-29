@@ -6,6 +6,22 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface PaymentGatewayListQuery {
+  limit: number;
+  offset: number;
+}
+
+export interface PaymentGatewayListResponse {
+  items: PaymentGateway[];
+  count: number;
+}
+
+export interface PaymentGateway {
+  id: number;
+  alias: string;
+  name: string;
+}
+
 export interface TransferMethodRequest {
   id: number;
   token: string;
@@ -77,6 +93,8 @@ export interface Token_Data {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface PaymentGatewayServiceClient {
+  list(request: PaymentGatewayListQuery, metadata?: Metadata): Observable<PaymentGatewayListResponse>;
+
   createUser(request: IdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   getToken(request: IdRequest, metadata?: Metadata): Observable<PG_Token>;
@@ -105,6 +123,11 @@ export interface PaymentGatewayServiceClient {
 }
 
 export interface PaymentGatewayServiceController {
+  list(
+    request: PaymentGatewayListQuery,
+    metadata?: Metadata,
+  ): Promise<PaymentGatewayListResponse> | Observable<PaymentGatewayListResponse> | PaymentGatewayListResponse;
+
   createUser(
     request: IdRequest,
     metadata?: Metadata,
@@ -171,6 +194,7 @@ export interface PaymentGatewayServiceController {
 export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
+      "list",
       "createUser",
       "getToken",
       "createAccount",

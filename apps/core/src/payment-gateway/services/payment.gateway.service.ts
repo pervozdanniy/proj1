@@ -1,7 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
+  PaymentGatewayListQuery,
+  PaymentGatewayListResponse,
   PG_Token,
   TokenSendRequest,
   TransferMethodRequest,
@@ -9,6 +13,7 @@ import {
   UploadDocumentRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
+import { PaymentGatewayEntity } from '~svc/core/src/payment-gateway/entities/payment-gateway.entity';
 import { UserService } from '~svc/core/src/user/services/user.service';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
 
@@ -22,7 +27,24 @@ export class PaymentGatewayService {
 
     @Inject(PaymentGatewayManager)
     private paymentGatewayManager: PaymentGatewayManager,
+
+    @InjectRepository(PaymentGatewayEntity)
+    private readonly paymentGatewayEntityRepository: Repository<PaymentGatewayEntity>,
   ) {}
+
+  async list(request: PaymentGatewayListQuery): Promise<PaymentGatewayListResponse> {
+    const { offset, limit } = request;
+    const [items, count] = await this.paymentGatewayEntityRepository
+      .createQueryBuilder('u')
+      .skip(offset)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      items,
+      count,
+    };
+  }
 
   async getToken(id: number): Promise<PG_Token> {
     const user = await this.userService.get(id);

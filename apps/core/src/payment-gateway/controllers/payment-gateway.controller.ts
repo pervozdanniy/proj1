@@ -3,6 +3,8 @@ import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BalanceResponse,
+  PaymentGatewayListQuery,
+  PaymentGatewayListResponse,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
@@ -75,5 +77,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   updateWithdraw(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.updateWithdraw(request);
+  }
+
+  list(request: PaymentGatewayListQuery): Promise<PaymentGatewayListResponse> {
+    return this.paymentGatewayService.list(request);
   }
 }
