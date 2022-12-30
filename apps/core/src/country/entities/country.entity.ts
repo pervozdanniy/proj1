@@ -18,8 +18,8 @@ export class CountryEntity {
 
   @ManyToOne(() => PaymentGatewayEntity)
   @JoinColumn({ name: 'payment_gateway_id' })
-  payment_gateway: PaymentGatewayEntity;
+  payment_gateway?: PaymentGatewayEntity;
 
   @OneToMany(() => UserEntity, (user) => user.country)
-  users: UserEntity[];
+  users?: UserEntity[];
 }

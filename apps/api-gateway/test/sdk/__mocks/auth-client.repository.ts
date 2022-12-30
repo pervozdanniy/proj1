@@ -1,5 +1,6 @@
 import { EntityNotFoundError, Repository } from 'typeorm';
 import { AuthClient } from '~svc/auth/src/entities/auth_client.entity';
+import { makeFindOneBy } from '../../utils/repository.helpers';
 import { MockType } from '../../utils/types';
 
 let nextId = 1;
@@ -8,18 +9,14 @@ type Entity = Partial<AuthClient>;
 
 export const authClientStorage: Entity[] = [];
 
-const find = (req: Record<keyof Entity, Entity[keyof Entity]>): Entity | undefined => {
-  return authClientStorage.find((entity) =>
-    Object.keys(req).reduce((cond, field) => cond && entity[field] === req[field], true),
-  );
-};
+const findOneBy = makeFindOneBy(authClientStorage);
 
 export const repositoryMockFactory = jest.fn(
   (): MockType<Repository<Entity>> => ({
     create: jest.fn((data) => data),
-    findOneBy: jest.fn(async (req: Record<keyof Entity, Entity[keyof Entity]>) => find(req)),
-    findOneByOrFail: jest.fn().mockImplementation(async (req: Record<keyof Entity, Entity[keyof Entity]>) => {
-      const entity = find(req);
+    findOneBy: jest.fn(async (req) => findOneBy(req)),
+    findOneByOrFail: jest.fn().mockImplementation(async (req) => {
+      const entity = findOneBy(req);
       if (!entity) throw new EntityNotFoundError(AuthClient, req);
 
       return entity;
@@ -34,7 +31,7 @@ export const repositoryMockFactory = jest.fn(
 
       return { affected: 0 };
     }),
-    save: jest.fn().mockImplementation(async (entity: Entity) => {
+    save: jest.fn(async (entity: Entity) => {
       if (entity.id) {
         const index = authClientStorage.findIndex((user) => user.id === entity.id);
         if (index > -1) {
