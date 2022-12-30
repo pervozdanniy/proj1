@@ -18,7 +18,6 @@ async function bootstrap() {
     .build();
 
   const validationOptions: ValidationPipeOptions = {
-    forbidNonWhitelisted: true,
     whitelist: true,
     transform: true,
     validateCustomDecorators: true,

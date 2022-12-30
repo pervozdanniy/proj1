@@ -1,7 +1,7 @@
-import { ClientsProviderAsyncOptions, Transport } from '@nestjs/microservices';
-import { join } from 'path';
 import { Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ClientsProviderAsyncOptions, Transport } from '@nestjs/microservices';
+import { join } from 'path';
 import { Addr, ConfigInterface } from '~common/config/configuration';
 
 const GRPC_PREFIX = '_grpc';

@@ -1,5 +1,6 @@
 import { EntityNotFoundError, Repository } from 'typeorm';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
+import { MockType } from '../utils/types';
 
 let nextId = 1;
 
@@ -7,7 +8,7 @@ type User = Partial<UserEntity>;
 
 export const userStorage: User[] = [];
 
-const repository: Partial<Repository<User>> = {
+const repositoryMockFactory: () => MockType<Repository<User>> = jest.fn(() => ({
   create: jest.fn().mockImplementation((data) => data),
   findOneBy: jest
     .fn()
@@ -45,6 +46,6 @@ const repository: Partial<Repository<User>> = {
 
     return entity;
   }),
-};
+}));
 
-export default repository;
+export default repositoryMockFactory;

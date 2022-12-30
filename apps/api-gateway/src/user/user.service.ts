@@ -32,8 +32,6 @@ export class UserService implements OnModuleInit {
   }
 
   async create(data: CreateUserDTO): Promise<RegistrationResponseDto> {
-    data.password = await bcrypt.hash(data.password, 10);
-
     const user = await firstValueFrom(this.userService.create(data));
     const { success } = await firstValueFrom(this.paymentGateway.createUser({ id: user.id }));
 
