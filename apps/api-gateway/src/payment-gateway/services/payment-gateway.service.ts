@@ -34,9 +34,7 @@ export class PaymentGatewayService implements OnModuleInit {
   }
 
   updateAccount(data: AccountIdRequest) {
-    const formData = { ...data, status: 'opened' };
-
-    return lastValueFrom(this.paymentGatewayServiceClient.updateAccount(formData));
+    return lastValueFrom(this.paymentGatewayServiceClient.updateAccount(data));
   }
 
   documentCheck(data: AccountIdRequest) {

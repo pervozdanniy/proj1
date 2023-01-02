@@ -9,7 +9,7 @@ service PaymentGatewayService {
   rpc CreateUser(common.IdRequest) returns (common.SuccessResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
   rpc CreateAccount (TokenSendRequest) returns (common.SuccessResponse);
-  rpc UpdateAccount (UpdateAccountRequest) returns (common.SuccessResponse);
+  rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateContact (TokenSendRequest) returns (common.SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (common.SuccessResponse);
   rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
@@ -71,12 +71,6 @@ message PrimeTrustData {
 message AccountIdRequest{
   string id = 1;
   string payment_gateway = 2;
-}
-
-message UpdateAccountRequest{
-  string id = 1;
-  string status = 2;
-  string payment_gateway = 3;
 }
 
 

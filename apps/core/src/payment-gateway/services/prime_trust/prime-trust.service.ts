@@ -36,8 +36,8 @@ export class PrimeTrustService {
     return this.primeAccountManager.createAccount(userDetails, token);
   }
 
-  updateAccount(id: string, status: string) {
-    return this.primeAccountManager.updateAccount(id, status);
+  updateAccount(id: string) {
+    return this.primeAccountManager.updateAccount(id);
   }
 
   createContact(userDetails: UserEntity, token: string) {

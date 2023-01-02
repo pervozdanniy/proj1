@@ -10,7 +10,9 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
+import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
+import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -26,6 +28,9 @@ export class PrimeAccountManager {
 
     @Inject(PrimeKycManager)
     private readonly primeKycManager: PrimeKycManager,
+
+    @Inject(PrimeTokenManager)
+    private readonly primeTokenManager: PrimeTokenManager,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -149,17 +154,54 @@ export class PrimeAccountManager {
     }
   }
 
-  async updateAccount(id: string, status: string): Promise<SuccessResponse> {
-    const account = await this.primeAccountRepository.findOne({ where: { uuid: id } });
+  async updateAccount(id: string): Promise<SuccessResponse> {
+    const accountData = await this.primeAccountRepository
+      .createQueryBuilder('a')
+      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
+      .leftJoinAndSelect('p.skopa_user', 'u')
+      .select(['a.uuid as account_id,u.email as email,p.password as password'])
+      .where('a.uuid = :id', { id })
+      .getRawMany();
 
-    if (!account) {
-      throw new GrpcException(Status.NOT_FOUND, 'Account not found!', 404);
+    if (accountData.length == 0) {
+      throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
-    await this.primeAccountRepository.save({
-      ...account,
-      status,
-    });
+    const account_id = accountData[0].account_id;
+
+    const userDetails = {
+      email: accountData[0].email,
+      prime_user: { password: accountData[0].password },
+    };
+
+    const accountResponse = await this.getAccountInfo(userDetails, account_id);
+    await this.primeAccountRepository.update(
+      { uuid: account_id },
+      {
+        status: accountResponse.status,
+      },
+    );
 
     return { success: true };
+  }
+
+  async getAccountInfo(userDetails, account_id) {
+    const { token } = await this.primeTokenManager.getToken(userDetails);
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      const accountResponse = await lastValueFrom(
+        this.httpService.get(`${this.prime_trust_url}/v2/accounts/${account_id}`, {
+          headers: headersRequest,
+        }),
+      );
+
+      return accountResponse.data.data.attributes;
+    } catch (e) {
+      this.logger.error(e.response.data);
+
+      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+    }
   }
 }

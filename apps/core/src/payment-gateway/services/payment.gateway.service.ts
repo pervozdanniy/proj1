@@ -9,7 +9,6 @@ import {
   PG_Token,
   TokenSendRequest,
   TransferMethodRequest,
-  UpdateAccountRequest,
   UploadDocumentRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -108,11 +107,11 @@ export class PaymentGatewayService {
     return paymentGateway.uploadDocument(userDetails, file, label, token);
   }
 
-  async updateAccount(request: UpdateAccountRequest) {
-    const { payment_gateway, status, id } = request;
+  async updateAccount(request: AccountIdRequest) {
+    const { payment_gateway, id } = request;
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
 
-    return paymentGateway.updateAccount(id, status);
+    return paymentGateway.updateAccount(id);
   }
 
   async documentCheck(request: AccountIdRequest) {
