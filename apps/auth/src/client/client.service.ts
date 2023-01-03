@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';
 import util from 'node:util';
 import { Repository } from 'typeorm';
@@ -59,7 +60,7 @@ export class ClientService {
     if (
       user &&
       user.source === client.name &&
-      (client.is_secure || (payload.password && payload.password === user.password))
+      (client.is_secure || (await bcrypt.compare(payload.password, user.password)))
     ) {
       return this.authService.login(user);
     }

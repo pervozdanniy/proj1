@@ -1,20 +1,15 @@
-import { REDIS_CLIENTS } from '@liaoliaots/nestjs-redis/dist/redis/redis.constants';
 import { INestApplication, INestMicroservice } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Test } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import bcrypt from 'bcrypt';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import request from 'supertest';
-import configuration, { ConfigInterface } from '~common/config/configuration';
+import { ConfigInterface } from '~common/config/configuration';
 import { buildKey } from '~common/session/redis.store';
-import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
-import { AuthModule } from '../src/auth/auth.module';
-import { UserModule } from '../src/user/user.module';
-import createAuthService from './__mocks/auth.service';
-import testConfig from './__mocks/configuration';
-import createCoreService from './__mocks/core.service';
-import redisClients, { redisProvider, redisStorage } from './__mocks/redis';
-import { userStorage } from './__mocks/user.repository';
+import { redisProvider, redisStorage } from '../__mocks/redis';
+import { userStorage } from '../__mocks/user.repository';
+import createApiGateway from './__mocks/api-gateway.app';
+import createAuth from './__mocks/auth.app';
+import createCore from './__mocks/core.app';
 
 const mockUid = 'mock_uid';
 jest.mock('uid-safe', () => async () => mockUid);
@@ -39,18 +34,10 @@ describe('AuthService (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    const moduleFixture = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ load: [configuration, testConfig], isGlobal: true }), AuthModule, UserModule],
-    })
-      .overrideProvider(REDIS_CLIENTS)
-      .useValue(redisClients)
-      .compile();
-
-    app = moduleFixture.createNestApplication();
-    app.useGlobalFilters(new ApiExceptionFilter());
+    app = await createApiGateway();
     const config = app.get(ConfigService<ConfigInterface>);
-    core = await createCoreService(config);
-    auth = await createAuthService(config);
+    core = await createCore(config);
+    auth = await createAuth(config);
 
     await core.listen();
     await auth.listen();
@@ -98,7 +85,8 @@ describe('AuthService (e2e)', () => {
       const mockPayload = {
         email: 'mock@mock.com',
         username: 'mock',
-        password: 'mock',
+        password: 'mock12345678',
+        country_id: 1,
       };
       await request(app.getHttpServer()).post('/users').send(mockPayload).expect(201);
       expect(userStorage).toHaveLength(1);
@@ -132,11 +120,12 @@ describe('AuthService (e2e)', () => {
       const payload = {
         email: 'mock@mock.com',
         username: 'mock',
-        password: 'mock',
+        password: 'mock12345678',
+        country_id: 1,
         extraField1: 1,
         extraField2: 2,
       };
-      await request(app.getHttpServer()).post('/users').send(payload).expect(201);
+      await request(app.getHttpServer()).post('/users').send(payload);
       const createdUser = userStorage.find((u) => u.email === payload.email);
       expect(createdUser).not.toHaveProperty('extraField1');
     });

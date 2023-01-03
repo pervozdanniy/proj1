@@ -90,6 +90,7 @@ export class CreateUserDTO {
 
   @ApiProperty({ type: UserDetails })
   @ValidateNested()
+  @IsOptional()
   @Type(() => UserDetails)
-  details: UserDetails;
+  details?: UserDetails;
 }

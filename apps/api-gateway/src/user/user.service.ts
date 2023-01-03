@@ -1,6 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import bcrypt from 'bcrypt';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
@@ -32,8 +31,6 @@ export class UserService implements OnModuleInit {
   }
 
   async create(data: CreateUserDTO): Promise<RegistrationResponseDto> {
-    data.password = await bcrypt.hash(data.password, 10);
-
     const user = await firstValueFrom(this.userService.create(data));
     const { success } = await firstValueFrom(this.paymentGateway.createUser({ id: user.id }));
 
