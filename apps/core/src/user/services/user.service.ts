@@ -1,6 +1,7 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
@@ -30,6 +31,9 @@ export class UserService {
     const country = await this.countryEntityRepository.findOneBy({ id: country_id });
     if (!country) {
       throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
+    }
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, 10);
     }
     const user = await this.userRepository.save(this.userRepository.create(userData));
     if (details) {

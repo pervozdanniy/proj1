@@ -1,5 +1,7 @@
 import { EntityNotFoundError, Repository } from 'typeorm';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
+import { makeFindOneBy } from '../utils/repository.helpers';
+import { MockType } from '../utils/types';
 
 let nextId = 1;
 
@@ -7,20 +9,18 @@ type User = Partial<UserEntity>;
 
 export const userStorage: User[] = [];
 
-const repository: Partial<Repository<User>> = {
-  create: jest.fn().mockImplementation((data) => data),
-  findOneBy: jest
-    .fn()
-    .mockImplementation(async (req: Record<keyof User, User[keyof User]>) =>
-      userStorage.find((user) => user.email === req.email),
-    ),
-  findOneByOrFail: jest.fn().mockImplementation(async (req: Record<keyof User, User[keyof User]>) => {
-    const user = userStorage.find((user) => user.id === req.id);
+const findOneBy = makeFindOneBy(userStorage);
+
+const repositoryMockFactory: () => MockType<Repository<User>> = jest.fn(() => ({
+  create: jest.fn((data) => data),
+  findOneBy: jest.fn(async (req) => findOneBy(req)),
+  findOneByOrFail: jest.fn(async (req) => {
+    const user = findOneBy(req);
     if (!user) throw new EntityNotFoundError(UserEntity, req);
 
     return user;
   }),
-  delete: jest.fn().mockImplementation((id) => {
+  delete: jest.fn(async (id) => {
     const index = userStorage.findIndex((user) => user.id === id);
     if (index > -1) {
       userStorage.splice(index, 1);
@@ -30,7 +30,7 @@ const repository: Partial<Repository<User>> = {
 
     return { affected: 0 };
   }),
-  save: jest.fn().mockImplementation(async (entity: User) => {
+  save: jest.fn(async (entity: User) => {
     entity.updated_at = new Date();
     if (entity.id) {
       const index = userStorage.findIndex((user) => user.id === entity.id);
@@ -45,6 +45,6 @@ const repository: Partial<Repository<User>> = {
 
     return entity;
   }),
-};
+}));
 
-export default repository;
+export default repositoryMockFactory;
