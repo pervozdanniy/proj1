@@ -63,7 +63,6 @@ export class PaymentGatewayController {
 
   @Post('/account/webhook')
   async webhook(@Body() payload: any) {
-    console.log(payload);
     const { resource_type, action } = payload;
     const sendData = {
       id: payload['account-id'],
