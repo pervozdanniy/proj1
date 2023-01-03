@@ -54,6 +54,10 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.documentCheck(request);
   }
 
+  cipCheck(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.cipCheck(request);
+  }
+
   createReference(request: TokenSendRequest): Promise<PrimeTrustData> {
     return this.paymentGatewayService.createReference(request);
   }
@@ -76,6 +80,10 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   updateWithdraw(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.updateWithdraw(request);
+  }
+
+  updateContribution(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.updateContribution(request);
   }
 
   list(request: PaymentGatewayListQuery): Promise<PaymentGatewayListResponse> {

@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
+  AccountIdRequest,
   BalanceResponse,
   PrimeTrustData,
   TransferMethodRequest,
@@ -15,6 +16,8 @@ import {
   WithdrawalParamsResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { NotificationEntity } from '~svc/core/src/payment-gateway/entities/notification.entity';
+import { ContributionEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/contribution.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
@@ -46,8 +49,14 @@ export class PrimeWireManager {
     @InjectRepository(WithdrawalEntity)
     private readonly withdrawalEntityRepository: Repository<WithdrawalEntity>,
 
+    @InjectRepository(ContributionEntity)
+    private readonly contributionEntityRepository: Repository<ContributionEntity>,
+
     @InjectRepository(WithdrawalParamsEntity)
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
+
+    @InjectRepository(NotificationEntity)
+    private readonly notificationEntityRepository: Repository<NotificationEntity>,
 
     @Inject(PrimeKycManager)
     private readonly primeKycManager: PrimeKycManager,
@@ -336,9 +345,10 @@ export class PrimeWireManager {
       .where('w.uuid = :id', { id })
       .getRawMany();
 
+    const { email, password } = withdrawData[0];
     const userDetails = {
-      email: withdrawData[0].email,
-      prime_user: { password: withdrawData[0].password },
+      email,
+      prime_user: { password },
     };
 
     const withdrawResponse = await this.getWithdrawInfo(userDetails, id);
@@ -361,6 +371,75 @@ export class PrimeWireManager {
     try {
       const withDrawResponse = await lastValueFrom(
         this.httpService.get(`${this.prime_trust_url}/v2/disbursements/${disbursements_id}`, {
+          headers: headersRequest,
+        }),
+      );
+
+      return withDrawResponse.data.data.attributes;
+    } catch (e) {
+      this.logger.error(e.response.data);
+
+      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+    }
+  }
+
+  async updateContribution(request: AccountIdRequest) {
+    const { resource_id, id } = request;
+    const contribution = await this.contributionEntityRepository.findOneBy({ uuid: resource_id });
+    const accountData = await this.primeAccountRepository
+      .createQueryBuilder('a')
+      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
+      .leftJoinAndSelect('p.skopa_user', 'u')
+      .select(['u.email as email,p.password as password,u.id as user_id'])
+      .where('a.uuid = :id', { id })
+      .getRawMany();
+
+    const { email, password, user_id } = accountData[0];
+    const userDetails = {
+      email,
+      prime_user: { password },
+    };
+
+    const contributionResponse = await this.getContributionInfo(userDetails, resource_id);
+    if (!contribution) {
+      await this.contributionEntityRepository.save(
+        this.contributionEntityRepository.create({
+          user_id,
+          uuid: resource_id,
+          currency_type: contributionResponse['currency-type'],
+          amount: contributionResponse['amount'],
+          contributor_email: contributionResponse['contributor-email'],
+          contributor_name: contributionResponse['contributor-name'],
+          funds_transfer_type: contributionResponse['funds-transfer-type'],
+          reference: contributionResponse['reference'],
+          status: contributionResponse['status'],
+        }),
+      );
+    } else {
+      await this.contributionEntityRepository.update({ uuid: resource_id }, { status: contributionResponse['status'] });
+    }
+
+    await this.notificationEntityRepository.save(
+      this.notificationEntityRepository.create({
+        user_id,
+        title: 'User Contributions',
+        type: 'contributions',
+        description: `Your contribution status for ${contributionResponse['amount']} ${contributionResponse['currency-type']} ${contributionResponse['status']}`,
+      }),
+    );
+
+    return { success: true };
+  }
+
+  private async getContributionInfo(userDetails, contribution_id) {
+    const { token } = await this.primeTokenManager.getToken(userDetails);
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      const withDrawResponse = await lastValueFrom(
+        this.httpService.get(`${this.prime_trust_url}/v2/contributions/${contribution_id}`, {
           headers: headersRequest,
         }),
       );

@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { NotificationEntity } from '~svc/core/src/payment-gateway/entities/notification.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
@@ -25,6 +26,9 @@ export class PrimeAccountManager {
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
+
+    @InjectRepository(NotificationEntity)
+    private readonly notificationEntityRepository: Repository<NotificationEntity>,
 
     @Inject(PrimeKycManager)
     private readonly primeKycManager: PrimeKycManager,
@@ -159,14 +163,14 @@ export class PrimeAccountManager {
       .createQueryBuilder('a')
       .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
       .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['a.uuid as account_id,u.email as email,p.password as password'])
+      .select(['a.uuid as account_id,u.email as email,p.password as password,u.id as user_id,u.username as username'])
       .where('a.uuid = :id', { id })
       .getRawMany();
 
     if (accountData.length == 0) {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
-    const account_id = accountData[0].account_id;
+    const { account_id, user_id } = accountData[0];
 
     const userDetails = {
       email: accountData[0].email,
@@ -179,6 +183,14 @@ export class PrimeAccountManager {
       {
         status: accountResponse.status,
       },
+    );
+    await this.notificationEntityRepository.save(
+      this.notificationEntityRepository.create({
+        user_id,
+        title: 'User Account',
+        type: 'accounts',
+        description: `Account created with status ${accountResponse.status}`,
+      }),
     );
 
     return { success: true };

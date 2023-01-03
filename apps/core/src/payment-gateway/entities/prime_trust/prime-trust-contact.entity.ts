@@ -1,4 +1,5 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
+import { ContributionEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/contribution.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustKycDocumentEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
 import { WithdrawalParamsEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal-params.entity';
@@ -47,5 +48,8 @@ export class PrimeTrustContactEntity {
   documents?: PrimeTrustKycDocumentEntity[];
 
   @OneToMany(() => WithdrawalParamsEntity, (params) => params.contact)
-  withdrawalParams: WithdrawalParamsEntity[];
+  withdrawalParams?: WithdrawalParamsEntity[];
+
+  @OneToMany(() => ContributionEntity, (params) => params.contact)
+  contributions?: ContributionEntity[];
 }

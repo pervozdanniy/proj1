@@ -63,18 +63,24 @@ export class PaymentGatewayController {
 
   @Post('/account/webhook')
   async webhook(@Body() payload: any) {
+    console.log(payload);
     const { resource_type, action } = payload;
-    const id: string = payload['account-id'];
-    const sendData = { id, payment_gateway: 'prime_trust' };
+    const sendData = {
+      id: payload['account-id'],
+      resource_id: payload['resource_id'],
+      payment_gateway: 'prime_trust',
+    };
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
     } else if (resource_type === 'kyc_document_checks' && action === 'update') {
       return this.paymentGatewayService.documentCheck(sendData);
+    } else if (resource_type === 'cip_checks' && action === 'update') {
+      return this.paymentGatewayService.cipCheck(sendData);
+    } else if (resource_type === 'contributions' && action === 'update') {
+      return this.paymentGatewayService.updateContribution(sendData);
     } else if (resource_type === 'funds_transfers' && action === 'update') {
       return this.paymentGatewayService.updateBalance(sendData);
     } else if (resource_type === 'disbursements' && action === 'update') {
-      sendData.id = payload['resource_id'];
-
       return this.paymentGatewayService.updateWithdraw(sendData);
     }
   }

@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { TransferMethodRequest, WithdrawalParams } from '~common/grpc/interfaces/payment-gateway';
+import { AccountIdRequest, TransferMethodRequest, WithdrawalParams } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-account.manager';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
@@ -51,6 +51,9 @@ export class PrimeTrustService {
   documentCheck(id: string) {
     return this.primeKycManager.documentCheck(id);
   }
+  cipCheck(id: string, resource_id: string) {
+    return this.primeKycManager.cipCheck(id, resource_id);
+  }
 
   createReference(userDetails: UserEntity, token: string) {
     return this.primeWireManager.createReference(userDetails, token);
@@ -72,7 +75,11 @@ export class PrimeTrustService {
     return this.primeWireManager.makeWithdrawal(request);
   }
 
-  updateWithdraw(id: string) {
-    return this.primeWireManager.updateWithdraw(id);
+  updateWithdraw(resource_id: string) {
+    return this.primeWireManager.updateWithdraw(resource_id);
+  }
+
+  updateContribution(request: AccountIdRequest) {
+    return this.primeWireManager.updateContribution(request);
   }
 }

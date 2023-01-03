@@ -1,6 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { NotificationEntity } from '~svc/core/src/payment-gateway/entities/notification.entity';
 import { CountryEntity } from '../country/entities/country.entity';
 import { PaymentGatewayEntity } from '../payment-gateway/entities/payment-gateway.entity';
 import { PrimeTrustUserEntity } from '../payment-gateway/entities/prime_trust/prime-trust-user.entity';
@@ -18,6 +19,7 @@ import { UserService } from './services/user.service';
       PaymentGatewayEntity,
       PrimeTrustUserEntity,
       UserDetailsEntity,
+      NotificationEntity,
     ]),
   ],
   providers: [UserService],

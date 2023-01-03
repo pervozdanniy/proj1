@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { NotificationEntity } from '~svc/core/src/payment-gateway/entities/notification.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
@@ -28,6 +29,9 @@ export class PrimeKycManager {
     private readonly primeTokenManager: PrimeTokenManager,
     @InjectRepository(PrimeTrustUserEntity)
     private readonly primeUserRepository: Repository<PrimeTrustUserEntity>,
+
+    @InjectRepository(NotificationEntity)
+    private readonly notificationEntityRepository: Repository<NotificationEntity>,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -178,7 +182,7 @@ export class PrimeKycManager {
         );
       }
 
-      //approve cip for development
+      // approve cip for development
       if (process.env.NODE_ENV === 'dev') {
         const cipData = await lastValueFrom(
           this.httpService.get(`${this.prime_trust_url}/v2/cip-checks`, { headers: headersRequest }),
@@ -258,7 +262,12 @@ export class PrimeKycManager {
         .leftJoinAndSelect('a.contact', 'c')
         .leftJoinAndSelect('c.documents', 'd')
         .select([
-          'd.kyc_check_uuid as kyc_check_uuid,a.uuid as account_id,u.email as email,p.password as password,c.uuid as contact_id',
+          'd.kyc_check_uuid as kyc_check_uuid,' +
+            'a.uuid as account_id,' +
+            'u.email as email,' +
+            'p.password as password,' +
+            'c.uuid as contact_id,' +
+            'u.id as user_id',
         ])
         .where('a.uuid = :id', { id })
         .getRawMany();
@@ -266,11 +275,11 @@ export class PrimeKycManager {
       if (accountData.length == 0) {
         throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
       }
-      const contact_id = accountData[0].contact_id;
+      const { contact_id, user_id, email, password } = accountData[0];
 
       const userDetails = {
-        email: accountData[0].email,
-        prime_user: { password: accountData[0].password },
+        email,
+        prime_user: { password },
       };
 
       const { token } = await this.primeTokenManager.getToken(userDetails);
@@ -315,12 +324,74 @@ export class PrimeKycManager {
         ...contact,
         ...data,
       });
+      let status = 'failed';
+      if (data.identity_documents_verified) {
+        status = 'succeed';
+      }
+
+      await this.notificationEntityRepository.save(
+        this.notificationEntityRepository.create({
+          user_id,
+          title: 'User Documents',
+          type: 'kyc_document_checks',
+          description: `Documents verification ${status}`,
+        }),
+      );
 
       return { success: true };
     } catch (e) {
       this.logger.error(e.message);
 
       throw new GrpcException(Status.ABORTED, e.message, 400);
+    }
+  }
+
+  async cipCheck(id: string, resource_id: string) {
+    const accountData = await this.primeAccountRepository
+      .createQueryBuilder('a')
+      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
+      .leftJoinAndSelect('p.skopa_user', 'u')
+      .select(['u.email as email,p.password as password,u.id as user_id'])
+      .where('a.uuid = :id', { id })
+      .getRawMany();
+
+    const { email, password, user_id } = accountData[0];
+    const userDetails = {
+      email,
+      prime_user: { password },
+    };
+
+    const cipResponse = await this.getCipCheckInfo(userDetails, resource_id);
+    await this.notificationEntityRepository.save(
+      this.notificationEntityRepository.create({
+        user_id,
+        title: 'User Documents',
+        type: 'cip_checks',
+        description: `Phone verification status ${cipResponse.status}`,
+      }),
+    );
+
+    return { success: true };
+  }
+
+  private async getCipCheckInfo(userDetails, cip_check_id) {
+    const { token } = await this.primeTokenManager.getToken(userDetails);
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      const cipResponse = await lastValueFrom(
+        this.httpService.get(`${this.prime_trust_url}/v2/cip-checks/${cip_check_id}`, {
+          headers: headersRequest,
+        }),
+      );
+
+      return cipResponse.data.data.attributes;
+    } catch (e) {
+      this.logger.error(e.response.data);
+
+      throw new GrpcException(Status.ABORTED, e.response.data, 400);
     }
   }
 }

@@ -45,6 +45,10 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.updateBalance(data));
   }
 
+  cipCheck(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.cipCheck(data));
+  }
+
   getToken(id: number) {
     return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
   }
@@ -63,6 +67,10 @@ export class PaymentGatewayService implements OnModuleInit {
 
   updateWithdraw(data: AccountIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.updateWithdraw(data));
+  }
+
+  updateContribution(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateContribution(data));
   }
 
   getBalance(data: TokenSendRequest) {

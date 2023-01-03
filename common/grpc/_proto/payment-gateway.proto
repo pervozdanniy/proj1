@@ -13,9 +13,11 @@ service PaymentGatewayService {
   rpc CreateContact (TokenSendRequest) returns (common.SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (common.SuccessResponse);
   rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
+  rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateReference (TokenSendRequest) returns (PrimeTrustData);
   rpc GetBalance (TokenSendRequest) returns (BalanceResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalParamsResponse);
   rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
@@ -71,6 +73,7 @@ message PrimeTrustData {
 message AccountIdRequest{
   string id = 1;
   string payment_gateway = 2;
+  optional string resource_id = 3;
 }
 
 
