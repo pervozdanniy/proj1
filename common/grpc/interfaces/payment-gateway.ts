@@ -54,12 +54,7 @@ export interface PrimeTrustData {
 export interface AccountIdRequest {
   id: string;
   payment_gateway: string;
-}
-
-export interface UpdateAccountRequest {
-  id: string;
-  status: string;
-  payment_gateway: string;
+  resource_id?: string | undefined;
 }
 
 export interface FileData {
@@ -101,7 +96,7 @@ export interface PaymentGatewayServiceClient {
 
   createAccount(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
-  updateAccount(request: UpdateAccountRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  updateAccount(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   createContact(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
@@ -109,11 +104,15 @@ export interface PaymentGatewayServiceClient {
 
   documentCheck(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
+  cipCheck(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
   createReference(request: TokenSendRequest, metadata?: Metadata): Observable<PrimeTrustData>;
 
   getBalance(request: TokenSendRequest, metadata?: Metadata): Observable<BalanceResponse>;
 
   updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  updateContribution(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   addWithdrawalParams(request: WithdrawalParams, metadata?: Metadata): Observable<WithdrawalParamsResponse>;
 
@@ -141,7 +140,7 @@ export interface PaymentGatewayServiceController {
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   updateAccount(
-    request: UpdateAccountRequest,
+    request: AccountIdRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
@@ -160,6 +159,11 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
+  cipCheck(
+    request: AccountIdRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
   createReference(
     request: TokenSendRequest,
     metadata?: Metadata,
@@ -171,6 +175,11 @@ export interface PaymentGatewayServiceController {
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 
   updateBalance(
+    request: AccountIdRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  updateContribution(
     request: AccountIdRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
@@ -202,9 +211,11 @@ export function PaymentGatewayServiceControllerMethods() {
       "createContact",
       "uploadDocument",
       "documentCheck",
+      "cipCheck",
       "createReference",
       "getBalance",
       "updateBalance",
+      "updateContribution",
       "addWithdrawalParams",
       "makeWithdrawal",
       "updateWithdraw",

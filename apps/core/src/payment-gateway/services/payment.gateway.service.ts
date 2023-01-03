@@ -9,7 +9,6 @@ import {
   PG_Token,
   TokenSendRequest,
   TransferMethodRequest,
-  UpdateAccountRequest,
   UploadDocumentRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -108,11 +107,11 @@ export class PaymentGatewayService {
     return paymentGateway.uploadDocument(userDetails, file, label, token);
   }
 
-  async updateAccount(request: UpdateAccountRequest) {
-    const { payment_gateway, status, id } = request;
+  async updateAccount(request: AccountIdRequest) {
+    const { payment_gateway, id } = request;
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
 
-    return paymentGateway.updateAccount(id, status);
+    return paymentGateway.updateAccount(id);
   }
 
   async documentCheck(request: AccountIdRequest) {
@@ -120,6 +119,13 @@ export class PaymentGatewayService {
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
 
     return paymentGateway.documentCheck(id);
+  }
+
+  async cipCheck(request: AccountIdRequest) {
+    const { payment_gateway, id, resource_id } = request;
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
+
+    return paymentGateway.cipCheck(id, resource_id);
   }
 
   async createReference(request: TokenSendRequest) {
@@ -170,9 +176,16 @@ export class PaymentGatewayService {
   }
 
   async updateWithdraw(request: AccountIdRequest) {
-    const { payment_gateway, id } = request;
+    const { payment_gateway, resource_id } = request;
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
 
-    return paymentGateway.updateWithdraw(id);
+    return paymentGateway.updateWithdraw(resource_id);
+  }
+
+  async updateContribution(request: AccountIdRequest) {
+    const { payment_gateway } = request;
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
+
+    return paymentGateway.updateContribution(request);
   }
 }

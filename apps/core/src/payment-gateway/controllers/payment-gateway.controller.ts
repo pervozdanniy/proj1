@@ -11,7 +11,6 @@ import {
   PrimeTrustData,
   TokenSendRequest,
   TransferMethodRequest,
-  UpdateAccountRequest,
   UploadDocumentRequest,
   WithdrawalParams,
   WithdrawalParamsResponse,
@@ -32,27 +31,31 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return { success };
   }
 
-  async getToken({ id }: IdRequest): Promise<PG_Token> {
+  getToken({ id }: IdRequest): Promise<PG_Token> {
     return this.paymentGatewayService.getToken(id);
   }
 
-  async createAccount(request: TokenSendRequest): Promise<SuccessResponse> {
+  createAccount(request: TokenSendRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.createAccount(request);
   }
 
-  async createContact(request: TokenSendRequest): Promise<SuccessResponse> {
+  createContact(request: TokenSendRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.createContact(request);
   }
 
-  async uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
+  uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.uploadDocument(request);
   }
 
-  updateAccount(request: UpdateAccountRequest): Promise<SuccessResponse> {
+  updateAccount(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.updateAccount(request);
   }
   documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.documentCheck(request);
+  }
+
+  cipCheck(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.cipCheck(request);
   }
 
   createReference(request: TokenSendRequest): Promise<PrimeTrustData> {
@@ -77,6 +80,10 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   updateWithdraw(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.updateWithdraw(request);
+  }
+
+  updateContribution(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.updateContribution(request);
   }
 
   list(request: PaymentGatewayListQuery): Promise<PaymentGatewayListResponse> {

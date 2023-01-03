@@ -34,9 +34,7 @@ export class PaymentGatewayService implements OnModuleInit {
   }
 
   updateAccount(data: AccountIdRequest) {
-    const formData = { ...data, status: 'opened' };
-
-    return lastValueFrom(this.paymentGatewayServiceClient.updateAccount(formData));
+    return lastValueFrom(this.paymentGatewayServiceClient.updateAccount(data));
   }
 
   documentCheck(data: AccountIdRequest) {
@@ -45,6 +43,10 @@ export class PaymentGatewayService implements OnModuleInit {
 
   updateBalance(data: AccountIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.updateBalance(data));
+  }
+
+  cipCheck(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.cipCheck(data));
   }
 
   getToken(id: number) {
@@ -65,6 +67,10 @@ export class PaymentGatewayService implements OnModuleInit {
 
   updateWithdraw(data: AccountIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.updateWithdraw(data));
+  }
+
+  updateContribution(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateContribution(data));
   }
 
   getBalance(data: TokenSendRequest) {
