@@ -296,6 +296,14 @@ export class PrimeWireManager {
         currency_type: withdrawalResponse.attributes['currency-type'],
       }),
     );
+    await this.notificationEntityRepository.save(
+      this.notificationEntityRepository.create({
+        user_id: id,
+        title: 'User Disbursements',
+        type: 'disbursements',
+        description: `Your disbursements status for ${amount} ${withdrawalResponse.attributes['currency-type']} ${withdrawalResponse.attributes['status']}`,
+      }),
+    );
 
     return { data: JSON.stringify(withdrawalResponse) };
   }
@@ -341,22 +349,32 @@ export class PrimeWireManager {
       .createQueryBuilder('w')
       .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'w.user_id = p.user_id')
       .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['u.email as email,p.password as password'])
+      .select(['u.email as email,p.password as password,u.id as user_id'])
       .where('w.uuid = :id', { id })
       .getRawMany();
 
-    const { email, password } = withdrawData[0];
+    const { email, password, user_id } = withdrawData[0];
     const userDetails = {
       email,
       prime_user: { password },
     };
 
     const withdrawResponse = await this.getWithdrawInfo(userDetails, id);
+
     await this.withdrawalEntityRepository.update(
       { uuid: id },
       {
         status: withdrawResponse['status'],
       },
+    );
+
+    await this.notificationEntityRepository.save(
+      this.notificationEntityRepository.create({
+        user_id,
+        title: 'User Disbursements',
+        type: 'disbursements',
+        description: `Your disbursements status for ${withdrawResponse['amount']} ${withdrawResponse['currency-type']} ${withdrawResponse['status']}`,
+      }),
     );
 
     return { success: true };
