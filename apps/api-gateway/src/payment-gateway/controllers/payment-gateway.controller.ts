@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseGuards,
@@ -15,7 +16,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { NotificationDto } from '~svc/api-gateway/src/payment-gateway/dtos/notification.dto';
+import { PaginateNotificationsDto } from '~svc/api-gateway/src/payment-gateway/dtos/paginate-notifications.dto';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/payment-gateway/dtos/payment-gateways-list.dto';
+import { UpdateNotificationDto } from '~svc/api-gateway/src/payment-gateway/dtos/update-notification.dto';
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-make.dto';
 import { WithdrawalParamsDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-params.dto';
 import { PaymentGatewayService } from '~svc/api-gateway/src/payment-gateway/services/payment-gateway.service';
@@ -148,5 +152,29 @@ export class PaymentGatewayController {
   @Post('/withdrawal/make')
   async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
     return this.paymentGatewayService.makeWithdrawal({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Get list of notifications' })
+  @ApiResponse({ status: HttpStatus.OK, type: PaginateNotificationsDto })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtSessionGuard)
+  @Get('/notifications/list')
+  async notificationsList(
+    @JwtSessionUser() { id }: User,
+    @Query() query: NotificationDto,
+  ): Promise<PaginateNotificationsDto> {
+    return new PaginateNotificationsDto(await this.paymentGatewayService.notificationsList({ id, ...query }));
+  }
+
+  @ApiOperation({ summary: 'Update current user password.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Notification updated successfully.',
+  })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtSessionGuard)
+  @Put('/notification')
+  async updateNotification(@JwtSessionUser() { id }: User, @Body() payload: UpdateNotificationDto) {
+    return this.paymentGatewayService.updateNotification({ id, payload });
   }
 }

@@ -6,6 +6,36 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface NotificationPayload {
+  id: number;
+  read: boolean;
+}
+
+export interface UpdateNotificationRequest {
+  id: number;
+  payload: NotificationPayload | undefined;
+}
+
+export interface NotificationRequest {
+  id: number;
+  limit: number;
+  offset: number;
+  read?: boolean | undefined;
+}
+
+export interface NotificationListResponse {
+  items: Notification[];
+  count: number;
+}
+
+export interface Notification {
+  id: number;
+  title: string;
+  type: string;
+  description: string;
+  read: boolean;
+}
+
 export interface PaymentGatewayListQuery {
   limit: number;
   offset: number;
@@ -119,6 +149,10 @@ export interface PaymentGatewayServiceClient {
   makeWithdrawal(request: TransferMethodRequest, metadata?: Metadata): Observable<PrimeTrustData>;
 
   updateWithdraw(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  notificationsList(request: NotificationRequest, metadata?: Metadata): Observable<NotificationListResponse>;
+
+  updateNotification(request: UpdateNotificationRequest, metadata?: Metadata): Observable<Notification>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -198,6 +232,16 @@ export interface PaymentGatewayServiceController {
     request: AccountIdRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  notificationsList(
+    request: NotificationRequest,
+    metadata?: Metadata,
+  ): Promise<NotificationListResponse> | Observable<NotificationListResponse> | NotificationListResponse;
+
+  updateNotification(
+    request: UpdateNotificationRequest,
+    metadata?: Metadata,
+  ): Promise<Notification> | Observable<Notification> | Notification;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -219,6 +263,8 @@ export function PaymentGatewayServiceControllerMethods() {
       "addWithdrawalParams",
       "makeWithdrawal",
       "updateWithdraw",
+      "notificationsList",
+      "updateNotification",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
