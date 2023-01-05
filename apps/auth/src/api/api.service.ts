@@ -4,7 +4,6 @@ import { ClientGrpc } from '@nestjs/microservices';
 import bcrypt from 'bcrypt';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { GoogleAuthRequest } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
 import { SessionService } from '~common/session';
