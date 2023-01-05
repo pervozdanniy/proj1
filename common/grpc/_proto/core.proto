@@ -36,7 +36,7 @@ message CreateRequest {
   string email = 2;
   optional string password = 3;
   optional string phone = 4;
-  uint32 country_id = 5;
+  optional uint32 country_id = 5;
   optional string source = 6;
   optional UserDetails details = 7;
 }

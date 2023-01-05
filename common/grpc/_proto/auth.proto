@@ -4,6 +4,12 @@ package skopa.auth;
 
 service AuthService {
   rpc Login (AuthRequest) returns (AuthData);
+  rpc LoginGoogle (GoogleAuthRequest) returns (AuthData);
+}
+
+
+message GoogleAuthRequest {
+  string token = 1;
 }
 
 service ClientService {

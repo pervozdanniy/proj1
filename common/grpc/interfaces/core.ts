@@ -26,7 +26,7 @@ export interface CreateRequest {
   email: string;
   password?: string | undefined;
   phone?: string | undefined;
-  country_id: number;
+  country_id?: number | undefined;
   source?: string | undefined;
   details?: UserDetails | undefined;
 }

@@ -41,6 +41,10 @@ export interface ConfigInterface {
     attempts: number;
     delay: number;
   };
+  google: {
+    client: string;
+    secret: string;
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -87,5 +91,9 @@ export default (): ConfigInterface => ({
   user_registration_queue: {
     attempts: parseInt(process.env.USER_ATTEMPTS, 10) || 5,
     delay: parseInt(process.env.BULLQM_DELAY, 10) || 5000,
+  },
+  google: {
+    client: '103444062712-j5mmjaf89gp5ium08u6upc1c2b7d88r8.apps.googleusercontent.com',
+    secret: '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',
   },
 });
