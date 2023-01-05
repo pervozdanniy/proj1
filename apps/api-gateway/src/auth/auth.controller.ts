@@ -37,7 +37,7 @@ export class AuthController {
   }
 
   @Post('google/login')
-  loginGoogle(@Body() tokenData: TokenVerificationDto, @Req() request: Request) {
+  loginGoogle(@Body() tokenData: TokenVerificationDto) {
     return this.authService.loginGoogle(tokenData);
   }
 }
