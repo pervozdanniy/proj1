@@ -3,7 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
-import { UserServiceClient } from '~common/grpc/interfaces/core';
+import { UpdateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
 import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 import { CreateUserDTO } from './dtos/create-user.dto';
 import { RegistrationResponseDto } from './dtos/user.dto';
@@ -35,5 +35,9 @@ export class UserService implements OnModuleInit {
     const { success } = await firstValueFrom(this.paymentGateway.createUser({ id: user.id }));
 
     return { user, providerRegistered: success };
+  }
+
+  async update(request: UpdateRequest) {
+    return await firstValueFrom(this.userService.update(request));
   }
 }

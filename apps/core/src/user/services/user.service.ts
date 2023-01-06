@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { UpdateRequest } from '~common/grpc/interfaces/core';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
 import { CreateRequestDto } from '../dto/create-request.dto';
@@ -23,7 +24,9 @@ export class UserService {
   ) {}
 
   async get(id: number): Promise<UserEntity> {
-    return this.userRepository.findOneByOrFail({ id });
+    const user = await this.userRepository.findOneOrFail({ where: { id }, relations: ['details'] });
+
+    return user;
   }
 
   async create({ details, ...userData }: CreateRequestDto): Promise<UserEntity> {
@@ -67,5 +70,24 @@ export class UserService {
     const { affected } = await this.userRepository.delete(id);
 
     return affected === 1;
+  }
+
+  async update(request: UpdateRequest) {
+    const { id, username, country_id, phone, details } = request;
+    const country = await this.countryEntityRepository.findOneBy({ id: country_id });
+    if (!country) {
+      throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
+    }
+
+    await this.userRepository.update({ id }, { username, country_id, phone });
+    const currentDetails = await this.userDetailsRepository.findOneBy({ user_id: id });
+    if (currentDetails) {
+      await this.userDetailsRepository.update({ user_id: id }, details);
+    } else {
+      await this.userDetailsRepository.save(this.userDetailsRepository.create({ user_id: id, ...details }));
+    }
+    const user = await this.userRepository.findOne({ where: { id }, relations: ['details'] });
+
+    return user;
   }
 }

@@ -8,13 +8,16 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import { lastValueFrom } from 'rxjs';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { UpdateUserDto } from '~svc/api-gateway/src/user/dtos/update-user.dto';
 import { PublicUserDto } from '../../utils/public-user.dto';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { RegistrationResponseDto } from '../dtos/user.dto';
@@ -61,5 +64,26 @@ export class UserController {
   @Post()
   createUser(@Body() payload: CreateUserDTO): Promise<RegistrationResponseDto> {
     return this.userService.create(payload);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update user.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'The user created successfully.',
+    type: PublicUserDto,
+  })
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtSessionGuard)
+  @Put()
+  update(
+    @JwtSessionUser() { id }: User,
+    @Body()
+    payload: UpdateUserDto,
+  ): PublicUserDto {
+    const request = { ...payload, id };
+    const user = this.userService.update(request);
+
+    return plainToInstance(PublicUserDto, user);
   }
 }

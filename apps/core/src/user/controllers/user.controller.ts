@@ -4,6 +4,7 @@ import { User } from '~common/grpc/interfaces/common';
 import {
   LoginRequest,
   NullableUser,
+  UpdateRequest,
   UserServiceController,
   UserServiceControllerMethods,
 } from '~common/grpc/interfaces/core';
@@ -49,5 +50,12 @@ export class UserController implements UserServiceController {
     const success = await this.userService.delete(id);
 
     return { success };
+  }
+
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async update(request: UpdateRequest): Promise<User> {
+    const user = await this.userService.update(request);
+
+    return plainToInstance(UserResponseDto, user);
   }
 }

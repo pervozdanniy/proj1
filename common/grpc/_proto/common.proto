@@ -12,6 +12,18 @@ message User {
     optional string phone = 8;
     optional string email_verified_at = 9;
     optional string source = 10;
+    optional UserDetails details = 11;
+}
+
+message UserDetails {
+    string  first_name = 1;
+    string  last_name = 2;
+    string  date_of_birth = 3;
+    string  city = 4;
+    string  street = 5;
+    uint32  postal_code = 6;
+    uint32  tax_id_number = 7;
+    string region = 8;
 }
 
 message IdRequest {

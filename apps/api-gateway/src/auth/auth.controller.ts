@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
-import TokenVerificationDto from '~svc/api-gateway/src/auth/google/tokenVerification.dto';
+import TokenVerificationDto from '~svc/api-gateway/src/auth/dto/tokenVerification.dto';
 import { PublicUserDto } from '../utils/public-user.dto';
 import { AuthService } from './auth.service';
 import { AuthRequestDto } from './dto/auth.request.dto';

@@ -13,6 +13,8 @@ service UserService {
   rpc Create (CreateRequest) returns (common.User);
 
   rpc Delete (common.IdRequest) returns (common.SuccessResponse);
+
+  rpc Update(UpdateRequest) returns (common.User);
 }
 
 
@@ -20,15 +22,15 @@ message NullableUser {
   optional common.User user = 1;
 }
 
-message UserDetails {
-  string  first_name = 1;
-  string  last_name = 2;
-  string  date_of_birth = 3;
-  string  city = 4;
-  string  street = 5;
-  uint32  postal_code = 6;
-  uint32  tax_id_number = 7;
-  string region = 8;
+
+
+message UpdateRequest {
+  uint32 id = 1;
+  string username = 2;
+  optional uint32 country_id = 3;
+  optional string phone = 4;
+  optional string source = 5;
+  optional common.UserDetails details = 6;
 }
 
 message CreateRequest {
@@ -38,7 +40,7 @@ message CreateRequest {
   optional string phone = 4;
   optional uint32 country_id = 5;
   optional string source = 6;
-  optional UserDetails details = 7;
+  optional common.UserDetails details = 7;
 }
 
 message LoginRequest {
