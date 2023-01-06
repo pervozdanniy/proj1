@@ -93,7 +93,7 @@ export default (): ConfigInterface => ({
     delay: parseInt(process.env.BULLQM_DELAY, 10) || 5000,
   },
   google: {
-    client: '103444062712-j5mmjaf89gp5ium08u6upc1c2b7d88r8.apps.googleusercontent.com',
-    secret: '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',
+    client: process.env.GOOGLE_CLIENT,
+    secret: process.env.GOOGLE_SECRET,
   },
 });
