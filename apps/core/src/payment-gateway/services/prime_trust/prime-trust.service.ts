@@ -1,12 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import {
-  AccountIdRequest,
-  NotificationRequest,
-  TransferMethodRequest,
-  UpdateNotificationRequest,
-  WithdrawalParams,
-} from '~common/grpc/interfaces/payment-gateway';
+import { AccountIdRequest, TransferMethodRequest, WithdrawalParams } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-account.manager';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
@@ -87,13 +81,5 @@ export class PrimeTrustService {
 
   updateContribution(request: AccountIdRequest) {
     return this.primeWireManager.updateContribution(request);
-  }
-
-  notificationsList(request: NotificationRequest) {
-    return this.primeUserManager.notificationsList(request);
-  }
-
-  updateNotification(request: UpdateNotificationRequest) {
-    return this.primeUserManager.updateNotification(request);
   }
 }

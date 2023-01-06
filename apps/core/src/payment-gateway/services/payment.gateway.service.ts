@@ -4,13 +4,11 @@ import { Repository } from 'typeorm';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
-  NotificationRequest,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
   PG_Token,
   TokenSendRequest,
   TransferMethodRequest,
-  UpdateNotificationRequest,
   UploadDocumentRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -189,25 +187,5 @@ export class PaymentGatewayService {
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
 
     return paymentGateway.updateContribution(request);
-  }
-
-  async notificationsList(request: NotificationRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
-      userDetails.country.payment_gateway.alias,
-    );
-
-    return paymentGateway.notificationsList(request);
-  }
-
-  async updateNotification(request: UpdateNotificationRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
-      userDetails.country.payment_gateway.alias,
-    );
-
-    return paymentGateway.updateNotification(request);
   }
 }

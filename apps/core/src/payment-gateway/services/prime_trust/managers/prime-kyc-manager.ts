@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { NotificationEntity } from '~svc/core/src/payment-gateway/entities/notification.entity';
+import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
@@ -25,13 +25,11 @@ export class PrimeKycManager {
   constructor(
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: HttpService,
+    private readonly notificationService: NotificationService,
     @Inject(PrimeTokenManager)
     private readonly primeTokenManager: PrimeTokenManager,
     @InjectRepository(PrimeTrustUserEntity)
     private readonly primeUserRepository: Repository<PrimeTrustUserEntity>,
-
-    @InjectRepository(NotificationEntity)
-    private readonly notificationEntityRepository: Repository<NotificationEntity>,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -329,14 +327,13 @@ export class PrimeKycManager {
         status = 'succeed';
       }
 
-      await this.notificationEntityRepository.save(
-        this.notificationEntityRepository.create({
-          user_id,
-          title: 'User Documents',
-          type: 'kyc_document_checks',
-          description: `Documents verification ${status}`,
-        }),
-      );
+      const notificationPayload = {
+        user_id,
+        title: 'User Documents',
+        type: 'kyc_document_checks',
+        description: `Documents verification ${status}`,
+      };
+      await this.notificationService.create(notificationPayload);
 
       return { success: true };
     } catch (e) {
@@ -362,14 +359,13 @@ export class PrimeKycManager {
     };
 
     const cipResponse = await this.getCipCheckInfo(userDetails, resource_id);
-    await this.notificationEntityRepository.save(
-      this.notificationEntityRepository.create({
-        user_id,
-        title: 'User Documents',
-        type: 'cip_checks',
-        description: `Phone verification status ${cipResponse.status}`,
-      }),
-    );
+    const notificationPayload = {
+      user_id,
+      title: 'User Documents',
+      type: 'cip_checks',
+      description: `Phone verification status ${cipResponse.status}`,
+    };
+    await this.notificationService.create(notificationPayload);
 
     return { success: true };
   }

@@ -21,40 +21,9 @@ service PaymentGatewayService {
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalParamsResponse);
   rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
-  rpc NotificationsList (NotificationRequest) returns (NotificationListResponse);
-  rpc UpdateNotification (UpdateNotificationRequest) returns (Notification);
+
 }
 
-
-message NotificationPayload{
-  uint32 id = 1;
-  bool read = 2;
-}
-
-message UpdateNotificationRequest {
-  uint32 id = 1;
-  NotificationPayload payload = 2;
-}
-
-message NotificationRequest {
-  uint32 id = 1;
-  uint32 limit = 2;
-  uint32 offset = 3;
-  optional bool read = 4;
-}
-
-message NotificationListResponse {
-  repeated Notification items = 1;
-  uint32 count = 2;
-}
-
-message Notification {
-  uint32 id =1;
-  string title = 2;
-  string type = 3;
-  string description = 4;
-  bool read = 5;
-}
 
 message PaymentGatewayListQuery {
   uint32 limit = 1;

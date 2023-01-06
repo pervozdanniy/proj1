@@ -3,9 +3,6 @@ import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BalanceResponse,
-  Notification,
-  NotificationListResponse,
-  NotificationRequest,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
   PaymentGatewayServiceController,
@@ -14,7 +11,6 @@ import {
   PrimeTrustData,
   TokenSendRequest,
   TransferMethodRequest,
-  UpdateNotificationRequest,
   UploadDocumentRequest,
   WithdrawalParams,
   WithdrawalParamsResponse,
@@ -92,13 +88,5 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   list(request: PaymentGatewayListQuery): Promise<PaymentGatewayListResponse> {
     return this.paymentGatewayService.list(request);
-  }
-
-  notificationsList(request: NotificationRequest): Promise<NotificationListResponse> {
-    return this.paymentGatewayService.notificationsList(request);
-  }
-
-  updateNotification(request: UpdateNotificationRequest): Promise<Notification> {
-    return this.paymentGatewayService.updateNotification(request);
   }
 }

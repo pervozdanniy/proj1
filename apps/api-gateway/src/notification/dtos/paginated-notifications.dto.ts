@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { NotificationListResponse } from '~common/grpc/interfaces/payment-gateway';
-import { NotificationDto } from '~svc/api-gateway/src/payment-gateway/dtos/notification.dto';
+import { NotificationDto } from '~svc/api-gateway/src/notification/dtos/notification.dto';
 
-export class PaginateNotificationsDto {
+export class PaginatedNotificationsDto {
   @ApiProperty({ description: 'Notifications list.', type: NotificationDto, isArray: true })
   @Type(() => NotificationDto)
   items: NotificationDto[];
 
   @ApiProperty({ description: 'The whole count.' })
+  @Type(() => Number)
   count: number;
 
-  constructor(partial: Partial<NotificationListResponse>) {
+  constructor(partial: Partial<PaginatedNotificationsDto>) {
     Object.assign(this, partial);
   }
 }

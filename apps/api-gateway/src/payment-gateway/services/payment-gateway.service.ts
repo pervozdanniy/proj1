@@ -14,7 +14,6 @@ import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/depos
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/payment-gateway/dtos/payment-gateways-list.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-withdraw.dto';
-import { UpdateNotificationDto } from '~svc/api-gateway/src/payment-gateway/dtos/update-notification.dto';
 import { VerifyOwnerDto } from '~svc/api-gateway/src/payment-gateway/dtos/verify-owner.dto';
 
 @Injectable()
@@ -209,13 +208,5 @@ export class PaymentGatewayService implements OnModuleInit {
     const response = await lastValueFrom(this.paymentGatewayServiceClient.makeWithdrawal(data));
 
     return { data: JSON.parse(response.data) };
-  }
-
-  notificationsList(payload) {
-    return lastValueFrom(this.paymentGatewayServiceClient.notificationsList(payload));
-  }
-
-  updateNotification(payload) {
-    return lastValueFrom(this.paymentGatewayServiceClient.updateNotification(payload));
   }
 }
