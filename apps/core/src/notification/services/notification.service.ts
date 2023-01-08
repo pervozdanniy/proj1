@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NotificationRequest, UpdateNotificationRequest } from '~common/grpc/interfaces/notification';
@@ -6,6 +6,7 @@ import { NotificationEntity } from '~svc/core/src/notification/entities/notifica
 
 @Injectable()
 export class NotificationService {
+  private readonly logger = new Logger(NotificationService.name);
   constructor(
     @InjectRepository(NotificationEntity)
     private notificationEntityRepository: Repository<NotificationEntity>,
@@ -34,12 +35,9 @@ export class NotificationService {
     return this.notificationEntityRepository.save({ ...notification, read });
   }
 
-  async create(payload: {
-    user_id: number;
-    description: string;
-    title: string;
-    type: string;
-  }): Promise<NotificationEntity> {
-    return await this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload));
+  create(payload: { user_id: number; description: string; title: string; type: string }): void {
+    this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload)).catch((e) => {
+      this.logger.error(e.message);
+    });
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import {
   Notification,
@@ -9,6 +9,8 @@ import {
   NotificationServiceClient,
   UpdateNotificationRequest,
 } from '~common/grpc/interfaces/notification';
+import { NotificationDto } from '~svc/api-gateway/src/notification/dtos/notification.dto';
+import { PaginatedNotificationsDto } from '~svc/api-gateway/src/notification/dtos/paginated-notifications.dto';
 
 @Injectable()
 export class NotificationService implements OnModuleInit {
@@ -20,11 +22,11 @@ export class NotificationService implements OnModuleInit {
     this.notificationServiceClient = this.core.getService('NotificationService');
   }
 
-  list(data: NotificationRequest): Observable<NotificationListResponse> {
-    return this.notificationServiceClient.list(data);
+  async list(data: NotificationRequest): Promise<PaginatedNotificationsDto> {
+    return new PaginatedNotificationsDto(await lastValueFrom(this.notificationServiceClient.list(data)));
   }
 
-  update(data: UpdateNotificationRequest): Observable<Notification> {
-    return this.notificationServiceClient.update(data);
+  async update(data: UpdateNotificationRequest): Promise<NotificationDto> {
+    return new NotificationDto(await lastValueFrom(this.notificationServiceClient.update(data)));
   }
 }

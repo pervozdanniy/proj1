@@ -7,12 +7,10 @@ import {
   HttpStatus,
   Put,
   Query,
-  Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { lastValueFrom } from 'rxjs';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
 import { ListNotificationsDto } from '~svc/api-gateway/src/notification/dtos/list-notifications.dto';
@@ -36,8 +34,8 @@ export class NotificationController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtSessionGuard)
   @Get('/list')
-  async list(@JwtSessionUser() { id }: User, @Query() query: ListNotificationsDto): Promise<PaginatedNotificationsDto> {
-    return new PaginatedNotificationsDto(await lastValueFrom(this.notificationService.list({ id, ...query })));
+  list(@JwtSessionUser() { id }: User, @Query() query: ListNotificationsDto) {
+    return this.notificationService.list({ id, ...query });
   }
 
   @ApiOperation({ summary: 'Update current user password.' })
@@ -49,7 +47,7 @@ export class NotificationController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtSessionGuard)
   @Put('/')
-  async update(@JwtSessionUser() { id }: User, @Body() payload: UpdateNotificationDto): Promise<NotificationDto> {
-    return new NotificationDto(await lastValueFrom(this.notificationService.update({ id, payload })));
+  update(@JwtSessionUser() { id }: User, @Body() payload: UpdateNotificationDto) {
+    return this.notificationService.update({ id, payload });
   }
 }

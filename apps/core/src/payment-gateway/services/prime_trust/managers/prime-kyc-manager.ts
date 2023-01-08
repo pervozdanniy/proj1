@@ -333,7 +333,7 @@ export class PrimeKycManager {
         type: 'kyc_document_checks',
         description: `Documents verification ${status}`,
       };
-      await this.notificationService.create(notificationPayload);
+      this.notificationService.create(notificationPayload);
 
       return { success: true };
     } catch (e) {
@@ -365,7 +365,7 @@ export class PrimeKycManager {
       type: 'cip_checks',
       description: `Phone verification status ${cipResponse.status}`,
     };
-    await this.notificationService.create(notificationPayload);
+    this.notificationService.create(notificationPayload);
 
     return { success: true };
   }
