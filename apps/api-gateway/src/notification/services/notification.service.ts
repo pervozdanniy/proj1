@@ -1,10 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { lastValueFrom, Observable } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import {
-  Notification,
-  NotificationListResponse,
   NotificationRequest,
   NotificationServiceClient,
   UpdateNotificationRequest,
