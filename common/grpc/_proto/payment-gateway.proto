@@ -21,7 +21,9 @@ service PaymentGatewayService {
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalParamsResponse);
   rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
+
 }
+
 
 message PaymentGatewayListQuery {
   uint32 limit = 1;

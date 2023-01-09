@@ -1,6 +1,6 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
@@ -16,7 +16,7 @@ import {
   WithdrawalParamsResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { NotificationEntity } from '~svc/core/src/payment-gateway/entities/notification.entity';
+import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { ContributionEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/contribution.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
@@ -37,6 +37,12 @@ export class PrimeWireManager {
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: HttpService,
 
+    private readonly primeKycManager: PrimeKycManager,
+
+    private readonly primeTokenManager: PrimeTokenManager,
+
+    private readonly notificationService: NotificationService,
+
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
 
@@ -54,15 +60,6 @@ export class PrimeWireManager {
 
     @InjectRepository(WithdrawalParamsEntity)
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
-
-    @InjectRepository(NotificationEntity)
-    private readonly notificationEntityRepository: Repository<NotificationEntity>,
-
-    @Inject(PrimeKycManager)
-    private readonly primeKycManager: PrimeKycManager,
-
-    @Inject(PrimeTokenManager)
-    private readonly primeTokenManager: PrimeTokenManager,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -297,6 +294,15 @@ export class PrimeWireManager {
       }),
     );
 
+    const notificationPayload = {
+      user_id: id,
+      title: 'User Disbursements',
+      type: 'disbursements',
+      description: `Your disbursements status for ${amount} ${withdrawalResponse.attributes['currency-type']} ${withdrawalResponse.attributes['status']}`,
+    };
+
+    this.notificationService.create(notificationPayload);
+
     return { data: JSON.stringify(withdrawalResponse) };
   }
 
@@ -341,23 +347,32 @@ export class PrimeWireManager {
       .createQueryBuilder('w')
       .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'w.user_id = p.user_id')
       .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['u.email as email,p.password as password'])
+      .select(['u.email as email,p.password as password,u.id as user_id'])
       .where('w.uuid = :id', { id })
       .getRawMany();
 
-    const { email, password } = withdrawData[0];
+    const { email, password, user_id } = withdrawData[0];
     const userDetails = {
       email,
       prime_user: { password },
     };
 
     const withdrawResponse = await this.getWithdrawInfo(userDetails, id);
+
     await this.withdrawalEntityRepository.update(
       { uuid: id },
       {
         status: withdrawResponse['status'],
       },
     );
+    const notificationPayload = {
+      user_id,
+      title: 'User Disbursements',
+      type: 'disbursements',
+      description: `Your disbursements status for ${withdrawResponse['amount']} ${withdrawResponse['currency-type']} ${withdrawResponse['status']}`,
+    };
+
+    this.notificationService.create(notificationPayload);
 
     return { success: true };
   }
@@ -418,15 +433,13 @@ export class PrimeWireManager {
     } else {
       await this.contributionEntityRepository.update({ uuid: resource_id }, { status: contributionResponse['status'] });
     }
-
-    await this.notificationEntityRepository.save(
-      this.notificationEntityRepository.create({
-        user_id,
-        title: 'User Contributions',
-        type: 'contributions',
-        description: `Your contribution status for ${contributionResponse['amount']} ${contributionResponse['currency-type']} ${contributionResponse['status']}`,
-      }),
-    );
+    const notificationPayload = {
+      user_id,
+      title: 'User Contributions',
+      type: 'contributions',
+      description: `Your contribution status for ${contributionResponse['amount']} ${contributionResponse['currency-type']} ${contributionResponse['status']}`,
+    };
+    this.notificationService.create(notificationPayload);
 
     return { success: true };
   }

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package skopa.core;
+
+service NotificationService {
+  rpc List (NotificationRequest) returns (NotificationListResponse);
+  rpc Update (UpdateNotificationRequest) returns (Notification);
+}
+
+
+message NotificationPayload{
+  uint32 id = 1;
+  bool read = 2;
+}
+
+message UpdateNotificationRequest {
+  uint32 id = 1;
+  NotificationPayload payload = 2;
+}
+
+message NotificationRequest {
+  uint32 id = 1;
+  uint32 limit = 2;
+  uint32 offset = 3;
+  optional bool read = 4;
+}
+
+message NotificationListResponse {
+  repeated Notification items = 1;
+  uint32 count = 2;
+}
+
+message Notification {
+  uint32 id =1;
+  string title = 2;
+  string type = 3;
+  string description = 4;
+  bool read = 5;
+}

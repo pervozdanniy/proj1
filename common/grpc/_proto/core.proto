@@ -4,6 +4,7 @@ package skopa.core;
 import "payment-gateway.proto";
 import "common.proto";
 import "country.proto";
+import "notification.proto";
 
 service UserService {
   rpc GetById (common.IdRequest) returns (common.User);

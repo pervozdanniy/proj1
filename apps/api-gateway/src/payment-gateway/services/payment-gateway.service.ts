@@ -29,70 +29,6 @@ export class PaymentGatewayService implements OnModuleInit {
     this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');
   }
 
-  list(query: PaymentGatewaysListDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.list(query));
-  }
-
-  updateAccount(data: AccountIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.updateAccount(data));
-  }
-
-  documentCheck(data: AccountIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.documentCheck(data));
-  }
-
-  updateBalance(data: AccountIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.updateBalance(data));
-  }
-
-  cipCheck(data: AccountIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.cipCheck(data));
-  }
-
-  getToken(id: number) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
-  }
-
-  createAccount(data: TokenSendRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.createAccount(data));
-  }
-
-  createContact(data: TokenSendRequest): Promise<SuccessResponse> {
-    return lastValueFrom(this.paymentGatewayServiceClient.createContact(data));
-  }
-
-  uploadDocument(data: UploadDocumentRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.uploadDocument(data));
-  }
-
-  updateWithdraw(data: AccountIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.updateWithdraw(data));
-  }
-
-  updateContribution(data: AccountIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.updateContribution(data));
-  }
-
-  getBalance(data: TokenSendRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getBalance(data));
-  }
-
-  async createReference(data: TokenSendRequest) {
-    const response = await lastValueFrom(this.paymentGatewayServiceClient.createReference(data));
-
-    return { data: JSON.parse(response.data) };
-  }
-
-  addWithdrawalParams(data) {
-    return lastValueFrom(this.paymentGatewayServiceClient.addWithdrawalParams(data));
-  }
-
-  async makeWithdrawal(data) {
-    const response = await lastValueFrom(this.paymentGatewayServiceClient.makeWithdrawal(data));
-
-    return { data: JSON.parse(response.data) };
-  }
-
   /**
    * Sandbox
    */
@@ -208,5 +144,69 @@ export class PaymentGatewayService implements OnModuleInit {
     } catch (e) {
       throw new Error(e.response.data);
     }
+  }
+
+  list(query: PaymentGatewaysListDto) {
+    return lastValueFrom(this.paymentGatewayServiceClient.list(query));
+  }
+
+  updateAccount(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateAccount(data));
+  }
+
+  documentCheck(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.documentCheck(data));
+  }
+
+  updateBalance(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateBalance(data));
+  }
+
+  cipCheck(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.cipCheck(data));
+  }
+
+  getToken(id: number) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
+  }
+
+  createAccount(data: TokenSendRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.createAccount(data));
+  }
+
+  createContact(data: TokenSendRequest): Promise<SuccessResponse> {
+    return lastValueFrom(this.paymentGatewayServiceClient.createContact(data));
+  }
+
+  uploadDocument(data: UploadDocumentRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.uploadDocument(data));
+  }
+
+  updateWithdraw(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateWithdraw(data));
+  }
+
+  updateContribution(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateContribution(data));
+  }
+
+  getBalance(data: TokenSendRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getBalance(data));
+  }
+
+  async createReference(data: TokenSendRequest) {
+    const response = await lastValueFrom(this.paymentGatewayServiceClient.createReference(data));
+
+    return { data: JSON.parse(response.data) };
+  }
+
+  addWithdrawalParams(data) {
+    return lastValueFrom(this.paymentGatewayServiceClient.addWithdrawalParams(data));
+  }
+
+  async makeWithdrawal(data) {
+    const response = await lastValueFrom(this.paymentGatewayServiceClient.makeWithdrawal(data));
+
+    return { data: JSON.parse(response.data) };
   }
 }

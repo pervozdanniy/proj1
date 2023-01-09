@@ -1,6 +1,6 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as process from 'process';
@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { NotificationEntity } from '~svc/core/src/payment-gateway/entities/notification.entity';
+import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
@@ -24,17 +24,14 @@ export class PrimeAccountManager {
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: HttpService,
 
-    @InjectRepository(PrimeTrustAccountEntity)
-    private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
+    private readonly notificationService: NotificationService,
 
-    @InjectRepository(NotificationEntity)
-    private readonly notificationEntityRepository: Repository<NotificationEntity>,
-
-    @Inject(PrimeKycManager)
     private readonly primeKycManager: PrimeKycManager,
 
-    @Inject(PrimeTokenManager)
     private readonly primeTokenManager: PrimeTokenManager,
+
+    @InjectRepository(PrimeTrustAccountEntity)
+    private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -184,14 +181,15 @@ export class PrimeAccountManager {
         status: accountResponse.status,
       },
     );
-    await this.notificationEntityRepository.save(
-      this.notificationEntityRepository.create({
-        user_id,
-        title: 'User Account',
-        type: 'accounts',
-        description: `Account created with status ${accountResponse.status}`,
-      }),
-    );
+
+    const notificationPayload = {
+      user_id,
+      title: 'User Account',
+      type: 'accounts',
+      description: `Account created with status ${accountResponse.status}`,
+    };
+
+    this.notificationService.create(notificationPayload);
 
     return { success: true };
   }

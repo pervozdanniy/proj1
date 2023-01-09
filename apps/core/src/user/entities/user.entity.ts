@@ -10,7 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
-import { NotificationEntity } from '~svc/core/src/payment-gateway/entities/notification.entity';
+import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
 import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 import { UserSourceEnum } from '../constants/user';
