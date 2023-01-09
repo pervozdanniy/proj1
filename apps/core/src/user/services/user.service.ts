@@ -34,9 +34,9 @@ export class UserService {
       if (!country) {
         throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
       }
-      if (userData.password) {
-        userData.password = await bcrypt.hash(userData.password, 10);
-      }
+    }
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, 10);
     }
 
     const user = await this.userRepository.save(this.userRepository.create(userData));

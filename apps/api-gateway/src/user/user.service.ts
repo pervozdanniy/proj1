@@ -15,7 +15,7 @@ export class UserService implements OnModuleInit {
 
   constructor(@InjectGrpc('core') private readonly core: ClientGrpc) {}
 
-  async onModuleInit() {
+  onModuleInit() {
     this.userService = this.core.getService('UserService');
     this.paymentGateway = this.core.getService('PaymentGatewayService');
   }
@@ -37,7 +37,7 @@ export class UserService implements OnModuleInit {
     return { user, providerRegistered: success };
   }
 
-  async update(request: UpdateRequest) {
-    return await firstValueFrom(this.userService.update(request));
+  update(request: UpdateRequest) {
+    return firstValueFrom(this.userService.update(request));
   }
 }

@@ -1,6 +1,6 @@
+import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Auth, google } from 'googleapis';
 import { firstValueFrom } from 'rxjs';
@@ -8,7 +8,7 @@ import { UserSourceEnum, UserStatusEnum } from '~common/constants/user';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { GoogleAuthRequest } from '~common/grpc/interfaces/auth';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
-import { SessionService } from '~common/session';
+import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { AuthApiService } from '~svc/auth/src/api/api.service';
 
 @Injectable()
@@ -17,8 +17,6 @@ export class ApiGoogleService implements OnModuleInit {
   constructor(
     private readonly configService: ConfigService,
     @InjectGrpc('core') private readonly client: ClientGrpc,
-    private readonly jwt: JwtService,
-    private readonly session: SessionService,
 
     private readonly authService: AuthApiService,
   ) {
@@ -43,6 +41,9 @@ export class ApiGoogleService implements OnModuleInit {
       status: UserStatusEnum.Active,
     };
     let { user } = await firstValueFrom(this.userService.findByLogin({ login: userData.email }));
+    if (user.source !== UserSourceEnum.Google) {
+      throw new GrpcException(Status.ALREADY_EXISTS, 'User already exist!', 409);
+    }
     if (!user) {
       user = await firstValueFrom(this.userService.create(payload));
     }
