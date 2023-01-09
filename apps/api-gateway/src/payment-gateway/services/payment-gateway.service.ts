@@ -20,11 +20,8 @@ import { VerifyOwnerDto } from '~svc/api-gateway/src/payment-gateway/dtos/verify
 export class PaymentGatewayService implements OnModuleInit {
   private paymentGatewayServiceClient: PaymentGatewayServiceClient;
 
-  constructor(
-    @InjectGrpc('core') private readonly client: ClientGrpc,
+  constructor(@InjectGrpc('core') private readonly client: ClientGrpc, private readonly httpService: HttpService) {}
 
-    private readonly httpService: HttpService,
-  ) {}
   onModuleInit() {
     this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');
   }
