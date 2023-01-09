@@ -53,6 +53,10 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
   }
 
+  createUser(id: number) {
+    return lastValueFrom(this.paymentGatewayServiceClient.createUser({ id }));
+  }
+
   createAccount(data: TokenSendRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.createAccount(data));
   }
