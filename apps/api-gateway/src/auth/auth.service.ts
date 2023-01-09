@@ -16,4 +16,8 @@ export class AuthService implements OnModuleInit {
   login(credentials: AuthRequest) {
     return firstValueFrom(this.authClient.login(credentials));
   }
+
+  loginGoogle(tokenData) {
+    return firstValueFrom(this.authClient.loginGoogle(tokenData));
+  }
 }

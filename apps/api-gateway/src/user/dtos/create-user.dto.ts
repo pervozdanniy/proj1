@@ -11,7 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-class UserDetails {
+export class UserDetails {
   @ApiProperty({ example: 'gevorg' })
   @IsString()
   @IsNotEmpty()

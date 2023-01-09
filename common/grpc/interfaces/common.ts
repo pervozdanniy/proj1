@@ -12,6 +12,18 @@ export interface User {
   phone?: string | undefined;
   email_verified_at?: string | undefined;
   source?: string | undefined;
+  details?: UserDetails | undefined;
+}
+
+export interface UserDetails {
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  city: string;
+  street: string;
+  postal_code: number;
+  tax_id_number: number;
+  region: string;
 }
 
 export interface IdRequest {

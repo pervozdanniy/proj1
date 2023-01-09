@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Post,
   Query,
   UploadedFile,
@@ -30,6 +31,7 @@ import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
   path: 'payment_gateway',
 })
 export class PaymentGatewayController {
+  private readonly logger = new Logger(PaymentGatewayController.name);
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   @ApiOperation({ summary: 'Get list of payment gateways' })
@@ -38,6 +40,17 @@ export class PaymentGatewayController {
   @Get()
   async list(@Query() query: PaymentGatewaysListDto) {
     return this.paymentGatewayService.list(query);
+  }
+
+  @ApiOperation({ summary: 'Create User.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtSessionGuard)
+  @Post('/user')
+  async createUser(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.createUser(id);
   }
 
   @ApiOperation({ summary: 'Get Token.' })
@@ -69,18 +82,38 @@ export class PaymentGatewayController {
       resource_id: payload['resource_id'],
       payment_gateway: 'prime_trust',
     };
+    const webhooks = [
+      'aml-checks',
+      'account-cash-transfers',
+      'contacts',
+      'contingent-holds',
+      'disbursement-authorizations',
+      'funds-transfers',
+      'asset-transfers',
+    ];
+
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
-    } else if (resource_type === 'kyc_document_checks' && action === 'update') {
+    }
+    if (resource_type === 'kyc_document_checks' && action === 'update') {
       return this.paymentGatewayService.documentCheck(sendData);
-    } else if (resource_type === 'cip_checks' && action === 'update') {
+    }
+    if (resource_type === 'cip_checks' && action === 'update') {
       return this.paymentGatewayService.cipCheck(sendData);
-    } else if (resource_type === 'contributions' && action === 'update') {
+    }
+    if (resource_type === 'contributions' && action === 'update') {
       return this.paymentGatewayService.updateContribution(sendData);
-    } else if (resource_type === 'funds_transfers' && action === 'update') {
+    }
+    if (resource_type === 'funds_transfers' && action === 'update') {
       return this.paymentGatewayService.updateBalance(sendData);
-    } else if (resource_type === 'disbursements' && action === 'update') {
+    }
+    if (resource_type === 'disbursements' && action === 'update') {
       return this.paymentGatewayService.updateWithdraw(sendData);
+    }
+
+    const match = webhooks.find((e) => e === resource_type);
+    if (!match) {
+      this.logger.error(`Webhook ${resource_type} not found!`);
     }
   }
 

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { User } from '~common/grpc/interfaces/common';
+import { User, UserDetails } from '~common/grpc/interfaces/common';
 
 export class PublicUserDto implements User {
   @ApiProperty()
@@ -26,6 +26,9 @@ export class PublicUserDto implements User {
 
   @ApiProperty()
   email_verified_at?: string;
+
+  @ApiProperty()
+  details?: UserDetails;
 
   @Exclude()
   source: string;
