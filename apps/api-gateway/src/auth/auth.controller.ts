@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { FacebookUserDto } from '~svc/api-gateway/src/auth/dto/facebook-user.dto';
 import TokenVerificationDto from '~svc/api-gateway/src/auth/dto/tokenVerification.dto';
 import { PublicUserDto } from '../utils/public-user.dto';
 import { AuthService } from './auth.service';

@@ -112,9 +112,7 @@ export class PaymentGatewayController {
     }
 
     const match = webhooks.find((e) => e === resource_type);
-    if (match) {
-      this.logger.log(payload);
-    } else {
+    if (!match) {
       this.logger.error(`Webhook ${resource_type} not found!`);
     }
   }

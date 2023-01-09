@@ -3,6 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthRequest, AuthServiceClient } from '~common/grpc/interfaces/auth';
+import { FacebookUserDto } from '~svc/api-gateway/src/auth/dto/facebook-user.dto';
 
 export class AuthService implements OnModuleInit {
   private authClient: AuthServiceClient;
