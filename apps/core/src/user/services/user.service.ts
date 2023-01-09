@@ -23,10 +23,8 @@ export class UserService {
     private userDetailsRepository: Repository<UserDetailsEntity>,
   ) {}
 
-  async get(id: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOneOrFail({ where: { id }, relations: ['details'] });
-
-    return user;
+  get(id: number): Promise<UserEntity> {
+    return this.userRepository.findOneOrFail({ where: { id }, relations: ['details'] });
   }
 
   async create({ details, ...userData }: CreateRequestDto): Promise<UserEntity> {
