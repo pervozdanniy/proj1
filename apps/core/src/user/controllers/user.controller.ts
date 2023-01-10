@@ -4,15 +4,14 @@ import { User } from '~common/grpc/interfaces/common';
 import {
   LoginRequest,
   NullableUser,
-  UpdateRequest,
   UserServiceController,
   UserServiceControllerMethods,
 } from '~common/grpc/interfaces/core';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
 import { AuthUserResponseDto } from '../dto/auth-user-response.dto';
-import { CreateRequestDto } from '../dto/create-request.dto';
 import { IdRequestDto } from '../dto/id-request.dto';
+import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { UserService } from '../services/user.service';
 
@@ -53,7 +52,7 @@ export class UserController implements UserServiceController {
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async update(request: UpdateRequest): Promise<User> {
+  async update(request: UpdateRequestDto): Promise<User> {
     const user = await this.userService.update(request);
 
     return plainToInstance(UserResponseDto, user);

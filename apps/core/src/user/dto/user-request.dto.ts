@@ -1,7 +1,17 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  Length,
+  ValidateNested,
+} from 'class-validator';
 import { UserSourceEnum } from '~common/constants/user';
-import { CreateRequest } from '~common/grpc/interfaces/core';
+import { CreateRequest, UpdateRequest } from '~common/grpc/interfaces/core';
 
 export class UserDetails {
   @IsString()
@@ -54,7 +64,7 @@ export class CreateRequestDto implements CreateRequest {
   password?: string;
 
   @IsOptional()
-  @IsString()
+  @IsPhoneNumber()
   phone?: string;
 
   @IsOptional()
@@ -68,4 +78,40 @@ export class CreateRequestDto implements CreateRequest {
   @Type(() => UserDetails)
   @IsOptional()
   details?: UserDetails;
+
+  @IsOptional()
+  @IsArray()
+  @IsPhoneNumber(undefined, { each: true })
+  contacts: string[];
+}
+
+export class UpdateRequestDto implements UpdateRequest {
+  @IsNotEmpty()
+  @IsInt()
+  id: number;
+
+  @IsOptional()
+  @IsString()
+  username?: string;
+
+  @IsOptional()
+  @IsInt()
+  country_id?: number;
+
+  @IsOptional()
+  @IsPhoneNumber()
+  phone?: string;
+
+  @ValidateNested()
+  @Type(() => UserDetails)
+  @IsOptional()
+  details?: UserDetails;
+
+  @IsArray()
+  @IsPhoneNumber(undefined, { each: true })
+  new_contacts: string[];
+
+  @IsArray()
+  @IsPhoneNumber(undefined, { each: true })
+  removed_contacts: string[];
 }

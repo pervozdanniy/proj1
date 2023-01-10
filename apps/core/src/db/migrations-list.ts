@@ -15,6 +15,7 @@ import { createUserTable1669901299726 } from './migrations/1669901299726-create-
 import { AlterUsersTable2167043583659 } from './migrations/1670435836592-AlterUsersTable';
 import { FixTypesAndRelations1671733995143 } from './migrations/1671733995143-FixTypesAndRelations';
 import { AlterUserTableForSDKRegistration1671971668825 } from './migrations/1671971668825-AlterUserTableForSDKRegistration';
+import { AddUserContactTable1673371635929 } from './migrations/1673371635929-AddUserContactTable';
 
 export default [
   createUserTable1669901299726,
@@ -34,4 +35,5 @@ export default [
   AlterWithdrawalTable1672312373374,
   CreateNotificationsTable1672737767969,
   AlterUsersTable1672920595456,
+  AddUserContactTable1673371635929,
 ];

@@ -8,8 +8,10 @@ import { CountryEntity } from '../country/entities/country.entity';
 import { PaymentGatewayEntity } from '../payment-gateway/entities/payment-gateway.entity';
 import { PrimeTrustUserEntity } from '../payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { UserController } from './controllers/user.controller';
+import { UserContactEntity } from './entities/user-contact.entity';
 import { UserDetailsEntity } from './entities/user-details.entity';
 import { UserEntity } from './entities/user.entity';
+import { UserContactService } from './services/user-contact.service';
 import { UserService } from './services/user.service';
 
 @Module({
@@ -17,6 +19,7 @@ import { UserService } from './services/user.service';
     HttpModule,
     TypeOrmModule.forFeature([
       UserEntity,
+      UserContactEntity,
       CountryEntity,
       PaymentGatewayEntity,
       PrimeTrustUserEntity,
@@ -25,7 +28,8 @@ import { UserService } from './services/user.service';
       CountryModule,
     ]),
   ],
-  providers: [UserService, CountryService],
+  providers: [UserService, CountryService, UserContactService],
+
   controllers: [UserController],
   exports: [UserService],
 })

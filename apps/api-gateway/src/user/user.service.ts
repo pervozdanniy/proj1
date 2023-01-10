@@ -3,9 +3,10 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
-import { UpdateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
+import { UserServiceClient } from '~common/grpc/interfaces/core';
 import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 import { CreateUserDTO } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import { RegistrationResponseDto } from './dtos/user.dto';
 
 @Injectable()
@@ -37,7 +38,7 @@ export class UserService implements OnModuleInit {
     return { user, providerRegistered: success };
   }
 
-  update(request: UpdateRequest) {
+  update(request: UpdateUserDto) {
     return firstValueFrom(this.userService.update(request));
   }
 }

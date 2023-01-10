@@ -27,11 +27,12 @@ message NullableUser {
 
 message UpdateRequest {
   uint32 id = 1;
-  string username = 2;
+  optional string username = 2;
   optional uint32 country_id = 3;
   optional string phone = 4;
-  optional string source = 5;
   optional common.UserDetails details = 6;
+  repeated string new_contacts = 7;
+  repeated string removed_contacts = 8;
 }
 
 message CreateRequest {
@@ -42,6 +43,7 @@ message CreateRequest {
   optional uint32 country_id = 5;
   optional string source = 6;
   optional common.UserDetails details = 7;
+  repeated string contacts = 8;
 }
 
 message LoginRequest {

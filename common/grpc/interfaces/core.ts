@@ -12,11 +12,12 @@ export interface NullableUser {
 
 export interface UpdateRequest {
   id: number;
-  username: string;
+  username?: string | undefined;
   country_id?: number | undefined;
   phone?: string | undefined;
-  source?: string | undefined;
   details?: UserDetails | undefined;
+  new_contacts: string[];
+  removed_contacts: string[];
 }
 
 export interface CreateRequest {
@@ -27,6 +28,7 @@ export interface CreateRequest {
   country_id?: number | undefined;
   source?: string | undefined;
   details?: UserDetails | undefined;
+  contacts: string[];
 }
 
 export interface LoginRequest {

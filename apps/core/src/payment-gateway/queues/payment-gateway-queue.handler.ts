@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Job } from 'bull';
@@ -9,7 +9,6 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { PrimeTrustStatus } from '~svc/core/src/payment-gateway/constants/prime-trust.status';
 import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
-import { PrimeTrustService } from '~svc/core/src/payment-gateway/services/prime_trust/prime-trust.service';
 
 @Injectable()
 @Processor('users_registration')
@@ -23,10 +22,7 @@ export class PaymentGatewayQueueHandler {
     @InjectRepository(PrimeTrustUserEntity)
     private readonly primeUserRepository: Repository<PrimeTrustUserEntity>,
 
-    @Inject(PrimeTrustService)
-    private readonly primeTrustService: PrimeTrustService,
-
-    private config: ConfigService<ConfigInterface>,
+    config: ConfigService<ConfigInterface>,
   ) {
     const { prime_trust_url } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -53,10 +49,10 @@ export class PaymentGatewayQueueHandler {
     let response;
     try {
       response = await lastValueFrom(this.httpService.post(`${this.prime_trust_url}/v2/users`, createData));
-    } catch (e) {
-      this.logger.error(e.response.data);
+    } catch (error) {
+      this.logger.error(error.response ?? error);
 
-      throw new Error(e.response.data);
+      throw new Error(error.response?.data ?? error);
     }
 
     await this.primeUserRepository.save({

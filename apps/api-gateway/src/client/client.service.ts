@@ -53,6 +53,7 @@ export class ClientService implements OnModuleInit {
         password: payload.password ?? null,
         country_id: payload.countryId,
         source: client.name,
+        contacts: [],
       }),
     );
   }
