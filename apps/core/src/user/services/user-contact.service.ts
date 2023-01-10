@@ -1,8 +1,10 @@
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import { UserContactEntity } from '../entities/user-contact.entity';
 import { UserEntity } from '../entities/user.entity';
 
+@Injectable()
 export class UserContactService {
   constructor(
     @InjectRepository(UserContactEntity)
