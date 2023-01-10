@@ -4,7 +4,13 @@ package skopa.auth;
 
 service AuthService {
   rpc Login (AuthRequest) returns (AuthData);
-  rpc LoginGoogle (GoogleAuthRequest) returns (AuthData);
+  rpc LoginSocials (SocialsAuthRequest) returns (AuthData);
+}
+
+message SocialsAuthRequest {
+  string username = 1;
+  string email = 2;
+  string source = 3;
 }
 
 

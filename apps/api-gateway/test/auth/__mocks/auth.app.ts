@@ -8,8 +8,8 @@ import configuration, { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionModule } from '~common/session';
 import { AuthApiController } from '~svc/auth/src/api/api.controller';
-import { ApiGoogleService } from '~svc/auth/src/api/api.google.service';
 import { AuthApiService } from '~svc/auth/src/api/api.service';
+import { ApiGoogleService } from '~svc/auth/src/api/social/api.google.service';
 import redisClients from '../../__mocks/redis';
 import testConfig from './configuration';
 

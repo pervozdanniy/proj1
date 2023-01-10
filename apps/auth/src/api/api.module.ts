@@ -5,7 +5,7 @@ import { ClientsModule } from '@nestjs/microservices';
 import { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionModule } from '~common/session/session.module';
-import { ApiGoogleService } from '~svc/auth/src/api/api.google.service';
+import { ApiSocialsService } from '~svc/auth/src/api/api.socials.service';
 import { AuthApiController } from './api.controller';
 import { AuthApiService } from './api.service';
 
@@ -22,7 +22,7 @@ import { AuthApiService } from './api.service';
     SessionModule,
   ],
   controllers: [AuthApiController],
-  providers: [AuthApiService, ApiGoogleService],
+  providers: [AuthApiService, ApiSocialsService],
   exports: [AuthApiService],
 })
 export class AuthApiModule {}
