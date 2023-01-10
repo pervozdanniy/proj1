@@ -7,6 +7,7 @@ import { UpdateRequest } from '~common/grpc/interfaces/core';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
 import { CountryService } from '~svc/core/src/country/services/country.service';
+import { states } from '~svc/core/src/user/constants/states';
 import { CreateRequestDto } from '../dto/create-request.dto';
 import { UserDetailsEntity } from '../entities/user-details.entity';
 import { UserEntity } from '../entities/user.entity';
@@ -81,7 +82,7 @@ export class UserService {
     }
 
     if (country.code === 'US') {
-      this.countryService.checkUSA(details);
+      this.checkUSA(details);
     }
 
     await this.userRepository.update({ id }, { username, country_id, phone });
@@ -94,5 +95,15 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { id }, relations: ['details'] });
 
     return user;
+  }
+
+  checkUSA(details) {
+    if (!details.region || !states.find((e) => e == details.region)) {
+      throw new GrpcException(Status.INVALID_ARGUMENT, 'Please fill region for USA!', 400);
+    }
+
+    if (String(details.tax_id_number).length !== 9) {
+      throw new GrpcException(Status.INVALID_ARGUMENT, 'Must be a valid tax ID number (9 digits in the US)!', 400);
+    }
   }
 }
