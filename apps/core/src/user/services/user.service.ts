@@ -35,9 +35,6 @@ export class UserService {
       if (!country) {
         throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
       }
-      if (country.code === 'US') {
-        this.checkUSA(details);
-      }
     }
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, 10);

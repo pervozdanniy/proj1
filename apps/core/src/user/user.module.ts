@@ -1,7 +1,6 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CountryModule } from '~svc/core/src/country/country.module';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
 import { CountryEntity } from '../country/entities/country.entity';
 import { PaymentGatewayEntity } from '../payment-gateway/entities/payment-gateway.entity';
