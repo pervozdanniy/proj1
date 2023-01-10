@@ -1,11 +1,9 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Injectable, Post, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
 import { SocialsUserDto } from '~svc/api-gateway/src/auth/dto/socials-user.dto';
-import TokenVerificationDto from '~svc/api-gateway/src/auth/dto/tokenVerification.dto';
 import { PublicUserDto } from '../utils/public-user.dto';
 import { AuthService } from './auth.service';
 import { AuthRequestDto } from './dto/auth.request.dto';
