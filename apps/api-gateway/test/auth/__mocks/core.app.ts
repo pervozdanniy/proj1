@@ -4,7 +4,6 @@ import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { join } from 'path';
 import { ConfigInterface } from '~common/config/configuration';
-import { CountryModule } from '~svc/core/src/country/country.module';
 import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
 import { PaymentGatewayController } from '~svc/core/src/payment-gateway/controllers/payment-gateway.controller';
 import { PaymentGatewayService } from '~svc/core/src/payment-gateway/services/payment.gateway.service';
@@ -18,7 +17,6 @@ import userRepoMockFactory from '../../__mocks/user.repository';
 
 export default async (config: ConfigService<ConfigInterface>) => {
   const moduleFixture = await Test.createTestingModule({
-    imports: [CountryModule],
     providers: [
       UserService,
       {
