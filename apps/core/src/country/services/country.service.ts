@@ -27,14 +27,4 @@ export class CountryService {
       count,
     };
   }
-
-  checkUSA(details) {
-    if (!details.region || !states.find((e) => e == details.region)) {
-      throw new GrpcException(Status.INVALID_ARGUMENT, 'Please fill valid region for USA!', 400);
-    }
-
-    if (String(details.tax_id_number).length !== 9) {
-      throw new GrpcException(Status.INVALID_ARGUMENT, 'Must be a valid tax ID number (9 digits in the US)!', 400);
-    }
-  }
 }

@@ -22,7 +22,6 @@ import { UserService } from './services/user.service';
       UserDetailsEntity,
       NotificationEntity,
     ]),
-    CountryModule,
   ],
   providers: [UserService],
   controllers: [UserController],
