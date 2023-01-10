@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { UpdateRequest } from '~common/grpc/interfaces/core';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
+import { CountryService } from '~svc/core/src/country/services/country.service';
 import { CreateRequestDto } from '../dto/create-request.dto';
 import { UserDetailsEntity } from '../entities/user-details.entity';
 import { UserEntity } from '../entities/user.entity';
@@ -21,6 +22,8 @@ export class UserService {
 
     @InjectRepository(UserDetailsEntity)
     private userDetailsRepository: Repository<UserDetailsEntity>,
+
+    private countryService: CountryService,
   ) {}
 
   get(id: number): Promise<UserEntity> {
@@ -75,6 +78,10 @@ export class UserService {
     const country = await this.countryEntityRepository.findOneBy({ id: country_id });
     if (!country) {
       throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
+    }
+
+    if (country.code === 'US') {
+      this.countryService.checkUSA(details);
     }
 
     await this.userRepository.update({ id }, { username, country_id, phone });
