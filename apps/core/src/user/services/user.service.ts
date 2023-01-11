@@ -34,10 +34,6 @@ export class UserService {
       const country = await this.countryEntityRepository.findOneBy({ id: country_id });
       if (!country) {
         throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
-      } else {
-        if (country.code === 'US') {
-          this.checkUSA(details);
-        }
       }
     }
     if (userData.password) {

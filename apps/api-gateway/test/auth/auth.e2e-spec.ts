@@ -87,7 +87,6 @@ describe('AuthService (e2e)', () => {
         username: 'mock',
         password: 'mock12345678',
         country_id: 1,
-        source: 'sdk',
       };
       await request(app.getHttpServer()).post('/users').send(mockPayload).expect(201);
       expect(userStorage).toHaveLength(1);
