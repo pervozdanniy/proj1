@@ -41,10 +41,6 @@ export interface ConfigInterface {
     attempts: number;
     delay: number;
   };
-  google: {
-    client: string;
-    secret: string;
-  };
 }
 
 export default (): ConfigInterface => ({
@@ -91,9 +87,5 @@ export default (): ConfigInterface => ({
   user_registration_queue: {
     attempts: parseInt(process.env.USER_ATTEMPTS, 10) || 5,
     delay: parseInt(process.env.BULLQM_DELAY, 10) || 5000,
-  },
-  google: {
-    client: process.env.GOOGLE_CLIENT,
-    secret: process.env.GOOGLE_SECRET,
-  },
+  }
 });
