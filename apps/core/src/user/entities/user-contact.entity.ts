@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { UserEntity } from './user.entity';
 
 @Entity('user_contact')
 export class UserContactEntity {
@@ -10,4 +11,12 @@ export class UserContactEntity {
 
   @Column('int', { nullable: true })
   contact_id?: number;
+
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: 'user_id' })
+  user?: UserEntity;
+
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: 'contact_id' })
+  contact?: UserEntity;
 }

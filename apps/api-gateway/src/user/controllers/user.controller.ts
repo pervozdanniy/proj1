@@ -17,7 +17,7 @@ import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
 import { UpdateUserDto } from '~svc/api-gateway/src/user/dtos/update-user.dto';
-import { PublicUserDto } from '../../utils/public-user.dto';
+import { PublicUserDto, PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { RegistrationResponseDto } from '../dtos/user.dto';
 import { UserService } from '../user.service';
@@ -44,13 +44,13 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get user by ID' })
-  @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
+  @ApiResponse({ status: HttpStatus.OK, type: PublicUserWithContactsDto })
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async get(@Param('id', ParseIntPipe) id: number) {
     const user = await this.userService.getById(id);
 
-    return plainToInstance(PublicUserDto, user);
+    return plainToInstance(PublicUserWithContactsDto, user);
   }
 
   @ApiOperation({ summary: 'Create user.' })

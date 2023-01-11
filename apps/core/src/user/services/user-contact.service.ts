@@ -41,7 +41,16 @@ export class UserContactService {
     });
   }
 
-  async detouch(user: UserEntity) {
-    await this.userContactRepository.delete({ contact_id: user.id });
+  async detouch(userId: number) {
+    await this.userContactRepository.delete({ contact_id: userId });
+  }
+
+  list(userId: number) {
+    return this.userContactRepository
+      .createQueryBuilder()
+      .select()
+      .leftJoinAndSelect('user', 'u')
+      .where({ user_id: userId })
+      .getMany();
   }
 }

@@ -1,5 +1,5 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
@@ -9,12 +9,9 @@ import { CountryService } from '../../country/services/country.service';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserDetailsEntity } from '../entities/user-details.entity';
 import { UserEntity } from '../entities/user.entity';
-import { UserContactService } from './user-contact.service';
 
 @Injectable()
 export class UserService {
-  private readonly logger = new Logger(UserService.name);
-
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
@@ -31,10 +28,10 @@ export class UserService {
   ) {}
 
   get(id: number): Promise<UserEntity> {
-    return this.userRepository.findOneOrFail({ where: { id }, relations: ['details'] });
+    return this.userRepository.findOneOrFail({ where: { id }, relations: ['details', 'contacts'] });
   }
 
-  async create({ details, contacts, ...userData }: CreateRequestDto): Promise<UserEntity> {
+  async create({ details, ...userData }: Omit<CreateRequestDto, 'contacts'>): Promise<UserEntity> {
     const { country_id, source } = userData;
     if (!source) {
       const country = await this.countryEntityRepository.findOneBy({ id: country_id });
@@ -52,11 +49,6 @@ export class UserService {
     const user = await this.userRepository.save(this.userRepository.create(userData));
     if (details) {
       await this.userDetailsRepository.save(this.userDetailsRepository.create({ user_id: user.id, ...details }));
-    }
-    if (contacts) {
-      this.contactService
-        .update(user, { new: contacts })
-        .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
     }
 
     return user;
@@ -85,7 +77,7 @@ export class UserService {
     return affected === 1;
   }
 
-  async update(request: UpdateRequestDto) {
+  async update(request: Omit<UpdateRequestDto, 'new_contacts' | 'removed_contacts'>) {
     const { id, username, country_id, phone, details } = request;
     const country = await this.countryEntityRepository.findOneBy({ id: country_id });
     if (!country) {
@@ -103,13 +95,7 @@ export class UserService {
     } else {
       await this.userDetailsRepository.save(this.userDetailsRepository.create({ user_id: id, ...details }));
     }
-    const user = await this.userRepository.findOne({ where: { id }, relations: ['details'] });
-    if (request.new_contacts.length || request.removed_contacts.length) {
-      this.contactService
-        .update(user, { new: request.new_contacts, removed: request.removed_contacts })
-        .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
-    }
 
-    return user;
+    return this.userRepository.findOne({ where: { id }, relations: ['details'] });
   }
 }
