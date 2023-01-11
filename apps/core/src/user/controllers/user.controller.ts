@@ -22,7 +22,7 @@ import { UserService } from '../services/user.service';
 export class UserController implements UserServiceController {
   constructor(private userService: UserService) {}
 
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  // @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async create(payload: CreateRequestDto): Promise<User> {
     const user = await this.userService.create(payload);
 
