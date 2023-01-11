@@ -30,7 +30,7 @@ export class UserService {
 
   async create({ details, ...userData }: CreateRequestDto): Promise<UserEntity> {
     const { country_id, source } = userData;
-    if (!source) {
+    if (source === 'api') {
       const country = await this.countryEntityRepository.findOneBy({ id: country_id });
       if (!country) {
         throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
