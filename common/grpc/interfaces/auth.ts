@@ -11,10 +11,6 @@ export interface SocialsAuthRequest {
   source: string;
 }
 
-export interface GoogleAuthRequest {
-  token: string;
-}
-
 export interface AuthRequest {
   login: string;
   password: string;

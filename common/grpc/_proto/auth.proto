@@ -14,10 +14,6 @@ message SocialsAuthRequest {
 }
 
 
-message GoogleAuthRequest {
-  string token = 1;
-}
-
 service ClientService {
   rpc Create (ClientCreateRequest) returns (AuthClient);
 
