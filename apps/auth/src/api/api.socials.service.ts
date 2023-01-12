@@ -30,6 +30,7 @@ export class ApiSocialsService implements OnModuleInit {
       username,
       source,
       status: UserStatusEnum.Active,
+      contacts: [],
     };
 
     let { user } = await firstValueFrom(this.userService.findByLogin({ login: email }));

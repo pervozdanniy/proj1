@@ -13,6 +13,7 @@ export interface User {
   email_verified_at?: string | undefined;
   source?: string | undefined;
   details?: UserDetails | undefined;
+  contacts: User[];
 }
 
 export interface UserDetails {

@@ -1,10 +1,11 @@
 syntax = "proto3";
 package skopa.core;
 
-import "payment-gateway.proto";
 import "common.proto";
-import "country.proto";
-import "notification.proto";
+
+import public "payment-gateway.proto";
+import public "country.proto";
+import public "notification.proto";
 
 service UserService {
   rpc GetById (common.IdRequest) returns (common.User);
@@ -16,22 +17,26 @@ service UserService {
   rpc Delete (common.IdRequest) returns (common.SuccessResponse);
 
   rpc Update(UpdateRequest) returns (common.User);
-}
 
+  rpc UpdateContacts(UpdateContactsRequest) returns (common.User);
+}
 
 message NullableUser {
   optional common.User user = 1;
 }
 
-
+message UserContacts {
+  repeated string new = 1;
+  repeated string removed = 2;
+}
 
 message UpdateRequest {
   uint32 id = 1;
-  string username = 2;
+  optional string username = 2;
   optional uint32 country_id = 3;
   optional string phone = 4;
-  optional string source = 5;
   optional common.UserDetails details = 6;
+  optional UserContacts contacts = 7;
 }
 
 message CreateRequest {
@@ -42,8 +47,14 @@ message CreateRequest {
   optional uint32 country_id = 5;
   optional string source = 6;
   optional common.UserDetails details = 7;
+  repeated string contacts = 8;
 }
 
 message LoginRequest {
   string login = 1;
+}
+
+message UpdateContactsRequest {
+  uint32 user_id = 1;
+  UserContacts contacts = 2;
 }

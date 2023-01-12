@@ -1,9 +1,33 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsOptional, IsPhoneNumber, IsString, Length, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  Length,
+  ValidateNested,
+} from 'class-validator';
+import { UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 import { UserDetails } from '~svc/api-gateway/src/user/dtos/create-user.dto';
 
-export class UpdateUserDto {
+export class UserContactsDto {
+  @IsOptional()
+  @IsArray()
+  @IsPhoneNumber(undefined, { each: true })
+  new: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsPhoneNumber(undefined, { each: true })
+  removed: string[];
+}
+
+export class UpdateUserDto implements UpdateRequest {
+  id: number;
+
   @ApiProperty({ example: 'gevorg' })
   @IsString()
   @IsNotEmpty()
@@ -13,7 +37,6 @@ export class UpdateUserDto {
   @ApiProperty({ required: true, example: '+37495017680' })
   @IsString()
   @IsOptional()
-  @IsPhoneNumber()
   phone?: string;
 
   @ApiProperty({ example: 1 })
@@ -26,4 +49,10 @@ export class UpdateUserDto {
   @IsOptional()
   @Type(() => UserDetails)
   details?: UserDetails;
+
+  @ApiProperty({ type: UserContactsDto })
+  @ValidateNested()
+  @IsOptional()
+  @Type(() => UserContactsDto)
+  contacts?: UserContacts;
 }

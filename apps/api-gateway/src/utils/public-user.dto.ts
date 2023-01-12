@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import { User, UserDetails } from '~common/grpc/interfaces/common';
 
 export class PublicUserDto implements User {
@@ -32,4 +32,17 @@ export class PublicUserDto implements User {
 
   @Exclude()
   source: string;
+
+  contacts: User[];
+}
+
+class ContactDto extends PublicUserDto {
+  @Exclude()
+  contacts: User[];
+}
+
+export class PublicUserWithContactsDto extends PublicUserDto {
+  @ApiProperty({ type: ContactDto, isArray: true })
+  @Type(() => ContactDto)
+  contacts: User[];
 }

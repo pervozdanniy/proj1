@@ -1,6 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Exclude, Type } from 'class-transformer';
 import {
+  IsArray,
   IsEmail,
   IsNotEmpty,
   IsNumber,
@@ -10,6 +11,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
+import { CreateRequest } from '~common/grpc/interfaces/core';
 
 export class UserDetails {
   @ApiProperty({ example: 'gevorg' })
@@ -57,7 +59,7 @@ export class UserDetails {
   tax_id_number: number;
 }
 
-export class CreateUserDTO {
+export class CreateUserDTO implements CreateRequest {
   @ApiProperty({ example: 'gevorg' })
   @IsString()
   @IsNotEmpty()
@@ -88,9 +90,18 @@ export class CreateUserDTO {
   @IsNotEmpty()
   country_id: number;
 
-  @ApiProperty({ type: UserDetails })
+  @Exclude()
+  source?: string;
+
+  @ApiPropertyOptional({ type: UserDetails })
   @ValidateNested()
   @IsOptional()
   @Type(() => UserDetails)
   details?: UserDetails;
+
+  @ApiPropertyOptional({ type: 'string', isArray: true })
+  @IsOptional()
+  @IsArray()
+  @IsPhoneNumber(undefined, { each: true })
+  contacts: string[];
 }

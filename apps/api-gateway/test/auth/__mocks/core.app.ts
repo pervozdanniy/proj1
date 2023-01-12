@@ -11,6 +11,7 @@ import { PaymentGatewayService } from '~svc/core/src/payment-gateway/services/pa
 import { UserController } from '~svc/core/src/user/controllers/user.controller';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
+import { UserContactService } from '~svc/core/src/user/services/user-contact.service';
 import { UserService } from '~svc/core/src/user/services/user.service';
 import countryRepoMockFactory from '../../__mocks/country.repository';
 import userDetailRepoMockFactory from '../../__mocks/user-detail.repository';
@@ -31,6 +32,13 @@ export default async (config: ConfigService<ConfigInterface>) => {
         useValue: {
           createUser: jest.fn().mockResolvedValue(false),
         },
+      },
+      {
+        provide: UserContactService,
+        useFactory: jest.fn(() => ({
+          update: jest.fn().mockResolvedValue(undefined),
+          detouch: jest.fn().mockResolvedValue(undefined),
+        })),
       },
       {
         provide: getRepositoryToken(UserEntity),

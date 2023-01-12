@@ -19,4 +19,7 @@ export class UserResponseDto implements User {
   @Type(() => Date)
   @Transform(({ value }) => value.toString(), { toClassOnly: true })
   updated_at: string;
+
+  @Type(() => UserResponseDto)
+  contacts: User[];
 }

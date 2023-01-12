@@ -3,6 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -62,4 +64,18 @@ export class UserEntity {
 
   @OneToMany(() => NotificationEntity, (n) => n.user)
   notifications?: NotificationEntity[];
+
+  @ManyToMany(() => UserEntity, (user) => user.contacts)
+  @JoinTable({
+    name: 'user_contact',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'contact_id',
+      referencedColumnName: 'id',
+    },
+  })
+  contacts?: UserEntity[];
 }

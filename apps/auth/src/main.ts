@@ -1,7 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { GrpcOptions, Transport } from '@nestjs/microservices';
-import { Logger } from 'nestjs-pino';
 import { join } from 'path';
 import { ConfigInterface } from '~common/config/configuration';
 import sentryInit from '~common/sentry/init';
@@ -30,7 +29,7 @@ async function bootstrap() {
     },
     bufferLogs: true,
   });
-  app.useLogger(app.get(Logger));
+  // app.useLogger(app.get(Logger));
 
   await app.listen();
 }

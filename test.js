@@ -1,15 +1,18 @@
 const crypto = require('node:crypto');
+const fs = require('node:fs');
 
 function register() {
   const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
-  console.log('PIVATE KEY: ', privateKey.export({ format: 'der', type: 'pkcs8' }).toString('hex'));
+  // console.log('PIVATE KEY: ', privateKey.export({ format: 'der', type: 'pkcs8' }).toString('hex'));
+  fs.writeFileSync('priv.pem', privateKey.export({ format: 'pem', type: 'pkcs8' }).toString('utf8'));
+
   console.log('PUBLIC KEY: ', publicKey.export({ format: 'der', type: 'spki' }).toString('hex'));
 }
 
-function sign(key, data) {
+function sign(data) {
   const privateKey = crypto.createPrivateKey({
-    key: Buffer.from(key, 'hex'),
-    format: 'der',
+    key: fs.readFileSync('priv.pem', { encoding: 'utf8' }),
+    format: 'pem',
     type: 'pkcs8',
   });
 
