@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsMobilePhone,
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPhoneNumber,
   IsString,
   Length,
   ValidateNested,
@@ -13,9 +13,7 @@ import {
 import { UpdateRequest } from '~common/grpc/interfaces/core';
 import { UserDetails } from '~svc/api-gateway/src/user/dtos/create-user.dto';
 
-export class UpdateUserDto implements UpdateRequest {
-  id: number;
-
+export class UpdateUserDto implements Omit<UpdateRequest, 'id'> {
   @ApiProperty({ example: 'gevorg' })
   @IsString()
   @IsNotEmpty()
@@ -40,11 +38,11 @@ export class UpdateUserDto implements UpdateRequest {
 
   @IsOptional()
   @IsArray()
-  @IsMobilePhone(undefined, { each: true })
+  @IsPhoneNumber(undefined, { each: true })
   new_contacts: string[];
 
   @IsOptional()
   @IsArray()
-  @IsMobilePhone(undefined, { each: true })
+  @IsPhoneNumber(undefined, { each: true })
   removed_contacts: string[];
 }
