@@ -23,8 +23,6 @@ export class UserService {
     private userDetailsRepository: Repository<UserDetailsEntity>,
 
     private countryService: CountryService,
-
-    private contactService: UserContactService,
   ) {}
 
   get(id: number): Promise<UserEntity> {
