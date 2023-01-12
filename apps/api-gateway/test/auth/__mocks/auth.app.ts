@@ -8,8 +8,8 @@ import configuration, { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionModule } from '~common/session';
 import { AuthApiController } from '~svc/auth/src/api/api.controller';
-import { ApiGoogleService } from '~svc/auth/src/api/api.google.service';
 import { AuthApiService } from '~svc/auth/src/api/api.service';
+import { ApiSocialsService } from '~svc/auth/src/api/api.socials.service';
 import redisClients from '../../__mocks/redis';
 import testConfig from './configuration';
 
@@ -28,7 +28,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
       SessionModule,
     ],
     controllers: [AuthApiController],
-    providers: [AuthApiService, ApiGoogleService],
+    providers: [AuthApiService, ApiSocialsService],
   })
     .overrideProvider(REDIS_CLIENTS)
     .useValue(redisClients)

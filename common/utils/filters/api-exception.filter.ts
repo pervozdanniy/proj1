@@ -5,7 +5,10 @@ import { Request, Response } from 'express';
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter<Error> {
-  catch(exception: Error & { metadata: Metadata; code: number; error_code: number }, host: ArgumentsHost) {
+  catch(
+    exception: Error & { metadata: Metadata; code: number; error_code: number; details: string },
+    host: ArgumentsHost,
+  ) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -13,6 +16,9 @@ export class ApiExceptionFilter implements ExceptionFilter<Error> {
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal Server Error';
     let extras: Record<string, unknown> = {};
+    if (exception.details) {
+      message = exception.details;
+    }
 
     if (exception.metadata && exception.code) {
       if (exception.error_code) statusCode = exception.error_code as number;

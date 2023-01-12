@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
-import TokenVerificationDto from '~svc/api-gateway/src/auth/dto/tokenVerification.dto';
+import { SocialsUserDto } from '~svc/api-gateway/src/auth/dto/socials-user.dto';
 import { PublicUserDto } from '../utils/public-user.dto';
 import { AuthService } from './auth.service';
 import { AuthRequestDto } from './dto/auth.request.dto';
@@ -35,8 +35,9 @@ export class AuthController {
     return plainToInstance(PublicUserDto, user);
   }
 
-  @Post('google/login')
-  loginGoogle(@Body() tokenData: TokenVerificationDto) {
-    return this.authService.loginGoogle(tokenData);
+  @ApiOperation({ summary: 'Login use facebook user' })
+  @Post('socials/login')
+  loginSocials(@Body() payload: SocialsUserDto) {
+    return this.authService.loginSocials(payload);
   }
 }
