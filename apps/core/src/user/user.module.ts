@@ -1,6 +1,8 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CountryModule } from '~svc/core/src/country/country.module';
+import { CountryService } from '~svc/core/src/country/services/country.service';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
 import { CountryEntity } from '../country/entities/country.entity';
 import { PaymentGatewayEntity } from '../payment-gateway/entities/payment-gateway.entity';
@@ -20,9 +22,10 @@ import { UserService } from './services/user.service';
       PrimeTrustUserEntity,
       UserDetailsEntity,
       NotificationEntity,
+      CountryModule,
     ]),
   ],
-  providers: [UserService],
+  providers: [UserService, CountryService],
   controllers: [UserController],
   exports: [UserService],
 })
