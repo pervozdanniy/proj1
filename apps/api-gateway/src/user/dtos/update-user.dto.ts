@@ -13,7 +13,9 @@ import {
 import { UpdateRequest } from '~common/grpc/interfaces/core';
 import { UserDetails } from '~svc/api-gateway/src/user/dtos/create-user.dto';
 
-export class UpdateUserDto implements Omit<UpdateRequest, 'id'> {
+export class UpdateUserDto implements UpdateRequest {
+  id: number;
+
   @ApiProperty({ example: 'gevorg' })
   @IsString()
   @IsNotEmpty()
