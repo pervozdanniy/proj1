@@ -37,7 +37,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Login use facebook user' })
   @Post('socials/login')
-  loginFacebook(@Body() payload: SocialsUserDto) {
+  loginSocials(@Body() payload: SocialsUserDto) {
     return this.authService.loginSocials(payload);
   }
 }
