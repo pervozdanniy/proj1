@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   UseGuards,
@@ -16,7 +17,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
-import { UpdateUserDto } from '~svc/api-gateway/src/user/dtos/update-user.dto';
+import { UpdateUserDto, UserContactsDto } from '~svc/api-gateway/src/user/dtos/update-user.dto';
 import { PublicUserDto, PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { RegistrationResponseDto } from '../dtos/user.dto';
@@ -68,20 +69,28 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user.' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'The user created successfully.',
+    description: 'The user updated successfully.',
     type: PublicUserDto,
   })
-  @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtSessionGuard)
   @Put()
-  update(
-    @JwtSessionUser() { id }: User,
-    @Body()
-    payload: UpdateUserDto,
-  ): PublicUserDto {
+  async update(@JwtSessionUser() { id }: User, @Body() payload: UpdateUserDto): Promise<PublicUserDto> {
     const request = { ...payload, id };
-    const user = this.userService.update(request);
+    const user = await this.userService.update(request);
+
+    return plainToInstance(PublicUserDto, user);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update user`s contacts.' })
+  @ApiResponse({
+    description: 'The user`s contacts created successfully.',
+    type: PublicUserDto,
+  })
+  @UseGuards(JwtSessionGuard)
+  @Patch('contacts')
+  async updateContacts(@JwtSessionUser() { id }: User, @Body() payload: UserContactsDto): Promise<PublicUserDto> {
+    const user = await this.userService.updateContacts(id, payload);
 
     return plainToInstance(PublicUserDto, user);
   }

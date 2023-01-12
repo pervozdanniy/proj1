@@ -10,14 +10,18 @@ export interface NullableUser {
   user?: User | undefined;
 }
 
+export interface UserContacts {
+  new: string[];
+  removed: string[];
+}
+
 export interface UpdateRequest {
   id: number;
   username?: string | undefined;
   country_id?: number | undefined;
   phone?: string | undefined;
   details?: UserDetails | undefined;
-  new_contacts: string[];
-  removed_contacts: string[];
+  contacts?: UserContacts | undefined;
 }
 
 export interface CreateRequest {
@@ -35,6 +39,11 @@ export interface LoginRequest {
   login: string;
 }
 
+export interface UpdateContactsRequest {
+  user_id: number;
+  contacts: UserContacts | undefined;
+}
+
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface UserServiceClient {
@@ -47,6 +56,8 @@ export interface UserServiceClient {
   delete(request: IdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   update(request: UpdateRequest, metadata?: Metadata): Observable<User>;
+
+  updateContacts(request: UpdateContactsRequest, metadata?: Metadata): Observable<User>;
 }
 
 export interface UserServiceController {
@@ -65,11 +76,13 @@ export interface UserServiceController {
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   update(request: UpdateRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
+
+  updateContacts(request: UpdateContactsRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
 }
 
 export function UserServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getById", "findByLogin", "create", "delete", "update"];
+    const grpcMethods: string[] = ["getById", "findByLogin", "create", "delete", "update", "updateContacts"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);

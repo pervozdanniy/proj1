@@ -10,8 +10,20 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { UpdateRequest } from '~common/grpc/interfaces/core';
+import { UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 import { UserDetails } from '~svc/api-gateway/src/user/dtos/create-user.dto';
+
+export class UserContactsDto {
+  @IsOptional()
+  @IsArray()
+  @IsPhoneNumber(undefined, { each: true })
+  new: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsPhoneNumber(undefined, { each: true })
+  removed: string[];
+}
 
 export class UpdateUserDto implements UpdateRequest {
   id: number;
@@ -38,13 +50,9 @@ export class UpdateUserDto implements UpdateRequest {
   @Type(() => UserDetails)
   details?: UserDetails;
 
+  @ApiProperty({ type: UserContactsDto })
+  @ValidateNested()
   @IsOptional()
-  @IsArray()
-  @IsPhoneNumber(undefined, { each: true })
-  new_contacts: string[];
-
-  @IsOptional()
-  @IsArray()
-  @IsPhoneNumber(undefined, { each: true })
-  removed_contacts: string[];
+  @Type(() => UserContactsDto)
+  contacts?: UserContacts;
 }

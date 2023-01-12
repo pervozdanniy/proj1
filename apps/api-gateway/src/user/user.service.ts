@@ -6,7 +6,7 @@ import { User } from '~common/grpc/interfaces/common';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
 import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 import { CreateUserDTO } from './dtos/create-user.dto';
-import { UpdateUserDto } from './dtos/update-user.dto';
+import { UpdateUserDto, UserContactsDto } from './dtos/update-user.dto';
 import { RegistrationResponseDto } from './dtos/user.dto';
 
 @Injectable()
@@ -40,5 +40,9 @@ export class UserService implements OnModuleInit {
 
   update(request: UpdateUserDto) {
     return firstValueFrom(this.userService.update(request));
+  }
+
+  updateContacts(id: number, contacts: UserContactsDto) {
+    return firstValueFrom(this.userService.updateContacts({ user_id: id, contacts }));
   }
 }

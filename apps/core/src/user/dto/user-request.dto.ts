@@ -11,7 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { UserSourceEnum } from '~common/constants/user';
-import { CreateRequest, UpdateRequest } from '~common/grpc/interfaces/core';
+import { CreateRequest, UpdateContactsRequest, UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 
 export class UserDetails {
   @IsString()
@@ -85,6 +85,16 @@ export class CreateRequestDto implements CreateRequest {
   contacts: string[];
 }
 
+export class ContactsDto implements UserContacts {
+  @IsArray()
+  @IsPhoneNumber(undefined, { each: true })
+  new: string[];
+
+  @IsArray()
+  @IsPhoneNumber(undefined, { each: true })
+  removed: string[];
+}
+
 export class UpdateRequestDto implements UpdateRequest {
   @IsNotEmpty()
   @IsInt()
@@ -107,11 +117,19 @@ export class UpdateRequestDto implements UpdateRequest {
   @IsOptional()
   details?: UserDetails;
 
-  @IsArray()
-  @IsPhoneNumber(undefined, { each: true })
-  new_contacts: string[];
+  @ValidateNested()
+  @Type(() => ContactsDto)
+  @IsOptional()
+  contacts?: UserContacts;
+}
 
-  @IsArray()
-  @IsPhoneNumber(undefined, { each: true })
-  removed_contacts: string[];
+export class UpdateContactsRequestDto implements UpdateContactsRequest {
+  @IsNotEmpty()
+  @IsInt()
+  user_id: number;
+
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => ContactsDto)
+  contacts: UserContacts;
 }

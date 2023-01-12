@@ -10,7 +10,7 @@ import {
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
 import { IdRequestDto } from '../dto/id-request.dto';
-import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
+import { CreateRequestDto, UpdateContactsRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { UserContactService } from '../services/user-contact.service';
 import { UserService } from '../services/user.service';
@@ -24,12 +24,24 @@ export class UserController implements UserServiceController {
   constructor(private readonly userService: UserService, private readonly contactService: UserContactService) {}
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async updateContacts(payload: UpdateContactsRequestDto): Promise<User> {
+    const user = await this.userService.get(payload.user_id);
+    await this.contactService.update(user, payload.contacts);
+
+    const updated = await this.userService.get(payload.user_id);
+
+    return plainToInstance(UserResponseDto, updated);
+  }
+
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async create({ contacts, ...payload }: CreateRequestDto): Promise<User> {
     const user = await this.userService.create(payload);
 
-    this.contactService
-      .update(user, { new: contacts })
-      .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
+    if (contacts.length) {
+      this.contactService
+        .update(user, { new: contacts })
+        .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
+    }
 
     return plainToInstance(UserResponseDto, user);
   }
@@ -61,11 +73,11 @@ export class UserController implements UserServiceController {
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async update({ new_contacts, removed_contacts, ...payload }: UpdateRequestDto): Promise<User> {
+  async update({ contacts, ...payload }: UpdateRequestDto): Promise<User> {
     const user = await this.userService.update(payload);
-    if (new_contacts.length || removed_contacts.length) {
+    if (contacts) {
       this.contactService
-        .update(user, { new: new_contacts, removed: removed_contacts })
+        .update(user, contacts)
         .catch((error) => this.logger.error('Update user: contacts syncronization failed', error));
     }
 
