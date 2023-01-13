@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';
@@ -12,6 +12,7 @@ import {
 } from '~common/grpc/interfaces/auth';
 import { AuthApiService } from '../api/api.service';
 import { AuthClient } from '../entities/auth_client.entity';
+import { isDerFormatted, isRaw, rawToDer } from './helpers/ed25519-public';
 
 @Injectable()
 export class ClientService {
@@ -48,11 +49,25 @@ export class ClientService {
   }
 
   async create({ name, pub_key }: ClientCreateRequest) {
+    const secret = this.parsePublicKey(pub_key).toString('hex');
     const key = await util
       .promisify(crypto.randomBytes)(6)
       .then((buf) => buf.toString('hex'));
 
-    return this.authClientRepo.save(this.authClientRepo.create({ name, key, secret: pub_key }));
+    return this.authClientRepo.save(this.authClientRepo.create({ name, key, secret }));
+  }
+
+  private parsePublicKey(hex: string): Buffer {
+    const key = Buffer.from(hex, 'hex');
+    if (isDerFormatted(key)) {
+      return key;
+    }
+
+    if (isRaw(key)) {
+      return rawToDer(key);
+    }
+
+    throw new BadRequestException({ message: ['Invalid pub_key format'] });
   }
 
   async login(payload: ClientLoginRequest, client: AuthClientInterface) {
