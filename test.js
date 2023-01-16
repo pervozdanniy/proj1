@@ -40,6 +40,7 @@ function verify(key, data, signature) {
   // });
   const publicKey = crypto.createPublicKey({
     key: Buffer.from(key, 'hex'),
+    format: 'der',
     type: 'spki',
   });
   const verify = crypto.verify(null, Buffer.from(data), publicKey, Buffer.from(signature, 'hex'));
@@ -80,5 +81,3 @@ if (fn) {
 } else {
   console.error('UKNOWN ACTION', Object.keys(actions));
 }
-const oid = Buffer.from([0x06, 0x03, 0x2b, 0x65, 0x70]);
-console.log(Buffer.from([0x30, 0x2a, 0x06, 0x03, 0x2b, 0x65, 0x70]).readUint16BE() === 0x302a);
