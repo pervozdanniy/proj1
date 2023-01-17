@@ -25,6 +25,7 @@ export interface ConfigInterface {
   grpcServices: {
     core: Addr;
     auth: Addr;
+    notifier: Addr;
   };
   auth: {
     jwt: {
@@ -74,6 +75,10 @@ export default (): ConfigInterface => ({
       host: process.env.GRPC_AUTH_HOST,
       port: parseInt(process.env.GRPC_AUTH_PORT, 10) || 5000,
     },
+    notifier: {
+      host: process.env.GRPC_NOTIFIER_HOST,
+      port: parseInt(process.env.GRPC_NOTIFIER_PORT, 10) || 5000,
+    },
   },
   auth: {
     jwt: {
@@ -87,5 +92,5 @@ export default (): ConfigInterface => ({
   user_registration_queue: {
     attempts: parseInt(process.env.USER_ATTEMPTS, 10) || 5,
     delay: parseInt(process.env.BULLQM_DELAY, 10) || 5000,
-  }
+  },
 });

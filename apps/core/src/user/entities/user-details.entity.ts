@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { SendType } from '~common/constants/user';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Entity('user_details')
@@ -23,6 +24,13 @@ export class UserDetailsEntity {
 
   @Column('varchar', { length: 50, nullable: true })
   date_of_birth: string;
+
+  @Column({
+    type: 'enum',
+    enum: SendType,
+    default: SendType.EMAIL,
+  })
+  send_type: SendType;
 
   @Column('integer', { nullable: true })
   postal_code: number;

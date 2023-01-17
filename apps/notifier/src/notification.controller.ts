@@ -1,12 +1,18 @@
-import { Controller, Get } from '@nestjs/common';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
+import {
+  AddNotificationRequest,
+  NotifierServiceController,
+  NotifierServiceControllerMethods,
+} from '~common/grpc/interfaces/notifier';
+import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { NotificationService } from './notification.service';
 
-@Controller()
-export class NotificationController {
+@RpcController()
+@NotifierServiceControllerMethods()
+export class NotificationController implements NotifierServiceController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  @Get()
-  getHello(): string {
-    return this.notificationService.getHello();
+  add(request: AddNotificationRequest): Promise<SuccessResponse> {
+    return this.notificationService.add(request);
   }
 }

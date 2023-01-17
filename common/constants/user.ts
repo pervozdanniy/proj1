@@ -9,3 +9,9 @@ export enum UserSourceEnum {
   Facebook = 'facebook',
   Apple = 'apple',
 }
+
+export enum SendType {
+  ALL = 'all',
+  EMAIL = 'email',
+  SMS = 'sms',
+}

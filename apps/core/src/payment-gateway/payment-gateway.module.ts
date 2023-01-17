@@ -2,8 +2,10 @@ import { HttpModule } from '@nestjs/axios';
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ClientGrpc, ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigInterface } from '~common/config/configuration';
+import { asyncClientOptions } from '~common/grpc/helpers';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
 import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { PaymentGatewayEntity } from '~svc/core/src/payment-gateway/entities/payment-gateway.entity';
@@ -29,6 +31,7 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
 
 @Module({
   imports: [
+    ClientsModule.registerAsync([asyncClientOptions('notifier')]),
     BullModule.registerQueueAsync({
       name: 'users_registration',
       useFactory(config: ConfigService<ConfigInterface>) {

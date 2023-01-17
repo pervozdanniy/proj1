@@ -3,6 +3,7 @@ import { Exclude, Type } from 'class-transformer';
 import {
   IsArray,
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -11,6 +12,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
+import { SendType } from '~common/constants/user';
 import { CreateRequest } from '~common/grpc/interfaces/core';
 
 export class UserDetails {
@@ -57,6 +59,11 @@ export class UserDetails {
   @IsNumber()
   @IsNotEmpty()
   tax_id_number: number;
+
+  @ApiProperty({ enum: Object.values(SendType) })
+  @IsEnum(SendType)
+  @Type(() => String)
+  send_type?: SendType;
 }
 
 export class CreateUserDTO implements CreateRequest {
