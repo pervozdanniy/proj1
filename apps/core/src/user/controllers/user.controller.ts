@@ -1,4 +1,4 @@
-import { Logger, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Logger, UsePipes, ValidationPipe } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import {
@@ -8,7 +8,6 @@ import {
   UserServiceControllerMethods,
 } from '~common/grpc/interfaces/core';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
 import { IdRequestDto } from '../dto/id-request.dto';
 import { CreateRequestDto, UpdateContactsRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
@@ -16,7 +15,6 @@ import { UserContactService } from '../services/user-contact.service';
 import { UserService } from '../services/user.service';
 
 @RpcController()
-@UseFilters(TypeOrmExceptionFilter)
 @UserServiceControllerMethods()
 export class UserController implements UserServiceController {
   private readonly logger = new Logger(UserController.name);
