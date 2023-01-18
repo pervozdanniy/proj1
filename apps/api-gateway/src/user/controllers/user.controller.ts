@@ -13,7 +13,15 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConflictResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionGuard, JwtSessionUser } from '~common/session';
@@ -35,6 +43,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get authorized user' })
   @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
+  @ApiUnauthorizedResponse()
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtSessionGuard)
   @Get('current')
@@ -46,6 +55,7 @@ export class UserController {
 
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({ status: HttpStatus.OK, type: PublicUserWithContactsDto })
+  @ApiNotFoundResponse()
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async get(@Param('id', ParseIntPipe) id: number) {
@@ -60,6 +70,7 @@ export class UserController {
     description: 'The user created successfully.',
     type: RegistrationResponseDto,
   })
+  @ApiConflictResponse()
   @HttpCode(HttpStatus.CREATED)
   @Post()
   createUser(@Body() payload: CreateUserDTO): Promise<RegistrationResponseDto> {
@@ -72,6 +83,7 @@ export class UserController {
     description: 'The user updated successfully.',
     type: PublicUserDto,
   })
+  @ApiUnauthorizedResponse()
   @UseGuards(JwtSessionGuard)
   @Put()
   async update(@JwtSessionUser() { id }: User, @Body() payload: UpdateUserDto): Promise<PublicUserDto> {
@@ -87,6 +99,7 @@ export class UserController {
     description: 'The user`s contacts created successfully.',
     type: PublicUserDto,
   })
+  @ApiUnauthorizedResponse()
   @UseGuards(JwtSessionGuard)
   @Patch('contacts')
   async updateContacts(@JwtSessionUser() { id }: User, @Body() payload: UserContactsDto): Promise<PublicUserDto> {

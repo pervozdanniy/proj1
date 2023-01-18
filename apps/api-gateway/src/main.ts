@@ -1,5 +1,5 @@
 import { ClassSerializerInterceptor, ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import sentryInit from 'common/sentry/init';
 import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
@@ -22,8 +22,9 @@ async function bootstrap() {
     transform: true,
     validateCustomDecorators: true,
   };
+  const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalPipes(new ValidationPipe(validationOptions));
-  app.useGlobalFilters(new ApiExceptionFilter());
+  app.useGlobalFilters(new ApiExceptionFilter(httpAdapter));
   app.useGlobalInterceptors(app.get(ClassSerializerInterceptor));
   // app.useLogger(app.get(Logger));
   // app.useGlobalInterceptors(new LoggerErrorInterceptor(), app.get(ClassSerializerInterceptor));

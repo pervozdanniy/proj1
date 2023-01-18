@@ -1,5 +1,6 @@
 import { ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { HttpAdapterHost } from '@nestjs/core';
 import { ClientsModule } from '@nestjs/microservices';
 import { Test } from '@nestjs/testing';
 import configuration from '~common/config/configuration';
@@ -20,13 +21,14 @@ export default async () => {
   }).compile();
 
   const app = moduleFixture.createNestApplication({ rawBody: true });
-  app.useGlobalFilters(new ApiExceptionFilter());
   const validationOptions: ValidationPipeOptions = {
     whitelist: true,
     transform: true,
     validateCustomDecorators: true,
   };
   app.useGlobalPipes(new ValidationPipe(validationOptions));
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new ApiExceptionFilter(httpAdapter));
 
   return app;
 };

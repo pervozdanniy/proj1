@@ -1,4 +1,3 @@
-import { UseFilters } from '@nestjs/common';
 import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
@@ -16,11 +15,9 @@ import {
   WithdrawalParamsResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { TypeOrmExceptionFilter } from '~common/utils/filters/type-orm-exception.filter';
 import { PaymentGatewayService } from '../services/payment.gateway.service';
 
 @RpcController()
-@UseFilters(TypeOrmExceptionFilter)
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
