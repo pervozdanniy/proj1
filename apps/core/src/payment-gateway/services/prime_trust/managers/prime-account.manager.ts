@@ -10,13 +10,14 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { NotifierServiceClient } from '~common/grpc/interfaces/notifier';
+import { NotifierServiceClient, UserData } from '~common/grpc/interfaces/notifier';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
+import { UserService } from '~svc/core/src/user/services/user.service';
 
 @Injectable()
 export class PrimeAccountManager implements OnModuleInit {
@@ -36,6 +37,8 @@ export class PrimeAccountManager implements OnModuleInit {
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
+
+    private readonly userService: UserService,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -199,11 +202,28 @@ export class PrimeAccountManager implements OnModuleInit {
       description: `Account created with status ${accountResponse.status}`,
     };
 
+    const {
+      username,
+      phone,
+      email,
+      details: { send_type },
+    } = await this.userService.getUserInfo(user_id);
+
+    const user_data: UserData = {
+      username,
+      phone,
+      email,
+      send_type,
+    };
+
     this.notificationService.create(notificationPayload);
-    const data = await firstValueFrom(
-      this.notifierService.add({ notification: notificationPayload, sendType: 'email' }),
-    );
-    console.log(data);
+    firstValueFrom(this.notifierService.add({ notification: notificationPayload, user_data }))
+      .then((data) => {
+        return data;
+      })
+      .catch((e) => {
+        this.logger.error(e);
+      });
 
     return { success: true };
   }

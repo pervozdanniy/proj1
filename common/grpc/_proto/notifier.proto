@@ -13,7 +13,14 @@ message NotifyRequest {
     string description = 2;
 }
 
+message UserData {
+    string username = 1;
+    optional string email = 2;
+    optional string phone = 3;
+    string send_type = 4;
+}
+
 message AddNotificationRequest {
     NotifyRequest notification = 1;
-    string sendType = 2;
+    UserData user_data = 2;
 }

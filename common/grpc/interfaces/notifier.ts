@@ -11,9 +11,16 @@ export interface NotifyRequest {
   description: string;
 }
 
+export interface UserData {
+  username: string;
+  email?: string | undefined;
+  phone?: string | undefined;
+  send_type: string;
+}
+
 export interface AddNotificationRequest {
   notification: NotifyRequest | undefined;
-  sendType: string;
+  user_data: UserData | undefined;
 }
 
 export const SKOPA_NOTIFIER_PACKAGE_NAME = "skopa.notifier";
