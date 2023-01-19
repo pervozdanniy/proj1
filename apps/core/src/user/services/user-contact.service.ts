@@ -12,7 +12,7 @@ export class UserContactService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async update(user: UserEntity, contacts: { new?: string[]; removed?: string[] }) {
+  async update(user: UserEntity, contacts?: { new?: string[]; removed?: string[] }) {
     let addSql: string | undefined;
     const addParams = [];
     if (contacts.new?.length) {

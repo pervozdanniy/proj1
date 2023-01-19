@@ -24,11 +24,11 @@ export class GrpcSessionGuard implements CanActivate {
         this.logger.error('Session: fetch failed', error);
       }
 
-      if (sessionData?.user) {
+      if (sessionData) {
         return true;
       }
     }
 
-    throw new GrpcException(status.UNAUTHENTICATED, 'Unauthorized', 401);
+    throw new GrpcException(status.UNAUTHENTICATED, 'Unauthorized');
   }
 }

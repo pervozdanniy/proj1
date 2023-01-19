@@ -10,7 +10,7 @@ import {
   ClientLoginRequest,
   SignedRequest,
 } from '~common/grpc/interfaces/auth';
-import { AuthApiService } from '../api/api.service';
+import { AuthApiService } from '../api/services/api.service';
 import { AuthClient } from '../entities/auth_client.entity';
 import { isDerFormatted, isRaw, rawToDer } from './helpers/ed25519-public';
 

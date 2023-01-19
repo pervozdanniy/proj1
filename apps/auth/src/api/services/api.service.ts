@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, Logger, OnModuleInit, PreconditionFailedException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ClientGrpc } from '@nestjs/microservices';
 import bcrypt from 'bcrypt';
@@ -52,35 +52,26 @@ export class AuthApiService implements OnModuleInit {
 
   async validate2FA(codes: Array<{ code: number; method: string }>, sessionId: string) {
     const session = await this.session.get(sessionId);
+    if (!session || !is2FA(session)) {
+      throw new ConflictException('No verification required');
+    }
+    let reason: string;
 
-    if (session && is2FA(session)) {
-      session.verify.codes.reduce((acc, c) => {
+    if (session.verify.expiresAt < Date.now()) {
+      reason = '2FA code expired';
+    } else if (
+      !session.verify.codes.reduce((acc, c) => {
         const actual = codes.find((a) => a.method === c.method);
 
         return acc && !!actual && c.code === actual.code;
-      }, true);
-      if (session.verify.expiresAt < Date.now()) {
-        throw new PreconditionFailedException('2FA code expired');
-      }
-
-      const codesValid = session.verify.codes.reduce((acc, c) => {
-        const actual = codes.find((a) => a.method === c.method);
-
-        return acc && !!actual && c.code === actual.code;
-      }, true);
-      if (!codesValid) {
-        throw new PreconditionFailedException('2FA code does not match');
-      }
-
+      }, true)
+    ) {
+      reason = '2FA code does not match';
+    } else {
       await this.session.set(sessionId, { user: session.user, isAuthenticated: true });
-
-      return {
-        access_token: await this.jwt.signAsync({ sub: sessionId }),
-        session_id: sessionId,
-      };
     }
 
-    throw new ConflictException('No verification required');
+    return { valid: !!reason, reason };
   }
 
   async findByLogin(login: string) {
@@ -102,6 +93,7 @@ export class AuthApiService implements OnModuleInit {
     } else {
       session = { user, isAuthenticated: true };
     }
+    console.log('SSS', session);
     await this.session.set(sessionId, session);
 
     return {

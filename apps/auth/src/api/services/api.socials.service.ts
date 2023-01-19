@@ -12,11 +12,7 @@ import { AuthApiService } from '~svc/auth/src/api/services/api.service';
 
 @Injectable()
 export class ApiSocialsService implements OnModuleInit {
-  constructor(
-    private readonly configService: ConfigService,
-    @InjectGrpc('core') private readonly client: ClientGrpc,
-    private readonly authService: AuthApiService,
-  ) {}
+  constructor(@InjectGrpc('core') private readonly client: ClientGrpc, private readonly authService: AuthApiService) {}
   private userService: UserServiceClient;
 
   onModuleInit() {

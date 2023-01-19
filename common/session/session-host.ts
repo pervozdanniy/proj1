@@ -1,9 +1,37 @@
 import { SessionService } from './session.service';
 
-export class SessionHost {
+export const sessionProxyFactory = <T extends Record<string, any>>(
+  session: SessionService<T>,
+  id: string,
+  data: T,
+): SessionHost<T> & T => {
+  const host = new SessionHost(session, id, data);
+
+  return new Proxy(host, {
+    get(target, p) {
+      if (Reflect.has(target, p)) {
+        return Reflect.get(target, p);
+      }
+
+      return host.get(p.toString());
+    },
+    set(target, p, value) {
+      host.set(p.toString(), value);
+
+      return true;
+    },
+    deleteProperty(target, p) {
+      host.delete(p.toString());
+
+      return true;
+    },
+  }) as SessionHost<T> & T;
+};
+
+export class SessionHost<T extends Record<string, any> = Record<string, any>> {
   private modified = false;
 
-  constructor(private readonly session: SessionService, private id: string, private data = {}) {}
+  constructor(private readonly session: SessionService<T>, private id: string, private data: T) {}
 
   get sessionId() {
     return this.id;
@@ -20,7 +48,9 @@ export class SessionHost {
 
   async destroy() {
     await this.session.destroy(this.id);
-    this.data = {};
+    for (const key in this.data) {
+      delete this.data[key];
+    }
     this.modified = false;
   }
 
@@ -34,16 +64,16 @@ export class SessionHost {
     this.modified = false;
   }
 
-  get(prop: string) {
+  get(prop: keyof T) {
     return this.data[prop] ?? null;
   }
 
-  set(prop: string, value: any) {
+  set<K extends keyof T>(prop: K, value: T[K]) {
     this.modified = true;
     this.data[prop] = value;
   }
 
-  delete(prop: string) {
+  delete(prop: keyof T) {
     this.modified = true;
     delete this.data[prop];
   }

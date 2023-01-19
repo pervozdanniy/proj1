@@ -7,7 +7,7 @@ import { join } from 'path';
 import configuration, { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionService } from '~common/session';
-import { AuthApiService } from '~svc/auth/src/api/api.service';
+import { AuthApiService } from '~svc/auth/src/api/services/api.service';
 import { ClientController } from '~svc/auth/src/client/client.controller';
 import { ClientService } from '~svc/auth/src/client/client.service';
 import { AuthClient } from '~svc/auth/src/entities/auth_client.entity';

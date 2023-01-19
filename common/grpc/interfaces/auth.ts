@@ -5,12 +5,6 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "skopa.auth";
 
-export interface SocialsAuthRequest {
-  username: string;
-  email: string;
-  source: string;
-}
-
 export interface AuthRequest {
   login: string;
   password: string;
@@ -18,6 +12,7 @@ export interface AuthRequest {
 
 export interface AuthData {
   access_token: string;
+  session_id: string;
 }
 
 export interface ClientCreateRequest {
@@ -41,23 +36,50 @@ export interface ClientLoginRequest {
   password?: string | undefined;
 }
 
+export interface SocialsAuthRequest {
+  username: string;
+  email: string;
+  source: string;
+}
+
+export interface TwoFactorCode {
+  method: string;
+  code: number;
+}
+
+export interface TwoFactorVerificationRequest {
+  codes: TwoFactorCode[];
+}
+
+export interface TwoFactorVerivicationResponse {
+  valid: boolean;
+  reason?: string | undefined;
+}
+
 export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
 
 export interface AuthServiceClient {
   login(request: AuthRequest, metadata?: Metadata): Observable<AuthData>;
 
   loginSocials(request: SocialsAuthRequest, metadata?: Metadata): Observable<AuthData>;
+
+  verify2Fa(request: TwoFactorVerificationRequest, metadata?: Metadata): Observable<TwoFactorVerivicationResponse>;
 }
 
 export interface AuthServiceController {
   login(request: AuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
 
   loginSocials(request: SocialsAuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  verify2Fa(
+    request: TwoFactorVerificationRequest,
+    metadata?: Metadata,
+  ): Promise<TwoFactorVerivicationResponse> | Observable<TwoFactorVerivicationResponse> | TwoFactorVerivicationResponse;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["login", "loginSocials"];
+    const grpcMethods: string[] = ["login", "loginSocials", "verify2Fa"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);

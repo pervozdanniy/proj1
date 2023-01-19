@@ -2,15 +2,19 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule } from '@nestjs/microservices';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionModule } from '~common/session/session.module';
-import { ApiSocialsService } from '~svc/auth/src/api/api.socials.service';
+import { ApiSocialsService } from '~svc/auth/src/api/services/api.socials.service';
+import { TwoFactorSettingsEntity } from '../entities/2fa_settings.entity';
 import { AuthApiController } from './api.controller';
-import { AuthApiService } from './api.service';
+import { TwoFactorService } from './services/2fa.service';
+import { AuthApiService } from './services/api.service';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([TwoFactorSettingsEntity]),
     JwtModule.registerAsync({
       useFactory: async (config: ConfigService<ConfigInterface>) => ({
         secret: config.get('auth.jwt.secret', { infer: true }),
@@ -22,7 +26,7 @@ import { AuthApiService } from './api.service';
     SessionModule,
   ],
   controllers: [AuthApiController],
-  providers: [AuthApiService, ApiSocialsService],
+  providers: [AuthApiService, ApiSocialsService, TwoFactorService],
   exports: [AuthApiService],
 })
 export class AuthApiModule {}
