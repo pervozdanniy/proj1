@@ -60,8 +60,8 @@ export class UserDetails {
   @IsNotEmpty()
   tax_id_number: number;
 
-  @ApiProperty({ enum: Object.values(SendType) })
-  @IsEnum(Object.values(SendType))
+  @ApiProperty({ enum: Object.keys(SendType) })
+  @IsEnum(SendType)
   @Type(() => Number)
   send_type?: SendType;
 }
