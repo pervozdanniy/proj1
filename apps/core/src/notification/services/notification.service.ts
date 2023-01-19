@@ -67,16 +67,12 @@ export class NotificationService implements OnModuleInit {
       email,
       send_type,
     };
-    this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload)).catch((e) => {
-      this.logger.error(e.message);
-    });
+    await this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload));
 
-    this.send(payload, user_data);
+    await this.send(payload, user_data);
   }
 
   send(notificationPayload, user_data) {
-    firstValueFrom(this.notifierService.add({ notification: notificationPayload, user_data })).catch((e) => {
-      this.logger.error(e.message);
-    });
+    return firstValueFrom(this.notifierService.add({ notification: notificationPayload, user_data }));
   }
 }
