@@ -301,7 +301,7 @@ export class PrimeWireManager {
       description: `Your disbursements status for ${amount} ${withdrawalResponse.attributes['currency-type']} ${withdrawalResponse.attributes['status']}`,
     };
 
-    this.notificationService.create(notificationPayload);
+    this.notificationService.createAsync(notificationPayload);
 
     return { data: JSON.stringify(withdrawalResponse) };
   }
@@ -372,7 +372,7 @@ export class PrimeWireManager {
       description: `Your disbursements status for ${withdrawResponse['amount']} ${withdrawResponse['currency-type']} ${withdrawResponse['status']}`,
     };
 
-    this.notificationService.create(notificationPayload);
+    this.notificationService.createAsync(notificationPayload);
 
     return { success: true };
   }
@@ -439,7 +439,7 @@ export class PrimeWireManager {
       type: 'contributions',
       description: `Your contribution status for ${contributionResponse['amount']} ${contributionResponse['currency-type']} ${contributionResponse['status']}`,
     };
-    this.notificationService.create(notificationPayload);
+    this.notificationService.createAsync(notificationPayload);
 
     return { success: true };
   }

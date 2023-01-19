@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -10,7 +11,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { UserSourceEnum } from '~common/constants/user';
+import { SendType, UserSourceEnum } from '~common/constants/user';
 import { CreateRequest, UpdateContactsRequest, UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 
 export class UserDetails {
@@ -48,6 +49,10 @@ export class UserDetails {
   @IsNumber()
   @IsNotEmpty()
   tax_id_number: number;
+
+  @IsEnum(SendType)
+  @Type(() => Number)
+  send_type?: SendType;
 }
 
 export class CreateRequestDto implements CreateRequest {

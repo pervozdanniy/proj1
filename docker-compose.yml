@@ -44,6 +44,7 @@ services:
     build: .
     volumes:
       - ./apps/notifier:/usr/src/apps/notifier
+      - ./common:/usr/src/common
     networks:
       - backend
     env_file:

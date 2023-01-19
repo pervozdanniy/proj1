@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
-import { NotificationService } from '~svc/core/src/notification/services/notification.service';
+import { NotificationModule } from '~svc/core/src/notification/notification.module';
 import { PaymentGatewayEntity } from '~svc/core/src/payment-gateway/entities/payment-gateway.entity';
 import { ContributionEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/contribution.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
@@ -48,6 +48,7 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
     }),
     HttpModule,
     UserModule,
+    NotificationModule,
     TypeOrmModule.forFeature([
       PaymentGatewayEntity,
       PrimeTrustUserEntity,
@@ -71,7 +72,6 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
     PrimeAccountManager,
     PrimeKycManager,
     PrimeWireManager,
-    NotificationService,
   ],
   controllers: [PaymentGatewayController],
   exports: [PaymentGatewayManager],

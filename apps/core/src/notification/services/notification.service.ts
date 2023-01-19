@@ -1,16 +1,30 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ClientGrpc } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
+import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
+import { InjectGrpc } from '~common/grpc/helpers';
 import { NotificationRequest, UpdateNotificationRequest } from '~common/grpc/interfaces/notification';
+import { NotifierServiceClient, UserData } from '~common/grpc/interfaces/notifier';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
+import { UserService } from '~svc/core/src/user/services/user.service';
 
 @Injectable()
-export class NotificationService {
+export class NotificationService implements OnModuleInit {
   private readonly logger = new Logger(NotificationService.name);
   constructor(
+    @InjectGrpc('notifier') private readonly client: ClientGrpc,
     @InjectRepository(NotificationEntity)
     private notificationEntityRepository: Repository<NotificationEntity>,
+
+    private readonly userService: UserService,
   ) {}
+
+  private notifierService: NotifierServiceClient;
+
+  onModuleInit() {
+    this.notifierService = this.client.getService('NotifierService');
+  }
 
   async list(request: NotificationRequest) {
     const { offset, limit, read } = request;
@@ -35,9 +49,30 @@ export class NotificationService {
     return this.notificationEntityRepository.save({ ...notification, read });
   }
 
-  create(payload: { user_id: number; description: string; title: string; type: string }): void {
-    this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload)).catch((e) => {
-      this.logger.error(e.message);
-    });
+  createAsync(payload: { user_id: number; description: string; title: string; type: string }) {
+    this.create(payload).catch((e) => this.logger.error(e.message));
+  }
+
+  async create(payload: { user_id: number; description: string; title: string; type: string }): Promise<void> {
+    const {
+      username,
+      phone,
+      email,
+      details: { send_type },
+    } = await this.userService.getUserInfo(payload.user_id);
+
+    const user_data: UserData = {
+      username,
+      phone,
+      email,
+      send_type,
+    };
+    await this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload));
+
+    await this.send(payload, user_data);
+  }
+
+  send(notificationPayload, user_data) {
+    return firstValueFrom(this.notifierService.add({ notification: notificationPayload, user_data }));
   }
 }

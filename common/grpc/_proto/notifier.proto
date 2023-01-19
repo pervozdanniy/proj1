@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package skopa.notifier;
+
+import "common.proto";
+
+service NotifierService {
+    rpc Add (AddNotificationRequest) returns (common.SuccessResponse);
+}
+
+message NotifyRequest {
+    string title = 1;
+    string description = 2;
+}
+
+message UserData {
+    string username = 1;
+    optional string email = 2;
+    optional string phone = 3;
+    uint32 send_type = 4;
+}
+
+message AddNotificationRequest {
+    NotifyRequest notification = 1;
+    UserData user_data = 2;
+}
