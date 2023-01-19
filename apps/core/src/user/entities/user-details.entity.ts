@@ -29,7 +29,7 @@ export class UserDetailsEntity {
     type: 'integer',
     default: SendType.EMAIL,
   })
-  send_type: number;
+  send_type: SendType;
 
   @Column('integer', { nullable: true })
   postal_code: number;
