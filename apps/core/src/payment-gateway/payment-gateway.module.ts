@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigInterface } from '~common/config/configuration';
+import { createBullQueue } from '~common/grpc/helpers';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
 import { NotificationModule } from '~svc/core/src/notification/notification.module';
 import { PaymentGatewayEntity } from '~svc/core/src/payment-gateway/entities/payment-gateway.entity';
@@ -29,23 +30,7 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
 
 @Module({
   imports: [
-    BullModule.registerQueueAsync({
-      name: 'users_registration',
-      useFactory(config: ConfigService<ConfigInterface>) {
-        const { attempts, delay } = config.get('user_registration_queue', { infer: true });
-
-        return {
-          defaultJobOptions: {
-            attempts,
-            backoff: {
-              type: 'fixed',
-              delay,
-            },
-          },
-        };
-      },
-      inject: [ConfigService],
-    }),
+    BullModule.registerQueueAsync(createBullQueue('users_registration', 'user_registration')),
     HttpModule,
     UserModule,
     NotificationModule,
