@@ -15,7 +15,6 @@ import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/
 import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
-import { UserService } from '~svc/core/src/user/services/user.service';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -34,8 +33,6 @@ export class PrimeAccountManager {
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
-
-    private readonly userService: UserService,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -193,22 +190,7 @@ export class PrimeAccountManager {
       description: `Account created with status ${accountResponse.status}`,
     };
 
-    const {
-      username,
-      phone,
-      email,
-      details: { send_type },
-    } = await this.userService.getUserInfo(user_id);
-
-    const user_data: UserData = {
-      username,
-      phone,
-      email,
-      send_type,
-    };
-
-    this.notificationService.create(notificationPayload);
-    this.notificationService.send(notificationPayload, user_data);
+    await this.notificationService.create(notificationPayload);
 
     return { success: true };
   }

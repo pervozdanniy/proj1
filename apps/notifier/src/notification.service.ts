@@ -8,11 +8,13 @@ export class NotificationService {
     const {
       user_data: { send_type },
     } = request;
-
-    if (send_type === SendType.SMS) {
-      //send sms
-    } else if (send_type === SendType.EMAIL) {
-      //send email
+    if (send_type & SendType.SMS) {
+      console.log('sms');
+      // send sms
+    }
+    if (send_type & SendType.EMAIL) {
+      console.log('email');
+      // send email
     }
 
     return { success: true };

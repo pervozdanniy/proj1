@@ -26,11 +26,10 @@ export class UserDetailsEntity {
   date_of_birth: string;
 
   @Column({
-    type: 'enum',
-    enum: SendType,
+    type: 'integer',
     default: SendType.EMAIL,
   })
-  send_type: SendType;
+  send_type: number;
 
   @Column('integer', { nullable: true })
   postal_code: number;

@@ -5,8 +5,9 @@ import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { NotificationRequest, UpdateNotificationRequest } from '~common/grpc/interfaces/notification';
-import { NotifierServiceClient } from '~common/grpc/interfaces/notifier';
+import { NotifierServiceClient, UserData } from '~common/grpc/interfaces/notifier';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
+import { UserService } from '~svc/core/src/user/services/user.service';
 
 @Injectable()
 export class NotificationService implements OnModuleInit {
@@ -15,6 +16,8 @@ export class NotificationService implements OnModuleInit {
     @InjectGrpc('notifier') private readonly client: ClientGrpc,
     @InjectRepository(NotificationEntity)
     private notificationEntityRepository: Repository<NotificationEntity>,
+
+    private readonly userService: UserService,
   ) {}
 
   private notifierService: NotifierServiceClient;
@@ -46,19 +49,30 @@ export class NotificationService implements OnModuleInit {
     return this.notificationEntityRepository.save({ ...notification, read });
   }
 
-  create(payload: { user_id: number; description: string; title: string; type: string }): void {
+  async create(payload: { user_id: number; description: string; title: string; type: string }): Promise<void> {
+    const {
+      username,
+      phone,
+      email,
+      details: { send_type },
+    } = await this.userService.getUserInfo(payload.user_id);
+
+    const user_data: UserData = {
+      username,
+      phone,
+      email,
+      send_type,
+    };
     this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload)).catch((e) => {
       this.logger.error(e.message);
     });
+
+    this.send(payload, user_data);
   }
 
   send(notificationPayload, user_data) {
-    firstValueFrom(this.notifierService.add({ notification: notificationPayload, user_data }))
-      .then((data) => {
-        return data;
-      })
-      .catch((e) => {
-        this.logger.error(e);
-      });
+    firstValueFrom(this.notifierService.add({ notification: notificationPayload, user_data })).catch((e) => {
+      this.logger.error(e.message);
+    });
   }
 }

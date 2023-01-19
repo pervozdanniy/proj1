@@ -10,7 +10,7 @@ import { CreateWithdrawalTables1672311919236 } from '~svc/core/src/db/migrations
 import { AlterWithdrawalTable1672312373374 } from '~svc/core/src/db/migrations/1672312373374-AlterWithdrawalTable';
 import { CreateNotificationsTable1672737767969 } from '~svc/core/src/db/migrations/1672737767969-CreateNotificationsTable';
 import { AlterUsersTable1672920595456 } from '~svc/core/src/db/migrations/1672920595456-AlterUsersTable';
-import { AlterUsersTable1674113895065 } from '~svc/core/src/db/migrations/1674113895065-AlterUsersTable';
+import { AlterUsersTable1674119775903 } from '~svc/core/src/db/migrations/1674119775903-AlterUsersTable';
 import { SeedPaymentGateway1671466516817 } from '~svc/core/src/db/seeds/1671466516817-SeedPaymentGateway';
 import { createUserTable1669901299726 } from './migrations/1669901299726-create-user-table';
 import { AlterUsersTable2167043583659 } from './migrations/1670435836592-AlterUsersTable';
@@ -37,5 +37,5 @@ export default [
   CreateNotificationsTable1672737767969,
   AlterUsersTable1672920595456,
   AddUserContactTable1673371635929,
-  AlterUsersTable1674113895065,
+  AlterUsersTable1674119775903,
 ];
