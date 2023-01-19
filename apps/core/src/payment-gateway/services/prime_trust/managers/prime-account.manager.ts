@@ -189,7 +189,7 @@ export class PrimeAccountManager {
       description: `Account created with status ${accountResponse.status}`,
     };
 
-    await this.notificationService.create(notificationPayload);
+    this.notificationService.createAsync(notificationPayload);
 
     return { success: true };
   }

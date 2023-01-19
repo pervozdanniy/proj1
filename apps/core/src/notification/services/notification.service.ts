@@ -49,6 +49,10 @@ export class NotificationService implements OnModuleInit {
     return this.notificationEntityRepository.save({ ...notification, read });
   }
 
+  createAsync(payload: { user_id: number; description: string; title: string; type: string }) {
+    this.create(payload).catch((e) => this.logger.error(e.message));
+  }
+
   async create(payload: { user_id: number; description: string; title: string; type: string }): Promise<void> {
     const {
       username,
