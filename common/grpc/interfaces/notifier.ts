@@ -15,7 +15,7 @@ export interface UserData {
   username: string;
   email?: string | undefined;
   phone?: string | undefined;
-  send_type: string;
+  send_type: number;
 }
 
 export interface AddNotificationRequest {

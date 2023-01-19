@@ -1,16 +1,14 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ClientGrpc } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as process from 'process';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { InjectGrpc } from '~common/grpc/helpers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { NotifierServiceClient, UserData } from '~common/grpc/interfaces/notifier';
+import { UserData } from '~common/grpc/interfaces/notifier';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
@@ -20,12 +18,11 @@ import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_
 import { UserService } from '~svc/core/src/user/services/user.service';
 
 @Injectable()
-export class PrimeAccountManager implements OnModuleInit {
+export class PrimeAccountManager {
   private readonly logger = new Logger(PrimeAccountManager.name);
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
   constructor(
-    @InjectGrpc('notifier') private readonly client: ClientGrpc,
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: HttpService,
 
@@ -43,12 +40,6 @@ export class PrimeAccountManager implements OnModuleInit {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
     this.app_domain = domain;
-  }
-
-  private notifierService: NotifierServiceClient;
-
-  onModuleInit() {
-    this.notifierService = this.client.getService('NotifierService');
   }
 
   async createAccount(userDetails, token) {
@@ -217,13 +208,7 @@ export class PrimeAccountManager implements OnModuleInit {
     };
 
     this.notificationService.create(notificationPayload);
-    firstValueFrom(this.notifierService.add({ notification: notificationPayload, user_data }))
-      .then((data) => {
-        return data;
-      })
-      .catch((e) => {
-        this.logger.error(e);
-      });
+    this.notificationService.send(notificationPayload, user_data);
 
     return { success: true };
   }

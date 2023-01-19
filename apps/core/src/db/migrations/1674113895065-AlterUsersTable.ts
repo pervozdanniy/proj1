@@ -1,12 +1,12 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AlterUsersDetailsTable1673962495209 implements MigrationInterface {
-  name = 'AlterUsersDetailsTable1673962495209';
+export class AlterUsersTable1674113895065 implements MigrationInterface {
+  name = 'AlterUsersTable1674113895065';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`CREATE TYPE "public"."user_details_send_type_enum" AS ENUM('all', 'email', 'sms')`);
+    await queryRunner.query(`CREATE TYPE "public"."user_details_send_type_enum" AS ENUM('1', '2', '3')`);
     await queryRunner.query(
-      `ALTER TABLE "user_details" ADD "send_type" "public"."user_details_send_type_enum" NOT NULL DEFAULT 'email'`,
+      `ALTER TABLE "user_details" ADD "send_type" "public"."user_details_send_type_enum" NOT NULL DEFAULT '1'`,
     );
   }
 

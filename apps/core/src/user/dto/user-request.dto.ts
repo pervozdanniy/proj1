@@ -51,7 +51,7 @@ export class UserDetails {
   tax_id_number: number;
 
   @IsEnum(SendType)
-  @Type(() => String)
+  @Type(() => Number)
   send_type?: SendType;
 }
 

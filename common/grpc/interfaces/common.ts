@@ -25,7 +25,7 @@ export interface UserDetails {
   postal_code: number;
   tax_id_number: number;
   region: string;
-  send_type?: string | undefined;
+  send_type?: number | undefined;
 }
 
 export interface IdRequest {

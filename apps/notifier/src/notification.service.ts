@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { SendType } from '~common/constants/user';
 import { AddNotificationRequest } from '~common/grpc/interfaces/notifier';
 
 @Injectable()
@@ -7,16 +8,11 @@ export class NotificationService {
     const {
       user_data: { send_type },
     } = request;
-    switch (send_type) {
-      case 'all':
-        //some operation
-        break;
-      case 'email':
-        //some operation
-        break;
-      case 'sms':
-        //some operation
-        break;
+
+    if (send_type === SendType.SMS) {
+      //send sms
+    } else if (send_type === SendType.EMAIL) {
+      //send email
     }
 
     return { success: true };

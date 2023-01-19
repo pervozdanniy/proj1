@@ -17,7 +17,7 @@ message UserData {
     string username = 1;
     optional string email = 2;
     optional string phone = 3;
-    string send_type = 4;
+    uint32 send_type = 4;
 }
 
 message AddNotificationRequest {
