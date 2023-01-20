@@ -16,13 +16,13 @@ import { SendType } from '~common/constants/user';
 import { CreateRequest } from '~common/grpc/interfaces/core';
 
 export class UserDetails {
-  @ApiProperty({ example: 'gevorg' })
+  @ApiProperty({ example: 'first_name' })
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
   first_name: string;
 
-  @ApiProperty({ example: 'poghosyan' })
+  @ApiProperty({ example: 'last_name' })
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
@@ -67,7 +67,7 @@ export class UserDetails {
 }
 
 export class CreateUserDTO implements CreateRequest {
-  @ApiProperty({ example: 'gevorg' })
+  @ApiProperty({ example: 'test_user' })
   @IsString()
   @IsNotEmpty()
   @Length(2, 200)
