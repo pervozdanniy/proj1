@@ -1,3 +1,4 @@
+import { BullModuleAsyncOptions } from '@nestjs/bull';
 import { Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientsProviderAsyncOptions, Transport } from '@nestjs/microservices';
@@ -44,6 +45,26 @@ export const asyncClientOptions = (
           oneofs: true,
         },
         protoPath,
+      },
+    };
+  },
+  inject: [ConfigService],
+});
+
+export type NotificationType = keyof ConfigInterface['queues'];
+
+export const createBullQueue = (name: string, type: NotificationType): BullModuleAsyncOptions => ({
+  name,
+  useFactory(config: ConfigService<ConfigInterface>) {
+    const { attempts, delay } = config.get(`queues.${type}`, { infer: true });
+
+    return {
+      defaultJobOptions: {
+        attempts,
+        backoff: {
+          type: 'fixed',
+          delay,
+        },
       },
     };
   },

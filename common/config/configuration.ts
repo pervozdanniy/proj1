@@ -38,9 +38,15 @@ export interface ConfigInterface {
     prime_trust_url: string;
   };
 
-  user_registration_queue: {
-    attempts: number;
-    delay: number;
+  queues: {
+    user_registration: {
+      attempts: number;
+      delay: number;
+    };
+    notifications: {
+      attempts: number;
+      delay: number;
+    };
   };
 }
 
@@ -89,8 +95,14 @@ export default (): ConfigInterface => ({
     domain: process.env.APP_DOMAIN,
     prime_trust_url: process.env.PRIME_TRUST_URL,
   },
-  user_registration_queue: {
-    attempts: parseInt(process.env.USER_ATTEMPTS, 10) || 5,
-    delay: parseInt(process.env.BULLQM_DELAY, 10) || 5000,
+  queues: {
+    user_registration: {
+      attempts: parseInt(process.env.USER_ATTEMPTS, 10) || 5,
+      delay: parseInt(process.env.BULLQM_DELAY, 10) || 5000,
+    },
+    notifications: {
+      attempts: parseInt(process.env.NOTIFICATIONS_ATTEMPTS, 10) || 5,
+      delay: parseInt(process.env.NOTIFICATIONS_DELAY, 10) || 5000,
+    },
   },
 });
