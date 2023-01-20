@@ -9,7 +9,7 @@ import redisClients from '~svc/api-gateway/test/__mocks/redis';
 import { NotificationController } from '~svc/notifier/src/notification.controller';
 import { NotificationService } from '~svc/notifier/src/notification.service';
 
-export default async (config: ConfigService<ConfigInterface>) => {
+export default async () => {
   const notifier = await Test.createTestingModule({
     imports: [
       ConfigModule.forRoot({ load: [configuration, testConfig], isGlobal: true }),

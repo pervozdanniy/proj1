@@ -8,6 +8,7 @@ export class SmsHandler {
   private readonly logger = new Logger(SmsHandler.name);
   @Process('send')
   async handleSms(job: Job) {
+    this.logger.log(job.data);
     //send sms
   }
 

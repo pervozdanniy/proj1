@@ -1,16 +1,11 @@
-import { INestApplication } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { TestingModule } from '@nestjs/testing';
-import { ConfigInterface } from '~common/config/configuration';
 import { AddNotificationRequest } from '~common/grpc/interfaces/notifier';
-import createApiGateway from '~svc/api-gateway/test/auth/__mocks/api-gateway.app';
 import createNotifier from '~svc/api-gateway/test/notifier/__mocks/notifier.app';
 import { redisStorage } from '~svc/api-gateway/test/__mocks/redis';
 import { userStorage } from '~svc/api-gateway/test/__mocks/user.repository';
 import { NotificationService } from '~svc/notifier/src/notification.service';
 
 describe('NotifierService (e2e)', () => {
-  let app: INestApplication;
   let notifier: TestingModule;
   let notificationService: NotificationService;
 
@@ -28,10 +23,7 @@ describe('NotifierService (e2e)', () => {
   };
 
   beforeAll(async () => {
-    app = await createApiGateway();
-    const config = app.get(ConfigService<ConfigInterface>);
-    notifier = await createNotifier(config);
-    await app.init();
+    notifier = await createNotifier();
 
     notificationService = notifier.get<NotificationService>(NotificationService);
   });
@@ -51,7 +43,6 @@ describe('NotifierService (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
     await notifier.close();
   });
 });
