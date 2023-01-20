@@ -24,7 +24,6 @@ describe('NotifierService (e2e)', () => {
 
   beforeAll(async () => {
     notifier = await createNotifier();
-
     notificationService = notifier.get<NotificationService>(NotificationService);
   });
 
