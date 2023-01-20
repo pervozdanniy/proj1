@@ -1,9 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigInterface } from '~common/config/configuration';
 import { createBullQueue } from '~common/grpc/helpers';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
 import { NotificationModule } from '~svc/core/src/notification/notification.module';
