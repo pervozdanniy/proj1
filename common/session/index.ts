@@ -1,5 +1,5 @@
+export * from './decorators/grpc.decorator';
 export * from './decorators/jwt.decorator';
-export * from './decorators/session.decorator';
 export * from './guards/grpc.guard';
 export * from './guards/jwt/jwt.guard';
 export * from './interfaces/auth.interface';

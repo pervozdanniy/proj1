@@ -1,6 +1,5 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { UserStatusEnum } from '~common/constants/user';

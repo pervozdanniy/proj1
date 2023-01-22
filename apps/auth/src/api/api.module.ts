@@ -8,7 +8,8 @@ import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionModule } from '~common/session/session.module';
 import { ApiSocialsService } from '~svc/auth/src/api/services/api.socials.service';
 import { TwoFactorSettingsEntity } from '../entities/2fa_settings.entity';
-import { AuthApiController } from './api.controller';
+import { TwoFactorController } from './controllers/2fa.controller';
+import { AuthApiController } from './controllers/api.controller';
 import { TwoFactorService } from './services/2fa.service';
 import { AuthApiService } from './services/api.service';
 
@@ -25,7 +26,7 @@ import { AuthApiService } from './services/api.service';
     ClientsModule.registerAsync([asyncClientOptions('core')]),
     SessionModule,
   ],
-  controllers: [AuthApiController],
+  controllers: [AuthApiController, TwoFactorController],
   providers: [AuthApiService, ApiSocialsService, TwoFactorService],
   exports: [AuthApiService],
 })

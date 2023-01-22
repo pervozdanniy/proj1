@@ -7,7 +7,7 @@ import { join } from 'path';
 import configuration, { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionModule } from '~common/session';
-import { AuthApiController } from '~svc/auth/src/api/api.controller';
+import { AuthApiController } from '~svc/auth/src/api/controllers/api.controller';
 import { AuthApiService } from '~svc/auth/src/api/services/api.service';
 import { ApiSocialsService } from '~svc/auth/src/api/services/api.socials.service';
 import redisClients from '../../__mocks/redis';

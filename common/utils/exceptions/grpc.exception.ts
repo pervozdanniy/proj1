@@ -34,7 +34,12 @@ export const isGrpcException = (exception: Error): exception is GrpcException =>
 
 export class GrpcException extends RpcException {
   static fromHttp(exception: HttpException) {
-    return new GrpcException(httpToGrpc[exception.getStatus()], exception.message);
+    const body: any = HttpException.createBody(exception.getResponse(), exception.message, exception.getStatus());
+
+    return new GrpcException(
+      httpToGrpc[exception.getStatus()],
+      Array.isArray(body.message) ? body.message.join('; ') : body.message,
+    );
   }
 
   static toHttp(exception: GrpcException): HttpException {

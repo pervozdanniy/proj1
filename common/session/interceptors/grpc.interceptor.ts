@@ -1,7 +1,7 @@
 import { Metadata } from '@grpc/grpc-js';
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import activeSessions from '../active-sessions.map';
 import { sessionProxyFactory } from '../session-host';
 import { SessionService } from '../session.service';
@@ -32,7 +32,7 @@ export class GrpcSessionInterceptor implements NestInterceptor {
         activeSessions.set(sessionId, host);
 
         return next.handle().pipe(
-          tap(() => {
+          finalize(() => {
             if (host.isModified) {
               host.save().catch((error) => this.logger.error('Session: persist failed', error.stack, { error }));
             }

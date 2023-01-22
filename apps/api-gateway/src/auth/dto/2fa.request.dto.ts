@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsEnum, IsInt, IsNotEmpty, ValidateNested } from 'class-validator';
+import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { TwoFactorMethod } from '~common/constants/auth';
 
 export class TwoFactorVerificationDto {
@@ -11,14 +11,35 @@ export class TwoFactorVerificationDto {
 
   @IsNotEmpty()
   @IsInt()
+  @ApiProperty()
   code: number;
 }
 
-export class TwoFactorRequestDto {
+export class TwoFactorVerifyRequestDto {
   @IsArray()
   @IsNotEmpty()
   @Type(() => TwoFactorVerificationDto)
   @ValidateNested({ each: true })
   @ApiProperty({ type: TwoFactorVerificationDto, isArray: true })
   codes: TwoFactorVerificationDto[];
+}
+
+export class TwoFactorEnableRequestDto {
+  @IsNotEmpty()
+  @IsEnum(TwoFactorMethod)
+  @ApiProperty({ enum: Object.values(TwoFactorMethod) })
+  method: TwoFactorMethod;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
+  destination?: string;
+}
+
+export class TwoFactorDisableRequestDto {
+  @IsOptional()
+  @IsArray()
+  @IsEnum(TwoFactorMethod, { each: true })
+  @ApiPropertyOptional({ enum: Object.values(TwoFactorMethod), isArray: true })
+  methods?: TwoFactorMethod[];
 }

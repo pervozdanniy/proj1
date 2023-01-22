@@ -24,7 +24,7 @@ export class GrpcSessionGuard implements CanActivate {
         this.logger.error('Session: fetch failed', error);
       }
 
-      if (sessionData) {
+      if (sessionData?.user) {
         return true;
       }
     }

@@ -2,10 +2,12 @@ syntax = "proto3";
 
 package skopa.auth;
 
+import "common.proto";
+
 service AuthService {
   rpc Login (AuthRequest) returns (AuthData);
+
   rpc LoginSocials (SocialsAuthRequest) returns (AuthData);
-  rpc Verify2FA (TwoFactorVerificationRequest) returns (TwoFactorVerivicationResponse);
 }
 
 service ClientService {
@@ -14,6 +16,16 @@ service ClientService {
   rpc Validate(SignedRequest) returns (AuthClient);
 
   rpc Login(SignedRequest) returns (AuthData);
+}
+
+service TwoFactorService {
+  rpc List (common.IdRequest) returns (TwoFactorEnabledMethodsResponse);
+
+  rpc Enable (TwoFactorEnableRequest) returns (common.SuccessResponse);
+
+  rpc Disable (TwoFactorDisableRequest) returns (common.SuccessResponse);
+
+  rpc Verify (TwoFactorVerificationRequest) returns (TwoFactorVerificationResponse);
 }
 
 message AuthRequest {
@@ -53,6 +65,23 @@ message SocialsAuthRequest {
   string source = 3;
 }
 
+message TwoFactorSettings {
+  string method = 1;
+  optional string destination = 2;
+}
+
+message TwoFactorEnableRequest {
+  TwoFactorSettings settings = 2;
+}
+
+message TwoFactorDisableRequest {
+  repeated string methods = 2;
+}
+
+message TwoFactorEnabledMethodsResponse {
+  repeated string methods = 2;
+}
+
 message TwoFactorCode {
   string method = 1;
   uint32 code = 2;
@@ -62,7 +91,7 @@ message TwoFactorVerificationRequest {
   repeated TwoFactorCode codes = 1;
 }
 
-message TwoFactorVerivicationResponse {
+message TwoFactorVerificationResponse {
   bool valid = 1;
   optional string reason = 2;
 }

@@ -10,7 +10,7 @@ import {
   AuthenticatedSessionInterface,
   SessionInterface,
   SessionService,
-  TwoFactorRequiredSessionInterface,
+  TwoFactorSessionInterface,
 } from '~common/session';
 import { is2FA } from '~common/session/helpers';
 import { TwoFactorService } from './2fa.service';
@@ -57,10 +57,10 @@ export class AuthApiService implements OnModuleInit {
     }
     let reason: string;
 
-    if (session.verify.expiresAt < Date.now()) {
+    if (session.twoFactor.expiresAt < Date.now()) {
       reason = '2FA code expired';
     } else if (
-      !session.verify.codes.reduce((acc, c) => {
+      !session.twoFactor.verify.reduce((acc, c) => {
         const actual = codes.find((a) => a.method === c.method);
 
         return acc && !!actual && c.code === actual.code;
@@ -82,18 +82,21 @@ export class AuthApiService implements OnModuleInit {
 
   async login(user: User) {
     const sessionId = await this.session.generate();
-    let session: AuthenticatedSessionInterface | TwoFactorRequiredSessionInterface;
+    let session: AuthenticatedSessionInterface | TwoFactorSessionInterface;
     const methods = await this.twoFactor.getEnabled(user.id);
     if (methods.length) {
       const codes = methods.map((method) => ({
         method,
         code: this.twoFactor.generateCode(),
       }));
-      session = { user, isAuthenticated: false, verify: { codes, expiresAt: Date.now() + 15 * 60 * 60 * 1000 } };
+      session = {
+        user,
+        isAuthenticated: false,
+        twoFactor: { verify: codes, expiresAt: Date.now() + 15 * 60 * 60 * 1000 },
+      };
     } else {
       session = { user, isAuthenticated: true };
     }
-    console.log('SSS', session);
     await this.session.set(sessionId, session);
 
     return {

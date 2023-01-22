@@ -14,7 +14,7 @@ export class SessionService<T extends Record<string, any> = Record<string, any>>
     await this.store.destroy(id);
   }
 
-  async get(id: string): Promise<T | null> {
+  async get<U extends T>(id: string): Promise<U | null> {
     const session = await this.store.get(id);
     if (session) {
       return JSON.parse(session);
