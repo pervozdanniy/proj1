@@ -3,15 +3,32 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { SessionInterface, SessionService, TwoFactorSessionInterface } from '~common/session';
 import { authenticate, is2FA, require2FA } from '~common/session/helpers';
-import { TwoFactorMethod, TwoFactorSettingsEntity } from '../../entities/2fa_settings.entity';
-import { BaseSettingsDto } from '../dto/2fa.dto';
+import { BaseSettingsDto } from '../api/dto/2fa.dto';
+import { TwoFactorMethod, TwoFactorSettingsEntity } from '../entities/2fa_settings.entity';
+import { Notifier2FAService } from './notifier.service';
 
 @Injectable()
-export class TwoFactorService {
+export class Auth2FAService {
   constructor(
     @InjectRepository(TwoFactorSettingsEntity) private readonly settingsRepo: Repository<TwoFactorSettingsEntity>,
     private readonly session: SessionService<SessionInterface | TwoFactorSessionInterface>,
+    private readonly notify: Notifier2FAService,
   ) {}
+
+  async requireIfEnabled(sessionId: string, session: SessionInterface) {
+    const enabled = await this.getEnabled(session.user.id);
+    if (enabled.length) {
+      const codes = this.generate(enabled);
+      await this.session.set(
+        sessionId,
+        require2FA(session, {
+          verify: codes,
+          expiresAt: Date.now() + 15 * 60 * 60 * 1000,
+        }),
+      );
+      this.notify.send(codes, session.user.id);
+    }
+  }
 
   async getEnabled(userId: number) {
     const entities = await this.settingsRepo.find({ select: ['method'], where: { user_id: userId } });
@@ -31,34 +48,41 @@ export class TwoFactorService {
   }
 
   async enable(settings: BaseSettingsDto, sessionId: string) {
-    const session = await this.session.get(sessionId);
+    const session = await this.session.get<TwoFactorSessionInterface>(sessionId);
     const enabled = await this.getEnabled(session.user.id);
     if (enabled.includes(settings.method)) {
       throw new BadRequestException(`2FA via "${settings.method}" is already enabled`);
     }
+    const codes = this.generate(enabled);
 
     await this.session.set(
       sessionId,
       require2FA(session, {
-        verify: this.generate(enabled),
+        verify: codes,
         add: { method: settings.method, destination: settings.destination, code: this.generateCode() },
         expiresAt: Date.now() + 15 * 60 * 60 * 1000,
       }),
+    );
+    this.notify.send(
+      [...codes, { code: session.twoFactor.add.code, method: session.twoFactor.add.method }],
+      session.user.id,
     );
   }
 
   async disable(methods: TwoFactorMethod[], sessionId: string) {
     const session = await this.session.get(sessionId);
     const enabled = await this.getEnabled(session.user.id);
+    const codes = this.generate(enabled);
 
     await this.session.set(
       sessionId,
       require2FA(session, {
-        verify: this.generate(enabled),
+        verify: codes,
         remove: methods.length ? methods : enabled,
         expiresAt: Date.now() + 15 * 60 * 60 * 1000,
       }),
     );
+    this.notify.send(codes, session.user.id);
   }
 
   async verify(codes: Array<{ code: number; method: string }>, sessionId: string) {

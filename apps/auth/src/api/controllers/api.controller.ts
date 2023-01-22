@@ -1,11 +1,10 @@
-import { Metadata, status } from '@grpc/grpc-js';
+import { status } from '@grpc/grpc-js';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   AuthData,
   AuthServiceController,
   AuthServiceControllerMethods,
   SocialsAuthRequest,
-  TwoFactorVerificationRequest,
 } from '~common/grpc/interfaces/auth';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
@@ -30,11 +29,5 @@ export class AuthApiController implements AuthServiceController {
 
   loginSocials(request: SocialsAuthRequest): Promise<AuthData> {
     return this.socialAuthService.loginSocials(request);
-  }
-
-  verify2Fa({ codes }: TwoFactorVerificationRequest, metadata?: Metadata) {
-    const [sessionId] = metadata.get('sessionId');
-
-    return this.authService.validate2FA(codes, sessionId.toString());
   }
 }
