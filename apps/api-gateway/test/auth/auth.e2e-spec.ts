@@ -149,7 +149,7 @@ describe('AuthService (e2e)', () => {
     it("reads authorized user's data", async () => {
       const spy = jest.spyOn(redisProvider, 'get').mockClear();
       const sessionId = 'existing_session_id';
-      const sessionData = JSON.stringify({ user: mockUser });
+      const sessionData = JSON.stringify({ user: mockUser, isAuthenticated: true });
       redisStorage.set(buildKey(sessionId), sessionData);
 
       const config = app.get(ConfigService<ConfigInterface>);
@@ -184,7 +184,7 @@ describe('AuthService (e2e)', () => {
 
     it('immediately logs out on session destroy', async () => {
       const sessionId = 'existing_session_id';
-      const sessionData = JSON.stringify({ user: mockUser });
+      const sessionData = JSON.stringify({ user: mockUser, isAuthenticated: true });
       redisStorage.set(buildKey(sessionId), sessionData);
 
       const config = app.get(ConfigService<ConfigInterface>);

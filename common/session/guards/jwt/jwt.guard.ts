@@ -12,7 +12,7 @@ export class JwtSessionGuard extends AuthGuard('jwt-session') {
 
   handleRequest(err: any, user: JwtAuthentication, info: any, context: ExecutionContext, status?: any) {
     const metadata = this.reflector.get<SessionMetadataOptions>(JWT_AUTH_METADATA, context.getHandler());
-    if (!metadata?.allowUnverified && !user.isAuthenticated) {
+    if (!err && user && !metadata?.allowUnverified && !user.isAuthenticated) {
       err = new PreconditionFailedException('2FA is not completed');
       user = undefined;
     }
