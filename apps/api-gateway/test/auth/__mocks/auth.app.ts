@@ -10,7 +10,6 @@ import { SessionModule } from '~common/session';
 import { AuthApiController } from '~svc/auth/src/api/controllers/api.controller';
 import { AuthApiService } from '~svc/auth/src/api/services/api.service';
 import { ApiSocialsService } from '~svc/auth/src/api/services/api.socials.service';
-import { Auth2FAModule } from '~svc/auth/src/auth-2fa/2fa.module';
 import { Auth2FAService } from '~svc/auth/src/auth-2fa/2fa.service';
 import { AuthModule } from '~svc/auth/src/auth/auth.module';
 import redisClients from '../../__mocks/redis';
