@@ -7,7 +7,7 @@ import { join } from 'path';
 import configuration, { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionService } from '~common/session';
-import { AuthApiService } from '~svc/auth/src/api/api.service';
+import { AuthService } from '~svc/auth/src/auth/auth.service';
 import { ClientController } from '~svc/auth/src/client/client.controller';
 import { ClientService } from '~svc/auth/src/client/client.service';
 import { AuthClient } from '~svc/auth/src/entities/auth_client.entity';
@@ -23,7 +23,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
     controllers: [ClientController],
     providers: [
       ClientService,
-      AuthApiService,
+      AuthService,
       { provide: JwtService, useValue: { signAsync: jest.fn().mockResolvedValue('mock_jwt') } },
       {
         provide: SessionService,

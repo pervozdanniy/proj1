@@ -1,6 +1,9 @@
 import { Metadata } from '@grpc/grpc-js';
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { applyDecorators, createParamDecorator, ExecutionContext, SetMetadata, UseGuards } from '@nestjs/common';
 import activeSessions from '../active-sessions.map';
+import { GRPC_AUTH_METADATA } from '../constants/meta';
+import { GrpcSessionGuard } from '../guards/grpc.guard';
+import { SessionMetadataOptions } from '../interfaces/session.interface';
 
 export const GrpcSession = createParamDecorator((prop: string | undefined, ctx: ExecutionContext) => {
   const metadata = ctx.switchToRpc().getContext<Metadata>();
@@ -19,3 +22,6 @@ export const GrpcSession = createParamDecorator((prop: string | undefined, ctx: 
 });
 
 export const GrpcSessionUser = () => GrpcSession('user');
+
+export const GrpcSessionAuth = (options: SessionMetadataOptions = { allowUnverified: false }) =>
+  applyDecorators(SetMetadata(GRPC_AUTH_METADATA, options), UseGuards(GrpcSessionGuard));

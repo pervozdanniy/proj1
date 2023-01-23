@@ -6,17 +6,18 @@ import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
-import { SessionService } from '~common/session';
+import { SessionInterface, SessionService } from '~common/session';
+import { AuthApiService } from '../api/services/api.service';
 
 @Injectable()
-export class AuthApiService implements OnModuleInit {
+export class AuthService implements OnModuleInit {
   private logger = new Logger(AuthApiService.name);
   private userService: UserServiceClient;
 
   constructor(
     @InjectGrpc('core') private readonly client: ClientGrpc,
     private readonly jwt: JwtService,
-    private readonly session: SessionService,
+    private readonly session: SessionService<SessionInterface>,
   ) {}
 
   onModuleInit() {
@@ -48,17 +49,23 @@ export class AuthApiService implements OnModuleInit {
     return user;
   }
 
+  async findUser(id: number) {
+    return firstValueFrom(this.userService.getById({ id }));
+  }
+
   async login(user: User) {
     const sessionId = await this.session.generate();
-    const session = { user };
+    const session = { user, isAuthenticated: true };
+
     await this.session.set(sessionId, session);
 
     return {
-      access_token: await this.jwt.signAsync({ sub: sessionId }),
+      sessionId,
+      session,
     };
   }
 
-  async findUser(id: number) {
-    return firstValueFrom(this.userService.getById({ id }));
+  generateToken(sessionId: string) {
+    return this.jwt.signAsync({ sub: sessionId });
   }
 }

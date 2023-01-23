@@ -8,9 +8,9 @@ import {
 } from '~common/grpc/interfaces/auth';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { ApiSocialsService } from '~svc/auth/src/api/api.socials.service';
-import { AuthApiService } from './api.service';
-import { LoginRequestDto } from './dto/login.dto';
+import { ApiSocialsService } from '~svc/auth/src/api/services/api.socials.service';
+import { LoginRequestDto } from '../dto/login.dto';
+import { AuthApiService } from '../services/api.service';
 
 @RpcController()
 @AuthServiceControllerMethods()

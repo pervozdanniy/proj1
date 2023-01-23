@@ -2,17 +2,13 @@ syntax = "proto3";
 
 package skopa.auth;
 
+import "common.proto";
+
 service AuthService {
   rpc Login (AuthRequest) returns (AuthData);
+
   rpc LoginSocials (SocialsAuthRequest) returns (AuthData);
 }
-
-message SocialsAuthRequest {
-  string username = 1;
-  string email = 2;
-  string source = 3;
-}
-
 
 service ClientService {
   rpc Create (ClientCreateRequest) returns (AuthClient);
@@ -22,6 +18,16 @@ service ClientService {
   rpc Login(SignedRequest) returns (AuthData);
 }
 
+service TwoFactorService {
+  rpc List (common.IdRequest) returns (TwoFactorEnabledMethodsResponse);
+
+  rpc Enable (TwoFactorEnableRequest) returns (common.SuccessResponse);
+
+  rpc Disable (TwoFactorDisableRequest) returns (common.SuccessResponse);
+
+  rpc Verify (TwoFactorVerificationRequest) returns (TwoFactorVerificationResponse);
+}
+
 message AuthRequest {
   string login = 1;
   string password = 2;
@@ -29,6 +35,7 @@ message AuthRequest {
 
 message AuthData {
   string access_token = 1;
+  string session_id = 2;
 }
 
 message ClientCreateRequest {
@@ -50,4 +57,41 @@ message SignedRequest {
 message ClientLoginRequest {
   string login = 1;
   optional string password = 2;
+}
+
+message SocialsAuthRequest {
+  string username = 1;
+  string email = 2;
+  string source = 3;
+}
+
+message TwoFactorSettings {
+  string method = 1;
+  optional string destination = 2;
+}
+
+message TwoFactorEnableRequest {
+  TwoFactorSettings settings = 2;
+}
+
+message TwoFactorDisableRequest {
+  repeated string methods = 2;
+}
+
+message TwoFactorEnabledMethodsResponse {
+  repeated string methods = 2;
+}
+
+message TwoFactorCode {
+  string method = 1;
+  uint32 code = 2;
+}
+
+message TwoFactorVerificationRequest {
+  repeated TwoFactorCode codes = 1;
+}
+
+message TwoFactorVerificationResponse {
+  bool valid = 1;
+  optional string reason = 2;
 }

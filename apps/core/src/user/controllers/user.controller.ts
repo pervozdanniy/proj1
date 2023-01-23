@@ -34,12 +34,9 @@ export class UserController implements UserServiceController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async create({ contacts, ...payload }: CreateRequestDto): Promise<User> {
     const user = await this.userService.create(payload);
-
-    if (contacts.length) {
-      this.contactService
-        .update(user, { new: contacts })
-        .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
-    }
+    this.contactService
+      .update(user, { new: contacts })
+      .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
 
     return plainToInstance(UserResponseDto, user);
   }

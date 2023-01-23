@@ -10,7 +10,6 @@ import {
   Patch,
   Post,
   Put,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -20,11 +19,10 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { UpdateUserDto, UserContactsDto } from '~svc/api-gateway/src/user/dtos/update-user.dto';
 import { PublicUserDto, PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { CreateUserDTO } from '../dtos/create-user.dto';
@@ -43,9 +41,8 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get authorized user' })
   @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
-  @ApiUnauthorizedResponse()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Get('current')
   async getCurrent(@JwtSessionUser() { id }: User) {
     const user = await this.userService.getById(id);
@@ -83,8 +80,7 @@ export class UserController {
     description: 'The user updated successfully.',
     type: PublicUserDto,
   })
-  @ApiUnauthorizedResponse()
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Put()
   async update(@JwtSessionUser() { id }: User, @Body() payload: UpdateUserDto): Promise<PublicUserDto> {
     const request = { ...payload, id };
@@ -99,8 +95,7 @@ export class UserController {
     description: 'The user`s contacts created successfully.',
     type: PublicUserDto,
   })
-  @ApiUnauthorizedResponse()
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Patch('contacts')
   async updateContacts(@JwtSessionUser() { id }: User, @Body() payload: UserContactsDto): Promise<PublicUserDto> {
     const user = await this.userService.updateContacts(id, payload);

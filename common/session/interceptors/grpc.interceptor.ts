@@ -1,14 +1,14 @@
 import { Metadata } from '@grpc/grpc-js';
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import activeSessions from '../active-sessions.map';
-import { SessionHost } from '../session-host';
+import { sessionProxyFactory } from '../session-host';
 import { SessionService } from '../session.service';
 
 @Injectable()
-export class SessionInterceptor implements NestInterceptor {
-  private readonly logger = new Logger(SessionInterceptor.name);
+export class GrpcSessionInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(GrpcSessionInterceptor.name);
 
   constructor(private readonly session: SessionService) {}
 
@@ -28,11 +28,11 @@ export class SessionInterceptor implements NestInterceptor {
         this.logger.error('Session: fetch failed', error);
       }
       if (sessionData) {
-        const host = new SessionHost(this.session, sessionId, sessionData);
+        const host = sessionProxyFactory(this.session, sessionId, sessionData);
         activeSessions.set(sessionId, host);
 
         return next.handle().pipe(
-          tap(() => {
+          finalize(() => {
             if (host.isModified) {
               host.save().catch((error) => this.logger.error('Session: persist failed', error.stack, { error }));
             }

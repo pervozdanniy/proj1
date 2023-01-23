@@ -29,6 +29,6 @@ export class GrpcSessionGuard implements CanActivate {
       }
     }
 
-    throw new GrpcException(status.UNAUTHENTICATED, 'Unauthorized', 401);
+    throw new GrpcException(status.UNAUTHENTICATED, 'Unauthorized');
   }
 }

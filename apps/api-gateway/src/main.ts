@@ -26,8 +26,6 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalFilters(new ApiExceptionFilter(httpAdapter));
   app.useGlobalInterceptors(app.get(ClassSerializerInterceptor));
-  // app.useLogger(app.get(Logger));
-  // app.useGlobalInterceptors(new LoggerErrorInterceptor(), app.get(ClassSerializerInterceptor));
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, {

@@ -7,12 +7,11 @@ import {
   HttpStatus,
   Put,
   Query,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { ListNotificationsDto } from '~svc/api-gateway/src/notification/dtos/list-notifications.dto';
 import { NotificationDto } from '~svc/api-gateway/src/notification/dtos/notification.dto';
 import { PaginatedNotificationsDto } from '~svc/api-gateway/src/notification/dtos/paginated-notifications.dto';
@@ -32,7 +31,7 @@ export class NotificationController {
   @ApiOperation({ summary: 'Get list of notifications' })
   @ApiResponse({ status: HttpStatus.OK, type: PaginatedNotificationsDto })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Get('/list')
   list(@JwtSessionUser() { id }: User, @Query() query: ListNotificationsDto) {
     return this.notificationService.list({ id, ...query });
@@ -45,7 +44,7 @@ export class NotificationController {
     type: NotificationDto,
   })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Put('/')
   update(@JwtSessionUser() { id }: User, @Body() payload: UpdateNotificationDto) {
     return this.notificationService.update({ id, payload });

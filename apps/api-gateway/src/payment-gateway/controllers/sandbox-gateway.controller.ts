@@ -1,14 +1,6 @@
-import {
-  Body,
-  ClassSerializerInterceptor,
-  Controller,
-  HttpStatus,
-  Post,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtSessionGuard } from '~common/session';
+import { JwtSessionAuth } from '~common/session';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-withdraw.dto';
@@ -29,7 +21,7 @@ export class SandboxGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/deposit/funds')
   async depositFunds(@Body() payload: DepositFundsDto) {
     return this.paymentGatewayService.depositFunds(payload);
@@ -39,7 +31,7 @@ export class SandboxGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/settle/funds')
   async settleFunds(@Body() payload: SettleFundsDto) {
     return this.paymentGatewayService.settleFunds(payload);
@@ -49,7 +41,7 @@ export class SandboxGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/verify/owner')
   async verifyOwner(@Body() payload: VerifyOwnerDto) {
     return this.paymentGatewayService.verifyOwner(payload);
@@ -59,7 +51,7 @@ export class SandboxGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/settle/withdraw')
   async settleWithdraw(@Body() payload: SettleWithdrawDto) {
     return this.paymentGatewayService.settleWithdraw(payload);

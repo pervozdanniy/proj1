@@ -9,13 +9,12 @@ import {
   Post,
   Query,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionGuard, JwtSessionUser } from '~common/session';
+import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/payment-gateway/dtos/payment-gateways-list.dto';
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-make.dto';
 import { WithdrawalParamsDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-params.dto';
@@ -47,7 +46,7 @@ export class PaymentGatewayController {
     status: HttpStatus.OK,
   })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/user')
   async createUser(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.createUser(id);
@@ -58,7 +57,7 @@ export class PaymentGatewayController {
     status: HttpStatus.OK,
   })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/token')
   async getToken(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getToken(id);
@@ -68,7 +67,7 @@ export class PaymentGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/account')
   async createAccount(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
     return this.paymentGatewayService.createAccount({ id, ...payload });
@@ -121,7 +120,7 @@ export class PaymentGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/kyc/contact')
   async createContact(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
     return this.paymentGatewayService.createContact({ id, ...payload });
@@ -134,7 +133,7 @@ export class PaymentGatewayController {
     status: HttpStatus.CREATED,
     description: 'The file successfully uploaded.',
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @UseInterceptors(FileInterceptor('file'))
   async uploadDocument(@JwtSessionUser() { id }: User, @UploadedFile() file: any, @Body() payload: SendDocumentDto) {
     const { label, token } = payload;
@@ -147,7 +146,7 @@ export class PaymentGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/wire/reference')
   async createReference(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
     return this.paymentGatewayService.createReference({ id, ...payload });
@@ -157,7 +156,7 @@ export class PaymentGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/balance')
   async getBalance(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
     return this.paymentGatewayService.getBalance({ id, ...payload });
@@ -167,7 +166,7 @@ export class PaymentGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/withdrawal/params')
   async addWithdrawalParams(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalParamsDto) {
     return this.paymentGatewayService.addWithdrawalParams({ id, ...payload });
@@ -177,7 +176,7 @@ export class PaymentGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @UseGuards(JwtSessionGuard)
+  @JwtSessionAuth()
   @Post('/withdrawal/make')
   async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
     return this.paymentGatewayService.makeWithdrawal({ id, ...payload });

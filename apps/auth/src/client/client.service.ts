@@ -10,7 +10,7 @@ import {
   ClientLoginRequest,
   SignedRequest,
 } from '~common/grpc/interfaces/auth';
-import { AuthApiService } from '../api/api.service';
+import { AuthService } from '../auth/auth.service';
 import { AuthClient } from '../entities/auth_client.entity';
 import { isDerFormatted, isRaw, rawToDer } from './helpers/ed25519-public';
 
@@ -18,7 +18,7 @@ import { isDerFormatted, isRaw, rawToDer } from './helpers/ed25519-public';
 export class ClientService {
   constructor(
     @InjectRepository(AuthClient) private readonly authClientRepo: Repository<AuthClient>,
-    private readonly authService: AuthApiService,
+    private readonly auth: AuthService,
   ) {}
 
   async validate({ data, signature }: SignedRequest, apiKey: string): Promise<AuthClientInterface> {
@@ -71,13 +71,16 @@ export class ClientService {
   }
 
   async login(payload: ClientLoginRequest, client: AuthClientInterface) {
-    const user = await this.authService.findByLogin(payload.login);
+    const user = await this.auth.findByLogin(payload.login);
     if (
       user &&
       user.source === client.name &&
       (client.is_secure || (await bcrypt.compare(payload.password, user.password)))
     ) {
-      return this.authService.login(user);
+      const { sessionId } = await this.auth.login(user);
+      const token = await this.auth.generateToken(sessionId);
+
+      return { access_token: token, session_id: sessionId };
     }
 
     throw new UnauthorizedException();
