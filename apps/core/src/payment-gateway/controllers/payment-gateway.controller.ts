@@ -4,7 +4,6 @@ import {
   BalanceResponse,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
-  PaymentGatewayRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,

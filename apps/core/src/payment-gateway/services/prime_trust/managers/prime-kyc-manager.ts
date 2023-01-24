@@ -182,7 +182,7 @@ export class PrimeKycManager {
 
       //document verify from development
       if (process.env.NODE_ENV === 'dev') {
-        const x = await lastValueFrom(
+        await lastValueFrom(
           this.httpService.post(
             `${this.prime_trust_url}/v2/kyc-document-checks/${result.data.data.id}/sandbox/verify`,
             null,
