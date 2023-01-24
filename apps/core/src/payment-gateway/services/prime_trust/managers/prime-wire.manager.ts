@@ -134,9 +134,8 @@ export class PrimeWireManager {
   async updateAccountBalance(id: string): Promise<SuccessResponse> {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(UserEntity, 'p', 'a.user_id = p.user_id')
-      .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['a.user_id as user_id,u.email as email,p.password as password'])
+      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
+      .select(['a.user_id as user_id'])
       .where('a.uuid = :id', { id })
       .getRawMany();
 
@@ -145,17 +144,12 @@ export class PrimeWireManager {
     }
     const user_id = accountData[0].user_id;
 
-    const userDetails = {
-      email: accountData[0].email,
-      prime_user: { password: accountData[0].password },
-    };
-
-    const cacheData = await this.getBalanceInfo(userDetails);
+    const cacheData = await this.getBalanceInfo(id);
 
     return this.saveBalance(user_id, cacheData);
   }
 
-  async getBalanceInfo(userDetails) {
+  async getBalanceInfo(id) {
     const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
@@ -163,12 +157,12 @@ export class PrimeWireManager {
 
     try {
       const cacheResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/account-cash-totals`, {
+        this.httpService.get(`${this.prime_trust_url}/v2/accounts/${id}?include=account-cash-totals`, {
           headers: headersRequest,
         }),
       );
 
-      return cacheResponse.data.data[0].attributes;
+      return cacheResponse.data.included[0].attributes;
     } catch (e) {
       this.logger.error(e.response.data);
 
@@ -344,19 +338,14 @@ export class PrimeWireManager {
   async updateWithdraw(id: string) {
     const withdrawData = await this.withdrawalEntityRepository
       .createQueryBuilder('w')
-      .leftJoinAndSelect(UserEntity, 'p', 'w.user_id = p.user_id')
-      .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['u.email as email,p.password as password,u.id as user_id'])
+      .leftJoinAndSelect(UserEntity, 'u', 'w.user_id = u.id')
+      .select(['u.id as user_id'])
       .where('w.uuid = :id', { id })
       .getRawMany();
 
-    const { email, password, user_id } = withdrawData[0];
-    const userDetails = {
-      email,
-      prime_user: { password },
-    };
+    const { user_id } = withdrawData[0];
 
-    const withdrawResponse = await this.getWithdrawInfo(userDetails, id);
+    const withdrawResponse = await this.getWithdrawInfo(id);
 
     await this.withdrawalEntityRepository.update(
       { uuid: id },
@@ -376,7 +365,7 @@ export class PrimeWireManager {
     return { success: true };
   }
 
-  async getWithdrawInfo(userDetails, disbursements_id) {
+  async getWithdrawInfo(disbursements_id) {
     const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
@@ -402,19 +391,14 @@ export class PrimeWireManager {
     const contribution = await this.contributionEntityRepository.findOneBy({ uuid: resource_id });
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(UserEntity, 'p', 'a.user_id = p.user_id')
-      .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['u.email as email,p.password as password,u.id as user_id'])
+      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
+      .select(['u.id as user_id'])
       .where('a.uuid = :id', { id })
       .getRawMany();
 
-    const { email, password, user_id } = accountData[0];
-    const userDetails = {
-      email,
-      prime_user: { password },
-    };
+    const { user_id } = accountData[0];
 
-    const contributionResponse = await this.getContributionInfo(userDetails, resource_id);
+    const contributionResponse = await this.getContributionInfo(resource_id);
     if (!contribution) {
       await this.contributionEntityRepository.save(
         this.contributionEntityRepository.create({
@@ -443,7 +427,7 @@ export class PrimeWireManager {
     return { success: true };
   }
 
-  private async getContributionInfo(userDetails, contribution_id) {
+  private async getContributionInfo(contribution_id) {
     const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,

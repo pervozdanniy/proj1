@@ -71,10 +71,16 @@ export class PaymentGatewayController {
       payment_gateway: 'prime_trust',
     };
     const webhooks = [
+      'accounts',
+      'kyc_document_checks',
+      'cip_checks',
+      'contributions',
+      'funds_transfers',
+      'disbursements',
       'aml-checks',
       'account-cash-transfers',
       'contacts',
-      'contingent-holds',
+      'contingent_holds',
       'disbursement-authorizations',
       'funds-transfers',
       'asset-transfers',

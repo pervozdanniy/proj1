@@ -165,29 +165,43 @@ export class PrimeKycManager {
         }),
       );
 
+      const contactData = await lastValueFrom(
+        this.httpService.get(`${this.prime_trust_url}/v2/contacts/${contact_uuid}?include=cip-checks`, {
+          headers: headersRequest,
+        }),
+      );
+      contactData.data.included.map(async (inc) => {
+        if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
+          await lastValueFrom(
+            this.httpService.post(`${this.prime_trust_url}/v2/cip-checks/${inc.id}/submit-for-review`, null, {
+              headers: headersRequest,
+            }),
+          );
+        }
+      });
+
       //document verify from development
       if (process.env.NODE_ENV === 'dev') {
-        await lastValueFrom(
+        const x = await lastValueFrom(
           this.httpService.post(
             `${this.prime_trust_url}/v2/kyc-document-checks/${result.data.data.id}/sandbox/verify`,
             null,
-            { headers: headersRequest },
+            {
+              headers: headersRequest,
+            },
           ),
         );
-      }
 
-      // approve cip for development
-      if (process.env.NODE_ENV === 'dev') {
-        const cipData = await lastValueFrom(
-          this.httpService.get(`${this.prime_trust_url}/v2/cip-checks`, { headers: headersRequest }),
-        );
-
-        const cipNum = cipData.data.data[0].id;
-        await lastValueFrom(
-          this.httpService.post(`${this.prime_trust_url}/v2/cip-checks/${cipNum}/sandbox/approve`, null, {
-            headers: headersRequest,
-          }),
-        );
+        // approve cip for development
+        contactData.data.included.map(async (inc) => {
+          if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
+            await lastValueFrom(
+              this.httpService.post(`${this.prime_trust_url}/v2/cip-checks/${inc.id}/sandbox/approve`, null, {
+                headers: headersRequest,
+              }),
+            );
+          }
+        });
       }
 
       return result.data;
@@ -251,16 +265,11 @@ export class PrimeKycManager {
     try {
       const accountData = await this.primeAccountRepository
         .createQueryBuilder('a')
-        .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.user_id')
+        .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
         .leftJoinAndSelect('a.contact', 'c')
         .leftJoinAndSelect('c.documents', 'd')
         .select([
-          'd.kyc_check_uuid as kyc_check_uuid,' +
-            'a.uuid as account_id,' +
-            'u.email as email,' +
-            'p.password as password,' +
-            'c.uuid as contact_id,' +
-            'u.id as user_id',
+          'd.kyc_check_uuid as kyc_check_uuid,' + 'a.uuid as account_id,' + 'c.uuid as contact_id,' + 'u.id as user_id',
         ])
         .where('a.uuid = :id', { id })
         .getRawMany();
@@ -268,12 +277,8 @@ export class PrimeKycManager {
       if (accountData.length == 0) {
         throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
       }
-      const { contact_id, user_id, email, password } = accountData[0];
 
-      const userDetails = {
-        email,
-        prime_user: { password },
-      };
+      const { contact_id, user_id } = accountData[0];
 
       const { token } = await this.primeTokenManager.getToken();
       const headersRequest = {
@@ -341,18 +346,14 @@ export class PrimeKycManager {
   async cipCheck(id: string, resource_id: string) {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.user_id')
-      .select(['u.email as email,p.password as password,u.id as user_id'])
+      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
+      .select(['u.id as user_id'])
       .where('a.uuid = :id', { id })
       .getRawMany();
 
-    const { email, password, user_id } = accountData[0];
-    const userDetails = {
-      email,
-      prime_user: { password },
-    };
+    const { user_id } = accountData[0];
 
-    const cipResponse = await this.getCipCheckInfo(userDetails, resource_id);
+    const cipResponse = await this.getCipCheckInfo(resource_id);
     const notificationPayload = {
       user_id,
       title: 'User Documents',
@@ -364,7 +365,7 @@ export class PrimeKycManager {
     return { success: true };
   }
 
-  private async getCipCheckInfo(userDetails, cip_check_id) {
+  private async getCipCheckInfo(cip_check_id) {
     const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,

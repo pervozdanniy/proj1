@@ -10,7 +10,6 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/notification/services/notification.service';
-import { accountData } from '~svc/core/src/payment-gateway/constants/account.data';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
@@ -40,42 +39,54 @@ export class PrimeAccountManager {
   }
 
   async createAccount(userDetails, token) {
-    const item = await this.primeAccountRepository.find();
-
-    if (item.length !== 0) {
+    const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
+    if (account) {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
     }
 
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
+    const formData = {
+      data: {
+        type: 'account',
+        attributes: {
+          'account-type': 'custodial',
+          name: `${userDetails.details.first_name} ${userDetails.details.last_name}s Account`,
+          'authorized-signature': `Signature ${userDetails.email}`,
+          owner: {
+            'contact-type': 'natural_person',
+            name: `${userDetails.details.first_name} ${userDetails.details.last_name}`,
+            email: `${userDetails.email}`,
+            'tax-id-number': `${userDetails.details.tax_id_number}`,
+            'tax-country': `${userDetails.country.code}`,
+            'date-of-birth': `${userDetails.details.date_of_birth}`,
+            'primary-phone-number': {
+              country: `${userDetails.country.code}`,
+              number: `${userDetails.phone}`,
+              sms: true,
+            },
+            'primary-address': {
+              'street-1': `${userDetails.details.street}`,
+              'postal-code': `${userDetails.details.postal_code}`,
+              city: `${userDetails.details.city}`,
+              region: `${userDetails.details.region}`,
+              country: `${userDetails.country.code}`,
+            },
+          },
+        },
+      },
     };
 
-    const accountResponse = await lastValueFrom(
-      this.httpService.get(`${this.prime_trust_url}/v2/accounts`, { headers: headersRequest }),
-    );
-    let account;
-
-    if (accountResponse.data.data.length !== 0) {
-      account = accountResponse.data.data[0];
-      await this.saveAccount(account);
-    } else {
-      await this.createAccountInPrimeTrust(token);
-    }
-
-    await this.hangWebhook(userDetails, token, account.id);
-
-    return { success: true };
-  }
-
-  async createAccountInPrimeTrust(token) {
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };
 
     try {
       const accountResponse = await lastValueFrom(
-        this.httpService.post(`${this.prime_trust_url}/v2/accounts`, accountData, { headers: headersRequest }),
+        this.httpService.post(`${this.prime_trust_url}/v2/accounts`, formData, { headers: headersRequest }),
       );
+
+      //hang webhook on account
+      await this.hangWebhook(userDetails, token, accountResponse.data.data.id);
+      //
 
       // account open from development
       if (process.env.NODE_ENV === 'dev') {
@@ -89,14 +100,17 @@ export class PrimeAccountManager {
       }
       //
 
-      await this.saveAccount(accountResponse.data.data);
+      //create contact after creating account
+      const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
 
       const contactResponse = await lastValueFrom(
         this.httpService.get(`${this.prime_trust_url}/v2/contacts`, { headers: headersRequest }),
       );
-      const contactData = { data: contactResponse.data.data[0] };
+      const contactData = contactResponse.data.data.filter((contact) => {
+        return contact.attributes['account-id'] === account.uuid;
+      });
 
-      // return await this.primeKycManager.saveContact(contactData, userd.id);
+      return await this.primeKycManager.saveContact({ data: contactData.pop() }, account.user_id);
       //
     } catch (e) {
       this.logger.error(e.response.data.errors);
@@ -131,9 +145,10 @@ export class PrimeAccountManager {
     );
   }
 
-  async saveAccount(accountData): Promise<PrimeTrustAccountEntity> {
+  async saveAccount(accountData, user_id): Promise<PrimeTrustAccountEntity> {
     try {
       const accountPayload = {
+        user_id,
         uuid: accountData.id,
         name: accountData.attributes.name,
         number: accountData.attributes.number,
@@ -155,9 +170,8 @@ export class PrimeAccountManager {
   async updateAccount(id: string): Promise<SuccessResponse> {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(UserEntity, 'p', 'a.user_id = p.user_id')
-      .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['a.uuid as account_id,u.email as email,p.password as password,u.id as user_id,u.username as username'])
+      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
+      .select(['a.uuid as account_id,u.id as user_id,u.username as username'])
       .where('a.uuid = :id', { id })
       .getRawMany();
 
@@ -166,12 +180,7 @@ export class PrimeAccountManager {
     }
     const { account_id, user_id } = accountData[0];
 
-    const userDetails = {
-      email: accountData[0].email,
-      prime_user: { password: accountData[0].password },
-    };
-
-    const accountResponse = await this.getAccountInfo(userDetails, account_id);
+    const accountResponse = await this.getAccountInfo(null, account_id);
     await this.primeAccountRepository.update(
       { uuid: account_id },
       {
