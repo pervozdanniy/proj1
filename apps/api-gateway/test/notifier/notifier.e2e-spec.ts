@@ -37,8 +37,7 @@ describe('NotifierService (e2e)', () => {
   });
 
   it('add notification', async () => {
-    jest.spyOn(notificationService, 'add').mockImplementation(() => Promise.resolve({ success: true }));
-    expect(await notificationService.add(notifierData)).toEqual({ success: true });
+    await expect(notificationService.add(notifierData)).resolves.toStrictEqual({ success: true });
   });
 
   afterAll(async () => {

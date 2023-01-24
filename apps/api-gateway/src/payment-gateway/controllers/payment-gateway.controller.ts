@@ -19,6 +19,7 @@ import { PaymentGatewaysListDto } from '~svc/api-gateway/src/payment-gateway/dto
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-make.dto';
 import { WithdrawalParamsDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-params.dto';
 import { PaymentGatewayService } from '~svc/api-gateway/src/payment-gateway/services/payment-gateway.service';
+import { webhookData } from '~svc/api-gateway/src/payment-gateway/webhooks/data';
 import { SendDocumentDto } from '~svc/api-gateway/src/user/dtos/send-document.dto';
 import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
 
@@ -70,21 +71,6 @@ export class PaymentGatewayController {
       resource_id: payload['resource_id'],
       payment_gateway: 'prime_trust',
     };
-    const webhooks = [
-      'accounts',
-      'kyc_document_checks',
-      'cip_checks',
-      'contributions',
-      'funds_transfers',
-      'disbursements',
-      'aml-checks',
-      'account-cash-transfers',
-      'contacts',
-      'contingent_holds',
-      'disbursement-authorizations',
-      'funds-transfers',
-      'asset-transfers',
-    ];
 
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
@@ -105,7 +91,7 @@ export class PaymentGatewayController {
       return this.paymentGatewayService.updateWithdraw(sendData);
     }
 
-    const match = webhooks.find((e) => e === resource_type);
+    const match = webhookData.find((e) => e === resource_type);
     if (!match) {
       this.logger.error(`Webhook ${resource_type} not found!`);
     }

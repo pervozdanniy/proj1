@@ -3,6 +3,7 @@ import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import configuration, { ConfigInterface } from '~common/config/configuration';
+import { SendType } from '~common/constants/user';
 import { createBullQueue } from '~common/grpc/helpers';
 import testConfig from '~svc/api-gateway/test/auth/__mocks/configuration';
 import redisClients from '~svc/api-gateway/test/__mocks/redis';
@@ -30,7 +31,16 @@ export default async () => {
       {
         provide: NotificationService,
         useFactory: jest.fn(() => ({
-          add: jest.fn().mockResolvedValue(true),
+          add: jest.fn().mockImplementation(async (request) => {
+            const {
+              user_data: { send_type },
+            } = request;
+            if (Object.values(SendType).includes(send_type)) {
+              return { success: true };
+            } else {
+              return { success: false };
+            }
+          }),
         })),
       },
     ],
