@@ -41,17 +41,6 @@ export class PaymentGatewayController {
     return this.paymentGatewayService.list(query);
   }
 
-  @ApiOperation({ summary: 'Create User.' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-  })
-  @HttpCode(HttpStatus.OK)
-  @JwtSessionAuth()
-  @Post('/user')
-  async createUser(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.createUser(id);
-  }
-
   @ApiOperation({ summary: 'Get Token.' })
   @ApiResponse({
     status: HttpStatus.OK,

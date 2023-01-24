@@ -11,11 +11,9 @@ import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/
 import { PrimeTrustBalanceEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
-import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { WithdrawalParamsEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { PaymentGatewayManager } from '~svc/core/src/payment-gateway/manager/payment-gateway.manager';
-import { PaymentGatewayQueueHandler } from '~svc/core/src/payment-gateway/queues/payment-gateway-queue.handler';
 import { PaymentGatewayService } from '~svc/core/src/payment-gateway/services/payment.gateway.service';
 import { PrimeAccountManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-account.manager';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
@@ -34,7 +32,6 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
     NotificationModule,
     TypeOrmModule.forFeature([
       PaymentGatewayEntity,
-      PrimeTrustUserEntity,
       PrimeTrustAccountEntity,
       PrimeTrustContactEntity,
       PrimeTrustKycDocumentEntity,
@@ -49,7 +46,6 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
     PaymentGatewayService,
     PaymentGatewayManager,
     PrimeTrustService,
-    PaymentGatewayQueueHandler,
     PrimeTokenManager,
     PrimeUserManager,
     PrimeAccountManager,

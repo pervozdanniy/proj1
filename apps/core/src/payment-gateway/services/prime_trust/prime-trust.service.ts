@@ -24,12 +24,8 @@ export class PrimeTrustService {
     private readonly primeWireManager: PrimeWireManager,
   ) {}
 
-  createUser(user: UserEntity) {
-    return this.primeUserManager.createUser(user);
-  }
-
-  getToken(userDetails: UserEntity) {
-    return this.primeTokenManager.getToken(userDetails);
+  getToken() {
+    return this.primeTokenManager.getToken();
   }
 
   createAccount(userDetails: UserEntity, token) {

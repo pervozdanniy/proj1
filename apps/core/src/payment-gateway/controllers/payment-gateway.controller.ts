@@ -4,6 +4,7 @@ import {
   BalanceResponse,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
+  PaymentGatewayRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
@@ -21,12 +22,6 @@ import { PaymentGatewayService } from '../services/payment.gateway.service';
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
-
-  async createUser({ id }: IdRequest): Promise<SuccessResponse> {
-    const success = await this.paymentGatewayService.createUser(id);
-
-    return { success };
-  }
 
   getToken({ id }: IdRequest): Promise<PG_Token> {
     return this.paymentGatewayService.getToken(id);

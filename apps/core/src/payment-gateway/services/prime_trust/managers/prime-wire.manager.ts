@@ -21,7 +21,6 @@ import { ContributionEntity } from '~svc/core/src/payment-gateway/entities/prime
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
-import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { WithdrawalParamsEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
@@ -77,7 +76,7 @@ export class PrimeWireManager {
   }
 
   async getReferenceInfo(user_id: number, token: string) {
-    const account = await this.primeAccountRepository.findOne({ where: { user_id } });
+    const account = await this.primeAccountRepository.findOne({ where: { id: user_id } });
     try {
       const headersRequest = {
         Authorization: `Bearer ${token}`,
@@ -101,7 +100,7 @@ export class PrimeWireManager {
   }
 
   async createFundsReference(user_id: number, token: string) {
-    const account = await this.primeAccountRepository.findOne({ where: { user_id } });
+    const account = await this.primeAccountRepository.findOne({ where: { id: user_id } });
     const contact = await this.primeTrustContactEntityRepository.findOne({ where: { user_id } });
     const formData = {
       data: {
@@ -135,7 +134,7 @@ export class PrimeWireManager {
   async updateAccountBalance(id: string): Promise<SuccessResponse> {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
+      .leftJoinAndSelect(UserEntity, 'p', 'a.user_id = p.user_id')
       .leftJoinAndSelect('p.skopa_user', 'u')
       .select(['a.user_id as user_id,u.email as email,p.password as password'])
       .where('a.uuid = :id', { id })
@@ -157,7 +156,7 @@ export class PrimeWireManager {
   }
 
   async getBalanceInfo(userDetails) {
-    const { token } = await this.primeTokenManager.getToken(userDetails);
+    const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };
@@ -276,7 +275,7 @@ export class PrimeWireManager {
 
   async makeWithdrawal(request: TransferMethodRequest) {
     const { id, funds_transfer_method_id, amount } = request;
-    const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
+    const account = await this.primeAccountRepository.findOneByOrFail({ id: id });
     const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({
       uuid: funds_transfer_method_id,
     });
@@ -345,7 +344,7 @@ export class PrimeWireManager {
   async updateWithdraw(id: string) {
     const withdrawData = await this.withdrawalEntityRepository
       .createQueryBuilder('w')
-      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'w.user_id = p.user_id')
+      .leftJoinAndSelect(UserEntity, 'p', 'w.user_id = p.user_id')
       .leftJoinAndSelect('p.skopa_user', 'u')
       .select(['u.email as email,p.password as password,u.id as user_id'])
       .where('w.uuid = :id', { id })
@@ -378,7 +377,7 @@ export class PrimeWireManager {
   }
 
   async getWithdrawInfo(userDetails, disbursements_id) {
-    const { token } = await this.primeTokenManager.getToken(userDetails);
+    const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };
@@ -403,7 +402,7 @@ export class PrimeWireManager {
     const contribution = await this.contributionEntityRepository.findOneBy({ uuid: resource_id });
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
+      .leftJoinAndSelect(UserEntity, 'p', 'a.user_id = p.user_id')
       .leftJoinAndSelect('p.skopa_user', 'u')
       .select(['u.email as email,p.password as password,u.id as user_id'])
       .where('a.uuid = :id', { id })
@@ -445,7 +444,7 @@ export class PrimeWireManager {
   }
 
   private async getContributionInfo(userDetails, contribution_id) {
-    const { token } = await this.primeTokenManager.getToken(userDetails);
+    const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };

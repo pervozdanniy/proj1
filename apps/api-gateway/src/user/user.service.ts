@@ -33,9 +33,8 @@ export class UserService implements OnModuleInit {
 
   async create(data: CreateUserDTO): Promise<RegistrationResponseDto> {
     const user = await firstValueFrom(this.userService.create(data));
-    const { success } = await firstValueFrom(this.paymentGateway.createUser({ id: user.id }));
 
-    return { user, providerRegistered: success };
+    return { user, providerRegistered: true };
   }
 
   update(request: UpdateUserDto) {

@@ -14,7 +14,6 @@ import {
 import { UserSourceEnum } from '~common/constants/user';
 import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
-import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 
 @Entity('users')
@@ -58,9 +57,6 @@ export class UserEntity {
 
   @OneToOne(() => UserDetailsEntity, (details) => details.user)
   details?: UserDetailsEntity;
-
-  @OneToOne(() => PrimeTrustUserEntity, (prime) => prime.skopa_user)
-  prime_user?: PrimeTrustUserEntity;
 
   @OneToMany(() => NotificationEntity, (n) => n.user)
   notifications?: NotificationEntity[];

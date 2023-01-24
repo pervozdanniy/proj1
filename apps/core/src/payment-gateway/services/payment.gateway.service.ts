@@ -51,25 +51,9 @@ export class PaymentGatewayService {
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       details.country.payment_gateway.alias,
     );
-    const token = await paymentGateway.getToken(details);
+    const token = await paymentGateway.getToken();
 
     return { data: token };
-  }
-
-  async createUser(id: number): Promise<boolean> {
-    try {
-      const user = await this.userService.getUserInfo(id);
-      const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
-        user.country.payment_gateway.alias,
-      );
-      await paymentGateway.createUser(user);
-    } catch (error) {
-      this.logger.error('Payment gateway create user: failed', error.stack, { id, error });
-
-      return false;
-    }
-
-    return true;
   }
 
   async createAccount(payload: TokenSendRequest): Promise<SuccessResponse> {

@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import FormData from 'form-data';
 import process from 'process';
 import { lastValueFrom } from 'rxjs';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
@@ -14,7 +14,6 @@ import { NotificationService } from '~svc/core/src/notification/services/notific
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
-import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
@@ -28,8 +27,6 @@ export class PrimeKycManager {
     private readonly notificationService: NotificationService,
     @Inject(PrimeTokenManager)
     private readonly primeTokenManager: PrimeTokenManager,
-    @InjectRepository(PrimeTrustUserEntity)
-    private readonly primeUserRepository: Repository<PrimeTrustUserEntity>,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -45,14 +42,14 @@ export class PrimeKycManager {
   }
 
   async createContact(userDetails: UserEntity, token: string) {
-    const primeUser = userDetails.prime_user;
-    const account = await this.primeAccountRepository.findOne({
-      where: { user_id: primeUser.user_id },
-      relations: ['contact'],
+    const contact = await this.primeTrustContactEntityRepository.findOne({
+      where: { user_id: userDetails.id },
     });
-    if (account.contact) {
+    if (contact) {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Contact already exist!', 400);
     }
+
+    const account = await this.primeAccountRepository.findOne({ where: { uuid: Not(IsNull()) } });
 
     const formData = {
       data: {
@@ -90,7 +87,7 @@ export class PrimeKycManager {
         this.httpService.post(`${this.prime_trust_url}/v2/contacts`, formData, { headers: headersRequest }),
       );
 
-      return await this.saveContact(contactResponse.data, account.user_id);
+      return await this.saveContact(contactResponse.data, userDetails.id, account.id);
     } catch (e) {
       throw new GrpcException(Status.ABORTED, e.message, 400);
     }
@@ -110,11 +107,12 @@ export class PrimeKycManager {
     };
   }
 
-  async saveContact(contactData, user_id) {
+  async saveContact(contactData, user_id, account_id) {
     const data = this.collectContractData(contactData);
     await this.primeTrustContactEntityRepository.save(
       this.primeTrustContactEntityRepository.create({
         user_id,
+        account_id,
         ...data,
       }),
     );
@@ -124,9 +122,8 @@ export class PrimeKycManager {
 
   async uploadDocument(userDetails: UserEntity, file: any, label: string, token: string) {
     const country_code = userDetails.country.code;
-    const primeUser = userDetails.prime_user;
     const account = await this.primeAccountRepository.findOne({
-      where: { user_id: primeUser.user_id },
+      where: { id: userDetails.id },
       relations: ['contact'],
     });
 
@@ -255,8 +252,7 @@ export class PrimeKycManager {
     try {
       const accountData = await this.primeAccountRepository
         .createQueryBuilder('a')
-        .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
-        .leftJoinAndSelect('p.skopa_user', 'u')
+        .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.user_id')
         .leftJoinAndSelect('a.contact', 'c')
         .leftJoinAndSelect('c.documents', 'd')
         .select([
@@ -280,7 +276,7 @@ export class PrimeKycManager {
         prime_user: { password },
       };
 
-      const { token } = await this.primeTokenManager.getToken(userDetails);
+      const { token } = await this.primeTokenManager.getToken();
       const headersRequest = {
         Authorization: `Bearer ${token}`,
       };
@@ -346,8 +342,7 @@ export class PrimeKycManager {
   async cipCheck(id: string, resource_id: string) {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
-      .leftJoinAndSelect('p.skopa_user', 'u')
+      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.user_id')
       .select(['u.email as email,p.password as password,u.id as user_id'])
       .where('a.uuid = :id', { id })
       .getRawMany();
@@ -371,7 +366,7 @@ export class PrimeKycManager {
   }
 
   private async getCipCheckInfo(userDetails, cip_check_id) {
-    const { token } = await this.primeTokenManager.getToken(userDetails);
+    const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };

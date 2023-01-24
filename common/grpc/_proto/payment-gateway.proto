@@ -6,7 +6,6 @@ package skopa.core;
 
 service PaymentGatewayService {
   rpc List(PaymentGatewayListQuery) returns (PaymentGatewayListResponse);
-  rpc CreateUser(common.IdRequest) returns (common.SuccessResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
   rpc CreateAccount (TokenSendRequest) returns (common.SuccessResponse);
   rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
@@ -24,6 +23,10 @@ service PaymentGatewayService {
 
 }
 
+
+message PaymentGatewayRequest {
+  string name = 1;
+}
 
 message PaymentGatewayListQuery {
   uint32 limit = 1;

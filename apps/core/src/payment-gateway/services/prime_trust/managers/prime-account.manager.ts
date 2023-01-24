@@ -10,10 +10,11 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/notification/services/notification.service';
+import { accountData } from '~svc/core/src/payment-gateway/constants/account.data';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
-import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
+import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -39,70 +40,42 @@ export class PrimeAccountManager {
   }
 
   async createAccount(userDetails, token) {
-    const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
-    if (account) {
+    const item = await this.primeAccountRepository.find();
+
+    if (item.length !== 0) {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
     }
 
-    const formData = {
-      data: {
-        type: 'account',
-        attributes: {
-          'account-type': 'custodial',
-          name: `${userDetails.details.first_name} ${userDetails.details.last_name}s Account`,
-          'authorized-signature': `${userDetails.prime_user.uuid}`,
-          owner: {
-            'contact-type': 'natural_person',
-            name: `${userDetails.details.first_name} ${userDetails.details.last_name}`,
-            email: `${userDetails.email}`,
-            'tax-id-number': `${userDetails.details.tax_id_number}`,
-            'tax-country': `${userDetails.country.code}`,
-            'date-of-birth': `${userDetails.details.date_of_birth}`,
-            'primary-phone-number': {
-              country: `${userDetails.country.code}`,
-              number: `${userDetails.phone}`,
-              sms: true,
-            },
-            'primary-address': {
-              'street-1': `${userDetails.details.street}`,
-              'postal-code': `${userDetails.details.postal_code}`,
-              city: `${userDetails.details.city}`,
-              region: `${userDetails.details.region}`,
-              country: `${userDetails.country.code}`,
-            },
-          },
-        },
-      },
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
     };
+
+    const accountResponse = await lastValueFrom(
+      this.httpService.get(`${this.prime_trust_url}/v2/accounts`, { headers: headersRequest }),
+    );
+    let account;
+
+    if (accountResponse.data.data.length !== 0) {
+      account = accountResponse.data.data[0];
+      await this.saveAccount(account);
+    } else {
+      await this.createAccountInPrimeTrust(token);
+    }
+
+    await this.hangWebhook(userDetails, token, account.id);
+
+    return { success: true };
+  }
+
+  async createAccountInPrimeTrust(token) {
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };
 
     try {
       const accountResponse = await lastValueFrom(
-        this.httpService.post(`${this.prime_trust_url}/v2/accounts`, formData, { headers: headersRequest }),
+        this.httpService.post(`${this.prime_trust_url}/v2/accounts`, accountData, { headers: headersRequest }),
       );
-
-      //hang webhook on account
-      await lastValueFrom(
-        this.httpService.post(
-          `${this.prime_trust_url}/v2/webhook-configs`,
-          {
-            data: {
-              type: 'webhook-configs',
-              attributes: {
-                'contact-email': userDetails.email,
-                url: `${this.app_domain}/payment_gateway/account/webhook`,
-                'account-id': accountResponse.data.data.id,
-              },
-            },
-          },
-          {
-            headers: headersRequest,
-          },
-        ),
-      );
-      //
 
       // account open from development
       if (process.env.NODE_ENV === 'dev') {
@@ -116,15 +89,14 @@ export class PrimeAccountManager {
       }
       //
 
-      //create contact after creating account
-      const account = await this.saveAccount(accountResponse.data.data, userDetails.prime_user.user_id);
+      await this.saveAccount(accountResponse.data.data);
 
-      const contactResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/contacts`, { headers: headersRequest }),
-      );
-      const contactData = { data: contactResponse.data.data[0] };
-
-      return await this.primeKycManager.saveContact(contactData, account.user_id);
+      // const contactResponse = await lastValueFrom(
+      //   this.httpService.get(`${this.prime_trust_url}/v2/contacts`, { headers: headersRequest }),
+      // );
+      // const contactData = { data: contactResponse.data.data[0] };
+      //
+      // return await this.primeKycManager.saveContact(contactData, account.id);
       //
     } catch (e) {
       this.logger.error(e.response.data.errors);
@@ -133,11 +105,64 @@ export class PrimeAccountManager {
     }
   }
 
-  async saveAccount(accountData, user_id): Promise<PrimeTrustAccountEntity> {
+  async hangWebhook(userDetails, token, account_id) {
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    const webhookChange = {
+      data: {
+        type: 'webhook-configs',
+        attributes: {
+          url: `${this.app_domain}/payment_gateway/account/webhook`,
+          enabled: true,
+        },
+      },
+    };
+
+    const webhookConfig = await lastValueFrom(
+      this.httpService.get(`${this.prime_trust_url}/v2/webhook-configs`, { headers: headersRequest }),
+    );
+
+    if (webhookConfig.data.data.length !== 0) {
+      if (webhookConfig.data.data[0].attributes.url !== `${this.app_domain}/payment_gateway/account/webhook`) {
+        await lastValueFrom(
+          this.httpService.patch(
+            `${this.prime_trust_url}/v2/webhook-configs/${webhookConfig.data.data[0].id}`,
+            webhookChange,
+            {
+              headers: headersRequest,
+            },
+          ),
+        );
+      }
+    } else {
+      // hang webhook on account
+      await lastValueFrom(
+        this.httpService.post(
+          `${this.prime_trust_url}/v2/webhook-configs`,
+          {
+            data: {
+              type: 'webhook-configs',
+              attributes: {
+                'contact-email': userDetails.email,
+                url: `${this.app_domain}/payment_gateway/account/webhook`,
+                'account-id': account_id,
+              },
+            },
+          },
+          {
+            headers: headersRequest,
+          },
+        ),
+      );
+    }
+  }
+
+  async saveAccount(accountData): Promise<PrimeTrustAccountEntity> {
     try {
       const accountPayload = {
         uuid: accountData.id,
-        user_id,
         name: accountData.attributes.name,
         number: accountData.attributes.number,
         contributions_frozen: accountData.attributes['contributions-frozen'],
@@ -158,7 +183,7 @@ export class PrimeAccountManager {
   async updateAccount(id: string): Promise<SuccessResponse> {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
+      .leftJoinAndSelect(UserEntity, 'p', 'a.user_id = p.user_id')
       .leftJoinAndSelect('p.skopa_user', 'u')
       .select(['a.uuid as account_id,u.email as email,p.password as password,u.id as user_id,u.username as username'])
       .where('a.uuid = :id', { id })
@@ -195,7 +220,7 @@ export class PrimeAccountManager {
   }
 
   async getAccountInfo(userDetails, account_id) {
-    const { token } = await this.primeTokenManager.getToken(userDetails);
+    const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };

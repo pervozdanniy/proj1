@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
+import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 
 @Entity('prime_trust_balance')
 export class PrimeTrustBalanceEntity {
@@ -24,7 +25,7 @@ export class PrimeTrustBalanceEntity {
   @Column('float', { default: 0 })
   non_contingent_hold: string;
 
-  @OneToOne(() => PrimeTrustAccountEntity)
+  @OneToOne(() => PrimeTrustContactEntity)
   @JoinColumn({ name: 'user_id' })
-  account?: PrimeTrustAccountEntity;
+  contact?: PrimeTrustContactEntity;
 }
