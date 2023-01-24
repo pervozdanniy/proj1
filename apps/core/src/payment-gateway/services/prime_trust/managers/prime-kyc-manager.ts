@@ -104,6 +104,7 @@ export class PrimeKycManager {
       identity_documents_verified: contactData.data.attributes['identity-documents-verified'],
       aml_cleared: contactData.data.attributes['aml-cleared'],
       cip_cleared: contactData.data.attributes['cip-cleared'],
+      identity_confirmed: contactData.data.attributes['identity-confirmed'],
     };
   }
 
