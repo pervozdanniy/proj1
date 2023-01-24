@@ -11,9 +11,8 @@ import { AlterWithdrawalTable1672312373374 } from '~svc/core/src/db/migrations/1
 import { CreateNotificationsTable1672737767969 } from '~svc/core/src/db/migrations/1672737767969-CreateNotificationsTable';
 import { AlterUsersTable1672920595456 } from '~svc/core/src/db/migrations/1672920595456-AlterUsersTable';
 import { AlterUsersTable1674119775903 } from '~svc/core/src/db/migrations/1674119775903-AlterUsersTable';
-import { ChangeStructure1674501002818 } from '~svc/core/src/db/migrations/1674501002818-ChangeStructure';
-import { AlterAccountsTable1674501175461 } from '~svc/core/src/db/migrations/1674501175461-AlterAccountsTable';
-import { AlterBalanceTable1674501784522 } from '~svc/core/src/db/migrations/1674501784522-AlterBalanceTable';
+import { ChangeLogic1674544963817 } from '~svc/core/src/db/migrations/1674544963817-ChangeLogic';
+import { DropPrimeUsers1674545919902 } from '~svc/core/src/db/migrations/1674545919902-DropPrimeUsers';
 import { SeedPaymentGateway1671466516817 } from '~svc/core/src/db/seeds/1671466516817-SeedPaymentGateway';
 import { createUserTable1669901299726 } from './migrations/1669901299726-create-user-table';
 import { AlterUsersTable2167043583659 } from './migrations/1670435836592-AlterUsersTable';
@@ -41,7 +40,6 @@ export default [
   AlterUsersTable1672920595456,
   AddUserContactTable1673371635929,
   AlterUsersTable1674119775903,
-  ChangeStructure1674501002818,
-  AlterAccountsTable1674501175461,
-  AlterBalanceTable1674501784522,
+  ChangeLogic1674544963817,
+  DropPrimeUsers1674545919902,
 ];

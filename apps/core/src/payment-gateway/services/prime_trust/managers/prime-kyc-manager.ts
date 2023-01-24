@@ -87,7 +87,7 @@ export class PrimeKycManager {
         this.httpService.post(`${this.prime_trust_url}/v2/contacts`, formData, { headers: headersRequest }),
       );
 
-      return await this.saveContact(contactResponse.data, userDetails.id, account.id);
+      return await this.saveContact(contactResponse.data, userDetails.id);
     } catch (e) {
       throw new GrpcException(Status.ABORTED, e.message, 400);
     }
@@ -107,12 +107,11 @@ export class PrimeKycManager {
     };
   }
 
-  async saveContact(contactData, user_id, account_id) {
+  async saveContact(contactData, user_id) {
     const data = this.collectContractData(contactData);
     await this.primeTrustContactEntityRepository.save(
       this.primeTrustContactEntityRepository.create({
         user_id,
-        account_id,
         ...data,
       }),
     );
@@ -123,7 +122,7 @@ export class PrimeKycManager {
   async uploadDocument(userDetails: UserEntity, file: any, label: string, token: string) {
     const country_code = userDetails.country.code;
     const account = await this.primeAccountRepository.findOne({
-      where: { id: userDetails.id },
+      where: { user_id: userDetails.id },
       relations: ['contact'],
     });
 

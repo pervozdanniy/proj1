@@ -91,12 +91,12 @@ export class PrimeAccountManager {
 
       await this.saveAccount(accountResponse.data.data);
 
-      // const contactResponse = await lastValueFrom(
-      //   this.httpService.get(`${this.prime_trust_url}/v2/contacts`, { headers: headersRequest }),
-      // );
-      // const contactData = { data: contactResponse.data.data[0] };
-      //
-      // return await this.primeKycManager.saveContact(contactData, account.id);
+      const contactResponse = await lastValueFrom(
+        this.httpService.get(`${this.prime_trust_url}/v2/contacts`, { headers: headersRequest }),
+      );
+      const contactData = { data: contactResponse.data.data[0] };
+
+      // return await this.primeKycManager.saveContact(contactData, userd.id);
       //
     } catch (e) {
       this.logger.error(e.response.data.errors);
@@ -110,53 +110,25 @@ export class PrimeAccountManager {
       Authorization: `Bearer ${token}`,
     };
 
-    const webhookChange = {
-      data: {
-        type: 'webhook-configs',
-        attributes: {
-          url: `${this.app_domain}/payment_gateway/account/webhook`,
-          enabled: true,
+    // hang webhook on account
+    await lastValueFrom(
+      this.httpService.post(
+        `${this.prime_trust_url}/v2/webhook-configs`,
+        {
+          data: {
+            type: 'webhook-configs',
+            attributes: {
+              'contact-email': userDetails.email,
+              url: `${this.app_domain}/payment_gateway/account/webhook`,
+              'account-id': account_id,
+            },
+          },
         },
-      },
-    };
-
-    const webhookConfig = await lastValueFrom(
-      this.httpService.get(`${this.prime_trust_url}/v2/webhook-configs`, { headers: headersRequest }),
+        {
+          headers: headersRequest,
+        },
+      ),
     );
-
-    if (webhookConfig.data.data.length !== 0) {
-      if (webhookConfig.data.data[0].attributes.url !== `${this.app_domain}/payment_gateway/account/webhook`) {
-        await lastValueFrom(
-          this.httpService.patch(
-            `${this.prime_trust_url}/v2/webhook-configs/${webhookConfig.data.data[0].id}`,
-            webhookChange,
-            {
-              headers: headersRequest,
-            },
-          ),
-        );
-      }
-    } else {
-      // hang webhook on account
-      await lastValueFrom(
-        this.httpService.post(
-          `${this.prime_trust_url}/v2/webhook-configs`,
-          {
-            data: {
-              type: 'webhook-configs',
-              attributes: {
-                'contact-email': userDetails.email,
-                url: `${this.app_domain}/payment_gateway/account/webhook`,
-                'account-id': account_id,
-              },
-            },
-          },
-          {
-            headers: headersRequest,
-          },
-        ),
-      );
-    }
   }
 
   async saveAccount(accountData): Promise<PrimeTrustAccountEntity> {

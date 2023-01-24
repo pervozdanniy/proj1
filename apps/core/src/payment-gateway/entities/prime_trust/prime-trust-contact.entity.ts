@@ -1,17 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
 import { ContributionEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/contribution.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustKycDocumentEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
 import { WithdrawalParamsEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal-params.entity';
-import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Entity('prime_trust_contacts')
 export class PrimeTrustContactEntity {
   @PrimaryColumn('integer', { generated: false })
   user_id: number;
-
-  @Column('integer')
-  account_id: number;
 
   @Column('character varying')
   uuid: string;
@@ -43,6 +39,10 @@ export class PrimeTrustContactEntity {
   @Column('boolean', { default: false })
   cip_cleared: boolean;
 
+  @OneToOne(() => PrimeTrustAccountEntity)
+  @JoinColumn({ name: 'user_id' })
+  account?: PrimeTrustAccountEntity;
+
   @OneToMany(() => PrimeTrustKycDocumentEntity, (document) => document.contact)
   @JoinColumn({ name: 'user_id' })
   documents?: PrimeTrustKycDocumentEntity[];
@@ -52,12 +52,4 @@ export class PrimeTrustContactEntity {
 
   @OneToMany(() => ContributionEntity, (params) => params.contact)
   contributions?: ContributionEntity[];
-
-  @OneToOne(() => UserEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
-  skopa_user?: UserEntity;
-
-  @ManyToOne(() => PrimeTrustAccountEntity)
-  @JoinColumn({ name: 'account_id' })
-  account?: PrimeTrustAccountEntity;
 }

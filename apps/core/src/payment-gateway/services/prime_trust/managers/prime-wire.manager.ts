@@ -76,7 +76,7 @@ export class PrimeWireManager {
   }
 
   async getReferenceInfo(user_id: number, token: string) {
-    const account = await this.primeAccountRepository.findOne({ where: { id: user_id } });
+    const account = await this.primeAccountRepository.findOne({ where: { user_id } });
     try {
       const headersRequest = {
         Authorization: `Bearer ${token}`,
@@ -100,7 +100,7 @@ export class PrimeWireManager {
   }
 
   async createFundsReference(user_id: number, token: string) {
-    const account = await this.primeAccountRepository.findOne({ where: { id: user_id } });
+    const account = await this.primeAccountRepository.findOne({ where: { user_id } });
     const contact = await this.primeTrustContactEntityRepository.findOne({ where: { user_id } });
     const formData = {
       data: {
@@ -275,7 +275,7 @@ export class PrimeWireManager {
 
   async makeWithdrawal(request: TransferMethodRequest) {
     const { id, funds_transfer_method_id, amount } = request;
-    const account = await this.primeAccountRepository.findOneByOrFail({ id: id });
+    const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
     const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({
       uuid: funds_transfer_method_id,
     });
