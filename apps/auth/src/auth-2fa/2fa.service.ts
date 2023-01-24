@@ -28,6 +28,8 @@ export class Auth2FAService {
       );
       this.notify.send(codes, session.user.id);
     }
+
+    return enabled;
   }
 
   async getEnabled(userId: number) {

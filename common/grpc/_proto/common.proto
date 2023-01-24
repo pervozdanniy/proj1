@@ -34,4 +34,5 @@ message IdRequest {
 
 message SuccessResponse {
     bool success = 1;
-  }
+    optional string error = 2;
+}

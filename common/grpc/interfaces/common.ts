@@ -34,6 +34,7 @@ export interface IdRequest {
 
 export interface SuccessResponse {
   success: boolean;
+  error?: string | undefined;
 }
 
 export const SKOPA_COMMON_PACKAGE_NAME = "skopa.common";
