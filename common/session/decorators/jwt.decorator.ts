@@ -1,18 +1,21 @@
 import { applyDecorators, createParamDecorator, ExecutionContext, SetMetadata, UseGuards } from '@nestjs/common';
 import { ApiPreconditionFailedResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Request } from 'express';
 import { JWT_AUTH_METADATA } from '../constants/meta';
-import { JwtSessionGuard } from '../guards/jwt/jwt.guard';
-import { JwtAuthenticatedRequest, JwtAuthentication } from '../interfaces/auth.interface';
-import { SessionMetadataOptions } from '../interfaces/session.interface';
+import { JwtSessionGuard } from '../guards/jwt.guard';
+import { SessionInterface, SessionMetadataOptions, WithSession } from '../interfaces/session.interface';
+import { SessionProxy } from '../session-host';
 
-export const JwtSession = createParamDecorator((prop: keyof JwtAuthentication | undefined, ctx: ExecutionContext) => {
-  const request = ctx.switchToHttp().getRequest<JwtAuthenticatedRequest>();
-  if (prop) {
-    return request.user?.[prop];
-  }
+export const JwtSession = createParamDecorator(
+  (prop: keyof SessionProxy<SessionInterface> | undefined, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest<WithSession<Request>>();
+    if (prop) {
+      return request.session?.[prop];
+    }
 
-  return request.user;
-});
+    return request.user;
+  },
+);
 
 export const JwtSessionUser = () => JwtSession('user');
 

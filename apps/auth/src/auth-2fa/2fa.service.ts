@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { SessionInterface, SessionService, TwoFactorSessionInterface } from '~common/session';
-import { authenticate, is2FA, require2FA } from '~common/session/helpers';
+import { is2FA, release2FA, require2FA } from '~common/session/helpers';
 import { BaseSettingsDto } from '../api/dto/2fa.dto';
 import { TwoFactorMethod, TwoFactorSettingsEntity } from '../entities/2fa_settings.entity';
 import { Notifier2FAService } from './notifier.service';
@@ -122,7 +122,7 @@ export class Auth2FAService {
       if (session.twoFactor.remove) {
         await this.settingsRepo.delete({ user_id: session.user.id, method: In(session.twoFactor.remove) });
       }
-      await this.session.set(sessionId, authenticate(session));
+      await this.session.set(sessionId, release2FA(session));
     }
 
     return { valid: !reason, reason };

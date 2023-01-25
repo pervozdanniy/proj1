@@ -3,14 +3,17 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthData, AuthRequest, AuthServiceClient } from '~common/grpc/interfaces/auth';
-import { SessionService } from '~common/session';
-import { is2FA, isAuthenticated } from '~common/session/helpers';
+import { SessionInterface, SessionService } from '~common/session';
+import { is2FA } from '~common/session/helpers';
 import { SocialsUserDto } from '~svc/api-gateway/src/auth/dto/socials-user.dto';
 
 export class AuthService implements OnModuleInit {
   private authClient: AuthServiceClient;
 
-  constructor(@InjectGrpc('auth') private readonly auth: ClientGrpc, private readonly session: SessionService) {}
+  constructor(
+    @InjectGrpc('auth') private readonly auth: ClientGrpc,
+    private readonly session: SessionService<SessionInterface>,
+  ) {}
 
   onModuleInit() {
     this.authClient = this.auth.getService('AuthService');
@@ -18,14 +21,11 @@ export class AuthService implements OnModuleInit {
 
   private async validateSession({ access_token, session_id }: AuthData) {
     const session = await this.session.get(session_id);
-    if (isAuthenticated(session)) return;
     if (is2FA(session)) {
       const methods = session.twoFactor.verify.map((v) => v.method);
 
       throw new HttpException({ message: '2FA required', access_token, methods }, 428);
     }
-
-    throw new UnauthorizedException();
   }
 
   async login(credentials: AuthRequest) {

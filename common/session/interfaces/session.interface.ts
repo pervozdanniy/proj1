@@ -1,18 +1,18 @@
 import { TwoFactorMethod } from '~common/constants/auth';
 import { User } from '~common/grpc/interfaces/common';
+import { SessionProxy } from '../session-host';
 
 export type SessionMetadataOptions = { allowUnverified?: boolean };
 
 export interface SessionInterface {
   user: User;
-  isAuthenticated: boolean;
 }
 
-export interface AuthenticatedSessionInterface extends SessionInterface {
-  isAuthenticated: true;
-}
+export type WithSession<T, Session extends SessionInterface = SessionInterface> = T & {
+  session: SessionProxy<Session>;
+};
 
-export interface TwoFactorSessionData {
+export type TwoFactorSessionData = {
   verify?: Array<{ method: TwoFactorMethod; code: number }>;
   add?: {
     method: TwoFactorMethod;
@@ -21,21 +21,8 @@ export interface TwoFactorSessionData {
   };
   remove?: TwoFactorMethod[];
   expiresAt: number;
-}
+};
 
 export interface TwoFactorSessionInterface extends SessionInterface {
-  isAuthenticated: false;
   twoFactor: TwoFactorSessionData;
-}
-
-export interface TwoFactorAddedSessionInterface extends SessionInterface {
-  isAuthenticated: false;
-  twoFactor: {
-    new: {
-      method: TwoFactorMethod;
-      code: number;
-      destination: string;
-    };
-    expiresAt: number;
-  };
 }

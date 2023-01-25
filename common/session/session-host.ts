@@ -1,10 +1,12 @@
 import { SessionService } from './session.service';
 
-export const sessionProxyFactory = <T extends Record<string, any>>(
+export type SessionProxy<T> = SessionHost<T> & T;
+
+export const sessionProxyFactory = <T extends Record<PropertyKey, any>>(
   session: SessionService<T>,
   id: string,
   data: T,
-): SessionHost<T> & T => {
+): SessionProxy<T> => {
   const host = new SessionHost(session, id, data);
 
   return new Proxy(host, {
@@ -13,17 +15,20 @@ export const sessionProxyFactory = <T extends Record<string, any>>(
         return Reflect.get(target, p);
       }
 
-      return host.get(p.toString());
+      return host.get(p);
     },
     set(target, p, value) {
-      host.set(p.toString(), value);
+      host.set(p, value);
 
       return true;
     },
     deleteProperty(target, p) {
-      host.delete(p.toString());
+      host.delete(p);
 
       return true;
+    },
+    has(target, p) {
+      return host.has(p);
     },
   }) as SessionHost<T> & T;
 };
@@ -66,6 +71,10 @@ export class SessionHost<T extends Record<string, any> = Record<string, any>> {
 
   get(prop: keyof T) {
     return this.data[prop] ?? null;
+  }
+
+  has(prop: keyof T) {
+    return prop in this.data;
   }
 
   set<K extends keyof T>(prop: K, value: T[K]) {

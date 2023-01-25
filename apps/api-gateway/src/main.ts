@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, ValidationPipe, ValidationPipeOptions } fro
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import sentryInit from 'common/sentry/init';
+import { JwtSessionMiddleware } from '~common/session';
 import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
 import { ApiGatewayModule } from './api-gateway.module';
 
@@ -26,6 +27,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalFilters(new ApiExceptionFilter(httpAdapter));
   app.useGlobalInterceptors(app.get(ClassSerializerInterceptor));
+  app.use((req, res, next) => app.get(JwtSessionMiddleware).use(req, res, next));
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, {
