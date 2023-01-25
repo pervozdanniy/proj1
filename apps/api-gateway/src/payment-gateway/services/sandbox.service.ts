@@ -153,7 +153,7 @@ export class SandboxService {
       );
 
       webhooks.data.data.map(async (w) => {
-        const x = await lastValueFrom(
+        await lastValueFrom(
           this.httpService.patch(`https://sandbox.primetrust.com/v2/webhook-configs/${w.id}`, formData, {
             headers: headersRequest,
           }),
