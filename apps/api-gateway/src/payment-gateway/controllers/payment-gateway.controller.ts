@@ -1,3 +1,4 @@
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
   Body,
   ClassSerializerInterceptor,
@@ -13,15 +14,16 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionAuth, JwtSessionUser } from '~common/session';
+import { Token_Data } from '~common/grpc/interfaces/payment-gateway';
+import { JwtSessionAuth, JwtSessionUser, SessionService } from '~common/session';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/payment-gateway/dtos/payment-gateways-list.dto';
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-make.dto';
 import { WithdrawalParamsDto } from '~svc/api-gateway/src/payment-gateway/dtos/withdrawal-params.dto';
 import { PaymentGatewayService } from '~svc/api-gateway/src/payment-gateway/services/payment-gateway.service';
 import { webhookData } from '~svc/api-gateway/src/payment-gateway/webhooks/data';
 import { SendDocumentDto } from '~svc/api-gateway/src/user/dtos/send-document.dto';
-import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
 
 @ApiTags('Payment Gateway')
 @ApiBearerAuth()
@@ -32,7 +34,7 @@ import { SendTokenDto } from '~svc/api-gateway/src/user/dtos/send-token.dto';
 })
 export class PaymentGatewayController {
   private readonly logger = new Logger(PaymentGatewayController.name);
-  constructor(private paymentGatewayService: PaymentGatewayService) {}
+  constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: PaymentGatewayService) {}
 
   @ApiOperation({ summary: 'Get list of payment gateways' })
   @ApiResponse({ status: HttpStatus.OK })
@@ -50,7 +52,12 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @Post('/token')
   async getToken(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getToken(id);
+    const {
+      data: { token },
+    } = await this.paymentGatewayService.getToken(id);
+    await this.redis.set('prime_token', token);
+
+    return { token };
   }
 
   @ApiOperation({ summary: 'Create Account.' })
@@ -59,8 +66,10 @@ export class PaymentGatewayController {
   })
   @JwtSessionAuth()
   @Post('/account')
-  async createAccount(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
-    return this.paymentGatewayService.createAccount({ id, ...payload });
+  async createAccount(@JwtSessionUser() { id }: User) {
+    const token = await this.redis.get('prime_token');
+
+    return this.paymentGatewayService.createAccount({ id, token });
   }
 
   @Post('/account/webhook')
@@ -103,8 +112,10 @@ export class PaymentGatewayController {
   })
   @JwtSessionAuth()
   @Post('/kyc/contact')
-  async createContact(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
-    return this.paymentGatewayService.createContact({ id, ...payload });
+  async createContact(@JwtSessionUser() { id }: User) {
+    const token = await this.redis.get('prime_token');
+
+    return this.paymentGatewayService.createContact({ id, token });
   }
 
   @Post('kyc/upload-document')
@@ -117,7 +128,8 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @UseInterceptors(FileInterceptor('file'))
   async uploadDocument(@JwtSessionUser() { id }: User, @UploadedFile() file: any, @Body() payload: SendDocumentDto) {
-    const { label, token } = payload;
+    const { label } = payload;
+    const token = await this.redis.get('prime_token');
     const tokenData = { id, token };
 
     return this.paymentGatewayService.uploadDocument({ file, label, tokenData });
@@ -129,8 +141,10 @@ export class PaymentGatewayController {
   })
   @JwtSessionAuth()
   @Post('/wire/reference')
-  async createReference(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
-    return this.paymentGatewayService.createReference({ id, ...payload });
+  async createReference(@JwtSessionUser() { id }: User) {
+    const token = await this.redis.get('prime_token');
+
+    return this.paymentGatewayService.createReference({ id, token });
   }
 
   @ApiOperation({ summary: 'Add Wire transfer reference.' })
@@ -139,8 +153,10 @@ export class PaymentGatewayController {
   })
   @JwtSessionAuth()
   @Post('/balance')
-  async getBalance(@JwtSessionUser() { id }: User, @Body() payload: SendTokenDto) {
-    return this.paymentGatewayService.getBalance({ id, ...payload });
+  async getBalance(@JwtSessionUser() { id }: User) {
+    const token = await this.redis.get('prime_token');
+
+    return this.paymentGatewayService.getBalance({ id, token });
   }
 
   @ApiOperation({ summary: 'Add Bank params for withdrawal.' })
@@ -150,7 +166,9 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @Post('/withdrawal/params')
   async addWithdrawalParams(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalParamsDto) {
-    return this.paymentGatewayService.addWithdrawalParams({ id, ...payload });
+    const token = await this.redis.get('prime_token');
+
+    return this.paymentGatewayService.addWithdrawalParams({ id, token, ...payload });
   }
 
   @ApiOperation({ summary: 'Make withdrawal.' })
@@ -160,6 +178,8 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @Post('/withdrawal/make')
   async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
-    return this.paymentGatewayService.makeWithdrawal({ id, ...payload });
+    const token = await this.redis.get('prime_token');
+
+    return this.paymentGatewayService.makeWithdrawal({ id, token, ...payload });
   }
 }

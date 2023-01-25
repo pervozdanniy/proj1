@@ -9,11 +9,6 @@ export class SendDocumentDto {
   @Type(() => String)
   readonly label: DocumentTypesEnum;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  token: string;
-
   @ApiProperty({ format: 'binary' })
   file: string;
 }

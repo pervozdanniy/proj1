@@ -1,5 +1,7 @@
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import Redis from 'ioredis';
 import { lastValueFrom } from 'rxjs';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
@@ -8,10 +10,11 @@ import { VerifyOwnerDto } from '~svc/api-gateway/src/payment-gateway/dtos/verify
 
 @Injectable()
 export class SandboxService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService, @InjectRedis() private readonly redis: Redis) {}
 
   async settleWithdraw(payload: SettleWithdrawDto) {
-    const { token, funds_transfer_id } = payload;
+    const token = await this.redis.get('prime_token');
+    const { funds_transfer_id } = payload;
     try {
       const headersRequest = {
         Authorization: `Bearer ${token}`,
@@ -34,7 +37,8 @@ export class SandboxService {
   }
 
   async verifyOwner(payload: VerifyOwnerDto) {
-    const { token, disbursement_authorizations_id } = payload;
+    const token = await this.redis.get('prime_token');
+    const { disbursement_authorizations_id } = payload;
     try {
       const headersRequest = {
         Authorization: `Bearer ${token}`,
@@ -57,7 +61,8 @@ export class SandboxService {
   }
 
   async depositFunds(payload: DepositFundsDto) {
-    const { token, transfer_reference_id, data } = payload;
+    const token = await this.redis.get('prime_token');
+    const { transfer_reference_id, data } = payload;
     const formData = {
       data: {
         type: 'contributions',
@@ -90,7 +95,8 @@ export class SandboxService {
   }
 
   async settleFunds(payload: SettleFundsDto) {
-    const { token, contribution_id } = payload;
+    const token = await this.redis.get('prime_token');
+    const { contribution_id } = payload;
 
     try {
       const headersRequest = {

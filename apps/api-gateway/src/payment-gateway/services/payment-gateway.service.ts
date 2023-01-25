@@ -8,7 +8,9 @@ import {
   AccountIdRequest,
   PaymentGatewayServiceClient,
   TokenSendRequest,
+  TransferMethodRequest,
   UploadDocumentRequest,
+  WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/payment-gateway/dtos/payment-gateways-list.dto';
 
@@ -76,11 +78,11 @@ export class PaymentGatewayService implements OnModuleInit {
     return { data: JSON.parse(response.data) };
   }
 
-  addWithdrawalParams(data) {
+  addWithdrawalParams(data: WithdrawalParams) {
     return lastValueFrom(this.paymentGatewayServiceClient.addWithdrawalParams(data));
   }
 
-  async makeWithdrawal(data) {
+  async makeWithdrawal(data: TransferMethodRequest) {
     const response = await lastValueFrom(this.paymentGatewayServiceClient.makeWithdrawal(data));
 
     return { data: JSON.parse(response.data) };

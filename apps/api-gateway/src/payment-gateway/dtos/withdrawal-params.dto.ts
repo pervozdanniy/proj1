@@ -4,11 +4,6 @@ import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
 
 export class WithdrawalParamsDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  token: string;
-
   @ApiProperty({ example: 'Test Test' })
   @IsString()
   @IsNotEmpty()
