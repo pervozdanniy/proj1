@@ -1,12 +1,11 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Patch, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import Redis from 'ioredis';
 import { JwtSessionAuth } from '~common/session';
 import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-withdraw.dto';
 import { VerifyOwnerDto } from '~svc/api-gateway/src/payment-gateway/dtos/verify-owner.dto';
+import { WebhookUrlDto } from '~svc/api-gateway/src/payment-gateway/dtos/webhook-url.dto';
 import { SandboxService } from '~svc/api-gateway/src/payment-gateway/services/sandbox.service';
 
 @ApiTags('Sandbox')
@@ -18,6 +17,15 @@ import { SandboxService } from '~svc/api-gateway/src/payment-gateway/services/sa
 })
 export class SandboxGatewayController {
   constructor(private sandboxService: SandboxService) {}
+
+  @ApiOperation({ summary: 'Bind existed accounts to current webhook.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @Patch('/webhook/binds')
+  async bind(@Body() payload: WebhookUrlDto) {
+    return this.sandboxService.bind(payload);
+  }
 
   @ApiOperation({ summary: 'Send Deposit Funds request (testing mode).' })
   @ApiResponse({

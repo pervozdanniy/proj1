@@ -7,6 +7,7 @@ import { DepositFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/depos
 import { SettleFundsDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/payment-gateway/dtos/settle-withdraw.dto';
 import { VerifyOwnerDto } from '~svc/api-gateway/src/payment-gateway/dtos/verify-owner.dto';
+import { WebhookUrlDto } from '~svc/api-gateway/src/payment-gateway/dtos/webhook-url.dto';
 
 @Injectable()
 export class SandboxService {
@@ -124,6 +125,43 @@ export class SandboxService {
       );
 
       return contributionResponse.data;
+    } catch (e) {
+      throw new Error(e.response.data);
+    }
+  }
+
+  async bind(payload: WebhookUrlDto) {
+    const token = await this.redis.get('prime_token');
+    const formData = {
+      data: {
+        type: 'webhook-configs',
+        attributes: {
+          url: `${payload.url}/payment_gateway/account/webhook`,
+          enabled: true,
+        },
+      },
+    };
+
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+    try {
+      const webhooks = await lastValueFrom(
+        this.httpService.get(`https://sandbox.primetrust.com/v2/webhook-configs`, {
+          headers: headersRequest,
+        }),
+      );
+
+      webhooks.data.data.map(async (w) => {
+        const x = await lastValueFrom(
+          this.httpService.patch(`https://sandbox.primetrust.com/v2/webhook-configs/${w.id}`, formData, {
+            headers: headersRequest,
+          }),
+        );
+        console.log(x);
+      });
+
+      return { success: true };
     } catch (e) {
       throw new Error(e.response.data);
     }
