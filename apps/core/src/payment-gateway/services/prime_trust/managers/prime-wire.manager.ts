@@ -196,7 +196,16 @@ export class PrimeWireManager {
   }
 
   async getAccountBalance(id: number): Promise<BalanceResponse> {
-    const balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
+    let balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
+
+    if (!balance) {
+      const account = await this.primeAccountRepository.findOne({ where: { user_id: id } });
+      if (!account) {
+        throw new GrpcException(Status.NOT_FOUND, `Account for this user not exist!`, 400);
+      }
+      await this.updateAccountBalance(account.uuid);
+      balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
+    }
 
     return {
       settled: balance.settled,
