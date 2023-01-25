@@ -158,7 +158,6 @@ export class SandboxService {
             headers: headersRequest,
           }),
         );
-        console.log(x);
       });
 
       return { success: true };

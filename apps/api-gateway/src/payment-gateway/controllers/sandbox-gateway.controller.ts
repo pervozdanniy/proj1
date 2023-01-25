@@ -22,7 +22,7 @@ export class SandboxGatewayController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @Patch('/webhook/binds')
+  @Patch('/webhook/change')
   async bind(@Body() payload: WebhookUrlDto) {
     return this.sandboxService.bind(payload);
   }
