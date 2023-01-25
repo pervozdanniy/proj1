@@ -137,19 +137,19 @@ export class PrimeWireManager {
       .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
       .select(['a.user_id as user_id'])
       .where('a.uuid = :id', { id })
-      .getRawMany();
+      .getRawOne();
 
-    if (accountData.length == 0) {
+    if (!accountData) {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
-    const user_id = accountData[0].user_id;
+    const { user_id } = accountData;
 
     const cacheData = await this.getBalanceInfo(id);
 
     return this.saveBalance(user_id, cacheData);
   }
 
-  async getBalanceInfo(id) {
+  async getBalanceInfo(account_uuid: string) {
     const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
@@ -157,7 +157,7 @@ export class PrimeWireManager {
 
     try {
       const cacheResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/accounts/${id}?include=account-cash-totals`, {
+        this.httpService.get(`${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-cash-totals`, {
           headers: headersRequest,
         }),
       );
@@ -232,7 +232,7 @@ export class PrimeWireManager {
     return { transfer_method_id: transferMethodId };
   }
 
-  async createFundsTransferMethod(request: WithdrawalParams, contact_id) {
+  async createFundsTransferMethod(request: WithdrawalParams, contact_id: string) {
     const { token, bank_account_name, bank_account_number, funds_transfer_type, routing_number } = request;
     const formData = {
       data: {
@@ -341,9 +341,9 @@ export class PrimeWireManager {
       .leftJoinAndSelect(UserEntity, 'u', 'w.user_id = u.id')
       .select(['u.id as user_id'])
       .where('w.uuid = :id', { id })
-      .getRawMany();
+      .getRawOne();
 
-    const { user_id } = withdrawData[0];
+    const { user_id } = withdrawData;
 
     const withdrawResponse = await this.getWithdrawInfo(id);
 
@@ -365,7 +365,7 @@ export class PrimeWireManager {
     return { success: true };
   }
 
-  async getWithdrawInfo(disbursements_id) {
+  async getWithdrawInfo(disbursements_id: string) {
     const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
@@ -394,9 +394,9 @@ export class PrimeWireManager {
       .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
       .select(['u.id as user_id'])
       .where('a.uuid = :id', { id })
-      .getRawMany();
+      .getRawOne();
 
-    const { user_id } = accountData[0];
+    const { user_id } = accountData;
 
     const contributionResponse = await this.getContributionInfo(resource_id);
     if (!contribution) {
@@ -427,7 +427,7 @@ export class PrimeWireManager {
     return { success: true };
   }
 
-  private async getContributionInfo(contribution_id) {
+  private async getContributionInfo(contribution_id: string) {
     const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,

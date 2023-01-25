@@ -273,13 +273,13 @@ export class PrimeKycManager {
           'd.kyc_check_uuid as kyc_check_uuid,' + 'a.uuid as account_id,' + 'c.uuid as contact_id,' + 'u.id as user_id',
         ])
         .where('a.uuid = :id', { id })
-        .getRawMany();
+        .getRawOne();
 
-      if (accountData.length == 0) {
+      if (!accountData) {
         throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
       }
 
-      const { contact_id, user_id } = accountData[0];
+      const { contact_id, user_id } = accountData;
 
       const { token } = await this.primeTokenManager.getToken();
       const headersRequest = {
@@ -350,9 +350,9 @@ export class PrimeKycManager {
       .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
       .select(['u.id as user_id'])
       .where('a.uuid = :id', { id })
-      .getRawMany();
+      .getRawOne();
 
-    const { user_id } = accountData[0];
+    const { user_id } = accountData;
 
     const cipResponse = await this.getCipCheckInfo(resource_id);
     const notificationPayload = {

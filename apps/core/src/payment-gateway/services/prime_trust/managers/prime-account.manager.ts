@@ -38,7 +38,7 @@ export class PrimeAccountManager {
     this.app_domain = domain;
   }
 
-  async createAccount(userDetails, token) {
+  async createAccount(userDetails: UserEntity, token: string) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
     if (account) {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
@@ -119,7 +119,7 @@ export class PrimeAccountManager {
     }
   }
 
-  async hangWebhook(userDetails, token, account_id) {
+  async hangWebhook(userDetails: UserEntity, token: string, account_id: string) {
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };
@@ -145,7 +145,7 @@ export class PrimeAccountManager {
     );
   }
 
-  async saveAccount(accountData, user_id): Promise<PrimeTrustAccountEntity> {
+  async saveAccount(accountData, user_id: number): Promise<PrimeTrustAccountEntity> {
     try {
       const accountPayload = {
         user_id,
@@ -173,14 +173,14 @@ export class PrimeAccountManager {
       .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
       .select(['a.uuid as account_id,u.id as user_id,u.username as username'])
       .where('a.uuid = :id', { id })
-      .getRawMany();
+      .getRawOne();
 
-    if (accountData.length == 0) {
+    if (!accountData) {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
-    const { account_id, user_id } = accountData[0];
+    const { account_id, user_id } = accountData;
 
-    const accountResponse = await this.getAccountInfo(null, account_id);
+    const accountResponse = await this.getAccountInfo(account_id);
     await this.primeAccountRepository.update(
       { uuid: account_id },
       {
@@ -200,7 +200,7 @@ export class PrimeAccountManager {
     return { success: true };
   }
 
-  async getAccountInfo(userDetails, account_id) {
+  async getAccountInfo(account_id: string) {
     const { token } = await this.primeTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,

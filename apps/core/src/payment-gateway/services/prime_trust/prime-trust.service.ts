@@ -4,7 +4,6 @@ import { AccountIdRequest, TransferMethodRequest, WithdrawalParams } from '~comm
 import { PrimeAccountManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-account.manager';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
-import { PrimeUserManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-user-manager';
 import { PrimeWireManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-wire.manager';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
@@ -14,8 +13,6 @@ export class PrimeTrustService {
     private readonly httpService: HttpService,
 
     private readonly primeTokenManager: PrimeTokenManager,
-
-    private readonly primeUserManager: PrimeUserManager,
 
     private readonly primeAccountManager: PrimeAccountManager,
 
@@ -28,7 +25,7 @@ export class PrimeTrustService {
     return this.primeTokenManager.getToken();
   }
 
-  createAccount(userDetails: UserEntity, token) {
+  createAccount(userDetails: UserEntity, token: string) {
     return this.primeAccountManager.createAccount(userDetails, token);
   }
 
