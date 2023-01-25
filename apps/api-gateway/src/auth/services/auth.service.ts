@@ -1,4 +1,4 @@
-import { HttpException, OnModuleInit, UnauthorizedException } from '@nestjs/common';
+import { HttpException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';

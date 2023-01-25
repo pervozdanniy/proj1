@@ -46,8 +46,10 @@ export class JwtSessionMiddleware implements NestMiddleware {
       .then((payload) => payload.sub)
       .then((sessionId) => this.session.get(sessionId).then((session) => ({ sessionId, session })))
       .then(({ sessionId, session }) => {
-        host = sessionProxyFactory(this.session, sessionId, session);
-        req.session = host;
+        if (session) {
+          host = sessionProxyFactory(this.session, sessionId, session);
+          req.session = host;
+        }
       })
       .then(nextCb)
       .catch(nextCb);

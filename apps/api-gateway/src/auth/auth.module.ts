@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
+import { JwtSessionMiddleware } from '~common/session';
 import { SessionModule } from '~common/session/session.module';
 import { TwoFactorController } from './controllers/2fa.controller';
 import { AuthController } from './controllers/auth.controller';
@@ -12,4 +13,8 @@ import { AuthService } from './services/auth.service';
   controllers: [AuthController, TwoFactorController],
   providers: [AuthService, TwoFactorService],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(JwtSessionMiddleware).forRoutes(AuthController, TwoFactorController);
+  }
+}
