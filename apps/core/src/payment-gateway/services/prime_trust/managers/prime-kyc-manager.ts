@@ -279,29 +279,27 @@ export class PrimeKycManager {
         throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
       }
 
-      const { contact_id, user_id } = accountData;
+      const { contact_id, user_id, kyc_check_uuid } = accountData;
 
       const { token } = await this.primeTokenManager.getToken();
       const headersRequest = {
         Authorization: `Bearer ${token}`,
       };
 
-      accountData.map(async (acc) => {
-        const result = await lastValueFrom(
-          this.httpService.get(`${this.prime_trust_url}/v2/kyc-document-checks/${acc.kyc_check_uuid}`, {
-            headers: headersRequest,
-          }),
+      const result = await lastValueFrom(
+        this.httpService.get(`${this.prime_trust_url}/v2/kyc-document-checks/${kyc_check_uuid}`, {
+          headers: headersRequest,
+        }),
+      );
+      if (result.data) {
+        await this.primeTrustKycDocumentEntityRepository.update(
+          { kyc_check_uuid: result.data.data.id },
+          {
+            status: result.data.data.attributes.status,
+            failure_details: result.data.data.attributes['failure-details'],
+          },
         );
-        if (result.data) {
-          await this.primeTrustKycDocumentEntityRepository.update(
-            { kyc_check_uuid: result.data.data.id },
-            {
-              status: result.data.data.attributes.status,
-              failure_details: result.data.data.attributes['failure-details'],
-            },
-          );
-        }
-      });
+      }
       const contactResponse = await lastValueFrom(
         this.httpService.get(`${this.prime_trust_url}/v2/contacts`, {
           headers: headersRequest,
