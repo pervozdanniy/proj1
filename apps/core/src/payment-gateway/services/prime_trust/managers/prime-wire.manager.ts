@@ -283,7 +283,7 @@ export class PrimeWireManager {
   }
 
   async sendWithdrawalRequest(request, account_id) {
-    const { token, amount, funds_transfer_method_id } = request;
+    const { amount, funds_transfer_method_id } = request;
     const formData = {
       data: {
         type: 'disbursements',

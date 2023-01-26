@@ -1,7 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import Redis from 'ioredis';
 import { AccountIdRequest, TransferMethodRequest, WithdrawalParams } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-account.manager';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
@@ -24,7 +21,7 @@ export class PrimeTrustService {
   }
 
   createAccount(userDetails: UserEntity) {
-    return this.primeAccountManager.createAccount(userDetails, 'token');
+    return this.primeAccountManager.createAccount(userDetails);
   }
 
   updateAccount(id: string) {
