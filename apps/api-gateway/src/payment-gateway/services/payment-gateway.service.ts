@@ -7,9 +7,9 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   PaymentGatewayServiceClient,
-  TokenSendRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
+  UserIdRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/payment-gateway/dtos/payment-gateways-list.dto';
@@ -48,11 +48,11 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
   }
 
-  createAccount(data: TokenSendRequest) {
+  createAccount(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.createAccount(data));
   }
 
-  createContact(data: TokenSendRequest): Promise<SuccessResponse> {
+  createContact(data: UserIdRequest): Promise<SuccessResponse> {
     return lastValueFrom(this.paymentGatewayServiceClient.createContact(data));
   }
 
@@ -68,11 +68,11 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.updateContribution(data));
   }
 
-  getBalance(data: TokenSendRequest) {
+  getBalance(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getBalance(data));
   }
 
-  async createReference(data: TokenSendRequest) {
+  async createReference(data: UserIdRequest) {
     const response = await lastValueFrom(this.paymentGatewayServiceClient.createReference(data));
 
     return { data: JSON.parse(response.data) };

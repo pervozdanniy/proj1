@@ -2,6 +2,7 @@ import { HttpModule } from '@nestjs/axios';
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PrimeTrustHttpService } from '~common/axios/prime-trust-http.service';
 import { createBullQueue } from '~common/grpc/helpers';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
 import { NotificationModule } from '~svc/core/src/notification/notification.module';
@@ -49,6 +50,7 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
     PrimeAccountManager,
     PrimeKycManager,
     PrimeWireManager,
+    PrimeTrustHttpService,
   ],
   controllers: [PaymentGatewayController],
   exports: [PaymentGatewayManager],

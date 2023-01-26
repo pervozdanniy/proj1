@@ -1,12 +1,11 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import FormData from 'form-data';
 import process from 'process';
-import { lastValueFrom } from 'rxjs';
 import { IsNull, Not, Repository } from 'typeorm';
+import { PrimeTrustHttpService } from '~common/axios/prime-trust-http.service';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
@@ -23,7 +22,7 @@ export class PrimeKycManager {
   private readonly prime_trust_url: string;
   constructor(
     private config: ConfigService<ConfigInterface>,
-    private readonly httpService: HttpService,
+    private readonly httpService: PrimeTrustHttpService,
     private readonly notificationService: NotificationService,
     @Inject(PrimeTokenManager)
     private readonly primeTokenManager: PrimeTokenManager,
@@ -41,7 +40,7 @@ export class PrimeKycManager {
     this.prime_trust_url = prime_trust_url;
   }
 
-  async createContact(userDetails: UserEntity, token: string) {
+  async createContact(userDetails: UserEntity) {
     const contact = await this.primeTrustContactEntityRepository.findOne({
       where: { user_id: userDetails.id },
     });
@@ -78,14 +77,13 @@ export class PrimeKycManager {
         },
       },
     };
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
 
     try {
-      const contactResponse = await lastValueFrom(
-        this.httpService.post(`${this.prime_trust_url}/v2/contacts`, formData, { headers: headersRequest }),
-      );
+      const contactResponse = await this.httpService.axios({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/contacts`,
+        data: formData,
+      });
 
       return await this.saveContact(contactResponse.data, userDetails.id);
     } catch (e) {
@@ -120,27 +118,26 @@ export class PrimeKycManager {
     return { success: true };
   }
 
-  async uploadDocument(userDetails: UserEntity, file: any, label: string, token: string) {
+  async uploadDocument(userDetails: UserEntity, file: any, label: string) {
     const country_code = userDetails.country.code;
     const account = await this.primeAccountRepository.findOne({
       where: { user_id: userDetails.id },
       relations: ['contact'],
     });
 
-    const documentResponse = await this.sendDocument(file, label, token, account.contact.uuid);
+    const documentResponse = await this.sendDocument(file, label, account.contact.uuid);
 
     const documentCheckResponse = await this.kycDocumentCheck(
       documentResponse.data.id,
       account.contact.uuid,
       label,
       country_code,
-      token,
     );
 
     return this.saveDocument(documentResponse.data, account.contact.user_id, documentCheckResponse.data);
   }
 
-  async kycDocumentCheck(document_uuid, contact_uuid, label, country_code, token) {
+  async kycDocumentCheck(document_uuid, contact_uuid, label, country_code) {
     const formData = {
       data: {
         type: 'kyc-document-checks',
@@ -156,81 +153,62 @@ export class PrimeKycManager {
       },
     };
 
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
     try {
-      const result = await lastValueFrom(
-        this.httpService.post(`${this.prime_trust_url}/v2/kyc-document-checks`, formData, {
-          headers: headersRequest,
-        }),
-      );
+      const result = await this.httpService.axios({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/kyc-document-checks`,
+        data: formData,
+      });
 
-      const contactData = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/contacts/${contact_uuid}?include=cip-checks`, {
-          headers: headersRequest,
-        }),
-      );
-      contactData.data.included.map(async (inc) => {
-        if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
-          await lastValueFrom(
-            this.httpService.post(`${this.prime_trust_url}/v2/cip-checks/${inc.id}/submit-for-review`, null, {
-              headers: headersRequest,
-            }),
-          );
-        }
+      const contactData = await this.httpService.axios({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/contacts/${contact_uuid}?include=cip-checks`,
       });
 
       //document verify from development
       if (process.env.NODE_ENV === 'dev') {
-        await lastValueFrom(
-          this.httpService.post(
-            `${this.prime_trust_url}/v2/kyc-document-checks/${result.data.data.id}/sandbox/verify`,
-            null,
-            {
-              headers: headersRequest,
-            },
-          ),
-        );
+        await this.httpService.axios({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/kyc-document-checks/${result.data.data.id}/sandbox/verify`,
+          data: null,
+        });
 
         // approve cip for development
         contactData.data.included.map(async (inc) => {
           if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
-            await lastValueFrom(
-              this.httpService.post(`${this.prime_trust_url}/v2/cip-checks/${inc.id}/sandbox/approve`, null, {
-                headers: headersRequest,
-              }),
-            );
+            await this.httpService.axios({
+              method: 'post',
+              url: `${this.prime_trust_url}/v2/cip-checks/${inc.id}/sandbox/approve`,
+              data: null,
+            });
           }
         });
       }
 
       return result.data;
     } catch (e) {
-      this.logger.error(e.response.data);
+      this.logger.error(e);
 
       throw new GrpcException(Status.ABORTED, e.response.data, 400);
     }
   }
 
-  async sendDocument(file, label, token, contact_uuid) {
+  async sendDocument(file, label, contact_uuid) {
     const bodyFormData = new FormData();
     bodyFormData.append('contact-id', contact_uuid);
     bodyFormData.append('label', label);
     bodyFormData.append('public', 'false');
     bodyFormData.append('file', file.buffer, file.originalname);
 
-    const headersRequest = {
-      'Content-Type': 'multipart/form-data',
-      Authorization: `Bearer ${token}`,
-    };
     try {
-      const result = await lastValueFrom(
-        this.httpService.post(`${this.prime_trust_url}/v2/uploaded-documents`, bodyFormData, {
-          headers: headersRequest,
+      const result = await this.httpService.axios({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/uploaded-documents`,
+        data: bodyFormData,
+        headers: {
           ...bodyFormData.getHeaders(),
-        }),
-      );
+        },
+      });
 
       return result.data;
     } catch (e) {
@@ -281,16 +259,11 @@ export class PrimeKycManager {
 
       const { contact_id, user_id, kyc_check_uuid } = accountData;
 
-      const { token } = await this.primeTokenManager.getToken();
-      const headersRequest = {
-        Authorization: `Bearer ${token}`,
-      };
+      const result = await this.httpService.axios({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/kyc-document-checks/${kyc_check_uuid}`,
+      });
 
-      const result = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/kyc-document-checks/${kyc_check_uuid}`, {
-          headers: headersRequest,
-        }),
-      );
       if (result.data) {
         await this.primeTrustKycDocumentEntityRepository.update(
           { kyc_check_uuid: result.data.data.id },
@@ -300,11 +273,11 @@ export class PrimeKycManager {
           },
         );
       }
-      const contactResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/contacts`, {
-          headers: headersRequest,
-        }),
-      );
+
+      const contactResponse = await this.httpService.axios({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/contacts`,
+      });
 
       const cData = contactResponse.data.data.find((c) => {
         return c.id === contact_id;
@@ -365,17 +338,11 @@ export class PrimeKycManager {
   }
 
   private async getCipCheckInfo(cip_check_id) {
-    const { token } = await this.primeTokenManager.getToken();
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
     try {
-      const cipResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/cip-checks/${cip_check_id}`, {
-          headers: headersRequest,
-        }),
-      );
+      const cipResponse = await this.httpService.axios({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/cip-checks/${cip_check_id}`,
+      });
 
       return cipResponse.data.data.attributes;
     } catch (e) {

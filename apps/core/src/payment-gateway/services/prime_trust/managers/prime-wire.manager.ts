@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
+import { PrimeTrustHttpService } from '~common/axios/prime-trust-http.service';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
@@ -34,7 +35,7 @@ export class PrimeWireManager {
   private readonly app_domain: string;
   constructor(
     private config: ConfigService<ConfigInterface>,
-    private readonly httpService: HttpService,
+    private readonly httpService: PrimeTrustHttpService,
 
     private readonly primeKycManager: PrimeKycManager,
 
@@ -78,18 +79,10 @@ export class PrimeWireManager {
   async getReferenceInfo(user_id: number, token: string) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id } });
     try {
-      const headersRequest = {
-        Authorization: `Bearer ${token}`,
-      };
-
-      const transferRefResponse = await lastValueFrom(
-        this.httpService.get(
-          `${this.prime_trust_url}/v2/contact-funds-transfer-references?account.id=${account.uuid}`,
-          {
-            headers: headersRequest,
-          },
-        ),
-      );
+      const transferRefResponse = await this.httpService.axios({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/contact-funds-transfer-references?account.id=${account.uuid}`,
+      });
 
       return transferRefResponse.data;
     } catch (e) {
@@ -111,22 +104,15 @@ export class PrimeWireManager {
         },
       },
     };
-
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
     try {
-      const transferRefResponse = await lastValueFrom(
-        this.httpService.post(`${this.prime_trust_url}/v2/contact-funds-transfer-references`, formData, {
-          headers: headersRequest,
-        }),
-      );
+      const transferRefResponse = await this.httpService.axios({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/contact-funds-transfer-references`,
+        data: formData,
+      });
 
       return transferRefResponse.data;
     } catch (e) {
-      this.logger.error(e.response.data);
-
       throw new GrpcException(Status.ABORTED, e.response.data, 400);
     }
   }
@@ -150,17 +136,11 @@ export class PrimeWireManager {
   }
 
   async getBalanceInfo(account_uuid: string) {
-    const { token } = await this.primeTokenManager.getToken();
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
     try {
-      const cacheResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-cash-totals`, {
-          headers: headersRequest,
-        }),
-      );
+      const cacheResponse = await this.httpService.axios({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-cash-totals`,
+      });
 
       return cacheResponse.data.included[0].attributes;
     } catch (e) {
@@ -242,7 +222,7 @@ export class PrimeWireManager {
   }
 
   async createFundsTransferMethod(request: WithdrawalParams, contact_id: string) {
-    const { token, bank_account_name, bank_account_number, funds_transfer_type, routing_number } = request;
+    const { bank_account_name, bank_account_number, funds_transfer_type, routing_number } = request;
     const formData = {
       data: {
         type: 'funds-transfer-methods',
@@ -257,16 +237,12 @@ export class PrimeWireManager {
       },
     };
 
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
     try {
-      const fundsResponse = await lastValueFrom(
-        this.httpService.post(`${this.prime_trust_url}/v2/funds-transfer-methods?include=bank`, formData, {
-          headers: headersRequest,
-        }),
-      );
+      const fundsResponse = await this.httpService.axios({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/funds-transfer-methods?include=bank`,
+        data: formData,
+      });
 
       return fundsResponse.data.data.id;
     } catch (e) {
@@ -321,20 +297,12 @@ export class PrimeWireManager {
       },
     };
 
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
     try {
-      const fundsResponse = await lastValueFrom(
-        this.httpService.post(
-          `${this.prime_trust_url}/v2/disbursements?include=funds-transfer,disbursement-authorization`,
-          formData,
-          {
-            headers: headersRequest,
-          },
-        ),
-      );
+      const fundsResponse = await this.httpService.axios({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/disbursements?include=funds-transfer,disbursement-authorization`,
+        data: formData,
+      });
 
       return fundsResponse.data.data;
     } catch (e) {
@@ -375,17 +343,11 @@ export class PrimeWireManager {
   }
 
   async getWithdrawInfo(disbursements_id: string) {
-    const { token } = await this.primeTokenManager.getToken();
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
     try {
-      const withDrawResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/disbursements/${disbursements_id}`, {
-          headers: headersRequest,
-        }),
-      );
+      const withDrawResponse = await this.httpService.axios({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/disbursements/${disbursements_id}`,
+      });
 
       return withDrawResponse.data.data.attributes;
     } catch (e) {
@@ -437,17 +399,12 @@ export class PrimeWireManager {
   }
 
   private async getContributionInfo(contribution_id: string) {
-    const { token } = await this.primeTokenManager.getToken();
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
 
     try {
-      const withDrawResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/contributions/${contribution_id}`, {
-          headers: headersRequest,
-        }),
-      );
+      const withDrawResponse = await this.httpService.axios({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/contributions/${contribution_id}`,
+      });
 
       return withDrawResponse.data.data.attributes;
     } catch (e) {

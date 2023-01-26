@@ -66,9 +66,7 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @Post('/account')
   async createAccount(@JwtSessionUser() { id }: User) {
-    const token = await this.redis.get('prime_token');
-
-    return this.paymentGatewayService.createAccount({ id, token });
+    return this.paymentGatewayService.createAccount({ id });
   }
 
   @Post('/account/webhook')
@@ -79,6 +77,8 @@ export class PaymentGatewayController {
       resource_id: payload['resource_id'],
       payment_gateway: 'prime_trust',
     };
+
+    console.log(payload);
 
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
@@ -112,9 +112,7 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @Post('/kyc/contact')
   async createContact(@JwtSessionUser() { id }: User) {
-    const token = await this.redis.get('prime_token');
-
-    return this.paymentGatewayService.createContact({ id, token });
+    return this.paymentGatewayService.createContact({ id });
   }
 
   @Post('kyc/upload-document')
@@ -128,10 +126,8 @@ export class PaymentGatewayController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadDocument(@JwtSessionUser() { id }: User, @UploadedFile() file: any, @Body() payload: SendDocumentDto) {
     const { label } = payload;
-    const token = await this.redis.get('prime_token');
-    const tokenData = { id, token };
 
-    return this.paymentGatewayService.uploadDocument({ file, label, tokenData });
+    return this.paymentGatewayService.uploadDocument({ file, label, userId: { id } });
   }
 
   @ApiOperation({ summary: 'Add Wire transfer reference.' })
@@ -141,9 +137,7 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @Post('/wire/reference')
   async createReference(@JwtSessionUser() { id }: User) {
-    const token = await this.redis.get('prime_token');
-
-    return this.paymentGatewayService.createReference({ id, token });
+    return this.paymentGatewayService.createReference({ id });
   }
 
   @ApiOperation({ summary: 'Add Wire transfer reference.' })
@@ -153,9 +147,7 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @Post('/balance')
   async getBalance(@JwtSessionUser() { id }: User) {
-    const token = await this.redis.get('prime_token');
-
-    return this.paymentGatewayService.getBalance({ id, token });
+    return this.paymentGatewayService.getBalance({ id });
   }
 
   @ApiOperation({ summary: 'Add Bank params for withdrawal.' })
@@ -165,9 +157,7 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @Post('/withdrawal/params')
   async addWithdrawalParams(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalParamsDto) {
-    const token = await this.redis.get('prime_token');
-
-    return this.paymentGatewayService.addWithdrawalParams({ id, token, ...payload });
+    return this.paymentGatewayService.addWithdrawalParams({ id, ...payload });
   }
 
   @ApiOperation({ summary: 'Make withdrawal.' })
@@ -177,8 +167,6 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @Post('/withdrawal/make')
   async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
-    const token = await this.redis.get('prime_token');
-
-    return this.paymentGatewayService.makeWithdrawal({ id, token, ...payload });
+    return this.paymentGatewayService.makeWithdrawal({ id, ...payload });
   }
 }
