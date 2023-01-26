@@ -47,7 +47,7 @@ export class PrimeTrustService {
   }
 
   createReference(userDetails: UserEntity) {
-    return this.primeWireManager.createReference(userDetails, 'token');
+    return this.primeWireManager.createReference(userDetails);
   }
 
   async updateAccountBalance(id: string) {

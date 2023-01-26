@@ -1,9 +1,7 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { PrimeTrustHttpService } from '~common/axios/prime-trust-http.service';
 import { ConfigInterface } from '~common/config/configuration';
@@ -66,17 +64,17 @@ export class PrimeWireManager {
     this.app_domain = domain;
   }
 
-  async createReference(userDetails: UserEntity, token: string): Promise<PrimeTrustData> {
+  async createReference(userDetails: UserEntity): Promise<PrimeTrustData> {
     const user_id = userDetails.id;
-    let refInfo = await this.getReferenceInfo(user_id, token);
+    let refInfo = await this.getReferenceInfo(user_id);
     if (refInfo.data.length == 0) {
-      refInfo = await this.createFundsReference(user_id, token);
+      refInfo = await this.createFundsReference(user_id);
     }
 
     return { data: JSON.stringify(refInfo.data) };
   }
 
-  async getReferenceInfo(user_id: number, token: string) {
+  async getReferenceInfo(user_id: number) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id } });
     try {
       const transferRefResponse = await this.httpService.axios({
@@ -92,7 +90,7 @@ export class PrimeWireManager {
     }
   }
 
-  async createFundsReference(user_id: number, token: string) {
+  async createFundsReference(user_id: number) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id } });
     const contact = await this.primeTrustContactEntityRepository.findOne({ where: { user_id } });
     const formData = {
@@ -399,7 +397,6 @@ export class PrimeWireManager {
   }
 
   private async getContributionInfo(contribution_id: string) {
-
     try {
       const withDrawResponse = await this.httpService.axios({
         method: 'get',

@@ -78,8 +78,6 @@ export class PaymentGatewayController {
       payment_gateway: 'prime_trust',
     };
 
-    console.log(payload);
-
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
     }
