@@ -52,6 +52,11 @@ export interface ConfigInterface {
     email: string;
     password: string;
   };
+
+  sendgrid: {
+    email: string;
+    key: string;
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -112,5 +117,9 @@ export default (): ConfigInterface => ({
   prime_trust: {
     email: process.env.PRIME_EMAIL,
     password: process.env.PRIME_PASSWORD,
+  },
+  sendgrid: {
+    email: process.env.SENDGRID_EMAIL,
+    key: process.env.SENDGRID_KEY,
   },
 });
