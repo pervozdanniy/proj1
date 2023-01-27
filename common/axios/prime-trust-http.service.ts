@@ -42,7 +42,7 @@ export class PrimeTrustHttpService {
     return prime_token;
   }
 
-  async axios(config: AxiosRequestConfig, attempts = 5) {
+  async request(config: AxiosRequestConfig, attempts = 5) {
     const token = await this.ensureAuth();
 
     config = this.createConfig(config, token);

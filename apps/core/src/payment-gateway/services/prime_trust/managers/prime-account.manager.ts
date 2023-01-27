@@ -75,7 +75,7 @@ export class PrimeAccountManager {
     };
 
     try {
-      const accountResponse = await this.httpService.axios({
+      const accountResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/accounts`,
         data: formData,
@@ -87,7 +87,7 @@ export class PrimeAccountManager {
 
       // account open from development
       if (process.env.NODE_ENV === 'dev') {
-        await this.httpService.axios({
+        await this.httpService.request({
           method: 'post',
           url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
           data: null,
@@ -98,7 +98,7 @@ export class PrimeAccountManager {
       //create contact after creating account
       const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
 
-      const contactResponse = await this.httpService.axios({
+      const contactResponse = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/contacts`,
       });
@@ -117,7 +117,7 @@ export class PrimeAccountManager {
 
   async hangWebhook(userDetails: UserEntity, account_id: string) {
     // hang webhook on account
-    await this.httpService.axios({
+    await this.httpService.request({
       method: 'post',
       url: `${this.prime_trust_url}/v2/webhook-configs`,
       data: {
@@ -190,7 +190,7 @@ export class PrimeAccountManager {
 
   async getAccountInfo(account_id: string) {
     try {
-      const accountResponse = await this.httpService.axios({
+      const accountResponse = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/accounts/${account_id}`,
       });

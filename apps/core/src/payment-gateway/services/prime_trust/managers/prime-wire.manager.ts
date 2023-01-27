@@ -77,7 +77,7 @@ export class PrimeWireManager {
   async getReferenceInfo(user_id: number) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id } });
     try {
-      const transferRefResponse = await this.httpService.axios({
+      const transferRefResponse = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/contact-funds-transfer-references?account.id=${account.uuid}`,
       });
@@ -103,7 +103,7 @@ export class PrimeWireManager {
       },
     };
     try {
-      const transferRefResponse = await this.httpService.axios({
+      const transferRefResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/contact-funds-transfer-references`,
         data: formData,
@@ -135,7 +135,7 @@ export class PrimeWireManager {
 
   async getBalanceInfo(account_uuid: string) {
     try {
-      const cacheResponse = await this.httpService.axios({
+      const cacheResponse = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-cash-totals`,
       });
@@ -236,7 +236,7 @@ export class PrimeWireManager {
     };
 
     try {
-      const fundsResponse = await this.httpService.axios({
+      const fundsResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/funds-transfer-methods?include=bank`,
         data: formData,
@@ -296,7 +296,7 @@ export class PrimeWireManager {
     };
 
     try {
-      const fundsResponse = await this.httpService.axios({
+      const fundsResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/disbursements?include=funds-transfer,disbursement-authorization`,
         data: formData,
@@ -342,7 +342,7 @@ export class PrimeWireManager {
 
   async getWithdrawInfo(disbursements_id: string) {
     try {
-      const withDrawResponse = await this.httpService.axios({
+      const withDrawResponse = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/disbursements/${disbursements_id}`,
       });
@@ -398,7 +398,7 @@ export class PrimeWireManager {
 
   private async getContributionInfo(contribution_id: string) {
     try {
-      const withDrawResponse = await this.httpService.axios({
+      const withDrawResponse = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/contributions/${contribution_id}`,
       });

@@ -79,7 +79,7 @@ export class PrimeKycManager {
     };
 
     try {
-      const contactResponse = await this.httpService.axios({
+      const contactResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/contacts`,
         data: formData,
@@ -154,20 +154,20 @@ export class PrimeKycManager {
     };
 
     try {
-      const result = await this.httpService.axios({
+      const result = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/kyc-document-checks`,
         data: formData,
       });
 
-      const contactData = await this.httpService.axios({
+      const contactData = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/contacts/${contact_uuid}?include=cip-checks`,
       });
 
       //document verify from development
       if (process.env.NODE_ENV === 'dev') {
-        await this.httpService.axios({
+        await this.httpService.request({
           method: 'post',
           url: `${this.prime_trust_url}/v2/kyc-document-checks/${result.data.data.id}/sandbox/verify`,
           data: null,
@@ -176,7 +176,7 @@ export class PrimeKycManager {
         // approve cip for development
         contactData.data.included.map(async (inc) => {
           if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
-            await this.httpService.axios({
+            await this.httpService.request({
               method: 'post',
               url: `${this.prime_trust_url}/v2/cip-checks/${inc.id}/sandbox/approve`,
               data: null,
@@ -201,7 +201,7 @@ export class PrimeKycManager {
     bodyFormData.append('file', file.buffer, file.originalname);
 
     try {
-      const result = await this.httpService.axios({
+      const result = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/uploaded-documents`,
         data: bodyFormData,
@@ -259,7 +259,7 @@ export class PrimeKycManager {
 
       const { contact_id, user_id, kyc_check_uuid } = accountData;
 
-      const result = await this.httpService.axios({
+      const result = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/kyc-document-checks/${kyc_check_uuid}`,
       });
@@ -274,7 +274,7 @@ export class PrimeKycManager {
         );
       }
 
-      const contactResponse = await this.httpService.axios({
+      const contactResponse = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/contacts`,
       });
@@ -339,7 +339,7 @@ export class PrimeKycManager {
 
   private async getCipCheckInfo(cip_check_id) {
     try {
-      const cipResponse = await this.httpService.axios({
+      const cipResponse = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/cip-checks/${cip_check_id}`,
       });
