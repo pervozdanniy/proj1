@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { SessionService } from './session.service';
 
 export type SessionProxy<T> = SessionHost<T> & T;
@@ -36,6 +37,8 @@ export const sessionProxyFactory = <T extends Record<PropertyKey, any>>(
 export class SessionHost<T extends Record<string, any> = Record<string, any>> {
   private modified = false;
 
+  private logger = new Logger(SessionHost.name);
+
   constructor(private readonly session: SessionService<T>, private id: string, private data: T) {}
 
   get sessionId() {
@@ -65,8 +68,16 @@ export class SessionHost<T extends Record<string, any> = Record<string, any>> {
   }
 
   async save() {
-    this.session.set(this.id, this.data);
-    this.modified = false;
+    try {
+      await this.session.set(this.id, this.data);
+      this.modified = false;
+
+      return true;
+    } catch (error) {
+      this.logger.error('Session save: failed', error.stack, { error, sessionId: this.sessionId });
+
+      return false;
+    }
   }
 
   get(prop: keyof T) {

@@ -1,21 +1,21 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { UseFilters } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { OnGatewayInit, WebSocketGateway, WsException } from '@nestjs/websockets';
+import { OnGatewayDisconnect, OnGatewayInit, WebSocketGateway, WsException } from '@nestjs/websockets';
 import { JwtPayload } from 'jsonwebtoken';
 import { ExtractJwt } from 'passport-jwt';
-import { Server } from 'socket.io';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { SessionInterface, SessionService } from '~common/session';
-import { isAuthenticated } from '~common/session/helpers';
+import { Server, Socket } from 'socket.io';
+import { SessionProxy, sessionProxyFactory, SessionService } from '~common/session';
+import { AllExceptionsFilter } from './utils/exception.filter';
 import { bind, isBound } from './utils/session/helpers';
 import { BoundSessionInterface } from './utils/session/interfaces';
 
-type ServerWithSession = Server<
-  DefaultEventsMap,
-  DefaultEventsMap,
-  DefaultEventsMap,
-  { session: BoundSessionInterface; sessionId: string }
->;
+type SocketSession = { session: SessionProxy<BoundSessionInterface> };
+
+type WithSession<T> = T extends Server<infer L, infer E, infer S>
+  ? Server<L, E, S, SocketSession>
+  : T extends Socket<infer L, infer E, infer S>
+  ? Socket<L, E, S, SocketSession>
+  : never;
 
 @WebSocketGateway({
   cors: {
@@ -23,15 +23,19 @@ type ServerWithSession = Server<
     methods: ['GET', 'POST'],
   },
 })
-export class WebsocketGateway implements OnGatewayInit {
-  private server: ServerWithSession;
+@UseFilters(AllExceptionsFilter)
+export class WebsocketGateway implements OnGatewayInit, OnGatewayDisconnect {
+  private server: WithSession<Server>;
 
-  constructor(
-    private readonly jwt: JwtService,
-    private readonly session: SessionService<SessionInterface | BoundSessionInterface>,
-  ) {}
+  constructor(private readonly jwt: JwtService, private readonly session: SessionService<BoundSessionInterface>) {}
 
-  afterInit(server: ServerWithSession) {
+  async handleDisconnect(client: WithSession<Socket>) {
+    await client.data.session.reload();
+    client.data.session.socketIds = client.data.session.socketIds.filter((id) => id !== client.id);
+    await client.data.session.save();
+  }
+
+  afterInit(server: WithSession<Server>) {
     server.use(async (socket, next) => {
       const token = ExtractJwt.fromAuthHeaderAsBearerToken()(socket.handshake as any);
       if (!token) {
@@ -46,35 +50,21 @@ export class WebsocketGateway implements OnGatewayInit {
       }
       const session = await this.session.get(payload.sub);
 
-      if (isAuthenticated(session)) {
-        const bound = bind(session, socket.id);
-        socket.data.session = bound;
-        socket.data.sessionId = payload.sub;
+      socket.data.session = sessionProxyFactory(this.session, payload.sub, bind(session, socket.id));
+      socket.data.session.save();
 
-        await this.session.set(payload.sub, bound);
-
-        return next();
-      }
-
-      return next(new WsException('Authentication Error'));
+      return next();
     });
 
     this.server = server;
   }
 
-  async sendHello(sessionId: string) {
-    const session = await this.session.get(sessionId);
-    if (isBound(session)) {
-      this.server.to(session.socketId).emit('hello', session.user.username);
-    }
-  }
-
   async send(payload: { event: string; data?: any }, sessionId: string) {
     const session = await this.session.get(sessionId);
     if (isBound(session)) {
-      this.server.to(session.socketId).emit(payload.event, payload.data);
+      this.server.to(session.socketIds).emit(payload.event, payload.data);
     }
 
-    throw new UnauthorizedException();
+    throw new Error('No websocket clients connected');
   }
 }
