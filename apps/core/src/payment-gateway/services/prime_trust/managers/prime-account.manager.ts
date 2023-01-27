@@ -197,9 +197,9 @@ export class PrimeAccountManager {
 
       return accountResponse.data.data.attributes;
     } catch (e) {
-      this.logger.error(e.response.data);
+      this.logger.error(e.response.data.errors[0]);
 
-      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+      throw new GrpcException(Status.ABORTED, e.response.data.errors[0], 400);
     }
   }
 }

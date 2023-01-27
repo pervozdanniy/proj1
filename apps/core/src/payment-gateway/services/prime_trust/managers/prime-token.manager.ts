@@ -11,11 +11,7 @@ export class PrimeTokenManager {
   private readonly prime_trust_url: string;
   private readonly email: string;
   private readonly password: string;
-  constructor(
-    private readonly httpService: HttpService,
-    private config: ConfigService<ConfigInterface>,
-    @InjectRedis() private readonly redis: Redis,
-  ) {
+  constructor(private readonly httpService: HttpService, private config: ConfigService<ConfigInterface>) {
     const { prime_trust_url } = config.get('app');
     const { email, password } = config.get('prime_trust');
     this.email = email;
@@ -31,7 +27,6 @@ export class PrimeTokenManager {
     const result = await lastValueFrom(
       this.httpService.post(`${this.prime_trust_url}/auth/jwts`, {}, { headers: headersRequest }),
     );
-    this.redis.set('prime_token', result.data);
 
     return result.data;
   }

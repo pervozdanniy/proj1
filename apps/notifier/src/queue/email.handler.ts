@@ -6,10 +6,12 @@ import { Job } from 'bull';
 @Processor('email_queue')
 export class EmailHandler {
   private readonly logger = new Logger(EmailHandler.name);
+
+  constructor() {}
   @Process('send')
   async handleSms(job: Job) {
+    console.log('work');
     this.logger.log(job.data);
-    //send email
   }
 
   @OnQueueFailed({ name: 'send' })

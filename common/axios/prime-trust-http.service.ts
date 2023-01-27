@@ -26,16 +26,20 @@ export class PrimeTrustHttpService {
   }
 
   async ensureAuth(force = false) {
-    let token;
+    let prime_token;
     if (!force) {
-      token = await this.redis.get('prime_token');
-    }
-    if (!token) {
-      token = await this.primeTokenManager.getToken();
+      prime_token = await this.redis.get('prime_token');
+      if (!prime_token) {
+        const { token } = await this.primeTokenManager.getToken();
+        await this.redis.set('prime_token', token);
+      }
+    } else {
+      const { token } = await this.primeTokenManager.getToken();
       await this.redis.set('prime_token', token);
     }
+    prime_token = await this.redis.get('prime_token');
 
-    return token;
+    return prime_token;
   }
 
   async axios(config: AxiosRequestConfig, attempts = 5) {
@@ -46,7 +50,7 @@ export class PrimeTrustHttpService {
       try {
         return await lastValueFrom(this.httpService.request(config));
       } catch (error) {
-        if (attempts > 0 && error.status === 401) {
+        if (attempts > 0 && error.response.data.errors[0].status === 401) {
           const token = await this.ensureAuth(true);
           config = this.createConfig(config, token);
 
@@ -72,8 +76,8 @@ export class PrimeTrustHttpService {
       config = {
         ...config,
         headers: {
-          Authorization: `Bearer ${token}`,
           ...config.headers,
+          Authorization: `Bearer ${token}`,
         },
       };
     }
