@@ -22,11 +22,6 @@ export class DepositFundsDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  token: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   transfer_reference_id: string;
 
   @ApiProperty({ type: AttributesData, required: true })

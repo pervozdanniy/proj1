@@ -6,6 +6,10 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface PaymentGatewayRequest {
+  name: string;
+}
+
 export interface PaymentGatewayListQuery {
   limit: number;
   offset: number;
@@ -24,7 +28,6 @@ export interface PaymentGateway {
 
 export interface TransferMethodRequest {
   id: number;
-  token: string;
   funds_transfer_method_id: string;
   amount: string;
 }
@@ -35,7 +38,6 @@ export interface WithdrawalParamsResponse {
 
 export interface WithdrawalParams {
   id: number;
-  token: string;
   bank_account_number: string;
   routing_number: string;
   funds_transfer_type: string;
@@ -69,12 +71,11 @@ export interface FileData {
 export interface UploadDocumentRequest {
   label: string;
   file: FileData | undefined;
-  tokenData: TokenSendRequest | undefined;
+  userId: UserIdRequest | undefined;
 }
 
-export interface TokenSendRequest {
+export interface UserIdRequest {
   id: number;
-  token: string;
 }
 
 export interface PG_Token {
@@ -90,15 +91,13 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface PaymentGatewayServiceClient {
   list(request: PaymentGatewayListQuery, metadata?: Metadata): Observable<PaymentGatewayListResponse>;
 
-  createUser(request: IdRequest, metadata?: Metadata): Observable<SuccessResponse>;
-
   getToken(request: IdRequest, metadata?: Metadata): Observable<PG_Token>;
 
-  createAccount(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  createAccount(request: UserIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   updateAccount(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
-  createContact(request: TokenSendRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  createContact(request: UserIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   uploadDocument(request: UploadDocumentRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
@@ -106,9 +105,9 @@ export interface PaymentGatewayServiceClient {
 
   cipCheck(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
-  createReference(request: TokenSendRequest, metadata?: Metadata): Observable<PrimeTrustData>;
+  createReference(request: UserIdRequest, metadata?: Metadata): Observable<PrimeTrustData>;
 
-  getBalance(request: TokenSendRequest, metadata?: Metadata): Observable<BalanceResponse>;
+  getBalance(request: UserIdRequest, metadata?: Metadata): Observable<BalanceResponse>;
 
   updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
@@ -127,15 +126,10 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<PaymentGatewayListResponse> | Observable<PaymentGatewayListResponse> | PaymentGatewayListResponse;
 
-  createUser(
-    request: IdRequest,
-    metadata?: Metadata,
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
   getToken(request: IdRequest, metadata?: Metadata): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
 
   createAccount(
-    request: TokenSendRequest,
+    request: UserIdRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
@@ -145,7 +139,7 @@ export interface PaymentGatewayServiceController {
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   createContact(
-    request: TokenSendRequest,
+    request: UserIdRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
@@ -165,12 +159,12 @@ export interface PaymentGatewayServiceController {
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   createReference(
-    request: TokenSendRequest,
+    request: UserIdRequest,
     metadata?: Metadata,
   ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
 
   getBalance(
-    request: TokenSendRequest,
+    request: UserIdRequest,
     metadata?: Metadata,
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 
@@ -204,7 +198,6 @@ export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "list",
-      "createUser",
       "getToken",
       "createAccount",
       "updateAccount",

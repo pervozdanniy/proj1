@@ -6,16 +6,15 @@ package skopa.core;
 
 service PaymentGatewayService {
   rpc List(PaymentGatewayListQuery) returns (PaymentGatewayListResponse);
-  rpc CreateUser(common.IdRequest) returns (common.SuccessResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
-  rpc CreateAccount (TokenSendRequest) returns (common.SuccessResponse);
+  rpc CreateAccount (UserIdRequest) returns (common.SuccessResponse);
   rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
-  rpc CreateContact (TokenSendRequest) returns (common.SuccessResponse);
+  rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (common.SuccessResponse);
   rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
-  rpc CreateReference (TokenSendRequest) returns (PrimeTrustData);
-  rpc GetBalance (TokenSendRequest) returns (BalanceResponse);
+  rpc CreateReference (UserIdRequest) returns (PrimeTrustData);
+  rpc GetBalance (UserIdRequest) returns (BalanceResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalParamsResponse);
@@ -24,6 +23,10 @@ service PaymentGatewayService {
 
 }
 
+
+message PaymentGatewayRequest {
+  string name = 1;
+}
 
 message PaymentGatewayListQuery {
   uint32 limit = 1;
@@ -44,9 +47,8 @@ message PaymentGateway {
 
 message TransferMethodRequest {
   uint32 id = 1;
-  string token = 2;
-  string funds_transfer_method_id = 3;
-  string amount = 4;
+  string funds_transfer_method_id = 2;
+  string amount = 3;
 }
 
 message WithdrawalParamsResponse{
@@ -55,11 +57,10 @@ message WithdrawalParamsResponse{
 
 message WithdrawalParams{
   uint32 id = 1;
-  string token =2;
-  string bank_account_number = 3;
-  string routing_number = 4;
-  string funds_transfer_type = 5;
-  string bank_account_name = 6;
+  string bank_account_number = 2;
+  string routing_number = 3;
+  string funds_transfer_type = 4;
+  string bank_account_name = 5;
 }
 
 message BalanceResponse{
@@ -91,14 +92,13 @@ message FileData  {
 message UploadDocumentRequest {
   string label = 1;
   FileData file = 2;
-  TokenSendRequest tokenData = 3;
+  UserIdRequest userId = 3;
 
 }
 
 
-message TokenSendRequest{
+message UserIdRequest{
   uint32 id = 1;
-  string token = 2;
 }
 
 message PG_Token {

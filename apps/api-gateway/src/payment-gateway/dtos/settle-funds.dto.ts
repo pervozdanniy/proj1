@@ -5,10 +5,5 @@ export class SettleFundsDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  token: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   contribution_id: string;
 }

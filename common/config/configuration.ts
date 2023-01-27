@@ -48,6 +48,15 @@ export interface ConfigInterface {
       delay: number;
     };
   };
+  prime_trust: {
+    email: string;
+    password: string;
+  };
+
+  sendgrid: {
+    email: string;
+    key: string;
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -104,5 +113,13 @@ export default (): ConfigInterface => ({
       attempts: parseInt(process.env.NOTIFICATIONS_ATTEMPTS, 10) || 5,
       delay: parseInt(process.env.NOTIFICATIONS_DELAY, 10) || 5000,
     },
+  },
+  prime_trust: {
+    email: process.env.PRIME_EMAIL,
+    password: process.env.PRIME_PASSWORD,
+  },
+  sendgrid: {
+    email: process.env.SENDGRID_EMAIL,
+    key: process.env.SENDGRID_KEY,
   },
 });

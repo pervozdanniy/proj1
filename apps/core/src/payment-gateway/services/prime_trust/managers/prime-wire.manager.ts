@@ -1,10 +1,9 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
+import { PrimeTrustHttpService } from '~common/axios/prime-trust-http.service';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
@@ -21,7 +20,6 @@ import { ContributionEntity } from '~svc/core/src/payment-gateway/entities/prime
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
-import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { WithdrawalParamsEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
@@ -35,7 +33,7 @@ export class PrimeWireManager {
   private readonly app_domain: string;
   constructor(
     private config: ConfigService<ConfigInterface>,
-    private readonly httpService: HttpService,
+    private readonly httpService: PrimeTrustHttpService,
 
     private readonly primeKycManager: PrimeKycManager,
 
@@ -66,31 +64,23 @@ export class PrimeWireManager {
     this.app_domain = domain;
   }
 
-  async createReference(userDetails: UserEntity, token: string): Promise<PrimeTrustData> {
+  async createReference(userDetails: UserEntity): Promise<PrimeTrustData> {
     const user_id = userDetails.id;
-    let refInfo = await this.getReferenceInfo(user_id, token);
+    let refInfo = await this.getReferenceInfo(user_id);
     if (refInfo.data.length == 0) {
-      refInfo = await this.createFundsReference(user_id, token);
+      refInfo = await this.createFundsReference(user_id);
     }
 
     return { data: JSON.stringify(refInfo.data) };
   }
 
-  async getReferenceInfo(user_id: number, token: string) {
+  async getReferenceInfo(user_id: number) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id } });
     try {
-      const headersRequest = {
-        Authorization: `Bearer ${token}`,
-      };
-
-      const transferRefResponse = await lastValueFrom(
-        this.httpService.get(
-          `${this.prime_trust_url}/v2/contact-funds-transfer-references?account.id=${account.uuid}`,
-          {
-            headers: headersRequest,
-          },
-        ),
-      );
+      const transferRefResponse = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/contact-funds-transfer-references?account.id=${account.uuid}`,
+      });
 
       return transferRefResponse.data;
     } catch (e) {
@@ -100,7 +90,7 @@ export class PrimeWireManager {
     }
   }
 
-  async createFundsReference(user_id: number, token: string) {
+  async createFundsReference(user_id: number) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id } });
     const contact = await this.primeTrustContactEntityRepository.findOne({ where: { user_id } });
     const formData = {
@@ -112,22 +102,15 @@ export class PrimeWireManager {
         },
       },
     };
-
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
     try {
-      const transferRefResponse = await lastValueFrom(
-        this.httpService.post(`${this.prime_trust_url}/v2/contact-funds-transfer-references`, formData, {
-          headers: headersRequest,
-        }),
-      );
+      const transferRefResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/contact-funds-transfer-references`,
+        data: formData,
+      });
 
       return transferRefResponse.data;
     } catch (e) {
-      this.logger.error(e.response.data);
-
       throw new GrpcException(Status.ABORTED, e.response.data, 400);
     }
   }
@@ -135,41 +118,29 @@ export class PrimeWireManager {
   async updateAccountBalance(id: string): Promise<SuccessResponse> {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
-      .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['a.user_id as user_id,u.email as email,p.password as password'])
+      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
+      .select(['a.user_id as user_id'])
       .where('a.uuid = :id', { id })
-      .getRawMany();
+      .getRawOne();
 
-    if (accountData.length == 0) {
+    if (!accountData) {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
-    const user_id = accountData[0].user_id;
+    const { user_id } = accountData;
 
-    const userDetails = {
-      email: accountData[0].email,
-      prime_user: { password: accountData[0].password },
-    };
-
-    const cacheData = await this.getBalanceInfo(userDetails);
+    const cacheData = await this.getBalanceInfo(id);
 
     return this.saveBalance(user_id, cacheData);
   }
 
-  async getBalanceInfo(userDetails) {
-    const { token } = await this.primeTokenManager.getToken(userDetails);
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
+  async getBalanceInfo(account_uuid: string) {
     try {
-      const cacheResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/account-cash-totals`, {
-          headers: headersRequest,
-        }),
-      );
+      const cacheResponse = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-cash-totals`,
+      });
 
-      return cacheResponse.data.data[0].attributes;
+      return cacheResponse.data.included[0].attributes;
     } catch (e) {
       this.logger.error(e.response.data);
 
@@ -203,7 +174,16 @@ export class PrimeWireManager {
   }
 
   async getAccountBalance(id: number): Promise<BalanceResponse> {
-    const balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
+    let balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
+
+    if (!balance) {
+      const account = await this.primeAccountRepository.findOne({ where: { user_id: id } });
+      if (!account) {
+        throw new GrpcException(Status.NOT_FOUND, `Account for this user not exist!`, 400);
+      }
+      await this.updateAccountBalance(account.uuid);
+      balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
+    }
 
     return {
       settled: balance.settled,
@@ -239,8 +219,8 @@ export class PrimeWireManager {
     return { transfer_method_id: transferMethodId };
   }
 
-  async createFundsTransferMethod(request: WithdrawalParams, contact_id) {
-    const { token, bank_account_name, bank_account_number, funds_transfer_type, routing_number } = request;
+  async createFundsTransferMethod(request: WithdrawalParams, contact_id: string) {
+    const { bank_account_name, bank_account_number, funds_transfer_type, routing_number } = request;
     const formData = {
       data: {
         type: 'funds-transfer-methods',
@@ -255,16 +235,12 @@ export class PrimeWireManager {
       },
     };
 
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
     try {
-      const fundsResponse = await lastValueFrom(
-        this.httpService.post(`${this.prime_trust_url}/v2/funds-transfer-methods?include=bank`, formData, {
-          headers: headersRequest,
-        }),
-      );
+      const fundsResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/funds-transfer-methods?include=bank`,
+        data: formData,
+      });
 
       return fundsResponse.data.data.id;
     } catch (e) {
@@ -307,7 +283,7 @@ export class PrimeWireManager {
   }
 
   async sendWithdrawalRequest(request, account_id) {
-    const { token, amount, funds_transfer_method_id } = request;
+    const { amount, funds_transfer_method_id } = request;
     const formData = {
       data: {
         type: 'disbursements',
@@ -319,20 +295,12 @@ export class PrimeWireManager {
       },
     };
 
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
     try {
-      const fundsResponse = await lastValueFrom(
-        this.httpService.post(
-          `${this.prime_trust_url}/v2/disbursements?include=funds-transfer,disbursement-authorization`,
-          formData,
-          {
-            headers: headersRequest,
-          },
-        ),
-      );
+      const fundsResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/disbursements?include=funds-transfer,disbursement-authorization`,
+        data: formData,
+      });
 
       return fundsResponse.data.data;
     } catch (e) {
@@ -345,19 +313,14 @@ export class PrimeWireManager {
   async updateWithdraw(id: string) {
     const withdrawData = await this.withdrawalEntityRepository
       .createQueryBuilder('w')
-      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'w.user_id = p.user_id')
-      .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['u.email as email,p.password as password,u.id as user_id'])
+      .leftJoinAndSelect(UserEntity, 'u', 'w.user_id = u.id')
+      .select(['u.id as user_id'])
       .where('w.uuid = :id', { id })
-      .getRawMany();
+      .getRawOne();
 
-    const { email, password, user_id } = withdrawData[0];
-    const userDetails = {
-      email,
-      prime_user: { password },
-    };
+    const { user_id } = withdrawData;
 
-    const withdrawResponse = await this.getWithdrawInfo(userDetails, id);
+    const withdrawResponse = await this.getWithdrawInfo(id);
 
     await this.withdrawalEntityRepository.update(
       { uuid: id },
@@ -377,18 +340,12 @@ export class PrimeWireManager {
     return { success: true };
   }
 
-  async getWithdrawInfo(userDetails, disbursements_id) {
-    const { token } = await this.primeTokenManager.getToken(userDetails);
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
+  async getWithdrawInfo(disbursements_id: string) {
     try {
-      const withDrawResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/disbursements/${disbursements_id}`, {
-          headers: headersRequest,
-        }),
-      );
+      const withDrawResponse = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/disbursements/${disbursements_id}`,
+      });
 
       return withDrawResponse.data.data.attributes;
     } catch (e) {
@@ -403,19 +360,14 @@ export class PrimeWireManager {
     const contribution = await this.contributionEntityRepository.findOneBy({ uuid: resource_id });
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
-      .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['u.email as email,p.password as password,u.id as user_id'])
+      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
+      .select(['u.id as user_id'])
       .where('a.uuid = :id', { id })
-      .getRawMany();
+      .getRawOne();
 
-    const { email, password, user_id } = accountData[0];
-    const userDetails = {
-      email,
-      prime_user: { password },
-    };
+    const { user_id } = accountData;
 
-    const contributionResponse = await this.getContributionInfo(userDetails, resource_id);
+    const contributionResponse = await this.getContributionInfo(resource_id);
     if (!contribution) {
       await this.contributionEntityRepository.save(
         this.contributionEntityRepository.create({
@@ -444,18 +396,12 @@ export class PrimeWireManager {
     return { success: true };
   }
 
-  private async getContributionInfo(userDetails, contribution_id) {
-    const { token } = await this.primeTokenManager.getToken(userDetails);
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
+  private async getContributionInfo(contribution_id: string) {
     try {
-      const withDrawResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/contributions/${contribution_id}`, {
-          headers: headersRequest,
-        }),
-      );
+      const withDrawResponse = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/contributions/${contribution_id}`,
+      });
 
       return withDrawResponse.data.data.attributes;
     } catch (e) {

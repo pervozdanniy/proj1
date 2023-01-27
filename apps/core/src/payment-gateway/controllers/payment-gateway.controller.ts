@@ -8,9 +8,9 @@ import {
   PaymentGatewayServiceControllerMethods,
   PG_Token,
   PrimeTrustData,
-  TokenSendRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
+  UserIdRequest,
   WithdrawalParams,
   WithdrawalParamsResponse,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -22,21 +22,15 @@ import { PaymentGatewayService } from '../services/payment.gateway.service';
 export class PaymentGatewayController implements PaymentGatewayServiceController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
-  async createUser({ id }: IdRequest): Promise<SuccessResponse> {
-    const success = await this.paymentGatewayService.createUser(id);
-
-    return { success };
-  }
-
   getToken({ id }: IdRequest): Promise<PG_Token> {
     return this.paymentGatewayService.getToken(id);
   }
 
-  createAccount(request: TokenSendRequest): Promise<SuccessResponse> {
+  createAccount(request: UserIdRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.createAccount(request);
   }
 
-  createContact(request: TokenSendRequest): Promise<SuccessResponse> {
+  createContact(request: UserIdRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.createContact(request);
   }
 
@@ -55,7 +49,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.cipCheck(request);
   }
 
-  createReference(request: TokenSendRequest): Promise<PrimeTrustData> {
+  createReference(request: UserIdRequest): Promise<PrimeTrustData> {
     return this.paymentGatewayService.createReference(request);
   }
 
@@ -63,7 +57,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.updateBalance(request);
   }
 
-  getBalance(request: TokenSendRequest): Promise<BalanceResponse> {
+  getBalance(request: UserIdRequest): Promise<BalanceResponse> {
     return this.paymentGatewayService.getBalance(request);
   }
 
