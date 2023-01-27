@@ -1,8 +1,6 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Redis from 'ioredis';
 import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
 

@@ -10,7 +10,6 @@ export class EmailHandler {
   constructor() {}
   @Process('send')
   async handleSms(job: Job) {
-    console.log('work');
     this.logger.log(job.data);
   }
 
