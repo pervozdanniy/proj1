@@ -7,9 +7,9 @@ import {
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
   PG_Token,
-  TokenSendRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
+  UserIdRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PaymentGatewayEntity } from '~svc/core/src/payment-gateway/entities/payment-gateway.entity';
@@ -51,60 +51,44 @@ export class PaymentGatewayService {
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       details.country.payment_gateway.alias,
     );
-    const token = await paymentGateway.getToken(details);
+    const token = await paymentGateway.getToken();
 
     return { data: token };
   }
 
-  async createUser(id: number): Promise<boolean> {
-    try {
-      const user = await this.userService.getUserInfo(id);
-      const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
-        user.country.payment_gateway.alias,
-      );
-      await paymentGateway.createUser(user);
-    } catch (error) {
-      this.logger.error('Payment gateway create user: failed', error.stack, { id, error });
-
-      return false;
-    }
-
-    return true;
-  }
-
-  async createAccount(payload: TokenSendRequest): Promise<SuccessResponse> {
-    const { id, token } = payload;
+  async createAccount(payload: UserIdRequest): Promise<SuccessResponse> {
+    const { id } = payload;
     const userDetails = await this.userService.getUserInfo(id);
 
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.createAccount(userDetails, token);
+    return paymentGateway.createAccount(userDetails);
   }
 
-  async createContact(payload: TokenSendRequest): Promise<SuccessResponse> {
-    const { id, token } = payload;
+  async createContact(payload: UserIdRequest): Promise<SuccessResponse> {
+    const { id } = payload;
     const userDetails = await this.userService.getUserInfo(id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.createContact(userDetails, token);
+    return paymentGateway.createContact(userDetails);
   }
 
   async uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
     const {
       file,
       label,
-      tokenData: { id, token },
+      userId: { id },
     } = request;
     const userDetails = await this.userService.getUserInfo(id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.uploadDocument(userDetails, file, label, token);
+    return paymentGateway.uploadDocument(userDetails, file, label);
   }
 
   async updateAccount(request: AccountIdRequest) {
@@ -128,14 +112,14 @@ export class PaymentGatewayService {
     return paymentGateway.cipCheck(id, resource_id);
   }
 
-  async createReference(request: TokenSendRequest) {
-    const { id, token } = request;
+  async createReference(request: UserIdRequest) {
+    const { id } = request;
     const userDetails = await this.userService.getUserInfo(id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.createReference(userDetails, token);
+    return paymentGateway.createReference(userDetails);
   }
 
   async updateBalance(request: AccountIdRequest) {
@@ -145,7 +129,7 @@ export class PaymentGatewayService {
     return paymentGateway.updateAccountBalance(id);
   }
 
-  async getBalance(request: TokenSendRequest) {
+  async getBalance(request: UserIdRequest) {
     const { id } = request;
     const userDetails = await this.userService.getUserInfo(id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(

@@ -6,7 +6,6 @@ import { CountryService } from '~svc/core/src/country/services/country.service';
 import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
 import { CountryEntity } from '../country/entities/country.entity';
 import { PaymentGatewayEntity } from '../payment-gateway/entities/payment-gateway.entity';
-import { PrimeTrustUserEntity } from '../payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { UserController } from './controllers/user.controller';
 import { UserContactEntity } from './entities/user-contact.entity';
 import { UserDetailsEntity } from './entities/user-details.entity';
@@ -22,7 +21,6 @@ import { UserService } from './services/user.service';
       UserContactEntity,
       CountryEntity,
       PaymentGatewayEntity,
-      PrimeTrustUserEntity,
       UserDetailsEntity,
       NotificationEntity,
       CountryModule,

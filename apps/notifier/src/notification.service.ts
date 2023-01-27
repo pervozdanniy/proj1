@@ -19,7 +19,7 @@ export class NotificationService {
       await this.smsQueue.add('send', { data: request });
     }
     if (send_type & SendType.EMAIL) {
-      await this.emailQueue.add('send_email', { data: request });
+      await this.emailQueue.add('send', { data: request });
     }
 
     return { success: true };

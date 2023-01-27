@@ -1,19 +1,18 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as process from 'process';
-import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
+import { PrimeTrustHttpService } from '~common/axios/prime-trust-http.service';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-account.entity';
-import { PrimeTrustUserEntity } from '~svc/core/src/payment-gateway/entities/prime_trust/prime-trust-user.entity';
 import { PrimeKycManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/payment-gateway/services/prime_trust/managers/prime-token.manager';
+import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -22,7 +21,7 @@ export class PrimeAccountManager {
   private readonly app_domain: string;
   constructor(
     private config: ConfigService<ConfigInterface>,
-    private readonly httpService: HttpService,
+    private readonly httpService: PrimeTrustHttpService,
 
     private readonly notificationService: NotificationService,
 
@@ -38,7 +37,7 @@ export class PrimeAccountManager {
     this.app_domain = domain;
   }
 
-  async createAccount(userDetails, token) {
+  async createAccount(userDetails: UserEntity) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
     if (account) {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
@@ -50,7 +49,7 @@ export class PrimeAccountManager {
         attributes: {
           'account-type': 'custodial',
           name: `${userDetails.details.first_name} ${userDetails.details.last_name}s Account`,
-          'authorized-signature': `${userDetails.prime_user.uuid}`,
+          'authorized-signature': `Signature ${userDetails.email}`,
           owner: {
             'contact-type': 'natural_person',
             name: `${userDetails.details.first_name} ${userDetails.details.last_name}`,
@@ -74,57 +73,40 @@ export class PrimeAccountManager {
         },
       },
     };
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
 
     try {
-      const accountResponse = await lastValueFrom(
-        this.httpService.post(`${this.prime_trust_url}/v2/accounts`, formData, { headers: headersRequest }),
-      );
+      const accountResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/accounts`,
+        data: formData,
+      });
 
       //hang webhook on account
-      await lastValueFrom(
-        this.httpService.post(
-          `${this.prime_trust_url}/v2/webhook-configs`,
-          {
-            data: {
-              type: 'webhook-configs',
-              attributes: {
-                'contact-email': userDetails.email,
-                url: `${this.app_domain}/payment_gateway/account/webhook`,
-                'account-id': accountResponse.data.data.id,
-              },
-            },
-          },
-          {
-            headers: headersRequest,
-          },
-        ),
-      );
+      await this.hangWebhook(userDetails, accountResponse.data.data.id);
       //
 
       // account open from development
       if (process.env.NODE_ENV === 'dev') {
-        await lastValueFrom(
-          this.httpService.post(
-            `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
-            null,
-            { headers: headersRequest },
-          ),
-        );
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
+          data: null,
+        });
       }
       //
 
       //create contact after creating account
-      const account = await this.saveAccount(accountResponse.data.data, userDetails.prime_user.user_id);
+      const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
 
-      const contactResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/contacts`, { headers: headersRequest }),
-      );
-      const contactData = { data: contactResponse.data.data[0] };
+      const contactResponse = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/contacts`,
+      });
+      const contactData = contactResponse.data.data.filter((contact) => {
+        return contact.attributes['account-id'] === account.uuid;
+      });
 
-      return await this.primeKycManager.saveContact(contactData, account.user_id);
+      return await this.primeKycManager.saveContact({ data: contactData.pop() }, account.user_id);
       //
     } catch (e) {
       this.logger.error(e.response.data.errors);
@@ -133,11 +115,29 @@ export class PrimeAccountManager {
     }
   }
 
-  async saveAccount(accountData, user_id): Promise<PrimeTrustAccountEntity> {
+  async hangWebhook(userDetails: UserEntity, account_id: string) {
+    // hang webhook on account
+    await this.httpService.request({
+      method: 'post',
+      url: `${this.prime_trust_url}/v2/webhook-configs`,
+      data: {
+        data: {
+          type: 'webhook-configs',
+          attributes: {
+            'contact-email': userDetails.email,
+            url: `${this.app_domain}/payment_gateway/account/webhook`,
+            'account-id': account_id,
+          },
+        },
+      },
+    });
+  }
+
+  async saveAccount(accountData, user_id: number): Promise<PrimeTrustAccountEntity> {
     try {
       const accountPayload = {
-        uuid: accountData.id,
         user_id,
+        uuid: accountData.id,
         name: accountData.attributes.name,
         number: accountData.attributes.number,
         contributions_frozen: accountData.attributes['contributions-frozen'],
@@ -158,23 +158,17 @@ export class PrimeAccountManager {
   async updateAccount(id: string): Promise<SuccessResponse> {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
-      .leftJoinAndSelect(PrimeTrustUserEntity, 'p', 'a.user_id = p.user_id')
-      .leftJoinAndSelect('p.skopa_user', 'u')
-      .select(['a.uuid as account_id,u.email as email,p.password as password,u.id as user_id,u.username as username'])
+      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
+      .select(['a.uuid as account_id,u.id as user_id,u.username as username'])
       .where('a.uuid = :id', { id })
-      .getRawMany();
+      .getRawOne();
 
-    if (accountData.length == 0) {
+    if (!accountData) {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
-    const { account_id, user_id } = accountData[0];
+    const { account_id, user_id } = accountData;
 
-    const userDetails = {
-      email: accountData[0].email,
-      prime_user: { password: accountData[0].password },
-    };
-
-    const accountResponse = await this.getAccountInfo(userDetails, account_id);
+    const accountResponse = await this.getAccountInfo(account_id);
     await this.primeAccountRepository.update(
       { uuid: account_id },
       {
@@ -194,24 +188,18 @@ export class PrimeAccountManager {
     return { success: true };
   }
 
-  async getAccountInfo(userDetails, account_id) {
-    const { token } = await this.primeTokenManager.getToken(userDetails);
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
+  async getAccountInfo(account_id: string) {
     try {
-      const accountResponse = await lastValueFrom(
-        this.httpService.get(`${this.prime_trust_url}/v2/accounts/${account_id}`, {
-          headers: headersRequest,
-        }),
-      );
+      const accountResponse = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/accounts/${account_id}`,
+      });
 
       return accountResponse.data.data.attributes;
     } catch (e) {
-      this.logger.error(e.response.data);
+      this.logger.error(e.response.data.errors[0]);
 
-      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+      throw new GrpcException(Status.ABORTED, e.response.data.errors[0], 400);
     }
   }
 }

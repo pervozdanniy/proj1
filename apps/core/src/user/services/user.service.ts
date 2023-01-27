@@ -58,7 +58,6 @@ export class UserService {
       .leftJoinAndSelect('u.country', 'c')
       .leftJoinAndSelect('c.payment_gateway', 'p')
       .leftJoinAndSelect('u.details', 'd')
-      .leftJoinAndSelect('u.prime_user', 'pu')
       .where('u.id = :id', { id })
       .getOne();
 

@@ -5,10 +5,5 @@ export class VerifyOwnerDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  token: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   disbursement_authorizations_id: string;
 }
