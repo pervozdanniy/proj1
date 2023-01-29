@@ -19,7 +19,9 @@ pipelines:
             # - docker build -t $REGISTRY/$IMAGE:$TAG .
             # - docker push $REGISTRY/$IMAGE:$TAG
 
-            - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 506490553503.dkr.ecr.us-east-1.amazonaws.com
+            - docker login -u AWS -p $(aws ecr get-login-password --region --region us-east-1) 506490553503.dkr.ecr.us-east-1.amazonaws.com
             - docker build -t skopa-mvp-api .
             - docker tag skopa-mvp-api:latest 506490553503.dkr.ecr.us-east-1.amazonaws.com/skopa-mvp-api:latest
             - docker push 506490553503.dkr.ecr.us-east-1.amazonaws.com/skopa-mvp-api:latest
+            # delete untagged images
+            - aws ecr describe-repositories --output text | awk '{print $5}' | egrep -v '^$' | while read line; do  repo=$(echo $line | sed -e  "s/arn:aws:ecr.*\///g") ; aws ecr list-images --repository-name $repo --filter tagStatus=UNTAGGED --query 'imageIds[*]' --output text | while read imageId; do aws ecr batch-delete-image --repository-name $repo --image-ids imageDigest=$imageId; done; done
