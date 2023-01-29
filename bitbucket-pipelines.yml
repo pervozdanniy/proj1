@@ -7,20 +7,18 @@ pipelines:
           deployment: Dev
           services:
             - docker
-          caches:
-            - pip
           script:
-            - pip3 install awscli
-            # - CURRENT_TAG=${BITBUCKET_BRANCH:-$BITBUCKET_TAG}
-            # - TAG=latest
+          #install awscli
+            - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            -  unzip awscliv2.zip
+            -  sudo ./aws/install
+          # login aws
             - aws configure set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
             - aws configure set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
-            # - docker build -t $REGISTRY/$IMAGE:$TAG .
-            # - docker push $REGISTRY/$IMAGE:$TAG
-
-            - docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 506490553503.dkr.ecr.us-east-1.amazonaws.com
-            - docker build -t skopa-mvp-api .
-            - docker tag skopa-mvp-api:latest 506490553503.dkr.ecr.us-east-1.amazonaws.com/skopa-mvp-api:latest
-            - docker push 506490553503.dkr.ecr.us-east-1.amazonaws.com/skopa-mvp-api:latest
-            # delete untagged images
+          # docker build, tag and push
+            - docker login -u AWS -p $(aws ecr get-login-password --region $AWS_REGION) $REGISTRY
+            - docker build $IMAGE .
+            - docker tag $IMAGE:latest $REGISTRY/$IMAGE:$TAG
+            - docker push $REGISTRY/$IMAGE:$TAG
+          # delete untagged images
             - aws ecr describe-repositories --output text | awk '{print $5}' | egrep -v '^$' | while read line; do  repo=$(echo $line | sed -e  "s/arn:aws:ecr.*\///g") ; aws ecr list-images --repository-name $repo --filter tagStatus=UNTAGGED --query 'imageIds[*]' --output text | while read imageId; do aws ecr batch-delete-image --repository-name $repo --image-ids imageDigest=$imageId; done; done
