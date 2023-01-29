@@ -17,7 +17,7 @@ pipelines:
             - aws configure set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
           # docker build, tag and push
             - docker login -u AWS -p $(aws ecr get-login-password --region $AWS_REGION) $REGISTRY
-            - docker build --t $IMAGE .
+            - docker build -t $IMAGE .
             - docker tag $IMAGE:latest $REGISTRY/$IMAGE:$TAG
             - docker push $REGISTRY/$IMAGE:$TAG
           # delete untagged images
