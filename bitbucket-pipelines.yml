@@ -14,12 +14,11 @@ pipelines:
             # - CURRENT_TAG=${BITBUCKET_BRANCH:-$BITBUCKET_TAG}
             # - TAG=latest
             - aws configure set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
-            - aws configure set aws_secret_access_key "${AWS_ACCESS_KEY}"
-            - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $REGISTRY
+            - aws configure set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
             # - docker build -t $REGISTRY/$IMAGE:$TAG .
             # - docker push $REGISTRY/$IMAGE:$TAG
 
-            #- docker login -u AWS -p $(aws ecr get-login-password --region --region us-east-1) 506490553503.dkr.ecr.us-east-1.amazonaws.com
+            - docker login -u AWS -p $(aws ecr get-login-password --region --region us-east-1) 506490553503.dkr.ecr.us-east-1.amazonaws.com
             - docker build -t skopa-mvp-api .
             - docker tag skopa-mvp-api:latest 506490553503.dkr.ecr.us-east-1.amazonaws.com/skopa-mvp-api:latest
             - docker push 506490553503.dkr.ecr.us-east-1.amazonaws.com/skopa-mvp-api:latest
