@@ -15,6 +15,7 @@ pipelines:
             - TAG=latest
             - aws configure set aws_access_key_id "${AWS_KEY_ID}"
             - aws configure set aws_secret_access_key "${AWS_KEY}"
-            - eval $(aws ecr get-login --no-include-email --region ${AWS_REGION} | sed 's;https://;;g')
-            - docker build -t $IMAGE:$TAG .
-            - docker push $IMAGE:$TAG
+            # - eval $(aws ecr get-login --no-include-email --region  | sed 's;https://;;g')
+            - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $REGISTRY
+            - docker build -t $REGISTRY/$IMAGE:$TAG .
+            - docker push $REGISTRY/$IMAGE:$TAG
