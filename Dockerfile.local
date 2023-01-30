@@ -10,7 +10,6 @@ COPY nest-cli.json ./
 COPY tsconfig.json ./
 COPY webpack.config.js ./
 COPY webpack.config.js ./
-COPY apps/* /usr/src/apps
 
 EXPOSE 3000
 
