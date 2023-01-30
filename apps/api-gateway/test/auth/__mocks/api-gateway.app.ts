@@ -5,8 +5,8 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import configuration from '~common/config/configuration';
 import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
-import { AuthModule } from '~svc/api-gateway/src/auth/auth.module';
-import { UserModule } from '~svc/api-gateway/src/user/user.module';
+import { AuthModule } from '~svc/api-gateway/src/api/auth/auth.module';
+import { UserModule } from '~svc/api-gateway/src/api/user/user.module';
 import redisClients from '../../__mocks/redis';
 import testConfig from './configuration';
 

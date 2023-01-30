@@ -6,8 +6,8 @@ import { Test } from '@nestjs/testing';
 import configuration from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
-import { ClientController } from '../../../src/client/client.controller';
-import { ClientService } from '../../../src/client/client.service';
+import { ClientController } from '../../../src/api/client/client.controller';
+import { ClientService } from '../../../src/api/client/client.service';
 import testConfig from './configuration';
 
 export default async () => {
