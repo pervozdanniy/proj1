@@ -15,9 +15,8 @@ async function bootstrap() {
   app.connectMicroservice<GrpcOptions>({
     transport: Transport.GRPC,
     options: {
-      // url: `0.0.0.0:${config.get('grpcServices.auth.port', { infer: true })}`,
       url: '0.0.0.0:5000',
-      package: 'skopa.auth',
+      package: 'skopa.websocket',
       loader: {
         keepCase: true,
         longs: String,
@@ -25,7 +24,7 @@ async function bootstrap() {
         defaults: true,
         oneofs: true,
       },
-      protoPath: join(config.get('basePath'), 'common/grpc/_proto/auth.proto'),
+      protoPath: join(config.get('basePath'), 'common/grpc/_proto/websocket.proto'),
     },
   });
   await app.startAllMicroservices();

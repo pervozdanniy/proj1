@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package skopa.auth;
+package skopa.websocket;
 
 import "common.proto";
 
