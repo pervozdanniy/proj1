@@ -36,7 +36,10 @@ describe('SDK Auth client (signed)', () => {
 
   it('creates auth client with signature', async () => {
     const pub_key = publicKey.export({ format: 'der', type: 'spki' }).toString('hex');
-    const resp = await request(app.getHttpServer()).post('/clients').send({ name: 'mock_client', pub_key }).expect(201);
+    const resp = await request(app.getHttpServer())
+      .post('/sdk/clients')
+      .send({ name: 'mock_client', pub_key })
+      .expect(201);
     expect(resp.body.is_secure).toBe(true);
     apiKey = resp.body.key;
     const stored = authClientStorage.find((e) => e.key === apiKey);
@@ -47,7 +50,7 @@ describe('SDK Auth client (signed)', () => {
     const payload = { login: 'mock_user_1', countryId: 1 };
     const sign = crypto.sign(null, Buffer.from(JSON.stringify(payload)), privateKey).toString('hex');
     await request(app.getHttpServer())
-      .post('/clients/register')
+      .post('/sdk/clients/register')
       .set('signature', sign)
       .set('api_key', apiKey)
       .send(payload)
@@ -63,7 +66,7 @@ describe('SDK Auth client (signed)', () => {
     const payload = { login: 'mock_user_2', countryId: 1 };
     const sign = crypto.sign(null, Buffer.from(JSON.stringify(payload)), privateKey).toString('hex');
     await request(app.getHttpServer())
-      .post('/clients/register')
+      .post('/sdk/clients/register')
       .set('signature', sign)
       .set('api_key', apiKey)
       .send({ login: 'mock_user_2+', countryId: 1 })
@@ -72,14 +75,14 @@ describe('SDK Auth client (signed)', () => {
 
   it('does not asccept unsigned input', async () => {
     const payload = { login: 'mock_user_2', countryId: 1 };
-    await request(app.getHttpServer()).post('/clients/register').set('api_key', apiKey).send(payload).expect(400);
+    await request(app.getHttpServer()).post('/sdk/clients/register').set('api_key', apiKey).send(payload).expect(400);
   });
 
   it('logins previously registered user', async () => {
     const payload = { login: 'mock_user_1' };
     const sign = crypto.sign(null, Buffer.from(JSON.stringify(payload)), privateKey).toString('hex');
     await request(app.getHttpServer())
-      .post('/clients/login')
+      .post('/sdk/clients/login')
       .set('signature', sign)
       .set('api_key', apiKey)
       .send(payload)
