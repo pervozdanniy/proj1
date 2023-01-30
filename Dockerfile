@@ -12,7 +12,7 @@ COPY webpack.config.js ./
 COPY webpack.config.js ./
 
 #add common files
-COPY apps /usr/src/apps/api-gateway/
+COPY apps /usr/src/apps/
 COPY common /usr/src/common/
 
 EXPOSE 3000
