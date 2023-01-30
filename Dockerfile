@@ -11,6 +11,7 @@ COPY tsconfig.json ./
 COPY webpack.config.js ./
 COPY webpack.config.js ./
 
+#add common files
 COPY apps /usr/src/apps/api-gateway/
 COPY common /usr/src/common/
 
