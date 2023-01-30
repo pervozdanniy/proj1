@@ -11,8 +11,9 @@ export class NotificationService {
     @InjectQueue('email_queue') private emailQueue: Queue,
   ) {}
   async add(request: AddNotificationRequest) {
+    console.log('SUKA', request);
     const {
-      user_data: { send_type },
+      options: { send_type },
     } = request;
 
     if (send_type & SendType.SMS) {

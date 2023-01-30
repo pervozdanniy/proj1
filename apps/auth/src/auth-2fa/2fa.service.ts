@@ -1,6 +1,7 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import { TwoFactorConstraint } from '~common/constants/auth';
 import { SessionInterface, SessionService, TwoFactorSessionInterface } from '~common/session';
 import { is2FA, release2FA, require2FA } from '~common/session/helpers';
 import { BaseSettingsDto } from '../api/dto/2fa.dto';
@@ -16,7 +17,7 @@ export class Auth2FAService {
   ) {}
 
   async requireIfEnabled(sessionId: string, session: SessionInterface) {
-    const enabled = await this.getEnabled(session.user.id);
+    const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
     if (enabled.length) {
       const codes = this.generate(enabled);
       await this.session.set(
@@ -29,7 +30,7 @@ export class Auth2FAService {
       this.notify.send(codes, session.user.id);
     }
 
-    return enabled;
+    return enabled.map((s) => s.method);
   }
 
   async getEnabled(userId: number) {
@@ -42,20 +43,21 @@ export class Auth2FAService {
     return Math.floor(100000 + Math.random() * 899999);
   }
 
-  private generate(methods: TwoFactorMethod[]) {
-    return methods.map((method) => ({
+  private generate(settings: TwoFactorSettingsEntity[]): TwoFactorConstraint[] {
+    return settings.map(({ method, destination }) => ({
       method,
       code: this.generateCode(),
+      destination,
     }));
   }
 
   async enable(settings: BaseSettingsDto, sessionId: string) {
     const session = await this.session.get<TwoFactorSessionInterface>(sessionId);
-    const enabled = await this.getEnabled(session.user.id);
-    if (enabled.includes(settings.method)) {
-      throw new BadRequestException(`2FA via "${settings.method}" is already enabled`);
-    }
+    const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
     const codes = this.generate(enabled);
+    if (enabled.findIndex((s) => s.method === settings.method) >= 0) {
+      throw new ConflictException(`Method ${settings.method} is already enabled`);
+    }
 
     await this.session.set(
       sessionId,
@@ -65,22 +67,22 @@ export class Auth2FAService {
         expiresAt: Date.now() + 15 * 60 * 60 * 1000,
       }),
     );
-    this.notify.send(
-      [...codes, { code: session.twoFactor.add.code, method: session.twoFactor.add.method }],
-      session.user.id,
-    );
+    this.notify.send([...codes, session.twoFactor.add], session.user.id);
   }
 
   async disable(methods: TwoFactorMethod[], sessionId: string) {
     const session = await this.session.get(sessionId);
-    const enabled = await this.getEnabled(session.user.id);
+    const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
+    if (enabled.length === 0) {
+      throw new ConflictException('No 2FA methods are enabled');
+    }
     const codes = this.generate(enabled);
 
     await this.session.set(
       sessionId,
       require2FA(session, {
         verify: codes,
-        remove: methods.length ? methods : enabled,
+        remove: methods.length ? methods : enabled.map((s) => s.method),
         expiresAt: Date.now() + 15 * 60 * 60 * 1000,
       }),
     );

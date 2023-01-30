@@ -21,15 +21,15 @@ export class EmailHandler {
   @Process('send')
   async handleSms(job: Job) {
     const {
-      notification: { title, description },
-      user_data: { email },
+      notification: { title, body },
+      options: { email },
     }: AddNotificationRequest = job.data.data;
     await sendGrid.send({
       to: email,
       subject: 'Skopa notification',
       from: this.from_email,
       text: title,
-      html: `<h3>${description}</h3>`,
+      html: `<h3>${body}</h3>`,
     });
   }
 

@@ -4,14 +4,14 @@ import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { SuccessResponse } from "./common";
 
-export const protobufPackage = "skopa.auth";
+export const protobufPackage = "skopa.websocket";
 
 export interface WsMessage {
   event: string;
   data?: string | undefined;
 }
 
-export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
+export const SKOPA_WEBSOCKET_PACKAGE_NAME = "skopa.websocket";
 
 export interface WebsocketServiceClient {
   send(request: WsMessage, metadata?: Metadata): Observable<SuccessResponse>;
