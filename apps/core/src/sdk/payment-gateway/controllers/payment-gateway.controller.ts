@@ -12,7 +12,8 @@ import {
   UploadDocumentRequest,
   UserIdRequest,
   WithdrawalParams,
-  WithdrawalParamsResponse,
+  WithdrawalResponse,
+  WithdrawalsDataResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { PaymentGatewayService } from '../services/payment.gateway.service';
@@ -61,9 +62,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.getBalance(request);
   }
 
-  addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalParamsResponse> {
-    return this.paymentGatewayService.addWithdrawalParams(request);
-  }
+  // addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalParamsResponse> {
+  //   return this.paymentGatewayService.addWithdrawalParams(request);
+  // }
 
   makeWithdrawal(request: TransferMethodRequest): Promise<PrimeTrustData> {
     return this.paymentGatewayService.makeWithdrawal(request);
@@ -79,5 +80,13 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   list(request: PaymentGatewayListQuery): Promise<PaymentGatewayListResponse> {
     return this.paymentGatewayService.list(request);
+  }
+
+  addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
+    return this.paymentGatewayService.addWithdrawalParams(request);
+  }
+
+  getWithdrawalParams(request: UserIdRequest): Promise<WithdrawalsDataResponse> {
+    return this.paymentGatewayService.getWithdrawalParams(request);
   }
 }

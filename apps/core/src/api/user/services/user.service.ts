@@ -86,11 +86,13 @@ export class UserService {
     }
 
     await this.userRepository.update({ id }, { username, country_id, phone });
-    const currentDetails = await this.userDetailsRepository.findOneBy({ user_id: id });
-    if (currentDetails) {
-      await this.userDetailsRepository.update({ user_id: id }, details);
-    } else {
-      await this.userDetailsRepository.save(this.userDetailsRepository.create({ user_id: id, ...details }));
+    if (details) {
+      const currentDetails = await this.userDetailsRepository.findOneBy({ user_id: id });
+      if (currentDetails) {
+        await this.userDetailsRepository.update({ user_id: id }, details);
+      } else {
+        await this.userDetailsRepository.save(this.userDetailsRepository.create({ user_id: id, ...details }));
+      }
     }
 
     return this.userRepository.findOne({ where: { id }, relations: ['details'] });

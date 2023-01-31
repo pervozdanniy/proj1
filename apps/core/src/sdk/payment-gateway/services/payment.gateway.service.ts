@@ -172,4 +172,14 @@ export class PaymentGatewayService {
 
     return paymentGateway.updateContribution(request);
   }
+
+  async getWithdrawalParams(request: UserIdRequest) {
+    const { id } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getWithdrawalParams(id);
+  }
 }

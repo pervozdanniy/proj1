@@ -87,4 +87,8 @@ export class PaymentGatewayService implements OnModuleInit {
 
     return { data: JSON.parse(response.data) };
   }
+
+  getWithdrawalParams(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getWithdrawalParams(data));
+  }
 }

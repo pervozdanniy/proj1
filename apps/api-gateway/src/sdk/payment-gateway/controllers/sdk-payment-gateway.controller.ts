@@ -158,6 +158,16 @@ export class SdkPaymentGatewayController {
     return this.paymentGatewayService.addWithdrawalParams({ id, ...payload });
   }
 
+  @ApiOperation({ summary: 'Get Bank params for withdrawal.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Get('/withdrawal/params')
+  async getWithdrawalParams(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getWithdrawalParams({ id });
+  }
+
   @ApiOperation({ summary: 'Make withdrawal.' })
   @ApiResponse({
     status: HttpStatus.CREATED,

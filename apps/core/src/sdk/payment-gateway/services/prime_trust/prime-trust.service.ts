@@ -70,4 +70,8 @@ export class PrimeTrustService {
   updateContribution(request: AccountIdRequest) {
     return this.primeWireManager.updateContribution(request);
   }
+
+  getWithdrawalParams(id: number) {
+    return this.primeWireManager.getWithdrawalParams(id);
+  }
 }

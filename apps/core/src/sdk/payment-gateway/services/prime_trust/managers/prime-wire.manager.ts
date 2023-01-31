@@ -11,7 +11,8 @@ import {
   PrimeTrustData,
   TransferMethodRequest,
   WithdrawalParams,
-  WithdrawalParamsResponse,
+  WithdrawalResponse,
+  WithdrawalsDataResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/api/notification/services/notification.service';
@@ -191,7 +192,7 @@ export class PrimeWireManager {
     };
   }
 
-  async addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalParamsResponse> {
+  async addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
     const { id, bank_account_name, bank_account_number, funds_transfer_type, routing_number } = request;
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
     const transferMethod = await this.withdrawalParamsEntityRepository.findOneBy({
@@ -409,5 +410,21 @@ export class PrimeWireManager {
 
       throw new GrpcException(Status.ABORTED, e.response.data, 400);
     }
+  }
+
+  async getWithdrawalParams(id: number): Promise<WithdrawalsDataResponse> {
+    const params = await this.withdrawalParamsEntityRepository
+      .createQueryBuilder('w')
+      .where('w.user_id = :id', { id })
+      .select([
+        'w.uuid as transfer_method_id,' +
+          'w.bank_account_number as bank_account_number,' +
+          'w.routing_number as routing_number,' +
+          'w.funds_transfer_type as funds_transfer_type,' +
+          'w.bank_account_name',
+      ])
+      .getRawMany();
+
+    return { data: params };
   }
 }

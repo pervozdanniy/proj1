@@ -20,7 +20,7 @@ export interface NotifyRequest {
 }
 
 export interface NotifyOptions {
-  send_type: number;
+  send_type: SendType;
   email?: string | undefined;
   phone?: string | undefined;
 }
