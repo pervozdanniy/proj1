@@ -11,9 +11,14 @@ export interface AuthRequest {
   password: string;
 }
 
+export interface Verification {
+  type: string;
+  methods: string[];
+}
+
 export interface AuthData {
   access_token: string;
-  session_id: string;
+  verify?: Verification | undefined;
 }
 
 export interface ClientCreateRequest {

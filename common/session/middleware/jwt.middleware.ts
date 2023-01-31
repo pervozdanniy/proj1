@@ -11,8 +11,6 @@ import { SessionService } from '../session.service';
 
 @Injectable()
 export class JwtSessionMiddleware implements NestMiddleware {
-  private logger = new Logger(JwtSessionMiddleware.name);
-
   constructor(
     private readonly config: ConfigService<ConfigInterface>,
     private readonly session: SessionService<SessionInterface>,
@@ -28,11 +26,7 @@ export class JwtSessionMiddleware implements NestMiddleware {
     const nextCb = (err?: any) => {
       const res = next(err);
       if (host?.isModified) {
-        host
-          .save()
-          .catch((error) =>
-            this.logger.error('Session: persist failed', error.stack, { error, sessionId: host.sessionId }),
-          );
+        host.save();
       }
 
       return res;

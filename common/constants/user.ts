@@ -13,5 +13,5 @@ export enum UserSourceEnum {
 export enum SendType {
   EMAIL = 1,
   SMS = 2,
-  All = SendType.SMS | SendType.EMAIL,
+  ALL = SendType.SMS | SendType.EMAIL,
 }

@@ -1,4 +1,4 @@
-import { TwoFactorMethod } from '~common/constants/auth';
+import { TwoFactorConstraint, TwoFactorMethod } from '~common/constants/auth';
 import { User } from '~common/grpc/interfaces/common';
 import { SessionProxy } from '../session-host';
 
@@ -13,7 +13,7 @@ export type WithSession<T, Session extends SessionInterface = SessionInterface> 
 };
 
 export type TwoFactorSessionData = {
-  verify?: Array<{ method: TwoFactorMethod; code: number }>;
+  verify?: Array<TwoFactorConstraint>;
   add?: {
     method: TwoFactorMethod;
     code: number;

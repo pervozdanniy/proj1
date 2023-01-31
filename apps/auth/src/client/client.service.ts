@@ -80,7 +80,7 @@ export class ClientService {
       const { sessionId } = await this.auth.login(user);
       const token = await this.auth.generateToken(sessionId);
 
-      return { access_token: token, session_id: sessionId };
+      return { access_token: token };
     }
 
     throw new UnauthorizedException();

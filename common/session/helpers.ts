@@ -6,7 +6,7 @@ export const is2FA = (session: SessionInterface): session is TwoFactorSessionInt
 export const require2FA = (
   session: SessionInterface,
   data: TwoFactorSessionInterface['twoFactor'],
-): TwoFactorSessionInterface => Object.assign(session, { isAuthenticated: false as const, twoFactor: data });
+): TwoFactorSessionInterface => Object.assign(session, { twoFactor: data });
 
 export const release2FA = (session: TwoFactorSessionInterface): SessionInterface => {
   delete session.twoFactor;

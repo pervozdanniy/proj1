@@ -12,7 +12,7 @@ export class NotificationService {
   ) {}
   async add(request: AddNotificationRequest) {
     const {
-      user_data: { send_type },
+      options: { send_type },
     } = request;
 
     if (send_type & SendType.SMS) {
