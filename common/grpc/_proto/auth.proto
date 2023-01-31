@@ -33,9 +33,14 @@ message AuthRequest {
   string password = 2;
 }
 
+message Verification {
+  string type = 1;
+  repeated string methods = 2;
+}
+
 message AuthData {
   string access_token = 1;
-  string session_id = 2;
+  optional Verification verify = 2;
 }
 
 message ClientCreateRequest {

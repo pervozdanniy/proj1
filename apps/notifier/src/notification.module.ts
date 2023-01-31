@@ -3,7 +3,7 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration, { ConfigInterface } from '~common/config/configuration';
-import { createBullQueue } from '~common/grpc/helpers';
+import { createBullQueue } from '~common/helpers';
 import { EmailHandler } from '~svc/notifier/src/queue/email.handler';
 import { SmsHandler } from '~svc/notifier/src/queue/sms.handler';
 import { NotificationController } from './notification.controller';

@@ -11,8 +11,9 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { SendType, UserSourceEnum } from '~common/constants/user';
+import { UserSourceEnum } from '~common/constants/user';
 import { CreateRequest, UpdateContactsRequest, UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
+import { SendType } from '~common/grpc/interfaces/notifier';
 
 export class UserDetails {
   @IsString()

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package skopa.websocket;
+
+import "common.proto";
+
+service WebsocketService {
+  rpc Send (WsMessage) returns (common.SuccessResponse);
+}
+
+message WsMessage {
+  string event = 1;
+  optional string data = 2;
+}

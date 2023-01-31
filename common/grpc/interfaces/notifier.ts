@@ -6,21 +6,28 @@ import { SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.notifier";
 
-export interface NotifyRequest {
-  title: string;
-  description: string;
+export enum SendType {
+  SEND_TYPE_UNSPECIFIED = 0,
+  SEND_TYPE_EMAIL = 1,
+  SEND_TYPE_SMS = 2,
+  SEND_TYPE_ALL = 3,
+  UNRECOGNIZED = -1,
 }
 
-export interface UserData {
-  username: string;
+export interface NotifyRequest {
+  body: string;
+  title?: string | undefined;
+}
+
+export interface NotifyOptions {
+  send_type: number;
   email?: string | undefined;
   phone?: string | undefined;
-  send_type: number;
 }
 
 export interface AddNotificationRequest {
   notification: NotifyRequest | undefined;
-  user_data: UserData | undefined;
+  options: NotifyOptions | undefined;
 }
 
 export const SKOPA_NOTIFIER_PACKAGE_NAME = "skopa.notifier";

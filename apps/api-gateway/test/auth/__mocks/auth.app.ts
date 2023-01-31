@@ -37,7 +37,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
       {
         provide: Auth2FAService,
         useFactory: jest.fn(() => ({
-          requireIfEnabled: () => {},
+          requireIfEnabled: jest.fn(() => []),
         })),
       },
     ],

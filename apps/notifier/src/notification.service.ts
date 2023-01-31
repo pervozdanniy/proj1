@@ -1,8 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { SendType } from '~common/constants/user';
-import { AddNotificationRequest } from '~common/grpc/interfaces/notifier';
+import { AddNotificationRequest, SendType } from '~common/grpc/interfaces/notifier';
 
 @Injectable()
 export class NotificationService {
@@ -12,13 +11,13 @@ export class NotificationService {
   ) {}
   async add(request: AddNotificationRequest) {
     const {
-      user_data: { send_type },
+      options: { send_type },
     } = request;
 
-    if (send_type & SendType.SMS) {
+    if (send_type & SendType.SEND_TYPE_SMS) {
       await this.smsQueue.add('send', { data: request });
     }
-    if (send_type & SendType.EMAIL) {
+    if (send_type & SendType.SEND_TYPE_EMAIL) {
       await this.emailQueue.add('send', { data: request });
     }
 

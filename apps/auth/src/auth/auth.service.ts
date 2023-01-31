@@ -55,7 +55,7 @@ export class AuthService implements OnModuleInit {
 
   async login(user: User) {
     const sessionId = await this.session.generate();
-    const session = { user, isAuthenticated: true };
+    const session = { user };
 
     await this.session.set(sessionId, session);
 

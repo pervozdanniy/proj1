@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js" integrity="sha384-/KNQL8Nu5gCHLqwqfQjA689Hhoqgi2S84SNUxC3roTe4EhJ9AfLkp8QiQcU8AMzI" crossorigin="anonymous"></script>
+    <script>
+        const socket = io('http://localhost:8001', {extraHeaders: {Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJya19ZUDJoU2lGcmNUelJBUjZjNlhQbGwiLCJpYXQiOjE2NzQ1Nzg0NzEsImV4cCI6MTcwNjEzNjA3MX0.3PkMKc5JGMQ0z4hLoonJZ9gBDhJtLzKm8fjEg9KlA9s'}});
+        // client-side
+        socket.on("connect", () => {
+            console.log("connect", socket.id); // x8WIv7-mJelg7on_ALbx
+        });
+
+        socket.on("disconnect", () => {
+            console.log('disconnect', socket.id); // undefined
+        });
+        socket.on("connect_error", (error) => {
+            console.error('ERROR', error)
+        });
+
+        socket.on('hello', (data) => console.log('HELLO', data))
+    </script>
+</body>
+</html>

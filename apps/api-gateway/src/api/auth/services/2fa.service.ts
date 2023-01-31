@@ -1,10 +1,10 @@
 import { Metadata } from '@grpc/grpc-js';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { TwoFactorMethod } from '~common/constants/auth';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { TwoFactorServiceClient } from '~common/grpc/interfaces/auth';
+import { AuthData, TwoFactorServiceClient } from '~common/grpc/interfaces/auth';
 import { SessionService } from '~common/session';
 import { TwoFactorEnableRequestDto, TwoFactorVerifyRequestDto } from '../dto/2fa.request.dto';
 
@@ -37,5 +37,20 @@ export class TwoFactorService implements OnModuleInit {
     metadata.set('sessionId', sessionId);
 
     return firstValueFrom(this.authClient.verify({ codes }, metadata));
+  }
+
+  async validateAuthResponse({ access_token, verify }: AuthData) {
+    if (verify) {
+      throw new HttpException(
+        {
+          message: `${verify.type} verification required`,
+          access_token: access_token,
+          methods: verify.methods,
+        },
+        428,
+      );
+    }
+
+    return { access_token };
   }
 }

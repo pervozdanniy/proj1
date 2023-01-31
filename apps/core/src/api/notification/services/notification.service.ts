@@ -5,13 +5,16 @@ import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { NotificationRequest, UpdateNotificationRequest } from '~common/grpc/interfaces/notification';
-import { NotifierServiceClient, UserData } from '~common/grpc/interfaces/notifier';
+import { NotifierServiceClient, NotifyOptions, NotifyRequest, SendType } from '~common/grpc/interfaces/notifier';
 import { NotificationEntity } from '~svc/core/src/api/notification/entities/notification.entity';
 import { UserService } from '~svc/core/src/api/user/services/user.service';
 
 @Injectable()
 export class NotificationService implements OnModuleInit {
   private readonly logger = new Logger(NotificationService.name);
+
+  private notifierService: NotifierServiceClient;
+
   constructor(
     @InjectGrpc('notifier') private readonly client: ClientGrpc,
     @InjectRepository(NotificationEntity)
@@ -19,8 +22,6 @@ export class NotificationService implements OnModuleInit {
 
     private readonly userService: UserService,
   ) {}
-
-  private notifierService: NotifierServiceClient;
 
   onModuleInit() {
     this.notifierService = this.client.getService('NotifierService');
@@ -55,24 +56,23 @@ export class NotificationService implements OnModuleInit {
 
   async create(payload: { user_id: number; description: string; title: string; type: string }): Promise<void> {
     const {
-      username,
       phone,
       email,
       details: { send_type },
     } = await this.userService.getUserInfo(payload.user_id);
 
-    const user_data: UserData = {
-      username,
+    const user_data: NotifyOptions = {
       phone,
       email,
-      send_type,
+      send_type: send_type as unknown as SendType,
     };
+
     await this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload));
 
-    await this.send(payload, user_data);
+    await this.send({ body: payload.description, title: payload.title }, user_data);
   }
 
-  send(notificationPayload, user_data) {
-    return firstValueFrom(this.notifierService.add({ notification: notificationPayload, user_data }));
+  send(notification: NotifyRequest, options: NotifyOptions) {
+    return firstValueFrom(this.notifierService.add({ notification, options }));
   }
 }

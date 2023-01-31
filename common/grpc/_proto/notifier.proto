@@ -8,19 +8,26 @@ service NotifierService {
     rpc Add (AddNotificationRequest) returns (common.SuccessResponse);
 }
 
-message NotifyRequest {
-    string title = 1;
-    string description = 2;
+enum SendType {
+    SEND_TYPE_UNSPECIFIED = 0;
+    SEND_TYPE_EMAIL = 1;
+    SEND_TYPE_SMS = 2;
+    SEND_TYPE_ALL = 3;
 }
 
-message UserData {
-    string username = 1;
+message NotifyRequest {
+    string body = 1;
+    optional string title = 2;
+}
+
+message NotifyOptions {
+    SendType send_type = 1;
     optional string email = 2;
     optional string phone = 3;
-    uint32 send_type = 4;
+    
 }
 
 message AddNotificationRequest {
     NotifyRequest notification = 1;
-    UserData user_data = 2;
+    NotifyOptions options = 2;
 }
