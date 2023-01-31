@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
+import { CountryEntity } from '~svc/core/src/api/country/entities/country.entity';
 import { makeFindOneBy } from '../utils/repository.helpers';
 import { MockType } from '../utils/types';
 
