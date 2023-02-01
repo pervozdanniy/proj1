@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
-import { SendType } from '~common/grpc/interfaces/notifier';
+import { SendType } from '~common/constants/user';
 import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
 
 @Entity('user_details')
@@ -27,7 +27,7 @@ export class UserDetailsEntity {
 
   @Column({
     type: 'integer',
-    default: SendType.SEND_TYPE_EMAIL,
+    default: SendType.EMAIL,
   })
   send_type: SendType;
 
