@@ -8,9 +8,11 @@ import { EmailHandler } from '~svc/notifier/src/queue/email.handler';
 import { SmsHandler } from '~svc/notifier/src/queue/sms.handler';
 import { NotificationController } from './notification.controller';
 import { NotificationService } from './notification.service';
+import { SlickTextModule } from './slicktext/slicktext.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ load: [configuration], isGlobal: true }),
     RedisModule.forRootAsync({
       useFactory(config: ConfigService<ConfigInterface>) {
         const { host, port } = config.get('redis', { infer: true });
@@ -30,7 +32,7 @@ import { NotificationService } from './notification.service';
       createBullQueue('sms_queue', 'notifications'),
       createBullQueue('email_queue', 'notifications'),
     ),
-    ConfigModule.forRoot({ load: [configuration], isGlobal: true }),
+    SlickTextModule,
   ],
   controllers: [NotificationController],
   providers: [NotificationService, SmsHandler, EmailHandler],

@@ -19,11 +19,11 @@ export class EmailHandler {
     sendGrid.setApiKey(key);
   }
   @Process('send')
-  async handleSms(job: Job) {
+  async handleSms(job: Job<AddNotificationRequest>) {
     const {
       notification: { title, body },
       options: { email },
-    }: AddNotificationRequest = job.data.data;
+    } = job.data;
     await sendGrid.send({
       to: email,
       subject: 'Skopa notification',
