@@ -40,7 +40,6 @@ export const asyncClientOptions = (
         loader: {
           keepCase: true,
           longs: String,
-          enums: String,
           defaults: true,
           oneofs: true,
         },
@@ -52,21 +51,3 @@ export const asyncClientOptions = (
 });
 
 export type NotificationType = keyof ConfigInterface['queues'];
-
-export const createBullQueue = (name: string, type: NotificationType): BullModuleAsyncOptions => ({
-  name,
-  useFactory(config: ConfigService<ConfigInterface>) {
-    const { attempts, delay } = config.get(`queues.${type}`, { infer: true });
-
-    return {
-      defaultJobOptions: {
-        attempts,
-        backoff: {
-          type: 'fixed',
-          delay,
-        },
-      },
-    };
-  },
-  inject: [ConfigService],
-});

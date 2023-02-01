@@ -18,7 +18,6 @@ enum SendType {
 message NotifyRequest {
     string body = 1;
     optional string title = 2;
-    
 }
 
 message NotifyOptions {

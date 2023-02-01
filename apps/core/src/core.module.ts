@@ -1,17 +1,13 @@
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration, { ConfigInterface } from '~common/config/configuration';
-import { AwsModule } from '~svc/core/src/aws/AwsModule';
-import { CountryModule } from '~svc/core/src/country/country.module';
-import { NotificationModule } from '~svc/core/src/notification/notification.module';
-import { PaymentGatewayModule } from '~svc/core/src/payment-gateway/payment-gateway.module';
+import { CoreApiModule } from '~svc/core/src/api/core-api.module';
+import { CoreSdkModule } from '~svc/core/src/sdk/core-sdk.module';
 import dbConfig from './db/db.config';
 import migrations from './db/migrations-list';
-import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -57,18 +53,8 @@ import { UserModule } from './user/user.module';
       },
       inject: [ConfigService],
     }),
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (config: ConfigService<ConfigInterface>) => ({
-        redis: config.get('redis', { infer: true }),
-      }),
-      inject: [ConfigService],
-    }),
-    UserModule,
-    PaymentGatewayModule,
-    AwsModule,
-    CountryModule,
-    NotificationModule,
+    CoreApiModule,
+    CoreSdkModule,
   ],
 })
 export class CoreModule {}

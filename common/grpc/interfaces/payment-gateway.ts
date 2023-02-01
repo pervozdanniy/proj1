@@ -6,6 +6,18 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface WithdrawalsDataResponse {
+  data: Withdrawal[];
+}
+
+export interface Withdrawal {
+  transfer_method_id: string;
+  bank_account_number: string;
+  routing_number: string;
+  funds_transfer_type: string;
+  bank_account_name: string;
+}
+
 export interface PaymentGatewayRequest {
   name: string;
 }
@@ -32,7 +44,7 @@ export interface TransferMethodRequest {
   amount: string;
 }
 
-export interface WithdrawalParamsResponse {
+export interface WithdrawalResponse {
   transfer_method_id: string;
 }
 
@@ -109,11 +121,13 @@ export interface PaymentGatewayServiceClient {
 
   getBalance(request: UserIdRequest, metadata?: Metadata): Observable<BalanceResponse>;
 
+  getWithdrawalParams(request: UserIdRequest, metadata?: Metadata): Observable<WithdrawalsDataResponse>;
+
   updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   updateContribution(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
-  addWithdrawalParams(request: WithdrawalParams, metadata?: Metadata): Observable<WithdrawalParamsResponse>;
+  addWithdrawalParams(request: WithdrawalParams, metadata?: Metadata): Observable<WithdrawalResponse>;
 
   makeWithdrawal(request: TransferMethodRequest, metadata?: Metadata): Observable<PrimeTrustData>;
 
@@ -168,6 +182,11 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 
+  getWithdrawalParams(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<WithdrawalsDataResponse> | Observable<WithdrawalsDataResponse> | WithdrawalsDataResponse;
+
   updateBalance(
     request: AccountIdRequest,
     metadata?: Metadata,
@@ -181,7 +200,7 @@ export interface PaymentGatewayServiceController {
   addWithdrawalParams(
     request: WithdrawalParams,
     metadata?: Metadata,
-  ): Promise<WithdrawalParamsResponse> | Observable<WithdrawalParamsResponse> | WithdrawalParamsResponse;
+  ): Promise<WithdrawalResponse> | Observable<WithdrawalResponse> | WithdrawalResponse;
 
   makeWithdrawal(
     request: TransferMethodRequest,
@@ -207,6 +226,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "cipCheck",
       "createReference",
       "getBalance",
+      "getWithdrawalParams",
       "updateBalance",
       "updateContribution",
       "addWithdrawalParams",
