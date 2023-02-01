@@ -15,10 +15,10 @@ export class NotificationService {
     } = request;
 
     if (send_type & SendType.SEND_TYPE_SMS) {
-      await this.smsQueue.add('send', { data: request });
+      await this.smsQueue.add('send', request);
     }
     if (send_type & SendType.SEND_TYPE_EMAIL) {
-      await this.emailQueue.add('send', { data: request });
+      await this.emailQueue.add('send', request);
     }
 
     return { success: true };

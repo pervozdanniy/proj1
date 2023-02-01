@@ -57,6 +57,10 @@ export interface ConfigInterface {
     email: string;
     key: string;
   };
+  slicktext: {
+    pubKey: string;
+    privKey: string;
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -121,5 +125,9 @@ export default (): ConfigInterface => ({
   sendgrid: {
     email: process.env.SENDGRID_EMAIL,
     key: process.env.SENDGRID_KEY,
+  },
+  slicktext: {
+    pubKey: process.env.SLICKTEXT_PUB_KEY,
+    privKey: process.env.SLICKTEXT_PRIV_KEY,
   },
 });
