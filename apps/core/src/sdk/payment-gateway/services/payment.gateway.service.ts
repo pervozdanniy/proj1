@@ -7,9 +7,11 @@ import {
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
   PG_Token,
+  TransferFundsRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
   UserIdRequest,
+  VerifyCreditCardRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { UserService } from '~svc/core/src/api/user/services/user.service';
@@ -181,5 +183,45 @@ export class PaymentGatewayService {
     );
 
     return paymentGateway.getWithdrawalParams(id);
+  }
+
+  async createCreditCardResource(request: UserIdRequest) {
+    const { id } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.createCreditCardResource(id);
+  }
+
+  async verifyCreditCard(request: VerifyCreditCardRequest) {
+    const { id, resource_id } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.verifyCreditCard(resource_id);
+  }
+
+  async getCreditCards(request: UserIdRequest) {
+    const { id } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getCreditCards(id);
+  }
+
+  async transferFunds(request: TransferFundsRequest) {
+    const { from } = request;
+    const userDetails = await this.userService.getUserInfo(from);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.transferFunds(request);
   }
 }

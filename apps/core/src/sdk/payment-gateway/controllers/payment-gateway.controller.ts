@@ -2,15 +2,20 @@ import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BalanceResponse,
+  CreditCardResourceResponse,
+  CreditCardsResponse,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
   PrimeTrustData,
+  TransferFundsRequest,
+  TransferFundsResponse,
   TransferMethodRequest,
   UploadDocumentRequest,
   UserIdRequest,
+  VerifyCreditCardRequest,
   WithdrawalParams,
   WithdrawalResponse,
   WithdrawalsDataResponse,
@@ -21,6 +26,9 @@ import { PaymentGatewayService } from '../services/payment.gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  createCreditCardResource(request: UserIdRequest): Promise<CreditCardResourceResponse> {
+    return this.paymentGatewayService.createCreditCardResource(request);
+  }
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   getToken({ id }: IdRequest): Promise<PG_Token> {
@@ -88,5 +96,17 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   getWithdrawalParams(request: UserIdRequest): Promise<WithdrawalsDataResponse> {
     return this.paymentGatewayService.getWithdrawalParams(request);
+  }
+
+  verifyCreditCard(request: VerifyCreditCardRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.verifyCreditCard(request);
+  }
+
+  getCreditCards(request: UserIdRequest): Promise<CreditCardsResponse> {
+    return this.paymentGatewayService.getCreditCards(request);
+  }
+
+  transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
+    return this.paymentGatewayService.transferFunds(request);
   }
 }

@@ -7,9 +7,11 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   PaymentGatewayServiceClient,
+  TransferFundsRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
   UserIdRequest,
+  VerifyCreditCardRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/payment-gateways-list.dto';
@@ -90,5 +92,21 @@ export class PaymentGatewayService implements OnModuleInit {
 
   getWithdrawalParams(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getWithdrawalParams(data));
+  }
+
+  createCreditCardResource(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.createCreditCardResource(data));
+  }
+
+  verifyCreditCard(data: VerifyCreditCardRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.verifyCreditCard(data));
+  }
+
+  getCreditCards(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getCreditCards(data));
+  }
+
+  transferFunds(data: TransferFundsRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.transferFunds(data));
   }
 }

@@ -1,6 +1,16 @@
-import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Patch, Post, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  HttpStatus,
+  Patch,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtSessionAuth } from '~common/session';
+import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/card-resource.dto';
 import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/settle-withdraw.dto';
@@ -65,5 +75,15 @@ export class SandboxGatewayController {
   @Post('/settle/withdraw')
   async settleWithdraw(@Body() payload: SettleWithdrawDto) {
     return this.sandboxService.settleWithdraw(payload);
+  }
+
+  @ApiOperation({ summary: 'Get Credit Card Descriptor for verification 4 digits).' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/card/verification/number')
+  async getCardDescriptor(@Body() payload: CardResourceDto) {
+    return this.sandboxService.getCardDescriptor(payload);
   }
 }

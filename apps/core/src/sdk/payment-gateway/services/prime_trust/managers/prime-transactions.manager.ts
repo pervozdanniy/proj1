@@ -8,7 +8,11 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BalanceResponse,
+  CreditCardResourceResponse,
+  CreditCardsResponse,
   PrimeTrustData,
+  TransferFundsRequest,
+  TransferFundsResponse,
   TransferMethodRequest,
   WithdrawalParams,
   WithdrawalResponse,
@@ -17,6 +21,7 @@ import {
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/api/notification/services/notification.service';
 import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
+import { CardResourceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/card-resource.entity';
 import { ContributionEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/contribution.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
@@ -28,8 +33,8 @@ import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prim
 import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
 
 @Injectable()
-export class PrimeWireManager {
-  private readonly logger = new Logger(PrimeWireManager.name);
+export class PrimeTransactionsManager {
+  private readonly logger = new Logger(PrimeTransactionsManager.name);
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
   constructor(
@@ -59,6 +64,9 @@ export class PrimeWireManager {
 
     @InjectRepository(WithdrawalParamsEntity)
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
+
+    @InjectRepository(CardResourceEntity)
+    private readonly cardResourceEntityRepository: Repository<CardResourceEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -426,5 +434,135 @@ export class PrimeWireManager {
       .getRawMany();
 
     return { data: params };
+  }
+
+  async createCreditCardResource(id: number): Promise<CreditCardResourceResponse> {
+    const contact = await this.primeTrustContactEntityRepository.findOneByOrFail({ user_id: id });
+    const params = await this.getCreditCardResource(contact.uuid);
+    const cardResource = await this.cardResourceEntityRepository.save(
+      this.cardResourceEntityRepository.create({
+        user_id: id,
+        uuid: params.id,
+        token: params.attributes.token,
+        status: params.attributes.status,
+      }),
+    );
+
+    return {
+      resource_id: cardResource.uuid,
+      resource_token: cardResource.token,
+    };
+  }
+
+  async getCreditCardResource(contact_id: string) {
+    try {
+      const formData = {
+        data: {
+          type: 'credit-card-resource',
+          attributes: {
+            'contact-id': contact_id,
+          },
+        },
+      };
+      const cardResourceResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/credit-card-resources`,
+        data: formData,
+      });
+
+      const response = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/credit-card-resources/${cardResourceResponse.data.data.id}/token`,
+        data: null,
+      });
+
+      return response.data.data;
+    } catch (e) {
+      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+    }
+  }
+
+  async verifyCreditCard(resource_id: string): Promise<SuccessResponse> {
+    try {
+      const cardResourceResponse = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/credit-card-resources/${resource_id}`,
+      });
+
+      const cardAttributes = cardResourceResponse.data.data.attributes;
+      const transferMethodResponse = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/funds-transfer-methods/${cardAttributes['funds-transfer-method-id']}?include=credit-card-resource`,
+      });
+
+      const transferMethodAttributes = transferMethodResponse.data.data.attributes;
+
+      await this.cardResourceEntityRepository.update(
+        { uuid: resource_id },
+        {
+          transfer_method_id: cardAttributes['funds-transfer-method-id'],
+          status: cardAttributes['status'],
+          credit_card_bin: transferMethodAttributes['last-4'],
+          credit_card_type: transferMethodAttributes['credit-card-type'],
+          credit_card_expiration_date: transferMethodAttributes['credit-card-expiration-date'],
+          credit_card_name: transferMethodAttributes['credit-card-name'],
+        },
+      );
+
+      return { success: true };
+    } catch (e) {
+      throw new GrpcException(Status.ABORTED, e.response.data.errors[0].title, 400);
+    }
+  }
+
+  async getCreditCards(id: number): Promise<CreditCardsResponse> {
+    const cards = await this.cardResourceEntityRepository
+      .createQueryBuilder('c')
+      .where('c.user_id = :id', { id })
+      .select([
+        'c.uuid as uuid,' +
+          'c.transfer_method_id as transfer_method_id,' +
+          'c.credit_card_bin as credit_card_bin,' +
+          'c.credit_card_name as credit_card_name,' +
+          'c.credit_card_type as credit_card_type,' +
+          'c.credit_card_expiration_date as credit_card_expiration_date,' +
+          'c.created_at as created_at,' +
+          'c.updated_at as updated_at,' +
+          'c.status as status',
+      ])
+      .getRawMany();
+
+    return { data: cards };
+  }
+
+  async transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
+    const { from, to, amount } = request;
+    const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: from });
+    const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: to });
+    const formData = {
+      data: {
+        type: 'account-cash-transfers',
+        attributes: {
+          amount,
+          'from-account-id': fromAccountId,
+          'to-account-id': toAccountId,
+        },
+      },
+    };
+    const transferFundsResponse = await this.httpService.request({
+      method: 'post',
+      url: `${this.prime_trust_url}/v2/account-cash-transfers?include=from-account-cash-totals,to-account-cash-totals`,
+      data: formData,
+    });
+
+    return {
+      data: {
+        uuid: transferFundsResponse.data.data.id,
+        currency_type: transferFundsResponse.data.data.attributes['currency-type'],
+        status: transferFundsResponse.data.data.attributes['currency-type'],
+        amount: transferFundsResponse.data.data.attributes['amount'],
+        created_at: transferFundsResponse.data.data.attributes['created_at'],
+      },
+    };
   }
 }

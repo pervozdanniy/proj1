@@ -21,7 +21,55 @@ service PaymentGatewayService {
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalResponse);
   rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
+  rpc CreateCreditCardResource (UserIdRequest) returns (CreditCardResourceResponse);
+  rpc VerifyCreditCard (VerifyCreditCardRequest) returns (common.SuccessResponse);
+  rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
+  rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
 
+}
+
+message TransferFundsRequest {
+  uint32 to = 1;
+  uint32 from = 2;
+  string amount = 3;
+}
+
+message TransferFundsResponse{
+  TransferFunds data = 1;
+}
+
+message TransferFunds {
+  string uuid = 1;
+  string amount = 2;
+  string currency_type = 3;
+  string status = 4;
+  string created_at = 5;
+}
+
+
+message CreditCardsResponse{
+  repeated CreditCard data = 1;
+}
+
+message CreditCard {
+  string uuid = 1;
+  string transfer_method_id = 2;
+  string credit_card_bin = 3;
+  string credit_card_type = 4;
+  string credit_card_expiration_date = 5;
+  string created_at = 6;
+  string updated_at = 7;
+  string status = 8;
+}
+
+message VerifyCreditCardRequest {
+  uint32 id = 1;
+  string resource_id = 2;
+}
+
+message CreditCardResourceResponse {
+  string resource_id = 1;
+  string resource_token = 2;
 }
 
 message WithdrawalsDataResponse{

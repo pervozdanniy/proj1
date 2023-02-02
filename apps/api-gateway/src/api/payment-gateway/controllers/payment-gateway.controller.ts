@@ -17,8 +17,10 @@ import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/session';
+import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/card-resource.dto';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/payment-gateways-list.dto';
 import { SendDocumentDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/send-document.dto';
+import { TransferFundsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/transfer-funds.dto';
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/withdrawal-make.dto';
 import { WithdrawalParamsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/withdrawal-params.dto';
 import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/services/payment-gateway.service';
@@ -77,6 +79,7 @@ export class PaymentGatewayController {
       resource_id: payload['resource_id'],
       payment_gateway: 'prime_trust',
     };
+    console.log(payload);
 
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
@@ -176,5 +179,51 @@ export class PaymentGatewayController {
   @Post('/withdrawal/make')
   async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
     return this.paymentGatewayService.makeWithdrawal({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Create Credit Card Resource.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/credit_card/resource')
+  async createCreditCardResource(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.createCreditCardResource({ id });
+  }
+
+  /**
+   * credit card
+   */
+
+  @ApiOperation({ summary: 'Verify Credit Card.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/credit_card/verify')
+  async verifyCreditCard(@JwtSessionUser() { id }: User, @Body() payload: CardResourceDto) {
+    const { resource_id } = payload;
+
+    return this.paymentGatewayService.verifyCreditCard({ id, resource_id });
+  }
+
+  @ApiOperation({ summary: 'Get Credit Cards.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Get('/credit_cards')
+  async getCreditCards(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getCreditCards({ id });
+  }
+
+  @ApiOperation({ summary: 'Verify Credit Card.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/transfer/funds')
+  async transferFunds(@JwtSessionUser() { id }: User, @Body() payload: TransferFundsDto) {
+    return this.paymentGatewayService.transferFunds({ from: id, ...payload });
   }
 }
