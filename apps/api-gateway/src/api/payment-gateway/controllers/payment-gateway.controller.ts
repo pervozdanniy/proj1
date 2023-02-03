@@ -79,7 +79,6 @@ export class PaymentGatewayController {
       resource_id: payload['resource_id'],
       payment_gateway: 'prime_trust',
     };
-    console.log(payload);
 
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
@@ -217,7 +216,7 @@ export class PaymentGatewayController {
     return this.paymentGatewayService.getCreditCards({ id });
   }
 
-  @ApiOperation({ summary: 'Verify Credit Card.' })
+  @ApiOperation({ summary: 'Transfer funds.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })

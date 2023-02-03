@@ -6,6 +6,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   PaymentGatewayServiceClient,
+  TransferFundsRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
   UserIdRequest,
@@ -89,5 +90,9 @@ export class SdkPaymentGatewayService implements OnModuleInit {
 
   getWithdrawalParams(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getWithdrawalParams(data));
+  }
+
+  transferFunds(data: TransferFundsRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.transferFunds(data));
   }
 }
