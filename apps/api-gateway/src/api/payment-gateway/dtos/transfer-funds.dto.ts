@@ -6,7 +6,7 @@ export class TransferFundsDto {
   @IsNumber()
   @Min(1)
   @IsNotEmpty()
-  to: number;
+  receiver_id: number;
 
   @ApiProperty({ description: 'Amount' })
   @IsString()

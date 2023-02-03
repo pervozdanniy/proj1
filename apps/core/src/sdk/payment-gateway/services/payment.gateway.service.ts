@@ -20,8 +20,6 @@ import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
 
 @Injectable()
 export class PaymentGatewayService {
-  private readonly logger = new Logger(PaymentGatewayService.name);
-
   constructor(
     @Inject(UserService)
     private userService: UserService,
@@ -216,8 +214,8 @@ export class PaymentGatewayService {
   }
 
   async transferFunds(request: TransferFundsRequest) {
-    const { from } = request;
-    const userDetails = await this.userService.getUserInfo(from);
+    const { sender_id } = request;
+    const userDetails = await this.userService.getUserInfo(sender_id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );

@@ -141,7 +141,7 @@ export class PaymentGatewayController {
     return this.paymentGatewayService.createReference({ id });
   }
 
-  @ApiOperation({ summary: 'Add Wire transfer reference.' })
+  @ApiOperation({ summary: 'Get Balance.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
@@ -224,6 +224,6 @@ export class PaymentGatewayController {
   @JwtSessionAuth()
   @Post('/transfer/funds')
   async transferFunds(@JwtSessionUser() { id }: User, @Body() payload: TransferFundsDto) {
-    return this.paymentGatewayService.transferFunds({ from: id, ...payload });
+    return this.paymentGatewayService.transferFunds({ sender_id: id, ...payload });
   }
 }

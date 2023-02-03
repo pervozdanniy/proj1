@@ -11,6 +11,7 @@ import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entit
 import { PrimeTrustBalanceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
+import { TransferFundsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/transfer-funds.entity';
 import { WithdrawalParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { PaymentGatewayManager } from '~svc/core/src/sdk/payment-gateway/manager/payment-gateway.manager';
@@ -39,6 +40,7 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
       NotificationEntity,
       ContributionEntity,
       CardResourceEntity,
+      TransferFundsEntity,
     ]),
   ],
   providers: [

@@ -13,7 +13,6 @@ import { PrimeTransactionsManager } from '~svc/core/src/sdk/payment-gateway/serv
 
 @Injectable()
 export class PrimeTrustService {
-  prime_token: string;
   constructor(
     private readonly primeTokenManager: PrimeTokenManager,
     private readonly primeAccountManager: PrimeAccountManager,

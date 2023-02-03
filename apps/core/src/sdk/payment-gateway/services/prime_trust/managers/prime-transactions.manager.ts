@@ -26,6 +26,7 @@ import { ContributionEntity } from '~svc/core/src/sdk/payment-gateway/entities/p
 import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { TransferFundsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/transfer-funds.entity';
 import { WithdrawalParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { PrimeTrustHttpService } from '~svc/core/src/sdk/payment-gateway/request/prime-trust-http.service';
@@ -67,6 +68,9 @@ export class PrimeTransactionsManager {
 
     @InjectRepository(CardResourceEntity)
     private readonly cardResourceEntityRepository: Repository<CardResourceEntity>,
+
+    @InjectRepository(TransferFundsEntity)
+    private readonly transferFundsEntityRepository: Repository<TransferFundsEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -536,33 +540,73 @@ export class PrimeTransactionsManager {
   }
 
   async transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
-    const { from, to, amount } = request;
-    const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: from });
-    const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: to });
-    const formData = {
-      data: {
-        type: 'account-cash-transfers',
-        attributes: {
-          amount,
-          'from-account-id': fromAccountId,
-          'to-account-id': toAccountId,
+    try {
+      const { sender_id, receiver_id, amount } = request;
+      const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: sender_id });
+      const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: receiver_id });
+      const formData = {
+        data: {
+          type: 'account-cash-transfers',
+          attributes: {
+            amount,
+            'from-account-id': fromAccountId,
+            'to-account-id': toAccountId,
+          },
         },
-      },
-    };
-    const transferFundsResponse = await this.httpService.request({
-      method: 'post',
-      url: `${this.prime_trust_url}/v2/account-cash-transfers?include=from-account-cash-totals,to-account-cash-totals`,
-      data: formData,
-    });
+      };
+      const transferFundsResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/account-cash-transfers?include=from-account-cash-totals,to-account-cash-totals`,
+        data: formData,
+      });
 
-    return {
-      data: {
+      const payload = {
+        sender_id,
+        receiver_id,
         uuid: transferFundsResponse.data.data.id,
         currency_type: transferFundsResponse.data.data.attributes['currency-type'],
-        status: transferFundsResponse.data.data.attributes['currency-type'],
+        status: transferFundsResponse.data.data.attributes['status'],
         amount: transferFundsResponse.data.data.attributes['amount'],
-        created_at: transferFundsResponse.data.data.attributes['created_at'],
-      },
+        created_at: transferFundsResponse.data.data.attributes['created-at'],
+      };
+
+      await this.transferFundsEntityRepository.save(this.transferFundsEntityRepository.create(payload));
+      await this.createTransferFundsNotification(
+        sender_id,
+        `Sending ${payload.amount} ${payload.currency_type} ${payload.status}`,
+      );
+
+      await this.createTransferFundsNotification(
+        receiver_id,
+        `Received ${payload.amount} ${payload.currency_type} ${payload.status}`,
+      );
+
+      return {
+        data: payload,
+      };
+    } catch (e) {
+      throw new GrpcException(Status.ABORTED, e.response.data.errors[0].detail, 400);
+    }
+  }
+
+  async createTransferFundsNotification(id: number, description: string) {
+    const accountData = await this.primeAccountRepository
+      .createQueryBuilder('a')
+      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
+      .select(['a.uuid as account_id'])
+      .where('a.user_id = :id', { id })
+      .getRawOne();
+    const { account_id } = accountData;
+
+    const balanceData = await this.getBalanceInfo(account_id);
+
+    const notificationPayload = {
+      user_id: id,
+      title: 'Funds Transfer',
+      type: 'transfer_funds',
+      description: `${description}. Your current balance is ${balanceData['settled']} ${balanceData['currency-type']}`,
     };
+
+    this.notificationService.createAsync(notificationPayload);
   }
 }

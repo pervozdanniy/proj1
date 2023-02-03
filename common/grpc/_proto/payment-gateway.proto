@@ -29,8 +29,8 @@ service PaymentGatewayService {
 }
 
 message TransferFundsRequest {
-  uint32 to = 1;
-  uint32 from = 2;
+  uint32 sender_id = 1;
+  uint32 receiver_id = 2;
   string amount = 3;
 }
 
