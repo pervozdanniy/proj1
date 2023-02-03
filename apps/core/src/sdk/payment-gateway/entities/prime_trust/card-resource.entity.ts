@@ -47,7 +47,7 @@ export class CardResourceEntity {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.withdrawalParams, { onDelete: 'CASCADE' })
+  @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.cardResources, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   contact?: PrimeTrustContactEntity;
 }

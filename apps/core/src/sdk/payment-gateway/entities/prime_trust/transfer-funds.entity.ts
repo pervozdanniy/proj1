@@ -38,7 +38,7 @@ export class TransferFundsEntity {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.withdrawalParams, { onDelete: 'CASCADE' })
+  @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.transferFunds, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'sender_id' })
   contact?: PrimeTrustContactEntity;
 }

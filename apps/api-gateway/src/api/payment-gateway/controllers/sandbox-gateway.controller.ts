@@ -48,7 +48,7 @@ export class SandboxGatewayController {
     return this.sandboxService.settleFunds(payload);
   }
 
-  @ApiOperation({ summary: 'Verify owner for after make withdrawal (testing mode).' })
+  @ApiOperation({ summary: 'Verify owner after make withdrawal (testing mode).' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
