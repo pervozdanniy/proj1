@@ -2,6 +2,8 @@ import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BalanceResponse,
+  BankAccountParams,
+  BankAccountsResponse,
   CreditCardResourceResponse,
   CreditCardsResponse,
   PaymentGatewayListQuery,
@@ -70,10 +72,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.getBalance(request);
   }
 
-  // addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalParamsResponse> {
-  //   return this.paymentGatewayService.addWithdrawalParams(request);
-  // }
-
   makeWithdrawal(request: TransferMethodRequest): Promise<PrimeTrustData> {
     return this.paymentGatewayService.makeWithdrawal(request);
   }
@@ -108,5 +106,13 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
     return this.paymentGatewayService.transferFunds(request);
+  }
+
+  addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
+    return this.paymentGatewayService.addBankAccountParams(request);
+  }
+
+  getBankAccounts(request: UserIdRequest): Promise<BankAccountsResponse> {
+    return this.paymentGatewayService.getBankAccounts(request);
   }
 }

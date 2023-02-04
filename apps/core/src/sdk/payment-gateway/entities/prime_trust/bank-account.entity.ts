@@ -4,13 +4,15 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { WithdrawalParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 
-@Entity('contributions')
-export class ContributionEntity {
+@Entity('bank_accounts')
+export class BankAccountEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -18,28 +20,13 @@ export class ContributionEntity {
   user_id: number;
 
   @Column('character varying', { length: 50, nullable: true })
-  uuid: string;
+  bank_account_name: string;
 
   @Column('character varying', { length: 50, nullable: true })
-  currency_type: string;
+  bank_account_number: string;
 
   @Column('character varying', { length: 50, nullable: true })
-  amount: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  contributor_email: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  contributor_name: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  funds_transfer_type: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  reference: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  status: string;
+  routing_number: string;
 
   @CreateDateColumn()
   created_at: Date;
@@ -47,7 +34,7 @@ export class ContributionEntity {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.contributions, { onDelete: 'CASCADE' })
+  @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.bank_accounts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   contact?: PrimeTrustContactEntity;
 }

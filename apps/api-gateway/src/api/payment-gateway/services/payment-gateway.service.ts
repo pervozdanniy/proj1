@@ -6,6 +6,7 @@ import { InjectGrpc } from '~common/grpc/helpers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
+  BankAccountParams,
   PaymentGatewayServiceClient,
   TransferFundsRequest,
   TransferMethodRequest,
@@ -108,5 +109,13 @@ export class PaymentGatewayService implements OnModuleInit {
 
   transferFunds(data: TransferFundsRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.transferFunds(data));
+  }
+
+  addBankAccountParams(data: BankAccountParams) {
+    return lastValueFrom(this.paymentGatewayServiceClient.addBankAccountParams(data));
+  }
+
+  getBankAccounts(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getBankAccounts(data));
   }
 }

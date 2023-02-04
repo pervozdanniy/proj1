@@ -15,6 +15,8 @@ import { ChangeLogic1674544963817 } from '~svc/core/src/db/migrations/1674544963
 import { DropPrimeUsers1674545919902 } from '~svc/core/src/db/migrations/1674545919902-DropPrimeUsers';
 import { CardResourceTable1675331507769 } from '~svc/core/src/db/migrations/1675331507769-CardResourceTable';
 import { CreateTransferFundsTable1675409446505 } from '~svc/core/src/db/migrations/1675409446505-CreateTransferFundsTable';
+import { CreateBankAccountsTable1675444112418 } from '~svc/core/src/db/migrations/1675444112418-CreateBankAccountsTable';
+import { AlterWithdrawalParamsTable1675502524716 } from '~svc/core/src/db/migrations/1675502524716-AlterWithdrawalParamsTable';
 import { SeedPaymentGateway1671466516817 } from '~svc/core/src/db/seeds/1671466516817-SeedPaymentGateway';
 import { createUserTable1669901299726 } from './migrations/1669901299726-create-user-table';
 import { AlterUsersTable2167043583659 } from './migrations/1670435836592-AlterUsersTable';
@@ -46,4 +48,6 @@ export default [
   DropPrimeUsers1674545919902,
   CardResourceTable1675331507769,
   CreateTransferFundsTable1675409446505,
+  CreateBankAccountsTable1675444112418,
+  AlterWithdrawalParamsTable1675502524716,
 ];

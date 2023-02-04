@@ -30,6 +30,7 @@ import { TransferFundsEntity } from '~svc/core/src/sdk/payment-gateway/entities/
 import { WithdrawalParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { PrimeTrustHttpService } from '~svc/core/src/sdk/payment-gateway/request/prime-trust-http.service';
+import { PrimeBankAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
 import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
 
@@ -47,6 +48,8 @@ export class PrimeTransactionsManager {
     private readonly primeTokenManager: PrimeTokenManager,
 
     private readonly notificationService: NotificationService,
+
+    private readonly primeBankAccountManager: PrimeBankAccountManager,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -205,23 +208,20 @@ export class PrimeTransactionsManager {
   }
 
   async addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
-    const { id, bank_account_name, bank_account_number, funds_transfer_type, routing_number } = request;
+    const { id, bank_account_id, funds_transfer_type } = request;
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
     const transferMethod = await this.withdrawalParamsEntityRepository.findOneBy({
       user_id: id,
-      bank_account_number,
-      routing_number,
+      bank_account_id,
     });
     let transferMethodId;
     if (!transferMethod) {
-      transferMethodId = await this.createFundsTransferMethod(request, contact.uuid);
+      transferMethodId = await this.createFundsTransferWithdrawal(request, contact.uuid);
       await this.withdrawalParamsEntityRepository.save(
         this.withdrawalParamsEntityRepository.create({
           user_id: id,
           uuid: transferMethodId,
-          routing_number,
-          bank_account_name,
-          bank_account_number,
+          bank_account_id,
           funds_transfer_type,
         }),
       );
@@ -232,8 +232,10 @@ export class PrimeTransactionsManager {
     return { transfer_method_id: transferMethodId };
   }
 
-  async createFundsTransferMethod(request: WithdrawalParams, contact_id: string) {
-    const { bank_account_name, bank_account_number, funds_transfer_type, routing_number } = request;
+  async createFundsTransferWithdrawal(request: WithdrawalParams, contact_id: string) {
+    const { bank_account_id, funds_transfer_type } = request;
+    const { bank_account_name, routing_number, bank_account_number } =
+      await this.primeBankAccountManager.getBankAccountById(bank_account_id);
     const formData = {
       data: {
         type: 'funds-transfer-methods',

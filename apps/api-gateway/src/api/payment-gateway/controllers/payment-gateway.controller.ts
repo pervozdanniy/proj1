@@ -17,6 +17,7 @@ import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/session';
+import { BankParamsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/bank-params.dto';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/card-resource.dto';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/payment-gateways-list.dto';
 import { SendDocumentDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/send-document.dto';
@@ -224,5 +225,24 @@ export class PaymentGatewayController {
   @Post('/transfer/funds')
   async transferFunds(@JwtSessionUser() { id }: User, @Body() payload: TransferFundsDto) {
     return this.paymentGatewayService.transferFunds({ sender_id: id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Get Bank Accounts.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Get('/bank/account')
+  async getBankAccounts(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getBankAccounts({ id });
+  }
+  @ApiOperation({ summary: 'Add Bank Account params.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/bank/account')
+  async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
+    return this.paymentGatewayService.addBankAccountParams({ id, ...payload });
   }
 }

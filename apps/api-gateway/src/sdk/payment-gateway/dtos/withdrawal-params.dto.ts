@@ -1,23 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, Min } from 'class-validator';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
 
 export class WithdrawalParamsDto {
-  @ApiProperty({ example: 'Test Test' })
-  @IsString()
+  @ApiProperty({ example: 1 })
+  @Min(1)
+  @IsNumber()
   @IsNotEmpty()
-  bank_account_name: string;
-
-  @ApiProperty({ example: '123456890' })
-  @IsString()
-  @IsNotEmpty()
-  bank_account_number: string;
-
-  @ApiProperty({ example: '021000021' })
-  @IsString()
-  @IsNotEmpty()
-  routing_number: string;
+  bank_account_id: number;
 
   @ApiProperty({ enum: Object.values(WithdrawalTypes) })
   @IsEnum(WithdrawalTypes)

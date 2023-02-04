@@ -18,6 +18,8 @@ service PaymentGatewayService {
   rpc GetWithdrawalParams (UserIdRequest) returns (WithdrawalsDataResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
+  rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
+  rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalResponse);
   rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
@@ -26,6 +28,17 @@ service PaymentGatewayService {
   rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
 
+}
+
+message BankAccountParams{
+  uint32 id = 1;
+  string bank_account_name = 2;
+  string bank_account_number = 3;
+  string routing_number = 4;
+}
+
+message BankAccountsResponse {
+  repeated BankAccountParams data = 1;
 }
 
 message TransferFundsRequest {
@@ -118,10 +131,8 @@ message WithdrawalResponse{
 
 message WithdrawalParams{
   uint32 id = 1;
-  string bank_account_number = 2;
-  string routing_number = 3;
-  string funds_transfer_type = 4;
-  string bank_account_name = 5;
+  uint32 bank_account_id = 2;
+  string funds_transfer_type = 3;
 }
 
 message BalanceResponse{

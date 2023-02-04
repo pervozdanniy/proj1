@@ -6,6 +6,17 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface BankAccountParams {
+  id: number;
+  bank_account_name: string;
+  bank_account_number: string;
+  routing_number: string;
+}
+
+export interface BankAccountsResponse {
+  data: BankAccountParams[];
+}
+
 export interface TransferFundsRequest {
   sender_id: number;
   receiver_id: number;
@@ -93,10 +104,8 @@ export interface WithdrawalResponse {
 
 export interface WithdrawalParams {
   id: number;
-  bank_account_number: string;
-  routing_number: string;
+  bank_account_id: number;
   funds_transfer_type: string;
-  bank_account_name: string;
 }
 
 export interface BalanceResponse {
@@ -169,6 +178,10 @@ export interface PaymentGatewayServiceClient {
   updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   updateContribution(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  getBankAccounts(request: UserIdRequest, metadata?: Metadata): Observable<BankAccountsResponse>;
+
+  addBankAccountParams(request: BankAccountParams, metadata?: Metadata): Observable<BankAccountParams>;
 
   addWithdrawalParams(request: WithdrawalParams, metadata?: Metadata): Observable<WithdrawalResponse>;
 
@@ -248,6 +261,16 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
+  getBankAccounts(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<BankAccountsResponse> | Observable<BankAccountsResponse> | BankAccountsResponse;
+
+  addBankAccountParams(
+    request: BankAccountParams,
+    metadata?: Metadata,
+  ): Promise<BankAccountParams> | Observable<BankAccountParams> | BankAccountParams;
+
   addWithdrawalParams(
     request: WithdrawalParams,
     metadata?: Metadata,
@@ -300,6 +323,8 @@ export function PaymentGatewayServiceControllerMethods() {
       "getWithdrawalParams",
       "updateBalance",
       "updateContribution",
+      "getBankAccounts",
+      "addBankAccountParams",
       "addWithdrawalParams",
       "makeWithdrawal",
       "updateWithdraw",

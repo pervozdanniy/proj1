@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
+  BankAccountParams,
   TransferFundsRequest,
   TransferMethodRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
 import { PrimeAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-account.manager';
+import { PrimeBankAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
 import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
 import { PrimeTransactionsManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-transactions.manager';
@@ -18,6 +20,8 @@ export class PrimeTrustService {
     private readonly primeAccountManager: PrimeAccountManager,
     private readonly primeKycManager: PrimeKycManager,
     private readonly primeTransactionsManager: PrimeTransactionsManager,
+
+    private readonly primeBankAccountManager: PrimeBankAccountManager,
   ) {}
 
   getToken() {
@@ -93,5 +97,13 @@ export class PrimeTrustService {
 
   transferFunds(request: TransferFundsRequest) {
     return this.primeTransactionsManager.transferFunds(request);
+  }
+
+  addBankAccountParams(request: BankAccountParams) {
+    return this.primeBankAccountManager.addBankAccountParams(request);
+  }
+
+  getBankAccounts(id: number) {
+    return this.primeBankAccountManager.getBankAccounts(id);
   }
 }

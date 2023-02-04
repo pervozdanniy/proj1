@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
+  BankAccountParams,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
   PG_Token,
@@ -221,5 +222,25 @@ export class PaymentGatewayService {
     );
 
     return paymentGateway.transferFunds(request);
+  }
+
+  async addBankAccountParams(request: BankAccountParams) {
+    const { id } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.addBankAccountParams(request);
+  }
+
+  async getBankAccounts(request: UserIdRequest) {
+    const { id } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getBankAccounts(id);
   }
 }
