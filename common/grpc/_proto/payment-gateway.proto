@@ -27,7 +27,20 @@ service PaymentGatewayService {
   rpc VerifyCreditCard (VerifyCreditCardRequest) returns (common.SuccessResponse);
   rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
+  rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
 
+}
+
+message MakeContributionRequest {
+  uint32 id = 1;
+  string funds_transfer_method_id = 2;
+  string amount = 3;
+  string cvv = 4;
+}
+
+
+message ContributionResponse {
+ string contribution_id = 1;
 }
 
 message BankAccountParams{

@@ -5,6 +5,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BankAccountParams,
+  MakeContributionRequest,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
   PG_Token,
@@ -242,5 +243,15 @@ export class PaymentGatewayService {
     );
 
     return paymentGateway.getBankAccounts(id);
+  }
+
+  async makeContribution(request: MakeContributionRequest) {
+    const { id } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.makeContribution(request);
   }
 }

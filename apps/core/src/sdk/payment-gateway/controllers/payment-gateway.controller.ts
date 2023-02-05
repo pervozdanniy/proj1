@@ -4,8 +4,10 @@ import {
   BalanceResponse,
   BankAccountParams,
   BankAccountsResponse,
+  ContributionResponse,
   CreditCardResourceResponse,
   CreditCardsResponse,
+  MakeContributionRequest,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
   PaymentGatewayServiceController,
@@ -114,5 +116,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   getBankAccounts(request: UserIdRequest): Promise<BankAccountsResponse> {
     return this.paymentGatewayService.getBankAccounts(request);
+  }
+
+  makeContribution(request: MakeContributionRequest): Promise<ContributionResponse> {
+    return this.paymentGatewayService.makeContribution(request);
   }
 }

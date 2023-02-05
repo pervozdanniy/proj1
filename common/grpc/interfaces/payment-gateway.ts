@@ -6,6 +6,17 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface MakeContributionRequest {
+  id: number;
+  funds_transfer_method_id: string;
+  amount: string;
+  cvv: string;
+}
+
+export interface ContributionResponse {
+  contribution_id: string;
+}
+
 export interface BankAccountParams {
   id: number;
   bank_account_name: string;
@@ -196,6 +207,8 @@ export interface PaymentGatewayServiceClient {
   getCreditCards(request: UserIdRequest, metadata?: Metadata): Observable<CreditCardsResponse>;
 
   transferFunds(request: TransferFundsRequest, metadata?: Metadata): Observable<TransferFundsResponse>;
+
+  makeContribution(request: MakeContributionRequest, metadata?: Metadata): Observable<ContributionResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -305,6 +318,11 @@ export interface PaymentGatewayServiceController {
     request: TransferFundsRequest,
     metadata?: Metadata,
   ): Promise<TransferFundsResponse> | Observable<TransferFundsResponse> | TransferFundsResponse;
+
+  makeContribution(
+    request: MakeContributionRequest,
+    metadata?: Metadata,
+  ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -332,6 +350,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "verifyCreditCard",
       "getCreditCards",
       "transferFunds",
+      "makeContribution",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

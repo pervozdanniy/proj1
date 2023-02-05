@@ -19,6 +19,7 @@ import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { BankParamsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/bank-params.dto';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/card-resource.dto';
+import { MakeContributionDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/make-contribution.dto';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/payment-gateways-list.dto';
 import { SendDocumentDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/send-document.dto';
 import { TransferFundsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/transfer-funds.dto';
@@ -80,6 +81,8 @@ export class PaymentGatewayController {
       resource_id: payload['resource_id'],
       payment_gateway: 'prime_trust',
     };
+
+    console.log(payload);
 
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
@@ -244,5 +247,15 @@ export class PaymentGatewayController {
   @Post('/bank/account')
   async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
     return this.paymentGatewayService.addBankAccountParams({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Deposit funds by credit card.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/contribution')
+  async makeContribution(@JwtSessionUser() { id }: User, @Body() payload: MakeContributionDto) {
+    return this.paymentGatewayService.makeContribution({ id, ...payload });
   }
 }

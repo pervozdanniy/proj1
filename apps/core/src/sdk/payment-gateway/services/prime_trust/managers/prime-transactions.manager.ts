@@ -8,8 +8,10 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BalanceResponse,
+  ContributionResponse,
   CreditCardResourceResponse,
   CreditCardsResponse,
+  MakeContributionRequest,
   PrimeTrustData,
   TransferFundsRequest,
   TransferFundsResponse,
@@ -610,5 +612,47 @@ export class PrimeTransactionsManager {
     };
 
     this.notificationService.createAsync(notificationPayload);
+  }
+
+  async makeContribution(request: MakeContributionRequest): Promise<ContributionResponse> {
+    const { id, funds_transfer_method_id, amount, cvv } = request;
+    const accountData = await this.primeAccountRepository
+      .createQueryBuilder('a')
+      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
+      .leftJoinAndSelect(PrimeTrustContactEntity, 'c', 'c.user_id = u.id')
+      .select(['a.uuid as account_id,c.uuid as contact_id'])
+      .where('a.user_id = :id', { id })
+      .getRawOne();
+
+    const { account_id, contact_id } = accountData;
+    const formData = {
+      data: {
+        type: 'contributions',
+        attributes: {
+          amount,
+          'contact-id': contact_id,
+          'funds-transfer-method-id': funds_transfer_method_id,
+          'account-id': account_id,
+        },
+      },
+    };
+    if (cvv) {
+      formData.data.attributes['cvv'] = cvv;
+    }
+    console.log(formData);
+
+    try {
+      const contributionResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/contributions?include=funds-transfer`,
+        data: formData,
+      });
+
+      return { contribution_id: contributionResponse.data.data.id };
+    } catch (e) {
+      console.log(e.response.data.errors[0]);
+
+      throw new GrpcException(Status.ABORTED, e.response.data.errors[0].detail, 400);
+    }
   }
 }
