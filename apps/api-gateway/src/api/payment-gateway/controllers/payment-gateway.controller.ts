@@ -82,8 +82,6 @@ export class PaymentGatewayController {
       payment_gateway: 'prime_trust',
     };
 
-    console.log(payload);
-
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
     }
@@ -156,7 +154,7 @@ export class PaymentGatewayController {
 
   @ApiOperation({ summary: 'Get Bank params for withdrawal.' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
+    status: HttpStatus.OK,
   })
   @JwtSessionAuth()
   @Get('/withdrawal/params')
@@ -212,7 +210,7 @@ export class PaymentGatewayController {
 
   @ApiOperation({ summary: 'Get Credit Cards.' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
+    status: HttpStatus.OK,
   })
   @JwtSessionAuth()
   @Get('/credit_cards')
@@ -232,7 +230,7 @@ export class PaymentGatewayController {
 
   @ApiOperation({ summary: 'Get Bank Accounts.' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
+    status: HttpStatus.OK,
   })
   @JwtSessionAuth()
   @Get('/bank/account')

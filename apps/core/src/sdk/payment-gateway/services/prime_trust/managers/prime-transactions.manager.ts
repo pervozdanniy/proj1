@@ -639,7 +639,6 @@ export class PrimeTransactionsManager {
     if (cvv) {
       formData.data.attributes['cvv'] = cvv;
     }
-    console.log(formData);
 
     try {
       const contributionResponse = await this.httpService.request({
@@ -650,8 +649,6 @@ export class PrimeTransactionsManager {
 
       return { contribution_id: contributionResponse.data.data.id };
     } catch (e) {
-      console.log(e.response.data.errors[0]);
-
       throw new GrpcException(Status.ABORTED, e.response.data.errors[0].detail, 400);
     }
   }
