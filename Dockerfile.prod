@@ -1,0 +1,48 @@
+FROM node:18-alpine as vendors
+WORKDIR /usr/src
+
+COPY package.json .
+COPY yarn.lock .
+
+RUN yarn install --production --frozen-lockfile
+
+
+
+FROM node:18-alpine as build
+WORKDIR /usr/src
+
+COPY --from=vendors /usr/src .
+RUN yarn install --frozen-lockfile --dev-dependencies
+
+#add config files
+COPY nest-cli.json .
+COPY tsconfig.json .
+COPY webpack.config.js .
+
+#add common files
+COPY common /usr/src/common
+
+# ARG COMPONENT
+# COPY apps/$COMPONENT /usr/src/apps/$COMPONENT/
+
+# RUN yarn build $COMPONENT
+
+COPY apps /usr/src/apps
+RUN node_modules/.bin/nest build core
+RUN node_modules/.bin/nest build auth
+RUN node_modules/.bin/nest build api-gateway
+RUN node_modules/.bin/nest build notifier
+RUN node_modules/.bin/nest build websocket
+
+
+FROM node:18-alpine as prod
+WORKDIR /usr/src
+
+COPY --from=vendors /usr/src .
+
+# ARG COMPONENT
+# COPY --from=build /usr/src/dist/apps/$COMPONENT ./dist
+
+COPY --from=build /usr/src/dist ./dist
+
+ENTRYPOINT [ "npm", "run", "start:prod" ]
