@@ -1,12 +1,12 @@
 import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Patch, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtSessionAuth } from '~common/session';
-import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';
-import { SettleFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-funds.dto';
-import { SettleWithdrawDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-withdraw.dto';
-import { VerifyOwnerDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/verify-owner.dto';
-import { WebhookUrlDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/webhook-url.dto';
-import { SdkSandboxService } from '~svc/api-gateway/src/sdk/payment-gateway/services/sdk-sandbox.service';
+import { DepositFundsDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/deposit-funds.dto';
+import { SettleFundsDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/settle-funds.dto';
+import { SettleWithdrawDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/settle-withdraw.dto';
+import { VerifyOwnerDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/verify-owner.dto';
+import { WebhookUrlDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/webhook-url.dto';
+import { SdkSandboxService } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/services/sdk-sandbox.service';
 
 @ApiTags('Sandbox')
 @ApiBearerAuth()

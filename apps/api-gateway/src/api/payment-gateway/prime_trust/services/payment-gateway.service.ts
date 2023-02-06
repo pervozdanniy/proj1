@@ -1,4 +1,3 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
@@ -22,7 +21,7 @@ import { PaymentGatewaysListDto } from '~svc/api-gateway/src/api/payment-gateway
 export class PaymentGatewayService implements OnModuleInit {
   private paymentGatewayServiceClient: PaymentGatewayServiceClient;
 
-  constructor(@InjectGrpc('core') private readonly client: ClientGrpc, private readonly httpService: HttpService) {}
+  constructor(@InjectGrpc('core') private readonly client: ClientGrpc) {}
 
   onModuleInit() {
     this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');

@@ -4,8 +4,8 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/session';
-import { TransferFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/transfer-funds.dto';
-import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/services/payment-gateway.service';
+import { TransferFundsDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/transfer-funds.dto';
+import { SdkPaymentGatewayService } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
 
 @ApiTags('Prime Trust/Transfer Funds')
 @ApiBearerAuth()
@@ -14,8 +14,8 @@ import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/
   version: '1',
   path: 'transfer',
 })
-export class TransferController {
-  constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: PaymentGatewayService) {}
+export class SdkTransferController {
+  constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: SdkPaymentGatewayService) {}
   @ApiOperation({ summary: 'Transfer funds.' })
   @ApiResponse({
     status: HttpStatus.CREATED,

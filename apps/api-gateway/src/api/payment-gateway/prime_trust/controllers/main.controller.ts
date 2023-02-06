@@ -107,7 +107,7 @@ export class MainController {
     status: HttpStatus.CREATED,
   })
   @JwtSessionAuth()
-  @Post('/kyc/contact')
+  @Post('/contact')
   async createContact(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.createContact({ id });
   }
