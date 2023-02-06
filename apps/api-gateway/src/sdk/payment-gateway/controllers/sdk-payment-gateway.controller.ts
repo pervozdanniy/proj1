@@ -17,7 +17,7 @@ import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/session';
-import { TransferFundsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/transfer-funds.dto';
+import { TransferFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/transfer-funds.dto';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/sdk/payment-gateway/dtos/payment-gateways-list.dto';
 import { SendDocumentDto } from '~svc/api-gateway/src/sdk/payment-gateway/dtos/send-document.dto';
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/sdk/payment-gateway/dtos/withdrawal-make.dto';

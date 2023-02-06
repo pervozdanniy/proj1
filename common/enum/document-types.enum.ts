@@ -9,4 +9,17 @@ export enum DocumentTypesEnum {
 
 export enum WithdrawalTypes {
   WIRE = 'wire',
+
+  ACH = 'ach',
+
+  CHECK = 'check',
+}
+export enum AchCheckType {
+  PERSONAL = 'personal',
+  BUSINESS = 'business',
+}
+
+export enum BankAccountTypes {
+  CHECKING = 'checking',
+  SAVINGS = 'savings',
 }

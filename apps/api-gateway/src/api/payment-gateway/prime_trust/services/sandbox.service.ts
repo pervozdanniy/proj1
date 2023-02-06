@@ -3,12 +3,12 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { lastValueFrom } from 'rxjs';
-import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/card-resource.dto';
-import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/deposit-funds.dto';
-import { SettleFundsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/settle-funds.dto';
-import { SettleWithdrawDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/settle-withdraw.dto';
-import { VerifyOwnerDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/verify-owner.dto';
-import { WebhookUrlDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/webhook-url.dto';
+import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
+import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';
+import { SettleFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-funds.dto';
+import { SettleWithdrawDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-withdraw.dto';
+import { VerifyOwnerDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/verify-owner.dto';
+import { WebhookUrlDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/webhook-url.dto';
 
 @Injectable()
 export class SandboxService {
@@ -137,7 +137,7 @@ export class SandboxService {
       data: {
         type: 'webhook-configs',
         attributes: {
-          url: `${payload.url}/payment_gateway/account/webhook`,
+          url: `${payload.url}/prime_trust/account/webhook`,
           enabled: true,
         },
       },

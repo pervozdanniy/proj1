@@ -17,26 +17,21 @@ import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/session';
-import { BankParamsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/bank-params.dto';
-import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/card-resource.dto';
-import { MakeContributionDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/make-contribution.dto';
-import { PaymentGatewaysListDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/payment-gateways-list.dto';
-import { SendDocumentDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/send-document.dto';
-import { TransferFundsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/transfer-funds.dto';
-import { WithdrawalMakeDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/withdrawal-make.dto';
-import { WithdrawalParamsDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/withdrawal-params.dto';
-import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/services/payment-gateway.service';
-import { webhookData } from '~svc/api-gateway/src/api/payment-gateway/webhooks/data';
+import { BankParamsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/bank-params.dto';
+import { PaymentGatewaysListDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
+import { SendDocumentDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/send-document.dto';
+import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/services/payment-gateway.service';
+import { webhookData } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/webhooks/data';
 
-@ApiTags('Payment Gateway')
+@ApiTags('Prime Trust')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
-  path: 'payment_gateway',
+  path: 'prime_trust',
 })
-export class PaymentGatewayController {
-  private readonly logger = new Logger(PaymentGatewayController.name);
+export class MainController {
+  private readonly logger = new Logger(MainController.name);
   constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: PaymentGatewayService) {}
 
   @ApiOperation({ summary: 'Get list of payment gateways' })
@@ -132,16 +127,6 @@ export class PaymentGatewayController {
     return this.paymentGatewayService.uploadDocument({ file, label, userId: { id } });
   }
 
-  @ApiOperation({ summary: 'Add Wire transfer reference.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/wire/reference')
-  async createReference(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.createReference({ id });
-  }
-
   @ApiOperation({ summary: 'Get Balance.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -150,82 +135,6 @@ export class PaymentGatewayController {
   @Post('/balance')
   async getBalance(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBalance({ id });
-  }
-
-  @ApiOperation({ summary: 'Get Bank params for withdrawal.' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-  })
-  @JwtSessionAuth()
-  @Get('/withdrawal/params')
-  async getWithdrawalParams(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getWithdrawalParams({ id });
-  }
-
-  @ApiOperation({ summary: 'Add Bank params for withdrawal.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/withdrawal/params')
-  async addWithdrawalParams(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalParamsDto) {
-    return this.paymentGatewayService.addWithdrawalParams({ id, ...payload });
-  }
-
-  @ApiOperation({ summary: 'Make withdrawal.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/withdrawal/make')
-  async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
-    return this.paymentGatewayService.makeWithdrawal({ id, ...payload });
-  }
-
-  @ApiOperation({ summary: 'Create Credit Card Resource.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/credit_card/resource')
-  async createCreditCardResource(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.createCreditCardResource({ id });
-  }
-
-  /**
-   * credit card
-   */
-
-  @ApiOperation({ summary: 'Verify Credit Card.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/credit_card/verify')
-  async verifyCreditCard(@JwtSessionUser() { id }: User, @Body() payload: CardResourceDto) {
-    const { resource_id } = payload;
-
-    return this.paymentGatewayService.verifyCreditCard({ id, resource_id });
-  }
-
-  @ApiOperation({ summary: 'Get Credit Cards.' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-  })
-  @JwtSessionAuth()
-  @Get('/credit_cards')
-  async getCreditCards(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getCreditCards({ id });
-  }
-
-  @ApiOperation({ summary: 'Transfer funds.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/transfer/funds')
-  async transferFunds(@JwtSessionUser() { id }: User, @Body() payload: TransferFundsDto) {
-    return this.paymentGatewayService.transferFunds({ sender_id: id, ...payload });
   }
 
   @ApiOperation({ summary: 'Get Bank Accounts.' })
@@ -245,15 +154,5 @@ export class PaymentGatewayController {
   @Post('/bank/account')
   async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
     return this.paymentGatewayService.addBankAccountParams({ id, ...payload });
-  }
-
-  @ApiOperation({ summary: 'Deposit funds by credit card.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/contribution')
-  async makeContribution(@JwtSessionUser() { id }: User, @Body() payload: MakeContributionDto) {
-    return this.paymentGatewayService.makeContribution({ id, ...payload });
   }
 }

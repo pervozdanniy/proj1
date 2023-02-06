@@ -16,7 +16,7 @@ import {
   VerifyCreditCardRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
-import { PaymentGatewaysListDto } from '~svc/api-gateway/src/api/payment-gateway/dtos/payment-gateways-list.dto';
+import { PaymentGatewaysListDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
 
 @Injectable()
 export class PaymentGatewayService implements OnModuleInit {

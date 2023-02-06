@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
+import { WithdrawalTypes } from '~common/enum/document-types.enum';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
@@ -23,6 +24,7 @@ import {
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/api/notification/services/notification.service';
 import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
+import { BankAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/card-resource.entity';
 import { ContributionEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/contribution.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
@@ -215,6 +217,7 @@ export class PrimeTransactionsManager {
     const transferMethod = await this.withdrawalParamsEntityRepository.findOneBy({
       user_id: id,
       bank_account_id,
+      funds_transfer_type,
     });
     let transferMethodId;
     if (!transferMethod) {
@@ -236,7 +239,7 @@ export class PrimeTransactionsManager {
 
   async createFundsTransferWithdrawal(request: WithdrawalParams, contact_id: string) {
     const { bank_account_id, funds_transfer_type } = request;
-    const { bank_account_name, routing_number, bank_account_number } =
+    const { bank_account_name, routing_number, bank_account_number, type, ach_check_type } =
       await this.primeBankAccountManager.getBankAccountById(bank_account_id);
     const formData = {
       data: {
@@ -251,6 +254,16 @@ export class PrimeTransactionsManager {
         },
       },
     };
+    if (funds_transfer_type === WithdrawalTypes.WIRE) {
+      formData.data.attributes['funds-transfer-type'] = funds_transfer_type;
+      formData.data.attributes['role'] = ['owner'];
+    }
+
+    if (funds_transfer_type === WithdrawalTypes.ACH) {
+      formData.data.attributes['funds-transfer-type'] = funds_transfer_type;
+      formData.data.attributes['ach-check-type'] = ach_check_type;
+      formData.data.attributes['bank-account-type'] = type;
+    }
 
     try {
       const fundsResponse = await this.httpService.request({
@@ -431,13 +444,14 @@ export class PrimeTransactionsManager {
   async getWithdrawalParams(id: number): Promise<WithdrawalsDataResponse> {
     const params = await this.withdrawalParamsEntityRepository
       .createQueryBuilder('w')
+      .leftJoinAndSelect(BankAccountEntity, 'b', 'b.id = w.bank_account_id')
       .where('w.user_id = :id', { id })
       .select([
         'w.uuid as transfer_method_id,' +
-          'w.bank_account_number as bank_account_number,' +
-          'w.routing_number as routing_number,' +
+          'b.bank_account_number as bank_account_number,' +
+          'b.routing_number as routing_number,' +
           'w.funds_transfer_type as funds_transfer_type,' +
-          'w.bank_account_name',
+          'b.bank_account_name',
       ])
       .getRawMany();
 

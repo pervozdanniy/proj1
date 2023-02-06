@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AchCheckType, BankAccountTypes } from '~common/enum/document-types.enum';
 import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 
 @Entity('bank_accounts')
@@ -22,6 +23,20 @@ export class BankAccountEntity {
 
   @Column('character varying', { length: 50, nullable: true })
   bank_account_number: string;
+
+  @Column({
+    type: 'enum',
+    enum: BankAccountTypes,
+    default: BankAccountTypes.CHECKING,
+  })
+  type: BankAccountTypes;
+
+  @Column({
+    type: 'enum',
+    enum: AchCheckType,
+    default: AchCheckType.PERSONAL,
+  })
+  ach_check_type: AchCheckType;
 
   @Column('character varying', { length: 50, nullable: true })
   routing_number: string;
