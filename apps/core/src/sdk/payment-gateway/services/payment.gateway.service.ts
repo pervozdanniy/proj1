@@ -101,10 +101,10 @@ export class PaymentGatewayService {
   }
 
   async documentCheck(request: AccountIdRequest) {
-    const { payment_gateway, id } = request;
+    const { payment_gateway } = request;
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
 
-    return paymentGateway.documentCheck(id);
+    return paymentGateway.documentCheck(request);
   }
 
   async cipCheck(request: AccountIdRequest) {

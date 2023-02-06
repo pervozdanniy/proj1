@@ -7,6 +7,7 @@ import process from 'process';
 import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { AccountIdRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/api/notification/services/notification.service';
 import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
@@ -240,8 +241,9 @@ export class PrimeKycManager {
     return { success: true };
   }
 
-  async documentCheck(id: string): Promise<SuccessResponse> {
+  async documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
     try {
+      const { resource_id } = request;
       const accountData = await this.primeAccountRepository
         .createQueryBuilder('a')
         .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
@@ -250,11 +252,11 @@ export class PrimeKycManager {
         .select([
           'd.kyc_check_uuid as kyc_check_uuid,' + 'a.uuid as account_id,' + 'c.uuid as contact_id,' + 'u.id as user_id',
         ])
-        .where('a.uuid = :id', { id })
+        .where('d.kyc_check_uuid = :resource_id', { resource_id })
         .getRawOne();
 
       if (!accountData) {
-        throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
+        throw new GrpcException(Status.NOT_FOUND, `Document by ${resource_id} id not found`, 400);
       }
 
       const { contact_id, user_id, kyc_check_uuid } = accountData;
@@ -309,9 +311,9 @@ export class PrimeKycManager {
 
       return { success: true };
     } catch (e) {
-      this.logger.error(e.message);
+      this.logger.error(e.response.data.errors[0]);
 
-      throw new GrpcException(Status.ABORTED, e.message, 400);
+      throw new GrpcException(Status.ABORTED, e.response.data.errors[0].details, 400);
     }
   }
 

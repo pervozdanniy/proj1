@@ -45,8 +45,8 @@ export class PrimeTrustService {
     return this.primeKycManager.uploadDocument(userDetails, file, label);
   }
 
-  documentCheck(id: string) {
-    return this.primeKycManager.documentCheck(id);
+  documentCheck(request: AccountIdRequest) {
+    return this.primeKycManager.documentCheck(request);
   }
   cipCheck(id: string, resource_id: string) {
     return this.primeKycManager.cipCheck(id, resource_id);
