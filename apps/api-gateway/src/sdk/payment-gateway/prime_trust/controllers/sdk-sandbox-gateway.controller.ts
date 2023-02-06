@@ -8,7 +8,7 @@ import { VerifyOwnerDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_t
 import { WebhookUrlDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/webhook-url.dto';
 import { SdkSandboxService } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/services/sdk-sandbox.service';
 
-@ApiTags('Sandbox')
+@ApiTags('Prime Trust/Sandbox')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
