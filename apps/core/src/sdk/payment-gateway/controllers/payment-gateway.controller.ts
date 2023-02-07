@@ -7,6 +7,8 @@ import {
   ContributionResponse,
   CreditCardResourceResponse,
   CreditCardsResponse,
+  DepositParams,
+  DepositResponse,
   MakeContributionRequest,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
@@ -120,5 +122,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   makeContribution(request: MakeContributionRequest): Promise<ContributionResponse> {
     return this.paymentGatewayService.makeContribution(request);
+  }
+
+  addDepositParams(request: DepositParams): Promise<DepositResponse> {
+    return this.paymentGatewayService.addDepositParams(request);
   }
 }

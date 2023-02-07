@@ -12,6 +12,8 @@ import {
   ContributionResponse,
   CreditCardResourceResponse,
   CreditCardsResponse,
+  DepositParams,
+  DepositResponse,
   MakeContributionRequest,
   PrimeTrustData,
   TransferFundsRequest,
@@ -27,6 +29,7 @@ import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
 import { BankAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/card-resource.entity';
 import { ContributionEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/contribution.entity';
+import { DepositParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/deposit-params.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
@@ -72,6 +75,9 @@ export class PrimeTransactionsManager {
 
     @InjectRepository(WithdrawalParamsEntity)
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
+
+    @InjectRepository(DepositParamsEntity)
+    private readonly depositParamsEntityRepository: Repository<DepositParamsEntity>,
 
     @InjectRepository(CardResourceEntity)
     private readonly cardResourceEntityRepository: Repository<CardResourceEntity>,
@@ -213,6 +219,7 @@ export class PrimeTransactionsManager {
 
   async addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
     const { id, bank_account_id, funds_transfer_type } = request;
+    await this.checkBankExists(id, bank_account_id);
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
     const transferMethod = await this.withdrawalParamsEntityRepository.findOneBy({
       user_id: id,
@@ -221,7 +228,7 @@ export class PrimeTransactionsManager {
     });
     let transferMethodId;
     if (!transferMethod) {
-      transferMethodId = await this.createFundsTransferWithdrawal(request, contact.uuid);
+      transferMethodId = await this.createFundsTransferMethod(request, contact.uuid);
       await this.withdrawalParamsEntityRepository.save(
         this.withdrawalParamsEntityRepository.create({
           user_id: id,
@@ -237,7 +244,7 @@ export class PrimeTransactionsManager {
     return { transfer_method_id: transferMethodId };
   }
 
-  async createFundsTransferWithdrawal(request: WithdrawalParams, contact_id: string) {
+  async createFundsTransferMethod(request: WithdrawalParams, contact_id: string) {
     const { bank_account_id, funds_transfer_type } = request;
     const { bank_account_name, routing_number, bank_account_number, type, ach_check_type } =
       await this.primeBankAccountManager.getBankAccountById(bank_account_id);
@@ -664,6 +671,41 @@ export class PrimeTransactionsManager {
       return { contribution_id: contributionResponse.data.data.id };
     } catch (e) {
       throw new GrpcException(Status.ABORTED, e.response.data.errors[0].detail, 400);
+    }
+  }
+
+  async addDepositParams(request: DepositParams): Promise<DepositResponse> {
+    const { id, bank_account_id, funds_transfer_type } = request;
+    await this.checkBankExists(id, bank_account_id);
+    const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
+    const transferMethod = await this.depositParamsEntityRepository.findOneBy({
+      user_id: id,
+      bank_account_id,
+      funds_transfer_type,
+    });
+    let transferMethodId;
+    if (!transferMethod) {
+      transferMethodId = await this.createFundsTransferMethod(request, contact.uuid);
+      await this.depositParamsEntityRepository.save(
+        this.depositParamsEntityRepository.create({
+          user_id: id,
+          uuid: transferMethodId,
+          bank_account_id,
+          funds_transfer_type,
+        }),
+      );
+    } else {
+      transferMethodId = transferMethod.uuid;
+    }
+
+    return { transfer_method_id: transferMethodId };
+  }
+
+  async checkBankExists(user_id: number, bank_id: number) {
+    const banks = await this.primeBankAccountManager.getBankAccounts(user_id);
+    const data = banks.data.filter((b) => b.id === bank_id);
+    if (data.length === 0) {
+      throw new GrpcException(Status.ABORTED, 'Bank account does`nt exist!', 400);
     }
   }
 }
