@@ -4,21 +4,17 @@ import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
-import { PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 import { CreateUserDTO } from './dtos/create-user.dto';
 import { UpdateUserDto, UserContactsDto } from './dtos/update-user.dto';
-import { RegistrationResponseDto } from './dtos/user.dto';
 
 @Injectable()
 export class UserService implements OnModuleInit {
   private userService: UserServiceClient;
-  private paymentGateway: PaymentGatewayServiceClient;
 
   constructor(@InjectGrpc('core') private readonly core: ClientGrpc) {}
 
   onModuleInit() {
     this.userService = this.core.getService('UserService');
-    this.paymentGateway = this.core.getService('PaymentGatewayService');
   }
 
   getById(id: number) {
@@ -31,10 +27,8 @@ export class UserService implements OnModuleInit {
     return user;
   }
 
-  async create(data: CreateUserDTO): Promise<RegistrationResponseDto> {
-    const user = await firstValueFrom(this.userService.create(data));
-
-    return { user, providerRegistered: true };
+  create(data: CreateUserDTO): Promise<User> {
+    return firstValueFrom(this.userService.create(data));
   }
 
   update(request: UpdateUserDto) {

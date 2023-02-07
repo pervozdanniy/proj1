@@ -4,29 +4,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration, { ConfigInterface } from '~common/config/configuration';
-import { CoreApiModule } from '~svc/core/src/api/core-api.module';
 import { CoreSdkModule } from '~svc/core/src/sdk/core-sdk.module';
+import { AwsModule } from './aws/AwsModule';
+import { CountryModule } from './country/country.module';
 import dbConfig from './db/db.config';
 import migrations from './db/migrations-list';
+import { NotificationModule } from './notification/notification.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({ load: [configuration, dbConfig], isGlobal: true }),
-    // LoggerModule.forRoot({
-    //   pinoHttp: {
-    //     transport: {
-    //       target: 'pino-pretty',
-    //       options: {
-    //         singleLine: true,
-    //         colorize: true,
-    //         ignore: 'time,hostname,req.headers.res.headers',
-    //         errorLikeObjectKeys: ['err', 'error'],
-    //         customColors: 'err:red,error:red,info:blue',
-    //       },
-    //     },
-    //   },
-    // }),
     TypeOrmModule.forRootAsync({
       useFactory(config: ConfigService<ConfigInterface>) {
         const { host, port, username, password, database } = config.get('database', { infer: true });
@@ -53,7 +42,10 @@ import migrations from './db/migrations-list';
       },
       inject: [ConfigService],
     }),
-    CoreApiModule,
+    UserModule,
+    AwsModule,
+    CountryModule,
+    NotificationModule,
     CoreSdkModule,
   ],
 })

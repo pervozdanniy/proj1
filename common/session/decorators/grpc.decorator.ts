@@ -23,5 +23,5 @@ export const GrpcSession = createParamDecorator((prop: string | undefined, ctx: 
 
 export const GrpcSessionUser = () => GrpcSession('user');
 
-export const GrpcSessionAuth = (options: SessionMetadataOptions = { allowUnverified: false }) =>
+export const GrpcSessionAuth = (options: SessionMetadataOptions = {}) =>
   applyDecorators(SetMetadata(GRPC_AUTH_METADATA, options), UseGuards(GrpcSessionGuard));

@@ -2,9 +2,15 @@
 import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { IdRequest, SuccessResponse } from "./common";
+import { SuccessResponse } from "./common";
+import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.auth";
+
+export interface PreRegisterRequest {
+  email: string;
+  phone: string;
+}
 
 export interface AuthRequest {
   login: string;
@@ -79,23 +85,36 @@ export interface TwoFactorVerificationResponse {
   reason?: string | undefined;
 }
 
+export interface TwoFactorRequireResponse {
+  required?: TwoFactorEnabledMethodsResponse | undefined;
+  error?: string | undefined;
+}
+
 export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
 
 export interface AuthServiceClient {
+  preRegister(request: PreRegisterRequest, metadata?: Metadata): Observable<AuthData>;
+
   login(request: AuthRequest, metadata?: Metadata): Observable<AuthData>;
+
+  logout(request: Empty, metadata?: Metadata): Observable<SuccessResponse>;
 
   loginSocials(request: SocialsAuthRequest, metadata?: Metadata): Observable<AuthData>;
 }
 
 export interface AuthServiceController {
+  preRegister(request: PreRegisterRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
+
   login(request: AuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  logout(request: Empty, metadata?: Metadata): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   loginSocials(request: SocialsAuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["login", "loginSocials"];
+    const grpcMethods: string[] = ["preRegister", "login", "logout", "loginSocials"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
@@ -144,18 +163,20 @@ export function ClientServiceControllerMethods() {
 export const CLIENT_SERVICE_NAME = "ClientService";
 
 export interface TwoFactorServiceClient {
-  list(request: IdRequest, metadata?: Metadata): Observable<TwoFactorEnabledMethodsResponse>;
+  list(request: Empty, metadata?: Metadata): Observable<TwoFactorEnabledMethodsResponse>;
 
   enable(request: TwoFactorEnableRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   disable(request: TwoFactorDisableRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   verify(request: TwoFactorVerificationRequest, metadata?: Metadata): Observable<TwoFactorVerificationResponse>;
+
+  require(request: Empty, metadata?: Metadata): Observable<TwoFactorRequireResponse>;
 }
 
 export interface TwoFactorServiceController {
   list(
-    request: IdRequest,
+    request: Empty,
     metadata?: Metadata,
   ):
     | Promise<TwoFactorEnabledMethodsResponse>
@@ -176,11 +197,16 @@ export interface TwoFactorServiceController {
     request: TwoFactorVerificationRequest,
     metadata?: Metadata,
   ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
+
+  require(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<TwoFactorRequireResponse> | Observable<TwoFactorRequireResponse> | TwoFactorRequireResponse;
 }
 
 export function TwoFactorServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["list", "enable", "disable", "verify"];
+    const grpcMethods: string[] = ["list", "enable", "disable", "verify", "require"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("TwoFactorService", method)(constructor.prototype[method], method, descriptor);
