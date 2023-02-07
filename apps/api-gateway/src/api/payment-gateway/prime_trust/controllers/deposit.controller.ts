@@ -5,7 +5,6 @@ import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { DepositParamsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-params.dto';
 import { MakeContributionDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/make-contribution.dto';
-import { WithdrawalParamsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/withdrawal-params.dto';
 import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/services/payment-gateway.service';
 
 @ApiTags('Prime Trust/Deposit Funds')
