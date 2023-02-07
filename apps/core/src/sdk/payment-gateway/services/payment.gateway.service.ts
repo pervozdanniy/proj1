@@ -70,8 +70,7 @@ export class PaymentGatewayService {
   }
 
   async createContact(payload: UserIdRequest): Promise<SuccessResponse> {
-    const { id } = payload;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(payload.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
@@ -101,8 +100,7 @@ export class PaymentGatewayService {
   }
 
   async documentCheck(request: AccountIdRequest) {
-    const { payment_gateway } = request;
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(request.payment_gateway);
 
     return paymentGateway.documentCheck(request);
   }
@@ -115,8 +113,7 @@ export class PaymentGatewayService {
   }
 
   async createReference(request: UserIdRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
@@ -132,18 +129,16 @@ export class PaymentGatewayService {
   }
 
   async getBalance(request: UserIdRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.getBalance(id);
+    return paymentGateway.getBalance(request.id);
   }
 
   async addWithdrawalParams(request: WithdrawalParams) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
@@ -152,8 +147,7 @@ export class PaymentGatewayService {
   }
 
   async makeWithdrawal(request: TransferMethodRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
@@ -169,30 +163,27 @@ export class PaymentGatewayService {
   }
 
   async updateContribution(request: AccountIdRequest) {
-    const { payment_gateway } = request;
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(request.payment_gateway);
 
     return paymentGateway.updateContribution(request);
   }
 
   async getWithdrawalParams(request: UserIdRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.getWithdrawalParams(id);
+    return paymentGateway.getWithdrawalParams(request.id);
   }
 
   async createCreditCardResource(request: UserIdRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.createCreditCardResource(id);
+    return paymentGateway.createCreditCardResource(request.id);
   }
 
   async verifyCreditCard(request: VerifyCreditCardRequest) {
@@ -206,18 +197,16 @@ export class PaymentGatewayService {
   }
 
   async getCreditCards(request: UserIdRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.getCreditCards(id);
+    return paymentGateway.getCreditCards(request.id);
   }
 
   async transferFunds(request: TransferFundsRequest) {
-    const { sender_id } = request;
-    const userDetails = await this.userService.getUserInfo(sender_id);
+    const userDetails = await this.userService.getUserInfo(request.sender_id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
@@ -226,8 +215,7 @@ export class PaymentGatewayService {
   }
 
   async addBankAccountParams(request: BankAccountParams) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
@@ -236,18 +224,16 @@ export class PaymentGatewayService {
   }
 
   async getBankAccounts(request: UserIdRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.getBankAccounts(id);
+    return paymentGateway.getBankAccounts(request.id);
   }
 
   async makeContribution(request: MakeContributionRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
