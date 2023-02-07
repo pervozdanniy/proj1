@@ -1,6 +1,5 @@
 import { Metadata } from '@grpc/grpc-js';
-import { UnauthorizedException, UsePipes, ValidationPipe } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   TwoFactorEnabledMethodsResponse,
   TwoFactorRequireResponse,
@@ -8,9 +7,9 @@ import {
   TwoFactorServiceControllerMethods,
   TwoFactorVerificationResponse,
 } from '~common/grpc/interfaces/auth';
-import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
-import { GrpcSession, GrpcSessionAuth, SessionInterface, SessionService } from '~common/session';
+import { GrpcSessionAuth, SessionInterface, SessionService } from '~common/session';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { Auth2FAService } from '../../auth-2fa/2fa.service';
 import { DisableRequestDto, EnableRequestDto, VerifyRequestDto } from '../dto/2fa.dto';
