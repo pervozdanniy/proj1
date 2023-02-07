@@ -1,7 +1,5 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/withdrawal-make.dto';
@@ -16,7 +14,7 @@ import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/
   path: 'withdrawal',
 })
 export class WithdrawalController {
-  constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: PaymentGatewayService) {}
+  constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   @ApiOperation({ summary: 'Get Bank params for withdrawal.' })
   @ApiResponse({

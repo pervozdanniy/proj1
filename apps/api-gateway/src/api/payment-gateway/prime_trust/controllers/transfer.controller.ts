@@ -1,7 +1,5 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { TransferFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/transfer-funds.dto';
@@ -15,7 +13,7 @@ import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/
   path: 'transfer',
 })
 export class TransferController {
-  constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: PaymentGatewayService) {}
+  constructor(private paymentGatewayService: PaymentGatewayService) {}
   @ApiOperation({ summary: 'Transfer funds.' })
   @ApiResponse({
     status: HttpStatus.CREATED,

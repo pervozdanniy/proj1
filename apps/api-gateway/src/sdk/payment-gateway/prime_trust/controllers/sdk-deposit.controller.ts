@@ -1,7 +1,5 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { CardResourceDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/card-resource.dto';
@@ -16,7 +14,7 @@ import { SdkPaymentGatewayService } from '~svc/api-gateway/src/sdk/payment-gatew
   path: 'deposit',
 })
 export class SdkDepositController {
-  constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: SdkPaymentGatewayService) {}
+  constructor(private paymentGatewayService: SdkPaymentGatewayService) {}
 
   @ApiOperation({ summary: 'Add Wire transfer reference.' })
   @ApiResponse({
