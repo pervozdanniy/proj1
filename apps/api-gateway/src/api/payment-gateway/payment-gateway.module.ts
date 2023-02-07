@@ -1,20 +1,7 @@
-import { HttpModule } from '@nestjs/axios';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ClientsModule } from '@nestjs/microservices';
-import { asyncClientOptions } from '~common/grpc/helpers';
-import { JwtSessionMiddleware, SessionModule } from '~common/session';
-import { SandboxGatewayController } from '~svc/api-gateway/src/api/payment-gateway/controllers/sandbox-gateway.controller';
-import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/services/payment-gateway.service';
-import { SandboxService } from '~svc/api-gateway/src/api/payment-gateway/services/sandbox.service';
-import { PaymentGatewayController } from './controllers/payment-gateway.controller';
+import { Module } from '@nestjs/common';
+import { PrimeTrustModule } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/prime-trust.module';
 
 @Module({
-  imports: [HttpModule, SessionModule, ClientsModule.registerAsync([asyncClientOptions('core')])],
-  controllers: [PaymentGatewayController, SandboxGatewayController],
-  providers: [PaymentGatewayService, SandboxService],
+  imports: [PrimeTrustModule],
 })
-export class PaymentGatewayModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtSessionMiddleware).forRoutes(PaymentGatewayController, SandboxGatewayController);
-  }
-}
+export class PaymentGatewayModule {}

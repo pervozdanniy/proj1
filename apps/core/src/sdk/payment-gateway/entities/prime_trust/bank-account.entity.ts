@@ -7,10 +7,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AchCheckType, BankAccountTypes } from '~common/enum/document-types.enum';
 import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 
-@Entity('contributions')
-export class ContributionEntity {
+@Entity('bank_accounts')
+export class BankAccountEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -18,28 +19,27 @@ export class ContributionEntity {
   user_id: number;
 
   @Column('character varying', { length: 50, nullable: true })
-  uuid: string;
+  bank_account_name: string;
 
   @Column('character varying', { length: 50, nullable: true })
-  currency_type: string;
+  bank_account_number: string;
+
+  @Column({
+    type: 'enum',
+    enum: BankAccountTypes,
+    default: BankAccountTypes.CHECKING,
+  })
+  type: BankAccountTypes;
+
+  @Column({
+    type: 'enum',
+    enum: AchCheckType,
+    default: AchCheckType.PERSONAL,
+  })
+  ach_check_type: AchCheckType;
 
   @Column('character varying', { length: 50, nullable: true })
-  amount: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  contributor_email: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  contributor_name: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  funds_transfer_type: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  reference: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  status: string;
+  routing_number: string;
 
   @CreateDateColumn()
   created_at: Date;
@@ -47,7 +47,7 @@ export class ContributionEntity {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.contributions, { onDelete: 'CASCADE' })
+  @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.bank_accounts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   contact?: PrimeTrustContactEntity;
 }

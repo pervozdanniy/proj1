@@ -6,6 +6,71 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface MakeContributionRequest {
+  id: number;
+  funds_transfer_method_id: string;
+  amount: string;
+  cvv: string;
+}
+
+export interface ContributionResponse {
+  contribution_id: string;
+}
+
+export interface BankAccountParams {
+  id: number;
+  bank_account_name: string;
+  bank_account_number: string;
+  routing_number: string;
+}
+
+export interface BankAccountsResponse {
+  data: BankAccountParams[];
+}
+
+export interface TransferFundsRequest {
+  sender_id: number;
+  receiver_id: number;
+  amount: string;
+}
+
+export interface TransferFundsResponse {
+  data: TransferFunds | undefined;
+}
+
+export interface TransferFunds {
+  uuid: string;
+  amount: string;
+  currency_type: string;
+  status: string;
+  created_at: string;
+}
+
+export interface CreditCardsResponse {
+  data: CreditCard[];
+}
+
+export interface CreditCard {
+  uuid: string;
+  transfer_method_id: string;
+  credit_card_bin: string;
+  credit_card_type: string;
+  credit_card_expiration_date: string;
+  created_at: string;
+  updated_at: string;
+  status: string;
+}
+
+export interface VerifyCreditCardRequest {
+  id: number;
+  resource_id: string;
+}
+
+export interface CreditCardResourceResponse {
+  resource_id: string;
+  resource_token: string;
+}
+
 export interface WithdrawalsDataResponse {
   data: Withdrawal[];
 }
@@ -50,10 +115,8 @@ export interface WithdrawalResponse {
 
 export interface WithdrawalParams {
   id: number;
-  bank_account_number: string;
-  routing_number: string;
+  bank_account_id: number;
   funds_transfer_type: string;
-  bank_account_name: string;
 }
 
 export interface BalanceResponse {
@@ -127,11 +190,25 @@ export interface PaymentGatewayServiceClient {
 
   updateContribution(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
+  getBankAccounts(request: UserIdRequest, metadata?: Metadata): Observable<BankAccountsResponse>;
+
+  addBankAccountParams(request: BankAccountParams, metadata?: Metadata): Observable<BankAccountParams>;
+
   addWithdrawalParams(request: WithdrawalParams, metadata?: Metadata): Observable<WithdrawalResponse>;
 
   makeWithdrawal(request: TransferMethodRequest, metadata?: Metadata): Observable<PrimeTrustData>;
 
   updateWithdraw(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  createCreditCardResource(request: UserIdRequest, metadata?: Metadata): Observable<CreditCardResourceResponse>;
+
+  verifyCreditCard(request: VerifyCreditCardRequest, metadata?: Metadata): Observable<SuccessResponse>;
+
+  getCreditCards(request: UserIdRequest, metadata?: Metadata): Observable<CreditCardsResponse>;
+
+  transferFunds(request: TransferFundsRequest, metadata?: Metadata): Observable<TransferFundsResponse>;
+
+  makeContribution(request: MakeContributionRequest, metadata?: Metadata): Observable<ContributionResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -197,6 +274,16 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
+  getBankAccounts(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<BankAccountsResponse> | Observable<BankAccountsResponse> | BankAccountsResponse;
+
+  addBankAccountParams(
+    request: BankAccountParams,
+    metadata?: Metadata,
+  ): Promise<BankAccountParams> | Observable<BankAccountParams> | BankAccountParams;
+
   addWithdrawalParams(
     request: WithdrawalParams,
     metadata?: Metadata,
@@ -211,6 +298,31 @@ export interface PaymentGatewayServiceController {
     request: AccountIdRequest,
     metadata?: Metadata,
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  createCreditCardResource(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<CreditCardResourceResponse> | Observable<CreditCardResourceResponse> | CreditCardResourceResponse;
+
+  verifyCreditCard(
+    request: VerifyCreditCardRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  getCreditCards(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<CreditCardsResponse> | Observable<CreditCardsResponse> | CreditCardsResponse;
+
+  transferFunds(
+    request: TransferFundsRequest,
+    metadata?: Metadata,
+  ): Promise<TransferFundsResponse> | Observable<TransferFundsResponse> | TransferFundsResponse;
+
+  makeContribution(
+    request: MakeContributionRequest,
+    metadata?: Metadata,
+  ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -229,9 +341,16 @@ export function PaymentGatewayServiceControllerMethods() {
       "getWithdrawalParams",
       "updateBalance",
       "updateContribution",
+      "getBankAccounts",
+      "addBankAccountParams",
       "addWithdrawalParams",
       "makeWithdrawal",
       "updateWithdraw",
+      "createCreditCardResource",
+      "verifyCreditCard",
+      "getCreditCards",
+      "transferFunds",
+      "makeContribution",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

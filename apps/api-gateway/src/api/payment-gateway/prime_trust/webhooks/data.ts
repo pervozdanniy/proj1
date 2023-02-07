@@ -3,7 +3,6 @@ export const webhookData: string[] = [
   'kyc_document_checks',
   'cip_checks',
   'contributions',
-  'funds_transfers',
   'disbursements',
   'aml-checks',
   'account-cash-transfers',

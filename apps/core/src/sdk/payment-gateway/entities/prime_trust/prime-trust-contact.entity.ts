@@ -1,7 +1,10 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
+import { BankAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
+import { CardResourceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/card-resource.entity';
 import { ContributionEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/contribution.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustKycDocumentEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
+import { TransferFundsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/transfer-funds.entity';
 import { WithdrawalParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 
 @Entity('prime_trust_contacts')
@@ -50,6 +53,15 @@ export class PrimeTrustContactEntity {
   @OneToMany(() => WithdrawalParamsEntity, (params) => params.contact)
   withdrawalParams?: WithdrawalParamsEntity[];
 
+  @OneToMany(() => CardResourceEntity, (params) => params.contact)
+  cardResources?: CardResourceEntity[];
+
+  @OneToMany(() => TransferFundsEntity, (params) => params.contact)
+  transferFunds?: TransferFundsEntity[];
+
   @OneToMany(() => ContributionEntity, (params) => params.contact)
   contributions?: ContributionEntity[];
+
+  @OneToMany(() => BankAccountEntity, (params) => params.contact)
+  bank_accounts?: BankAccountEntity[];
 }

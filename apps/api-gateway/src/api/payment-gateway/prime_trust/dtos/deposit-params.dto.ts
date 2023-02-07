@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
 
-export class WithdrawalParamsDto {
+export class DepositParamsDto {
   @ApiProperty({ example: 'Test Test' })
   @IsString()
   @IsNotEmpty()

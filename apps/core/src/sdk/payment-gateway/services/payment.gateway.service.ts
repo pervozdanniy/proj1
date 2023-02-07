@@ -1,15 +1,19 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
+  BankAccountParams,
+  MakeContributionRequest,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
   PG_Token,
+  TransferFundsRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
   UserIdRequest,
+  VerifyCreditCardRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { UserService } from '~svc/core/src/api/user/services/user.service';
@@ -18,8 +22,6 @@ import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
 
 @Injectable()
 export class PaymentGatewayService {
-  private readonly logger = new Logger(PaymentGatewayService.name);
-
   constructor(
     @Inject(UserService)
     private userService: UserService,
@@ -68,8 +70,7 @@ export class PaymentGatewayService {
   }
 
   async createContact(payload: UserIdRequest): Promise<SuccessResponse> {
-    const { id } = payload;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(payload.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
@@ -99,10 +100,9 @@ export class PaymentGatewayService {
   }
 
   async documentCheck(request: AccountIdRequest) {
-    const { payment_gateway, id } = request;
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(request.payment_gateway);
 
-    return paymentGateway.documentCheck(id);
+    return paymentGateway.documentCheck(request);
   }
 
   async cipCheck(request: AccountIdRequest) {
@@ -113,8 +113,7 @@ export class PaymentGatewayService {
   }
 
   async createReference(request: UserIdRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
@@ -130,18 +129,16 @@ export class PaymentGatewayService {
   }
 
   async getBalance(request: UserIdRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.getBalance(id);
+    return paymentGateway.getBalance(request.id);
   }
 
   async addWithdrawalParams(request: WithdrawalParams) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
@@ -150,8 +147,7 @@ export class PaymentGatewayService {
   }
 
   async makeWithdrawal(request: TransferMethodRequest) {
-    const { id } = request;
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
@@ -167,19 +163,81 @@ export class PaymentGatewayService {
   }
 
   async updateContribution(request: AccountIdRequest) {
-    const { payment_gateway } = request;
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(payment_gateway);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(request.payment_gateway);
 
     return paymentGateway.updateContribution(request);
   }
 
   async getWithdrawalParams(request: UserIdRequest) {
-    const { id } = request;
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getWithdrawalParams(request.id);
+  }
+
+  async createCreditCardResource(request: UserIdRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.createCreditCardResource(request.id);
+  }
+
+  async verifyCreditCard(request: VerifyCreditCardRequest) {
+    const { id, resource_id } = request;
     const userDetails = await this.userService.getUserInfo(id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.getWithdrawalParams(id);
+    return paymentGateway.verifyCreditCard(resource_id);
+  }
+
+  async getCreditCards(request: UserIdRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getCreditCards(request.id);
+  }
+
+  async transferFunds(request: TransferFundsRequest) {
+    const userDetails = await this.userService.getUserInfo(request.sender_id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.transferFunds(request);
+  }
+
+  async addBankAccountParams(request: BankAccountParams) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.addBankAccountParams(request);
+  }
+
+  async getBankAccounts(request: UserIdRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getBankAccounts(request.id);
+  }
+
+  async makeContribution(request: MakeContributionRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.makeContribution(request);
   }
 }
