@@ -1,4 +1,3 @@
-import { Metadata } from '@grpc/grpc-js';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
@@ -7,12 +6,11 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import Redis from 'ioredis';
 import * as process from 'process';
-import { catchError, map, throwError } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthServiceClient } from '~common/grpc/interfaces/auth';
-import { SuccessResponse, User } from '~common/grpc/interfaces/common';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { WebsocketServiceClient } from '~common/grpc/interfaces/websocket';
 import { SessionInterface, SessionService } from '~common/session';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';

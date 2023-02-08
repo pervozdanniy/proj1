@@ -3,12 +3,12 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { JwtSessionAuth } from '~common/session';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';
+import { DocumentIdDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/document-id.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-withdraw.dto';
 import { VerifyOwnerDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/verify-owner.dto';
 import { WebhookUrlDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/webhook-url.dto';
 import { SandboxService } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/services/sandbox.service';
-import {DocumentIdDto} from "~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/document-id.dto";
 
 @ApiTags('Prime Trust/Sandbox')
 @ApiBearerAuth()
@@ -38,7 +38,6 @@ export class SandboxGatewayController {
   async verifyDocument(@Body() payload: DocumentIdDto) {
     return this.sandboxService.verifyDocument(payload);
   }
-
 
   @ApiOperation({ summary: 'Fail document by id.' })
   @ApiResponse({

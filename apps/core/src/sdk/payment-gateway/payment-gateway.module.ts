@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
+import { SessionModule } from '~common/session';
 import { NotificationEntity } from '~svc/core/src/api/notification/entities/notification.entity';
 import { NotificationModule } from '~svc/core/src/api/notification/notification.module';
 import { UserModule } from '~svc/core/src/api/user/user.module';
@@ -28,7 +29,6 @@ import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/pr
 import { PrimeTransactionsManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-transactions.manager';
 import { PrimeTrustService } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/prime-trust.service';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
-import {SessionModule} from "~common/session";
 
 @Module({
   imports: [
