@@ -7,7 +7,7 @@ import { ApiGatewayModule } from './api-gateway.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule, { rawBody: true });
-
+  console.log('WOKING OUPTUT');
   sentryInit();
 
   const config = new DocumentBuilder()
