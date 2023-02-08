@@ -1,3 +1,4 @@
+import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
   Body,
@@ -16,7 +17,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
-import {JwtSessionAuth, JwtSessionUser} from '@/api/auth';
 import { BankParamsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/bank-params.dto';
 import { PaymentGatewaysListDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
 import { SendDocumentDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/send-document.dto';

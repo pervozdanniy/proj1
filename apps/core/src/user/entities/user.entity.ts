@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   JoinTable,
   ManyToMany,
@@ -30,8 +31,9 @@ export class UserEntity {
   @Column('integer', { nullable: true })
   country_id?: number;
 
-  @Column('varchar', { unique: true })
-  phone: string;
+  @Index()
+  @Column('varchar', { nullable: true })
+  phone?: string;
 
   @Column('varchar', { default: 'active' })
   status: string;

@@ -26,6 +26,7 @@ import { FixTypesAndRelations1671733995143 } from './migrations/1671733995143-Fi
 import { AlterUserTableForSDKRegistration1671971668825 } from './migrations/1671971668825-AlterUserTableForSDKRegistration';
 import { AddUserContactTable1673371635929 } from './migrations/1673371635929-AddUserContactTable';
 import { AddPhoneUniqueContraint1675781764778 } from './migrations/1675781764778-AddPhoneUniqueContraint';
+import { MakeUserPhoneNullable1675855993341 } from './migrations/1675855993341-MakeUserPhoneNullable';
 
 export default [
   createUserTable1669901299726,
@@ -56,4 +57,5 @@ export default [
   AlterBankAccountsTable1675669007472,
   CreateDepositParamsTable1675752900884,
   AddPhoneUniqueContraint1675781764778,
+  MakeUserPhoneNullable1675855993341,
 ];

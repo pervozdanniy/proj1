@@ -1,3 +1,4 @@
+import { AuthModule } from '@/api/auth';
 import { HttpModule } from '@nestjs/axios';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
@@ -10,7 +11,6 @@ import { TransferController } from '~svc/api-gateway/src/api/payment-gateway/pri
 import { WithdrawalController } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/controllers/withdrawal.controller';
 import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/services/payment-gateway.service';
 import { SandboxService } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/services/sandbox.service';
-import {AuthModule} from "@/api/auth";
 
 @Module({
   imports: [HttpModule, AuthModule, ClientsModule.registerAsync([asyncClientOptions('core')])],
