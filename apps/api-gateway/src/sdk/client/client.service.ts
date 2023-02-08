@@ -36,7 +36,7 @@ export class ClientService implements OnModuleInit {
     try {
       client = await firstValueFrom(this.authClientService.validate(data, metadata));
     } catch (error) {
-      this.logger.debug('Validation failed', { apiKey, error });
+      this.logger.log('Validation failed', { apiKey, error });
 
       throw new UnauthorizedException(error.message);
     }

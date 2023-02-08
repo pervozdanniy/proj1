@@ -22,6 +22,7 @@ export class AuthClientGuard implements CanActivate {
       { data: req.rawBody, signature: signature ? Buffer.from(signature, 'hex') : undefined },
       apiKey,
     );
+    console.log('HOBA', client);
 
     if (!client) {
       throw new UnauthorizedException();
