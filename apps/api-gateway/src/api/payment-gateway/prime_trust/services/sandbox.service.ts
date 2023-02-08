@@ -243,7 +243,6 @@ export class SandboxService {
 
       return cardResponse.data;
     } catch (e) {
-      console.log(e.response.data.errors[0]);
 
       throw new Error(e.response.data);
     }
