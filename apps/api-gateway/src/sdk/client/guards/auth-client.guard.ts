@@ -14,7 +14,7 @@ export class AuthClientGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<WithAuthClient<RawBodyRequest<Request>>>();
     const apiKey = req.header('api_key');
     const signature = req.header('signature');
-    console.log('AUTH_GUARD', apiKey);
+    console.log('AUTH_GUARD', req.headers);
 
     if (!apiKey) {
       throw new UnauthorizedException();
@@ -24,7 +24,6 @@ export class AuthClientGuard implements CanActivate {
       { data: req.rawBody, signature: signature ? Buffer.from(signature, 'hex') : undefined },
       apiKey,
     );
-    console.log('AUTH_GUARD: client', client);
 
     if (!client) {
       throw new UnauthorizedException();
