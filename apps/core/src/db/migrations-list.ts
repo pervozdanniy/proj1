@@ -48,13 +48,10 @@ export default [
   AlterUsersTable1674119775903,
   ChangeLogic1674544963817,
   DropPrimeUsers1674545919902,
-<<<<<<< HEAD
   CardResourceTable1675331507769,
   CreateTransferFundsTable1675409446505,
   CreateBankAccountsTable1675444112418,
   AlterWithdrawalParamsTable1675502524716,
   AlterBankAccountsTable1675669007472,
-=======
   AddPhoneUniqueContraint1675781764778,
->>>>>>> e96700e (SKOPA-311: moved session extending interfaces out of session module, extended session guard to respect pre-registration step, fixed typeorm migration generation issue, adjusted core file structure, added convenient path aliases for each service, added redis dependency to core docker container)
 ];
