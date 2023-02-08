@@ -3,9 +3,14 @@ syntax = "proto3";
 package skopa.auth;
 
 import "common.proto";
+import "google/protobuf/empty.proto";
 
 service AuthService {
+  rpc PreRegister (PreRegisterRequest) returns (AuthData);
+
   rpc Login (AuthRequest) returns (AuthData);
+
+  rpc Logout (google.protobuf.Empty) returns (common.SuccessResponse);
 
   rpc LoginSocials (SocialsAuthRequest) returns (AuthData);
 }
@@ -19,13 +24,20 @@ service ClientService {
 }
 
 service TwoFactorService {
-  rpc List (common.IdRequest) returns (TwoFactorEnabledMethodsResponse);
+  rpc List (google.protobuf.Empty) returns (TwoFactorEnabledMethodsResponse);
 
   rpc Enable (TwoFactorEnableRequest) returns (common.SuccessResponse);
 
   rpc Disable (TwoFactorDisableRequest) returns (common.SuccessResponse);
 
   rpc Verify (TwoFactorVerificationRequest) returns (TwoFactorVerificationResponse);
+
+  rpc Require(google.protobuf.Empty) returns (TwoFactorRequireResponse);
+}
+
+message PreRegisterRequest {
+  string email = 1;
+  string phone = 2;
 }
 
 message AuthRequest {
@@ -76,15 +88,15 @@ message TwoFactorSettings {
 }
 
 message TwoFactorEnableRequest {
-  TwoFactorSettings settings = 2;
+  TwoFactorSettings settings = 1;
 }
 
 message TwoFactorDisableRequest {
-  repeated string methods = 2;
+  repeated string methods = 1;
 }
 
 message TwoFactorEnabledMethodsResponse {
-  repeated string methods = 2;
+  repeated string methods = 1;
 }
 
 message TwoFactorCode {
@@ -99,4 +111,11 @@ message TwoFactorVerificationRequest {
 message TwoFactorVerificationResponse {
   bool valid = 1;
   optional string reason = 2;
+}
+
+message TwoFactorRequireResponse {
+  oneof response {
+    TwoFactorEnabledMethodsResponse required = 1;
+    string error = 2;
+  }
 }

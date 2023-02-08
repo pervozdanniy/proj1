@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
-import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Entity('prime_trust_accounts')
 export class PrimeTrustAccountEntity {

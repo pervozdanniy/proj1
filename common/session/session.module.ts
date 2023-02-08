@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ConfigInterface } from '~common/config/configuration';
 import { GrpcSessionInterceptor } from './interceptors/grpc.interceptor';
-import { JwtSessionInterceptor } from './interceptors/jwt.interceptor';
 import { JwtSessionMiddleware } from './middleware/jwt.middleware';
 import { RedisStore } from './redis.store';
 import { SessionService } from './session.service';
@@ -19,7 +18,7 @@ import { SessionService } from './session.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [SessionService, RedisStore, JwtSessionInterceptor, GrpcSessionInterceptor, JwtSessionMiddleware],
+  providers: [SessionService, RedisStore, GrpcSessionInterceptor, JwtSessionMiddleware],
   exports: [SessionService, JwtSessionMiddleware],
 })
 export class SessionModule {}

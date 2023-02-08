@@ -24,8 +24,7 @@ import {
   WithdrawalsDataResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { NotificationService } from '~svc/core/src/api/notification/services/notification.service';
-import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
+import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { BankAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/card-resource.entity';
 import { ContributionEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/contribution.entity';
@@ -40,6 +39,7 @@ import { PrimeTrustHttpService } from '~svc/core/src/sdk/payment-gateway/request
 import { PrimeBankAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
 import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
+import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
 export class PrimeTransactionsManager {

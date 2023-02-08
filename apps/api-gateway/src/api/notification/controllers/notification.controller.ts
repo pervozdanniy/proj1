@@ -11,12 +11,12 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { ListNotificationsDto } from '~svc/api-gateway/src/api/notification/dtos/list-notifications.dto';
 import { NotificationDto } from '~svc/api-gateway/src/api/notification/dtos/notification.dto';
 import { PaginatedNotificationsDto } from '~svc/api-gateway/src/api/notification/dtos/paginated-notifications.dto';
 import { UpdateNotificationDto } from '~svc/api-gateway/src/api/notification/dtos/update-notification.dto';
 import { NotificationService } from '~svc/api-gateway/src/api/notification/services/notification.service';
+import { JwtSessionAuth, JwtSessionUser } from '../../auth';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()

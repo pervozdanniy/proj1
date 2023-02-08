@@ -1,13 +1,16 @@
 import { Metadata, status } from '@grpc/grpc-js';
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { GRPC_AUTH_METADATA } from '../constants/meta';
+import { SessionMetadataOptions } from '../interfaces/session.interface';
 import { SessionService } from '../session.service';
 
 @Injectable()
 export class GrpcSessionGuard implements CanActivate {
   private readonly logger = new Logger(GrpcSessionGuard.name);
 
-  constructor(private readonly session: SessionService) {}
+  constructor(private readonly reflector: Reflector, private readonly session: SessionService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const rpcContext = context.switchToRpc();
@@ -24,7 +27,9 @@ export class GrpcSessionGuard implements CanActivate {
         this.logger.error('Session: fetch failed', error);
       }
 
-      if (sessionData?.user) {
+      const options = this.reflector.get<SessionMetadataOptions>(GRPC_AUTH_METADATA, context.getHandler());
+
+      if (options.allowUnauthorized || sessionData?.user) {
         return true;
       }
     }

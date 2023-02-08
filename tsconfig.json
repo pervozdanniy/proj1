@@ -15,16 +15,13 @@
     "skipLibCheck": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
-    "strictBindCallApply": false,
+    "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "~svc/*": [
-        "apps/*"
-      ],
-      "~common/*": [
-        "common/*"
-      ]
+      "~svc/*": ["apps/*"],
+      "~common/*": ["common/*"],
+      "@/*": ["apps/core/src/*", "apps/auth/src/*", "apps/api-gateway/src/*"] // stub for VSCode only, for real config see apps/*/tsconfig.app.json
     }
   }
 }

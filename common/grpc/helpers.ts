@@ -1,4 +1,3 @@
-import { BullModuleAsyncOptions } from '@nestjs/bull';
 import { Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientsProviderAsyncOptions, Transport } from '@nestjs/microservices';

@@ -84,6 +84,7 @@ describe('AuthService (e2e)', () => {
     it('creates a new user', async () => {
       const mockPayload = {
         email: 'mock@mock.com',
+        phone: '+380637814501',
         username: 'mock',
         password: 'mock12345678',
         country_id: 1,
@@ -119,6 +120,7 @@ describe('AuthService (e2e)', () => {
     it('ignores extra fields', async () => {
       const payload = {
         email: 'mock@mock.com',
+        phone: '+380637814501',
         username: 'mock',
         password: 'mock12345678',
         country_id: 1,

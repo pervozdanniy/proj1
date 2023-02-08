@@ -1,5 +1,5 @@
 import { applyDecorators, createParamDecorator, ExecutionContext, SetMetadata, UseGuards } from '@nestjs/common';
-import { ApiPreconditionFailedResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request } from 'express';
 import { JWT_AUTH_METADATA } from '../constants/meta';
 import { JwtSessionGuard } from '../guards/jwt.guard';
@@ -13,7 +13,7 @@ export const JwtSession = createParamDecorator(
       return request.session?.[prop];
     }
 
-    return request.user;
+    return request.session;
   },
 );
 
@@ -21,15 +21,9 @@ export const JwtSessionUser = () => JwtSession('user');
 
 export const JwtSessionId = () => JwtSession('sessionId');
 
-export const JwtSessionAuth = (options: SessionMetadataOptions = { allowUnverified: false }) => {
-  const decorators: Parameters<typeof applyDecorators> = [
+export const JwtSessionAuth = (options: SessionMetadataOptions = {}) =>
+  applyDecorators(
     SetMetadata(JWT_AUTH_METADATA, options),
     UseGuards(JwtSessionGuard),
     ApiUnauthorizedResponse({ description: 'Unauthorized' }),
-  ];
-  if (!options.allowUnverified) {
-    decorators.push(ApiPreconditionFailedResponse({ description: '2FA is not completed' }));
-  }
-
-  return applyDecorators(...decorators);
-};
+  );
