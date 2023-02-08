@@ -1,5 +1,5 @@
 import { Metadata } from '@grpc/grpc-js';
-import { Injectable, OnModuleInit, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
@@ -10,6 +10,7 @@ import { RegisterRequestDto } from './dto/register.request.dto';
 
 @Injectable()
 export class ClientService implements OnModuleInit {
+  private readonly logger = new Logger(ClientService.name);
   private userService: UserServiceClient;
   private authClientService: ClientServiceClient;
 
@@ -34,8 +35,10 @@ export class ClientService implements OnModuleInit {
     let client: AuthClient;
     try {
       client = await firstValueFrom(this.authClientService.validate(data, metadata));
-    } catch {
-      throw new UnauthorizedException();
+    } catch (error) {
+      this.logger.debug('Validation failed', { apiKey, error });
+
+      throw new UnauthorizedException(error.message);
     }
 
     return client;
