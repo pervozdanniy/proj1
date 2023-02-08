@@ -12,9 +12,8 @@ export class AuthClientGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<WithAuthClient<RawBodyRequest<Request>>>();
-    const apiKey = req.header('api_key');
+    const apiKey = req.header('api-key');
     const signature = req.header('signature');
-    console.log('AUTH_GUARD', req.headers);
 
     if (!apiKey) {
       throw new UnauthorizedException();

@@ -52,7 +52,7 @@ describe('SDK Auth client (signed)', () => {
     await request(app.getHttpServer())
       .post('/sdk/clients/register')
       .set('signature', sign)
-      .set('api_key', apiKey)
+      .set('api-key', apiKey)
       .send(payload)
       .expect(201);
     expect(userStorage).toHaveLength(1);
@@ -68,14 +68,14 @@ describe('SDK Auth client (signed)', () => {
     await request(app.getHttpServer())
       .post('/sdk/clients/register')
       .set('signature', sign)
-      .set('api_key', apiKey)
+      .set('api-key', apiKey)
       .send({ login: 'mock_user_2+', countryId: 1 })
       .expect(401);
   });
 
   it('does not asccept unsigned input', async () => {
     const payload = { login: 'mock_user_2', countryId: 1 };
-    await request(app.getHttpServer()).post('/sdk/clients/register').set('api_key', apiKey).send(payload).expect(400);
+    await request(app.getHttpServer()).post('/sdk/clients/register').set('api-key', apiKey).send(payload).expect(400);
   });
 
   it('logins previously registered user', async () => {
@@ -84,7 +84,7 @@ describe('SDK Auth client (signed)', () => {
     await request(app.getHttpServer())
       .post('/sdk/clients/login')
       .set('signature', sign)
-      .set('api_key', apiKey)
+      .set('api-key', apiKey)
       .send(payload)
       .expect(201);
   });

@@ -30,13 +30,13 @@ export class ClientService implements OnModuleInit {
 
   async validate(data: SignedRequest, apiKey: string): Promise<AuthClient> {
     const metadata = new Metadata();
-    metadata.set('api_key', apiKey);
+    metadata.set('api-key', apiKey);
 
     let client: AuthClient;
     try {
       client = await firstValueFrom(this.authClientService.validate(data, metadata));
     } catch (error) {
-      this.logger.log('Validation failed', { apiKey, error });
+      this.logger.debug('Validation failed', { apiKey, error });
 
       throw new UnauthorizedException(error.message);
     }
@@ -45,7 +45,6 @@ export class ClientService implements OnModuleInit {
   }
 
   async registerUser(payload: RegisterRequestDto, client?: AuthClient) {
-    console.log('REGISTER_SERVICE:', payload, client);
     if (!client || (!payload.password && !payload.secure)) {
       throw new UnauthorizedException();
     }
@@ -64,7 +63,7 @@ export class ClientService implements OnModuleInit {
 
   loginUser(payload: SignedRequest, apiKey: string) {
     const metadata = new Metadata();
-    metadata.set('api_key', apiKey);
+    metadata.set('api-key', apiKey);
 
     return firstValueFrom(this.authClientService.login(payload, metadata));
   }

@@ -7,7 +7,7 @@ import { ApiGatewayModule } from './api-gateway.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule, { rawBody: true });
-  console.log('WOKING OUPTUT');
+
   sentryInit();
 
   const config = new DocumentBuilder()
@@ -22,9 +22,11 @@ async function bootstrap() {
     transform: true,
     validateCustomDecorators: true,
   };
-  const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalPipes(new ValidationPipe(validationOptions));
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new ApiExceptionFilter(httpAdapter));
+
   app.useGlobalInterceptors(app.get(ClassSerializerInterceptor));
 
   const document = SwaggerModule.createDocument(app, config);

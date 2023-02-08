@@ -39,7 +39,7 @@ export class ClientController {
   @UseGuards(AuthClientGuard)
   @ApiBody({ type: RegisterRequestDto })
   @ApiHeader({ name: 'signature' })
-  @ApiHeader({ name: 'api_key' })
+  @ApiHeader({ name: 'api-key' })
   @ApiResponse({ status: HttpStatus.CREATED, type: SuccessDto })
   async register(@Body() payload: RegisterRequestDto, @AuthClient() client: AuthClientInterface) {
     await this.clientService.registerUser(payload, client);
@@ -50,10 +50,10 @@ export class ClientController {
   @Post('login')
   @ApiBody({ type: LoginRequestDto })
   @ApiHeader({ name: 'signature' })
-  @ApiHeader({ name: 'api_key' })
+  @ApiHeader({ name: 'api-key' })
   login(@Req() req: RawBodyRequest<Request>) {
     const sign = req.header('signature');
-    const apiKey = req.header('api_key');
+    const apiKey = req.header('api-key');
 
     return this.clientService.loginUser(
       { data: req.rawBody, signature: sign ? Buffer.from(sign, 'hex') : undefined },
