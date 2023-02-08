@@ -1,6 +1,6 @@
 import {
+  ConflictException,
   ExecutionContext,
-  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -37,18 +37,21 @@ export class JwtSessionGuard extends BaseGuard {
       throw new UnauthorizedException();
     }
     if (!options.allowUnverified && is2FA(session) && !session.twoFactor.isVerified) {
-      throw new PreconditionFailedException('2FA is not completed');
+      throw new PreconditionFailedException('Verification is not completed');
     }
     if (options.require2FA && !is2FA(session)) {
       const { error, required } = await this.twoFactor.require(session.sessionId);
       if (error) {
-        throw new ForbiddenException(error);
+        throw new ConflictException(error);
       }
 
-      throw new HttpException({ message: '2FA required', methods: required.methods }, HttpStatus.PRECONDITION_REQUIRED);
+      throw new HttpException(
+        { message: 'Verification required', methods: required.methods },
+        HttpStatus.PRECONDITION_REQUIRED,
+      );
     }
     if (options.requirePreRegistration && !isPreRegistered(session)) {
-      throw new ForbiddenException({ message: "You haven't started registration process" });
+      throw new ConflictException({ message: "You haven't started registration process" });
     }
 
     return res;

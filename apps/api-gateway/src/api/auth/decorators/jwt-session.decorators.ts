@@ -1,6 +1,6 @@
 import { applyDecorators, HttpStatus, SetMetadata, UseGuards } from '@nestjs/common';
 import {
-  ApiForbiddenResponse,
+  ApiConflictResponse,
   ApiPreconditionFailedResponse,
   ApiResponse,
   ApiUnauthorizedResponse,
@@ -20,13 +20,20 @@ const JwtSessionAuth = (options: WithPreRegistration<With2FA<SessionMetadataOpti
   ];
 
   if (!options.allowUnverified) {
-    decorators.push(ApiPreconditionFailedResponse({ description: '2FA is not completed' }));
+    decorators.push(ApiPreconditionFailedResponse({ description: 'Verification is not completed' }));
   }
   if (options.require2FA) {
-    decorators.push(ApiResponse({ status: HttpStatus.PRECONDITION_REQUIRED, type: TwoFactorRequiredResponseDto }));
+    decorators.push(
+      ApiResponse({
+        status: HttpStatus.PRECONDITION_REQUIRED,
+        type: TwoFactorRequiredResponseDto,
+        description: 'Verification required',
+      }),
+      ApiConflictResponse({ description: 'No verification methods are enabled' }),
+    );
   }
   if (options.requirePreRegistration) {
-    decorators.push(ApiForbiddenResponse({ description: "You haven't started registration process" }));
+    decorators.push(ApiConflictResponse({ description: "You haven't started registration process" }));
   }
 
   return applyDecorators(...decorators);
