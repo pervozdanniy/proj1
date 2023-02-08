@@ -70,7 +70,7 @@ export class UserController {
   @ApiConflictResponse()
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  createUser(@Body() payload: CreateUserDTO): Promise<UserDTO> {
+  async createUser(@Body() payload: CreateUserDTO): Promise<UserDTO> {
     return this.userService.create(payload);
   }
 

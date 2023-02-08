@@ -3,6 +3,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PreRegisteredSessionInterface } from '~common/constants/auth/registration/interfaces';
+import { UserSourceEnum } from '~common/constants/user';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthServiceClient } from '~common/grpc/interfaces/auth';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
@@ -29,7 +30,9 @@ export class RegistrationService implements OnModuleInit {
   }
 
   async finish(payload: RegistrationFinishRequestDto, session: SessionProxy<PreRegisteredSessionInterface>) {
-    const user = firstValueFrom(this.userService.create({ ...payload, ...session.register }));
+    const user = firstValueFrom(
+      this.userService.create({ ...payload, ...session.register, source: UserSourceEnum.Api }),
+    );
 
     const metadata = new Metadata();
     metadata.set('sessionId', session.sessionId);

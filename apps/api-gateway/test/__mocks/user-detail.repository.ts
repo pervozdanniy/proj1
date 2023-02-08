@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { UserDetailsEntity } from '~svc/core/src/api/user/entities/user-details.entity';
+import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 import { MockType } from '../utils/types';
 
 export const userDetailStorage: UserDetailsEntity[] = [];
