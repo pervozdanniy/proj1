@@ -4,6 +4,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import bcrypt from 'bcrypt';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
+import { PreRegisterRequest } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
 import { SessionInterface, SessionService } from '~common/session';
@@ -53,16 +54,31 @@ export class AuthService implements OnModuleInit {
     return firstValueFrom(this.userService.getById({ id }));
   }
 
-  async login(user: User) {
-    const sessionId = await this.session.generate();
-    const session = { user };
+  async checkIfUnique(payload: PreRegisterRequest) {
+    const { success } = await firstValueFrom(this.userService.checkIfUnique(payload));
 
-    await this.session.set(sessionId, session);
+    return success;
+  }
+
+  async generateSession(data: SessionInterface) {
+    const sessionId = await this.session.generate();
+    await this.session.set(sessionId, data);
+
+    return sessionId;
+  }
+
+  async login(user: User) {
+    const session = { user };
+    const sessionId = await this.generateSession(session);
 
     return {
       sessionId,
       session,
     };
+  }
+
+  logout(sessionId: string) {
+    return this.session.destroy(sessionId);
   }
 
   generateToken(sessionId: string) {

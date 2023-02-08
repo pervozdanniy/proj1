@@ -1,5 +1,5 @@
 import { EntityNotFoundError, Repository } from 'typeorm';
-import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
+import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 import { makeFindOneBy } from '../utils/repository.helpers';
 import { MockType } from '../utils/types';
 

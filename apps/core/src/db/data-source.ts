@@ -13,6 +13,6 @@ export const AppDataSource = new DataSource({
   username,
   password,
   database,
-  entities: ['**/core/src/**/*.entity.ts'],
+  entities: ['apps/core/src/**/*.entity.ts'],
   migrations,
 });

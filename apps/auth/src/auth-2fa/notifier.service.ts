@@ -31,8 +31,8 @@ export class Notifier2FAService implements OnModuleInit {
     this.notifier = this.client.getService('NotifierService');
   }
 
-  async send(constraints: TwoFactorConstraint[], userId: number) {
-    this.logger.debug('2FA codes:', { userId, codes: constraints });
+  async send(constraints: TwoFactorConstraint[], sessionId: string) {
+    this.logger.debug('2FA codes:', { sessionId, codes: constraints });
     const prs = constraints.map((c) =>
       firstValueFrom(
         this.notifier.add({
@@ -45,7 +45,7 @@ export class Notifier2FAService implements OnModuleInit {
     try {
       await Promise.all(prs);
     } catch (error) {
-      this.logger.error('Sending 2FA codes failed: ', error.stack, { error, userId });
+      this.logger.error('Sending 2FA codes failed: ', error.stack, { error, sessionId });
     }
   }
 }

@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtSessionAuth, JwtSessionId } from '~common/session';
 import { SuccessDto } from '../../utils/success.dto';
+import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
 import {
   TwoFactorDisableRequestDto,
   TwoFactorEnableRequestDto,
@@ -9,7 +9,7 @@ import {
 } from '../dto/2fa.request.dto';
 import { TwoFactorService } from '../services/2fa.service';
 
-@ApiTags('Auth/2fa')
+@ApiTags('Auth')
 @Controller({
   version: '1',
   path: 'auth/2fa',
@@ -42,7 +42,6 @@ export class TwoFactorController {
   @ApiResponse({ status: HttpStatus.OK, type: SuccessDto })
   @HttpCode(HttpStatus.OK)
   @Post('verify')
-  @JwtSessionAuth({ allowUnverified: true })
   verify(@Body() payload: TwoFactorVerifyRequestDto, @JwtSessionId() sessionId: string) {
     return this.twoFactor.verify(payload, sessionId);
   }

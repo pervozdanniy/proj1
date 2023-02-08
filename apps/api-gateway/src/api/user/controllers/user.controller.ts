@@ -22,11 +22,11 @@ import {
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { UpdateUserDto, UserContactsDto } from '~svc/api-gateway/src/api/user/dtos/update-user.dto';
+import { JwtSessionAuth, JwtSessionUser } from '../../auth';
 import { PublicUserDto, PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { CreateUserDTO } from '../dtos/create-user.dto';
-import { RegistrationResponseDto } from '../dtos/user.dto';
+import { UserDTO } from '../dtos/user.dto';
 import { UserService } from '../user.service';
 
 @ApiTags('User')
@@ -65,12 +65,12 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The user created successfully.',
-    type: RegistrationResponseDto,
+    type: UserDTO,
   })
   @ApiConflictResponse()
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  createUser(@Body() payload: CreateUserDTO): Promise<RegistrationResponseDto> {
+  async createUser(@Body() payload: CreateUserDTO): Promise<UserDTO> {
     return this.userService.create(payload);
   }
 
