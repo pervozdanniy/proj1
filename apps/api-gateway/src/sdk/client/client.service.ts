@@ -45,7 +45,7 @@ export class ClientService implements OnModuleInit {
   }
 
   async registerUser(payload: RegisterRequestDto, client?: AuthClient) {
-    console.log('REGISTER:', payload, client);
+    console.log('REGISTER_SERVICE:', payload, client);
     if (!client || (!payload.password && !payload.secure)) {
       throw new UnauthorizedException();
     }
