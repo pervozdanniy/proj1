@@ -5,6 +5,7 @@ import Redis from 'ioredis';
 import { lastValueFrom } from 'rxjs';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';
+import { DocumentIdDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/document-id.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-withdraw.dto';
 import { VerifyOwnerDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/verify-owner.dto';
@@ -184,6 +185,66 @@ export class SandboxService {
 
       return cardResponse.data;
     } catch (e) {
+      throw new Error(e.response.data);
+    }
+  }
+
+  async verifyDocument(payload: DocumentIdDto) {
+    const token = await this.redis.get('prime_token');
+    const { document_id } = payload;
+
+    try {
+      const headersRequest = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const cardResponse = await lastValueFrom(
+        this.httpService.post(
+          `https://sandbox.primetrust.com/v2/kyc-document-checks/${document_id}/sandbox/verify`,
+          null,
+          {
+            headers: headersRequest,
+          },
+        ),
+      );
+
+      return cardResponse.data;
+    } catch (e) {
+      throw new Error(e.response.data);
+    }
+  }
+
+  async failDocument(payload: DocumentIdDto) {
+    const token = await this.redis.get('prime_token');
+    const { document_id } = payload;
+    const formData = {
+      data: {
+        type: 'kyc-document-checks',
+        attributes: {
+          'failure-details': 'some failure details',
+        },
+      },
+    };
+
+    try {
+      const headersRequest = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const cardResponse = await lastValueFrom(
+        this.httpService.post(
+          `https://sandbox.primetrust.com/v2/kyc-document-checks/${document_id}/sandbox/fail`,
+          formData,
+          {
+            headers: headersRequest,
+          },
+        ),
+      );
+
+      return cardResponse.data;
+    } catch (e) {
+      console.log(e.response.data.errors[0]);
+
       throw new Error(e.response.data);
     }
   }

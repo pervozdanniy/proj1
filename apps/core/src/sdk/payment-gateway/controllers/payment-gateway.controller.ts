@@ -8,7 +8,7 @@ import {
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositParams,
-  DepositResponse,
+  DepositResponse, DocumentResponse,
   MakeContributionRequest,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
@@ -49,7 +49,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.createContact(request);
   }
 
-  uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
+  uploadDocument(request: UploadDocumentRequest): Promise<DocumentResponse> {
     return this.paymentGatewayService.uploadDocument(request);
   }
 

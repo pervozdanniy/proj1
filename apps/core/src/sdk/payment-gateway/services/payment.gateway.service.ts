@@ -5,7 +5,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BankAccountParams,
-  DepositParams,
+  DepositParams, DocumentResponse,
   MakeContributionRequest,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
@@ -79,7 +79,7 @@ export class PaymentGatewayService {
     return paymentGateway.createContact(userDetails);
   }
 
-  async uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
+  async uploadDocument(request: UploadDocumentRequest): Promise<DocumentResponse> {
     const {
       file,
       label,

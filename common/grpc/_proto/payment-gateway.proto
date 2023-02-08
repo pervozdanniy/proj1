@@ -10,7 +10,7 @@ service PaymentGatewayService {
   rpc CreateAccount (UserIdRequest) returns (common.SuccessResponse);
   rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
-  rpc UploadDocument (UploadDocumentRequest) returns (common.SuccessResponse);
+  rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
   rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateReference (UserIdRequest) returns (PrimeTrustData);
@@ -30,6 +30,10 @@ service PaymentGatewayService {
   rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
   rpc AddDepositParams (DepositParams) returns (DepositResponse);
 
+}
+
+message DocumentResponse {
+  string document_id = 1;
 }
 
 message DepositParams{

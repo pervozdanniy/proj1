@@ -6,6 +6,10 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface DocumentResponse {
+  document_id: string;
+}
+
 export interface DepositParams {
   id: number;
   bank_account_id: number;
@@ -184,7 +188,7 @@ export interface PaymentGatewayServiceClient {
 
   createContact(request: UserIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
-  uploadDocument(request: UploadDocumentRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  uploadDocument(request: UploadDocumentRequest, metadata?: Metadata): Observable<DocumentResponse>;
 
   documentCheck(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
@@ -249,7 +253,7 @@ export interface PaymentGatewayServiceController {
   uploadDocument(
     request: UploadDocumentRequest,
     metadata?: Metadata,
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+  ): Promise<DocumentResponse> | Observable<DocumentResponse> | DocumentResponse;
 
   documentCheck(
     request: AccountIdRequest,

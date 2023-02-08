@@ -1,14 +1,24 @@
+import { Metadata } from '@grpc/grpc-js';
 import { Status } from '@grpc/grpc-js/build/src/constants';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ClientGrpc } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
+import Redis from 'ioredis';
 import * as process from 'process';
+import { catchError, map, throwError } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { InjectGrpc } from '~common/grpc/helpers';
+import { AuthServiceClient } from '~common/grpc/interfaces/auth';
+import { SuccessResponse, User } from '~common/grpc/interfaces/common';
+import { WebsocketServiceClient } from '~common/grpc/interfaces/websocket';
+import { SessionInterface, SessionService } from '~common/session';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/api/notification/services/notification.service';
 import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
+import { UserService } from '~svc/core/src/api/user/services/user.service';
 import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustHttpService } from '~svc/core/src/sdk/payment-gateway/request/prime-trust-http.service';
 import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
@@ -25,16 +35,33 @@ export class PrimeAccountManager {
 
     private readonly notificationService: NotificationService,
 
+    private readonly userService: UserService,
+
     private readonly primeKycManager: PrimeKycManager,
 
     private readonly primeTokenManager: PrimeTokenManager,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
+
+    @InjectGrpc('websocket') private readonly webSocketClient: ClientGrpc,
+    @InjectGrpc('auth') private readonly authClient: ClientGrpc,
+
+    private readonly session: SessionService<SessionInterface>,
+
+    @InjectRedis() private readonly redis: Redis,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
     this.app_domain = domain;
+  }
+
+  private websocketServiceClient: WebsocketServiceClient;
+  private authServiceClient: AuthServiceClient;
+
+  onModuleInit() {
+    this.websocketServiceClient = this.webSocketClient.getService('WebsocketService');
+    this.authServiceClient = this.authClient.getService('AuthService');
   }
 
   async createAccount(userDetails: UserEntity) {
@@ -184,6 +211,22 @@ export class PrimeAccountManager {
     };
 
     this.notificationService.createAsync(notificationPayload);
+
+    // this.websocketServiceClient
+    //   .send({ event: 'test', data: 'test' })
+    //   .pipe(
+    //     map((message: any) => {
+    //       console.log(message);
+    //       // Do something with the response
+    //     }),
+    //     catchError((error: any) => {
+    //       console.error(error);
+    //
+    //       // Handle the error
+    //       return throwError(error);
+    //     }),
+    //   )
+    //   .subscribe();
 
     return { success: true };
   }
