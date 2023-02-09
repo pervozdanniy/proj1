@@ -4,6 +4,7 @@ import {
   IsArray,
   IsEmail,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -12,69 +13,38 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
+import { TwoFactorMethod } from '~common/constants/auth';
 import { SendType } from '~common/constants/user';
+import { UserDetails } from '../../user/dtos/create-user.dto';
 
 export class RegistrationStartRequestDto {
+  @ApiProperty({ example: 'test453_sd@gmail.com' })
   @IsNotEmpty()
   @IsEmail()
-  @ApiProperty()
   email: string;
 
+  @ApiProperty({ required: true, example: '+37495017680' })
   @IsNotEmpty()
   @IsPhoneNumber()
-  @ApiProperty()
   phone: string;
+
+  @ApiProperty({ example: '12345678' })
+  @IsString()
+  @IsNotEmpty()
+  @Length(8, 200)
+  password: string;
 }
 
-export class UserDetails {
-  @ApiProperty({ example: 'first_name' })
-  @IsString()
+export class RegistrationVerifyRequestDto {
+  @ApiProperty({ enum: Object.values(TwoFactorMethod) })
   @IsNotEmpty()
-  @Length(2, 50)
-  first_name: string;
+  @IsEnum(TwoFactorMethod)
+  method: TwoFactorMethod;
 
-  @ApiProperty({ example: 'last_name' })
-  @IsString()
+  @ApiProperty()
   @IsNotEmpty()
-  @Length(2, 50)
-  last_name: string;
-
-  @ApiProperty({ example: 'Las Vegas' })
-  @IsString()
-  @IsNotEmpty()
-  @Length(2, 50)
-  city: string;
-
-  @ApiProperty({ example: 'NV' })
-  @IsString()
-  @IsOptional()
-  region: string;
-
-  @ApiProperty({ format: 'date', example: '1995-09-09' })
-  @IsString()
-  @IsNotEmpty()
-  date_of_birth: string;
-
-  @ApiProperty({ example: '123 MK Road' })
-  @IsString()
-  @IsNotEmpty()
-  @Length(2, 50)
-  street: string;
-
-  @ApiProperty({ example: 89145 })
-  @IsNumber()
-  @IsOptional()
-  postal_code: number;
-
-  @ApiProperty({ example: 123123123 })
-  @IsNumber()
-  @IsNotEmpty()
-  tax_id_number: number;
-
-  @ApiPropertyOptional({ enum: Object.values(SendType) })
-  @IsEnum(SendType)
-  @Type(() => Number)
-  send_type?: SendType;
+  @IsInt()
+  code: number;
 }
 
 export class RegistrationFinishRequestDto {
@@ -83,12 +53,6 @@ export class RegistrationFinishRequestDto {
   @IsNotEmpty()
   @Length(2, 200)
   username: string;
-
-  @ApiProperty({ example: '12345678' })
-  @IsString()
-  @IsNotEmpty()
-  @Length(8, 200)
-  password: string;
 
   @ApiProperty({ example: 1 })
   @IsNumber()

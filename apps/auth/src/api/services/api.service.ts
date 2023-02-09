@@ -2,7 +2,7 @@ import { Auth2FAService } from '@/auth-2fa/2fa.service';
 import { AuthService } from '@/auth/auth.service';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PreRegisteredSessionInterface } from '~common/constants/auth';
-import { AuthData, PreRegisterRequest } from '~common/grpc/interfaces/auth';
+import { AuthData, PreRegisterRequest, TwoFactorCode } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
 
 @Injectable()
@@ -61,5 +61,9 @@ export class AuthApiService {
     }
 
     return resp;
+  }
+
+  async verifyRegister(payload: TwoFactorCode, sessionId: string) {
+    return this.auth2FA.verifyOne(payload, sessionId);
   }
 }

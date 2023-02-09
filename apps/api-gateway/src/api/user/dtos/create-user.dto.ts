@@ -12,8 +12,8 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
+import { SendType } from '~common/constants/user';
 import { CreateRequest } from '~common/grpc/interfaces/core';
-import { SendType } from '~common/grpc/interfaces/notifier';
 
 export class UserDetails {
   @ApiProperty({ example: 'first_name' })
@@ -60,7 +60,7 @@ export class UserDetails {
   @IsNotEmpty()
   tax_id_number: number;
 
-  @ApiProperty({ enum: Object.keys(SendType) })
+  @ApiProperty({ enum: Object.values(SendType), default: SendType.ALL })
   @IsEnum(SendType)
   @Type(() => Number)
   send_type?: SendType;

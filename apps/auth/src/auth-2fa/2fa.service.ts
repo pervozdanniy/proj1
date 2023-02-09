@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import {
   confirm2FA,
+  confirm2FAMethod,
   is2FA,
   PreRegisteredSessionInterface,
   require2FA,
@@ -126,9 +127,13 @@ export class Auth2FAService {
     if (!session || !is2FA(session)) {
       throw new ConflictException('No verification required');
     }
+    if (session.twoFactor.expiresAt < Date.now()) {
+      return { valid: false, reason: '2FA session expired' };
+    }
+
     let reason: string;
     const verifyCodes = () => {
-      let valid = session.twoFactor.verify.reduce((acc, c) => {
+      let valid = (session.twoFactor.verify ?? []).reduce((acc, c) => {
         const actual = codes.find((a) => a.method === c.method);
 
         return acc && !!actual && c.code === actual.code;
@@ -162,5 +167,26 @@ export class Auth2FAService {
     }
 
     return { valid: !reason, reason };
+  }
+
+  async verifyOne(verification: { method: string; code: number }, sessionId: string) {
+    const session = await this.session.get(sessionId);
+    if (!session || !is2FA(session)) {
+      throw new ConflictException('No verification required');
+    }
+
+    for (const { code, method } of session.twoFactor.verify ?? []) {
+      if (verification.method === method) {
+        if (verification.code === code) {
+          await this.session.set(sessionId, confirm2FAMethod(session, method));
+
+          return { valid: true, unverified: { methods: (session.twoFactor.verify ?? []).map((c) => c.method) } };
+        }
+
+        return { valid: false, reason: '2FA code does not match' };
+      }
+    }
+
+    return { valid: false, reason: `2FA for ${verification.method} has not been requested!` };
   }
 }

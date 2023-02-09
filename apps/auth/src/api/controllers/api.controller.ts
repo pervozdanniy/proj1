@@ -1,11 +1,14 @@
 import { Metadata, status } from '@grpc/grpc-js';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import {
   AuthData,
   AuthServiceController,
   AuthServiceControllerMethods,
   PreRegisterRequest,
   SocialsAuthRequest,
+  TwoFactorCode,
+  TwoFactorVerificationResponse,
 } from '~common/grpc/interfaces/auth';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
@@ -23,6 +26,13 @@ export class AuthApiController implements AuthServiceController {
 
   preRegister(request: PreRegisterRequest): Promise<AuthData> {
     return this.authService.preRegister(request);
+  }
+
+  @GrpcSessionAuth({ allowUnauthorized: true })
+  verifyRegister(request: TwoFactorCode, metadata: Metadata): Promise<TwoFactorVerificationResponse> {
+    const [sessionId] = metadata.get('sessionId');
+
+    return this.authService.verifyRegister(request, sessionId.toString());
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))

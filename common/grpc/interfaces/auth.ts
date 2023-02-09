@@ -10,6 +10,7 @@ export const protobufPackage = "skopa.auth";
 export interface PreRegisterRequest {
   email: string;
   phone: string;
+  password: string;
 }
 
 export interface AuthRequest {
@@ -83,6 +84,7 @@ export interface TwoFactorVerificationRequest {
 export interface TwoFactorVerificationResponse {
   valid: boolean;
   reason?: string | undefined;
+  unverified?: TwoFactorEnabledMethodsResponse | undefined;
 }
 
 export interface TwoFactorRequireResponse {
@@ -93,28 +95,35 @@ export interface TwoFactorRequireResponse {
 export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
 
 export interface AuthServiceClient {
-  preRegister(request: PreRegisterRequest, metadata?: Metadata): Observable<AuthData>;
-
   login(request: AuthRequest, metadata?: Metadata): Observable<AuthData>;
 
   logout(request: Empty, metadata?: Metadata): Observable<SuccessResponse>;
 
   loginSocials(request: SocialsAuthRequest, metadata?: Metadata): Observable<AuthData>;
+
+  preRegister(request: PreRegisterRequest, metadata?: Metadata): Observable<AuthData>;
+
+  verifyRegister(request: TwoFactorCode, metadata?: Metadata): Observable<TwoFactorVerificationResponse>;
 }
 
 export interface AuthServiceController {
-  preRegister(request: PreRegisterRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
-
   login(request: AuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
 
   logout(request: Empty, metadata?: Metadata): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   loginSocials(request: SocialsAuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  preRegister(request: PreRegisterRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  verifyRegister(
+    request: TwoFactorCode,
+    metadata?: Metadata,
+  ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["preRegister", "login", "logout", "loginSocials"];
+    const grpcMethods: string[] = ["login", "logout", "loginSocials", "preRegister", "verifyRegister"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
@@ -171,6 +180,8 @@ export interface TwoFactorServiceClient {
 
   verify(request: TwoFactorVerificationRequest, metadata?: Metadata): Observable<TwoFactorVerificationResponse>;
 
+  verifyOne(request: TwoFactorCode, metadata?: Metadata): Observable<TwoFactorVerificationResponse>;
+
   require(request: Empty, metadata?: Metadata): Observable<TwoFactorRequireResponse>;
 }
 
@@ -198,6 +209,11 @@ export interface TwoFactorServiceController {
     metadata?: Metadata,
   ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
 
+  verifyOne(
+    request: TwoFactorCode,
+    metadata?: Metadata,
+  ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
+
   require(
     request: Empty,
     metadata?: Metadata,
@@ -206,7 +222,7 @@ export interface TwoFactorServiceController {
 
 export function TwoFactorServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["list", "enable", "disable", "verify", "require"];
+    const grpcMethods: string[] = ["list", "enable", "disable", "verify", "verifyOne", "require"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("TwoFactorService", method)(constructor.prototype[method], method, descriptor);

@@ -12,7 +12,7 @@ import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
 import { GrpcSessionAuth, SessionInterface, SessionService } from '~common/session';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { Auth2FAService } from '../../auth-2fa/2fa.service';
-import { DisableRequestDto, EnableRequestDto, VerifyRequestDto } from '../dto/2fa.dto';
+import { DisableRequestDto, EnableRequestDto, TwoFactorCodeDto, VerifyRequestDto } from '../dto/2fa.dto';
 
 @RpcController()
 @TwoFactorServiceControllerMethods()
@@ -63,10 +63,19 @@ export class TwoFactorController implements TwoFactorServiceController {
     return { success: true };
   }
 
+  @GrpcSessionAuth({ allowUnauthorized: true })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   verify({ codes }: VerifyRequestDto, metadata: Metadata): Promise<TwoFactorVerificationResponse> {
     const [sessionId] = metadata.get('sessionId');
 
     return this.auth2FA.verify(codes, sessionId.toString());
+  }
+
+  @GrpcSessionAuth({ allowUnauthorized: true })
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  verifyOne(request: TwoFactorCodeDto, metadata: Metadata): Promise<TwoFactorVerificationResponse> {
+    const [sessionId] = metadata.get('sessionId');
+
+    return this.auth2FA.verifyOne(request, sessionId.toString());
   }
 }

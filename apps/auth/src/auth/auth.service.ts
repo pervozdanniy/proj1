@@ -54,7 +54,8 @@ export class AuthService implements OnModuleInit {
     return firstValueFrom(this.userService.getById({ id }));
   }
 
-  async checkIfUnique(payload: PreRegisterRequest) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async checkIfUnique({ password, ...payload }: PreRegisterRequest) {
     const { success } = await firstValueFrom(this.userService.checkIfUnique(payload));
 
     return success;
