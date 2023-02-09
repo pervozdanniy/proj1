@@ -1,4 +1,3 @@
-#dummy tag
 image: atlassian/default-image:latest
 
 pipelines:
