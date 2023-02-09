@@ -22,9 +22,11 @@ async function bootstrap() {
     transform: true,
     validateCustomDecorators: true,
   };
-  const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalPipes(new ValidationPipe(validationOptions));
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new ApiExceptionFilter(httpAdapter));
+
   app.useGlobalInterceptors(app.get(ClassSerializerInterceptor));
 
   const document = SwaggerModule.createDocument(app, config);
