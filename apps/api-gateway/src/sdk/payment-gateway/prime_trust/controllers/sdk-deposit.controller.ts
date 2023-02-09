@@ -2,6 +2,7 @@ import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, Us
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/session';
+import { DepositParamsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-params.dto';
 import { CardResourceDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { MakeContributionDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/make-contribution.dto';
 import { SdkPaymentGatewayService } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
@@ -34,6 +35,20 @@ export class SdkDepositController {
   @Post('/credit_card/resource')
   async createCreditCardResource(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.createCreditCardResource({ id });
+  }
+
+  /**
+   * deposit funds ACH
+   */
+
+  @ApiOperation({ summary: 'Add Bank params for deposit.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/add/params')
+  async addDepositParams(@JwtSessionUser() { id }: User, @Body() payload: DepositParamsDto) {
+    return this.paymentGatewayService.addDepositParams({ id, ...payload });
   }
 
   /**

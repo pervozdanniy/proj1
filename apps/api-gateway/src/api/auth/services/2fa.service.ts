@@ -5,17 +5,30 @@ import { firstValueFrom } from 'rxjs';
 import { TwoFactorMethod } from '~common/constants/auth';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthData, TwoFactorServiceClient } from '~common/grpc/interfaces/auth';
-import { SessionService } from '~common/session';
 import { TwoFactorEnableRequestDto, TwoFactorVerifyRequestDto } from '../dto/2fa.request.dto';
 
 @Injectable()
 export class TwoFactorService implements OnModuleInit {
   private authClient: TwoFactorServiceClient;
 
-  constructor(@InjectGrpc('auth') private readonly auth: ClientGrpc, private readonly session: SessionService) {}
+  constructor(@InjectGrpc('auth') private readonly auth: ClientGrpc) {}
 
   onModuleInit() {
     this.authClient = this.auth.getService('TwoFactorService');
+  }
+
+  list(sessionId: string) {
+    const metadata = new Metadata();
+    metadata.set('sessionId', sessionId);
+
+    return firstValueFrom(this.authClient.list({}, metadata));
+  }
+
+  require(sessionId: string) {
+    const metadata = new Metadata();
+    metadata.set('sessionId', sessionId);
+
+    return firstValueFrom(this.authClient.require({}, metadata));
   }
 
   enable(settings: TwoFactorEnableRequestDto, sessionId: string) {

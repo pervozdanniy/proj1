@@ -6,6 +6,8 @@ import {
   AccountIdRequest,
   AccountResponse,
   BankAccountParams,
+  DepositParams,
+  DocumentResponse,
   MakeContributionRequest,
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
@@ -17,8 +19,8 @@ import {
   VerifyCreditCardRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
-import { UserService } from '~svc/core/src/api/user/services/user.service';
 import { PaymentGatewayEntity } from '~svc/core/src/sdk/payment-gateway/entities/payment-gateway.entity';
+import { UserService } from '~svc/core/src/user/services/user.service';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
 
 @Injectable()
@@ -79,7 +81,7 @@ export class PaymentGatewayService {
     return paymentGateway.createContact(userDetails);
   }
 
-  async uploadDocument(request: UploadDocumentRequest): Promise<SuccessResponse> {
+  async uploadDocument(request: UploadDocumentRequest): Promise<DocumentResponse> {
     const {
       file,
       label,
@@ -258,5 +260,14 @@ export class PaymentGatewayService {
     );
 
     return paymentGateway.getContact(request.id);
+  }
+
+  async addDepositParams(request: DepositParams) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.addDepositParams(request);
   }
 }

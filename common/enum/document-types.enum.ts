@@ -14,6 +14,13 @@ export enum WithdrawalTypes {
 
   CHECK = 'check',
 }
+
+export enum DepositTypes {
+  WIRE = 'wire',
+
+  ACH = 'ach',
+}
+
 export enum AchCheckType {
   PERSONAL = 'personal',
   BUSINESS = 'business',

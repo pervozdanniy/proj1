@@ -26,6 +26,7 @@ export interface ConfigInterface {
     core: Addr;
     auth: Addr;
     notifier: Addr;
+    websocket: Addr;
   };
   auth: {
     jwt: {
@@ -101,6 +102,10 @@ export default (): ConfigInterface => ({
     notifier: {
       host: process.env.GRPC_NOTIFIER_HOST,
       port: parseInt(process.env.GRPC_NOTIFIER_PORT, 10) || 5000,
+    },
+    websocket: {
+      host: process.env.GRPC_WEBSOCKET_HOST,
+      port: parseInt(process.env.GRPC_WEBSOCKET_PORT, 10) || 5000,
     },
   },
   auth: {

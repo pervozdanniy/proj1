@@ -6,10 +6,9 @@ import configuration, { ConfigInterface } from '~common/config/configuration';
 import { createBullQueue } from '~common/helpers';
 import { EmailHandler } from '~svc/notifier/src/queue/email.handler';
 import { SmsHandler } from '~svc/notifier/src/queue/sms.handler';
+import { TelesignModule } from '~svc/notifier/src/telesign/telesign.module';
 import { NotificationController } from './notification.controller';
 import { NotificationService } from './notification.service';
-import { SlickTextModule } from './slicktext/slicktext.module';
-import {TelesignModule} from "~svc/notifier/src/telesign/telesign.module";
 
 @Module({
   imports: [

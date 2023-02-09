@@ -26,6 +26,6 @@ export class SmsHandler {
 
   @OnQueueFailed({ name: 'send' })
   catch(job: Job<AddNotificationRequest>, error: Error) {
-    this.logger.error('Sending SMS: failed', error.stack, { error, options: job.data.options });
+    this.logger.error('Sending SMS: failed', error.stack, { options: job.data.options });
   }
 }

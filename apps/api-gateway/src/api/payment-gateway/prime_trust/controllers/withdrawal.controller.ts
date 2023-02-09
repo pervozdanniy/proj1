@@ -1,7 +1,7 @@
+import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/withdrawal-make.dto';
 import { WithdrawalParamsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/withdrawal-params.dto';
 import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/services/payment-gateway.service';
@@ -21,7 +21,7 @@ export class WithdrawalController {
     status: HttpStatus.OK,
   })
   @JwtSessionAuth()
-  @Get('/withdrawal/params')
+  @Get('/params')
   async getWithdrawalParams(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getWithdrawalParams({ id });
   }
@@ -31,7 +31,7 @@ export class WithdrawalController {
     status: HttpStatus.CREATED,
   })
   @JwtSessionAuth()
-  @Post('/withdrawal/params')
+  @Post('/params')
   async addWithdrawalParams(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalParamsDto) {
     return this.paymentGatewayService.addWithdrawalParams({ id, ...payload });
   }
@@ -41,7 +41,7 @@ export class WithdrawalController {
     status: HttpStatus.CREATED,
   })
   @JwtSessionAuth()
-  @Post('/withdrawal/make')
+  @Post('/make')
   async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
     return this.paymentGatewayService.makeWithdrawal({ id, ...payload });
   }

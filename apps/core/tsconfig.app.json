@@ -2,7 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
-    "outDir": "../../dist/apps/core"
+    "outDir": "../../dist/apps/core",
+    "paths": {
+      "~svc/*": ["apps/*"],
+      "~common/*": ["common/*"],
+      "@/*": ["apps/core/src/*"]
+    },
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]

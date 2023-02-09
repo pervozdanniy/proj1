@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';
@@ -24,12 +24,12 @@ export class ClientService {
   async validate({ data, signature }: SignedRequest, apiKey: string): Promise<AuthClientInterface> {
     const client = await this.authClientRepo.findOneBy({ key: apiKey });
     if (!client) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Auth client does not exist');
     }
 
     if (signature) {
       if (!client.secret) {
-        throw new UnauthorizedException();
+        throw new ForbiddenException('Auth client does not support signed requests');
       }
       const publicKey = crypto.createPublicKey({
         key: Buffer.from(client.secret, 'hex'),
@@ -37,7 +37,7 @@ export class ClientService {
         type: 'spki',
       });
       if (!crypto.verify(null, data, publicKey, signature)) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Signature does not match');
       }
     }
 

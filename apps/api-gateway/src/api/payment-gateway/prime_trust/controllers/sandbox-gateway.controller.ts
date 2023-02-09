@@ -4,6 +4,7 @@ import { JwtSessionAuth } from '~common/session';
 import { AccountIdDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/account-id.dto';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';
+import { DocumentIdDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/document-id.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-withdraw.dto';
 import { VerifyOwnerDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/verify-owner.dto';
@@ -30,13 +31,29 @@ export class SandboxGatewayController {
   }
 
   @ApiOperation({ summary: 'Open Account Testing Mode.' })
+  @Post('/account/open')
+  @JwtSessionAuth()
+  async openAccount(@Body() payload: AccountIdDto) {
+    return this.sandboxService.openAccount(payload);
+  }
+
+  @ApiOperation({ summary: 'Verify document by id.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
   @JwtSessionAuth()
-  @Post('/account/open')
-  async openAccount(@Body() payload: AccountIdDto) {
-    return this.sandboxService.openAccount(payload);
+  @Post('/kyc/document/verify')
+  async verifyDocument(@Body() payload: DocumentIdDto) {
+    return this.sandboxService.verifyDocument(payload);
+  }
+  @ApiOperation({ summary: 'Fail document by id.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/kyc/document/fail')
+  async failDocument(@Body() payload: DocumentIdDto) {
+    return this.sandboxService.failDocument(payload);
   }
 
   @ApiOperation({ summary: 'Send Deposit Funds request (testing mode).' })

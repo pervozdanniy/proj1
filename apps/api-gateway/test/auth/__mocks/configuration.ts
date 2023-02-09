@@ -17,6 +17,10 @@ export default (): Partial<ConfigInterface> => ({
       host: '127.0.0.1',
       port: parseInt(process.env.GRPC_NOTIFIER_LOCAL_PORT, 10),
     },
+    websocket: {
+      host: '127.0.0.1',
+      port: parseInt(process.env.GRPC_WEBSOCKETLOCAL_PORT, 10),
+    },
   },
   auth: {
     jwt: {

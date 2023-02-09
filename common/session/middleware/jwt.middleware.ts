@@ -1,4 +1,4 @@
-import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload, VerifyOptions } from 'jsonwebtoken';
@@ -24,13 +24,15 @@ export class JwtSessionMiddleware implements NestMiddleware {
 
     let host: SessionHost<SessionInterface> & SessionInterface;
     const nextCb = (err?: any) => {
-      const res = next(err);
-      if (host?.isModified) {
-        host.save();
-      }
+      try {
+        const res = next(err);
 
-      return res;
+        return res;
+      } finally {
+        host?.isModified && host.save();
+      }
     };
+
     util
       .promisify<string, string, VerifyOptions, JwtPayload>(jwt.verify)(
         token,

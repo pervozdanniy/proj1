@@ -5,6 +5,9 @@ import { SdkModule } from '~svc/api-gateway/src/sdk/sdk.module';
 
 @Module({
   imports: (() => {
+    if (process.env.NODE_ENV === 'dev') {
+      return [SdkModule, ApiModule];
+    }
     if (process.env.API_TYPE === 'SDK') {
       return [SdkModule];
     } else {

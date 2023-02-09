@@ -1,13 +1,17 @@
+import { NotificationEntity } from '@/notification/entities/notification.entity';
+import { NotificationModule } from '@/notification/notification.module';
+import { UserModule } from '@/user/user.module';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { NotificationEntity } from '~svc/core/src/api/notification/entities/notification.entity';
-import { NotificationModule } from '~svc/core/src/api/notification/notification.module';
-import { UserModule } from '~svc/core/src/api/user/user.module';
+import { asyncClientOptions } from '~common/grpc/helpers';
+import { SessionModule } from '~common/session';
 import { PaymentGatewayEntity } from '~svc/core/src/sdk/payment-gateway/entities/payment-gateway.entity';
 import { BankAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/card-resource.entity';
 import { ContributionEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/contribution.entity';
+import { DepositParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/deposit-params.entity';
 import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
@@ -28,6 +32,7 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
 
 @Module({
   imports: [
+    SessionModule,
     HttpModule,
     UserModule,
     NotificationModule,
@@ -44,7 +49,10 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
       CardResourceEntity,
       TransferFundsEntity,
       BankAccountEntity,
+      DepositParamsEntity,
     ]),
+    ClientsModule.registerAsync([asyncClientOptions('websocket')]),
+    ClientsModule.registerAsync([asyncClientOptions('auth')]),
   ],
   providers: [
     PaymentGatewayService,

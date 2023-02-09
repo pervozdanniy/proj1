@@ -1,17 +1,16 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Injectable, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionAuth, JwtSessionUser } from '~common/session';
 import { SocialsUserDto } from '~svc/api-gateway/src/api/auth/dto/socials-user.dto';
 import { PublicUserDto } from '../../utils/public-user.dto';
+import { JwtSessionAuth, JwtSessionUser } from '../decorators/jwt-session.decorators';
 import { TwoFactorRequiredResponseDto } from '../dto/2fa.reponse.dto';
 import { AuthRequestDto } from '../dto/auth.request.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
 import { AuthService } from '../services/auth.service';
 
 @ApiTags('Auth')
-@Injectable()
 @Controller({
   version: '1',
   path: 'auth',

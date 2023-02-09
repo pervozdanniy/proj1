@@ -12,7 +12,7 @@ service PaymentGatewayService {
   rpc GetContact (UserIdRequest) returns (ContactResponse);
   rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
-  rpc UploadDocument (UploadDocumentRequest) returns (common.SuccessResponse);
+  rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
   rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateReference (UserIdRequest) returns (PrimeTrustData);
@@ -30,6 +30,7 @@ service PaymentGatewayService {
   rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
   rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
+  rpc AddDepositParams (DepositParams) returns (DepositResponse);
 
 }
 
@@ -52,6 +53,22 @@ message AccountResponse {
   string number = 3;
   string status = 4;
 }
+
+
+message DocumentResponse {
+  string document_id = 1;
+}
+
+message DepositParams{
+  uint32 id = 1;
+  uint32 bank_account_id = 2;
+  string funds_transfer_type = 3;
+}
+
+message DepositResponse{
+  string transfer_method_id = 1;
+}
+
 
 message MakeContributionRequest {
   uint32 id = 1;

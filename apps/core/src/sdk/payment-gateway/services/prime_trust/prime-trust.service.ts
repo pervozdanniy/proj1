@@ -2,17 +2,18 @@ import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
   BankAccountParams,
+  DepositParams,
   MakeContributionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
-import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
 import { PrimeAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-account.manager';
 import { PrimeBankAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
 import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
 import { PrimeTransactionsManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-transactions.manager';
+import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
 export class PrimeTrustService {
@@ -118,5 +119,8 @@ export class PrimeTrustService {
 
   getContact(id: number) {
     return this.primeKycManager.getContact(id);
+  }
+  addDepositParams(request: DepositParams) {
+    return this.primeTransactionsManager.addDepositParams(request);
   }
 }

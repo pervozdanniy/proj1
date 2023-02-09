@@ -44,6 +44,11 @@ export interface UpdateContactsRequest {
   contacts: UserContacts | undefined;
 }
 
+export interface CheckIfUniqueRequest {
+  email: string;
+  phone: string;
+}
+
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface UserServiceClient {
@@ -58,6 +63,8 @@ export interface UserServiceClient {
   update(request: UpdateRequest, metadata?: Metadata): Observable<User>;
 
   updateContacts(request: UpdateContactsRequest, metadata?: Metadata): Observable<User>;
+
+  checkIfUnique(request: CheckIfUniqueRequest, metadata?: Metadata): Observable<SuccessResponse>;
 }
 
 export interface UserServiceController {
@@ -78,11 +85,24 @@ export interface UserServiceController {
   update(request: UpdateRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
 
   updateContacts(request: UpdateContactsRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
+
+  checkIfUnique(
+    request: CheckIfUniqueRequest,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function UserServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getById", "findByLogin", "create", "delete", "update", "updateContacts"];
+    const grpcMethods: string[] = [
+      "getById",
+      "findByLogin",
+      "create",
+      "delete",
+      "update",
+      "updateContacts",
+      "checkIfUnique",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);
