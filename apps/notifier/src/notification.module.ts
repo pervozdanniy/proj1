@@ -9,6 +9,7 @@ import { SmsHandler } from '~svc/notifier/src/queue/sms.handler';
 import { NotificationController } from './notification.controller';
 import { NotificationService } from './notification.service';
 import { SlickTextModule } from './slicktext/slicktext.module';
+import {TelesignModule} from "~svc/notifier/src/telesign/telesign.module";
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { SlickTextModule } from './slicktext/slicktext.module';
       createBullQueue('sms_queue', 'notifications'),
       createBullQueue('email_queue', 'notifications'),
     ),
-    SlickTextModule,
+    TelesignModule,
   ],
   controllers: [NotificationController],
   providers: [NotificationService, SmsHandler, EmailHandler],

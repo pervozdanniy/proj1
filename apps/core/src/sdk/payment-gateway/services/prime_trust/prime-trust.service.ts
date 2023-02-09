@@ -111,4 +111,12 @@ export class PrimeTrustService {
   makeContribution(request: MakeContributionRequest) {
     return this.primeTransactionsManager.makeContribution(request);
   }
+
+  getAccount(id: number) {
+    return this.primeAccountManager.getAccount(id);
+  }
+
+  getContact(id: number) {
+    return this.primeKycManager.getContact(id);
+  }
 }

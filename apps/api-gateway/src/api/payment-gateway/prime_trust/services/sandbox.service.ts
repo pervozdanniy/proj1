@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { lastValueFrom } from 'rxjs';
+import { AccountIdDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/account-id.dto';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-funds.dto';
@@ -183,6 +184,27 @@ export class SandboxService {
       );
 
       return cardResponse.data;
+    } catch (e) {
+      throw new Error(e.response.data);
+    }
+  }
+
+  async openAccount(payload: AccountIdDto) {
+    const token = await this.redis.get('prime_token');
+    const { account_id } = payload;
+
+    try {
+      const headersRequest = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const accountResponse = await lastValueFrom(
+        this.httpService.get(`https://sandbox.primetrust.com/v2/accounts/${account_id}/sandbox/open`, {
+          headers: headersRequest,
+        }),
+      );
+
+      return accountResponse.data;
     } catch (e) {
       throw new Error(e.response.data);
     }

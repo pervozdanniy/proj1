@@ -122,4 +122,12 @@ export class PaymentGatewayService implements OnModuleInit {
   makeContribution(data: MakeContributionRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.makeContribution(data));
   }
+
+  getAccount(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getAccount(data));
+  }
+
+  getContact(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getContact(data));
+  }
 }

@@ -7,7 +7,9 @@ package skopa.core;
 service PaymentGatewayService {
   rpc List(PaymentGatewayListQuery) returns (PaymentGatewayListResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
-  rpc CreateAccount (UserIdRequest) returns (common.SuccessResponse);
+  rpc CreateAccount (UserIdRequest) returns (AccountResponse);
+  rpc GetAccount (UserIdRequest) returns (AccountResponse);
+  rpc GetContact (UserIdRequest) returns (ContactResponse);
   rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (common.SuccessResponse);
@@ -29,6 +31,26 @@ service PaymentGatewayService {
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
   rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
 
+}
+
+message ContactResponse {
+  string uuid = 1;
+  string first_name = 2;
+  string last_name = 3;
+  bool identity_confirmed = 4;
+  bool proof_of_address_documents_verified = 5;
+  bool identity_documents_verified = 6;
+  bool aml_cleared = 7;
+  bool cip_cleared = 8;
+
+
+}
+
+message AccountResponse {
+  string uuid = 1;
+  string name = 2;
+  string number = 3;
+  string status = 4;
 }
 
 message MakeContributionRequest {

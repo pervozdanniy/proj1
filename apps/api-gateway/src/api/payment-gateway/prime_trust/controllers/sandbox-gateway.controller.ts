@@ -1,6 +1,7 @@
 import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Patch, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtSessionAuth } from '~common/session';
+import { AccountIdDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/account-id.dto';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-funds.dto';
@@ -26,6 +27,16 @@ export class SandboxGatewayController {
   @Patch('/webhook/change')
   async bind(@Body() payload: WebhookUrlDto) {
     return this.sandboxService.bind(payload);
+  }
+
+  @ApiOperation({ summary: 'Open Account Testing Mode.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/account/open')
+  async openAccount(@Body() payload: AccountIdDto) {
+    return this.sandboxService.openAccount(payload);
   }
 
   @ApiOperation({ summary: 'Send Deposit Funds request (testing mode).' })

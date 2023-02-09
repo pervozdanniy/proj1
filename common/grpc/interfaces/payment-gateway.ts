@@ -6,6 +6,24 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface ContactResponse {
+  uuid: string;
+  first_name: string;
+  last_name: string;
+  identity_confirmed: boolean;
+  proof_of_address_documents_verified: boolean;
+  identity_documents_verified: boolean;
+  aml_cleared: boolean;
+  cip_cleared: boolean;
+}
+
+export interface AccountResponse {
+  uuid: string;
+  name: string;
+  number: string;
+  status: string;
+}
+
 export interface MakeContributionRequest {
   id: number;
   funds_transfer_method_id: string;
@@ -168,7 +186,11 @@ export interface PaymentGatewayServiceClient {
 
   getToken(request: IdRequest, metadata?: Metadata): Observable<PG_Token>;
 
-  createAccount(request: UserIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  createAccount(request: UserIdRequest, metadata?: Metadata): Observable<AccountResponse>;
+
+  getAccount(request: UserIdRequest, metadata?: Metadata): Observable<AccountResponse>;
+
+  getContact(request: UserIdRequest, metadata?: Metadata): Observable<ContactResponse>;
 
   updateAccount(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
@@ -222,7 +244,17 @@ export interface PaymentGatewayServiceController {
   createAccount(
     request: UserIdRequest,
     metadata?: Metadata,
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+  ): Promise<AccountResponse> | Observable<AccountResponse> | AccountResponse;
+
+  getAccount(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<AccountResponse> | Observable<AccountResponse> | AccountResponse;
+
+  getContact(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<ContactResponse> | Observable<ContactResponse> | ContactResponse;
 
   updateAccount(
     request: AccountIdRequest,
@@ -331,6 +363,8 @@ export function PaymentGatewayServiceControllerMethods() {
       "list",
       "getToken",
       "createAccount",
+      "getAccount",
+      "getContact",
       "updateAccount",
       "createContact",
       "uploadDocument",

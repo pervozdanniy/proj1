@@ -68,6 +68,26 @@ export class MainController {
     return this.paymentGatewayService.createAccount({ id });
   }
 
+  @ApiOperation({ summary: 'Get Account.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Get('/account')
+  async getAccount(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getAccount({ id });
+  }
+
+  @ApiOperation({ summary: 'Get Contact.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Get('/contact')
+  async getContact(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getContact({ id });
+  }
+
   @Post('/account/webhook')
   async webhook(@Body() payload: any) {
     const { resource_type, action } = payload;

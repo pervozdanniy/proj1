@@ -6,6 +6,7 @@ import * as process from 'process';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { AccountResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/api/notification/services/notification.service';
 import { UserEntity } from '~svc/core/src/api/user/entities/user.entity';
@@ -37,7 +38,7 @@ export class PrimeAccountManager {
     this.app_domain = domain;
   }
 
-  async createAccount(userDetails: UserEntity) {
+  async createAccount(userDetails: UserEntity): Promise<AccountResponse> {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
     if (account) {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
@@ -87,11 +88,11 @@ export class PrimeAccountManager {
 
       // account open from development
       if (process.env.NODE_ENV === 'dev') {
-        await this.httpService.request({
-          method: 'post',
-          url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
-          data: null,
-        });
+        // await this.httpService.request({
+        //   method: 'post',
+        //   url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
+        //   data: null,
+        // });
       }
       //
 
@@ -106,7 +107,9 @@ export class PrimeAccountManager {
         return contact.attributes['account-id'] === account.uuid;
       });
 
-      return await this.primeKycManager.saveContact({ data: contactData.pop() }, account.user_id);
+      await this.primeKycManager.saveContact({ data: contactData.pop() }, account.user_id);
+
+      return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
       //
     } catch (e) {
       this.logger.error(e.response.data.errors);
@@ -201,5 +204,16 @@ export class PrimeAccountManager {
 
       throw new GrpcException(Status.ABORTED, e.response.data.errors[0], 400);
     }
+  }
+
+  async getAccount(id: number): Promise<AccountResponse> {
+    const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
+
+    return {
+      uuid: account.uuid,
+      name: account.name,
+      status: account.status,
+      number: account.number,
+    };
   }
 }

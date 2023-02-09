@@ -1,9 +1,11 @@
 import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
+  AccountResponse,
   BalanceResponse,
   BankAccountParams,
   BankAccountsResponse,
+  ContactResponse,
   ContributionResponse,
   CreditCardResourceResponse,
   CreditCardsResponse,
@@ -30,6 +32,13 @@ import { PaymentGatewayService } from '../services/payment.gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  getAccount(request: UserIdRequest): Promise<AccountResponse> {
+    return this.paymentGatewayService.getAccount(request);
+  }
+
+  getContact(request: UserIdRequest): Promise<ContactResponse> {
+    return this.paymentGatewayService.getContact(request);
+  }
   createCreditCardResource(request: UserIdRequest): Promise<CreditCardResourceResponse> {
     return this.paymentGatewayService.createCreditCardResource(request);
   }
@@ -39,7 +48,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.getToken(id);
   }
 
-  createAccount(request: UserIdRequest): Promise<SuccessResponse> {
+  createAccount(request: UserIdRequest): Promise<AccountResponse> {
     return this.paymentGatewayService.createAccount(request);
   }
 
