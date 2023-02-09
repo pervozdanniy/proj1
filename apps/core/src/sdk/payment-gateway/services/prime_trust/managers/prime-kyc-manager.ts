@@ -7,7 +7,7 @@ import process from 'process';
 import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { AccountIdRequest } from '~common/grpc/interfaces/payment-gateway';
+import { AccountIdRequest, DocumentResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
@@ -119,7 +119,7 @@ export class PrimeKycManager {
     return { success: true };
   }
 
-  async uploadDocument(userDetails: UserEntity, file: any, label: string) {
+  async uploadDocument(userDetails: UserEntity, file: any, label: string): Promise<DocumentResponse> {
     const country_code = userDetails.country.code;
     const account = await this.primeAccountRepository.findOne({
       where: { user_id: userDetails.id },
@@ -168,11 +168,11 @@ export class PrimeKycManager {
 
       //document verify from development
       if (process.env.NODE_ENV === 'dev') {
-        await this.httpService.request({
-          method: 'post',
-          url: `${this.prime_trust_url}/v2/kyc-document-checks/${result.data.data.id}/sandbox/verify`,
-          data: null,
-        });
+        // await this.httpService.request({
+        //   method: 'post',
+        //   url: `${this.prime_trust_url}/v2/kyc-document-checks/${result.data.data.id}/sandbox/verify`,
+        //   data: null,
+        // });
 
         // approve cip for development
         contactData.data.included.map(async (inc) => {
@@ -238,7 +238,7 @@ export class PrimeKycManager {
       throw new GrpcException(Status.ABORTED, e.message, 400);
     }
 
-    return { success: true };
+    return { document_id: documentCheckResponse.id };
   }
 
   async documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
@@ -292,6 +292,7 @@ export class PrimeKycManager {
       });
 
       const data = this.collectContractData(contactData);
+
       await this.primeTrustContactEntityRepository.save({
         ...contact,
         ...data,

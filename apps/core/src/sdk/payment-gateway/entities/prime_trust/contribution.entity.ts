@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { DepositParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/deposit-params.entity';
 import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 
 @Entity('contributions')
@@ -16,6 +17,9 @@ export class ContributionEntity {
 
   @Column('integer')
   user_id: number;
+
+  @Column('integer', { nullable: true })
+  deposit_param_id: number;
 
   @Column('character varying', { length: 50, nullable: true })
   uuid: string;
@@ -50,4 +54,8 @@ export class ContributionEntity {
   @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.contributions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   contact?: PrimeTrustContactEntity;
+
+  @ManyToOne(() => DepositParamsEntity, (d) => d.contributions, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'deposit_param_id' })
+  depositParams?: PrimeTrustContactEntity;
 }

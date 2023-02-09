@@ -21,7 +21,7 @@ export class SdkWithdrawalController {
     status: HttpStatus.OK,
   })
   @JwtSessionAuth()
-  @Get('/withdrawal/params')
+  @Get('/params')
   async getWithdrawalParams(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getWithdrawalParams({ id });
   }
@@ -31,7 +31,7 @@ export class SdkWithdrawalController {
     status: HttpStatus.CREATED,
   })
   @JwtSessionAuth()
-  @Post('/withdrawal/params')
+  @Post('/params')
   async addWithdrawalParams(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalParamsDto) {
     return this.paymentGatewayService.addWithdrawalParams({ id, ...payload });
   }
@@ -41,7 +41,7 @@ export class SdkWithdrawalController {
     status: HttpStatus.CREATED,
   })
   @JwtSessionAuth()
-  @Post('/withdrawal/make')
+  @Post('/make')
   async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
     return this.paymentGatewayService.makeWithdrawal({ id, ...payload });
   }

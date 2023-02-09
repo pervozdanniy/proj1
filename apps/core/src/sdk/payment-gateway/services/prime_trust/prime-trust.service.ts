@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
   BankAccountParams,
+  DepositParams,
   MakeContributionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
@@ -110,5 +111,9 @@ export class PrimeTrustService {
 
   makeContribution(request: MakeContributionRequest) {
     return this.primeTransactionsManager.makeContribution(request);
+  }
+
+  addDepositParams(request: DepositParams) {
+    return this.primeTransactionsManager.addDepositParams(request);
   }
 }

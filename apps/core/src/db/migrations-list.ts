@@ -18,6 +18,7 @@ import { CreateTransferFundsTable1675409446505 } from '~svc/core/src/db/migratio
 import { CreateBankAccountsTable1675444112418 } from '~svc/core/src/db/migrations/1675444112418-CreateBankAccountsTable';
 import { AlterWithdrawalParamsTable1675502524716 } from '~svc/core/src/db/migrations/1675502524716-AlterWithdrawalParamsTable';
 import { AlterBankAccountsTable1675669007472 } from '~svc/core/src/db/migrations/1675669007472-AlterBankAccountsTable';
+import { CreateDepositParamsTable1675752900884 } from '~svc/core/src/db/migrations/1675752900884-CreateDepositParamsTable';
 import { SeedPaymentGateway1671466516817 } from '~svc/core/src/db/seeds/1671466516817-SeedPaymentGateway';
 import { createUserTable1669901299726 } from './migrations/1669901299726-create-user-table';
 import { AlterUsersTable2167043583659 } from './migrations/1670435836592-AlterUsersTable';
@@ -54,6 +55,7 @@ export default [
   CreateBankAccountsTable1675444112418,
   AlterWithdrawalParamsTable1675502524716,
   AlterBankAccountsTable1675669007472,
+  CreateDepositParamsTable1675752900884,
   AddPhoneUniqueContraint1675781764778,
   MakeUserPhoneNullable1675855993341,
 ];

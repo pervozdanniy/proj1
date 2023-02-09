@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { JwtSessionAuth } from '~common/session';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';
+import { DocumentIdDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/document-id.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/settle-withdraw.dto';
 import { VerifyOwnerDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/verify-owner.dto';
@@ -26,6 +27,26 @@ export class SandboxGatewayController {
   @Patch('/webhook/change')
   async bind(@Body() payload: WebhookUrlDto) {
     return this.sandboxService.bind(payload);
+  }
+
+  @ApiOperation({ summary: 'Verify document by id.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/kyc/document/verify')
+  async verifyDocument(@Body() payload: DocumentIdDto) {
+    return this.sandboxService.verifyDocument(payload);
+  }
+
+  @ApiOperation({ summary: 'Fail document by id.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/kyc/document/fail')
+  async failDocument(@Body() payload: DocumentIdDto) {
+    return this.sandboxService.failDocument(payload);
   }
 
   @ApiOperation({ summary: 'Send Deposit Funds request (testing mode).' })
