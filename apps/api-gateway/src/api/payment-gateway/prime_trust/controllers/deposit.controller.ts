@@ -1,4 +1,11 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
+import {
+  ContributionResponseDTO,
+  CreditCardResourceResponseDTO,
+  CreditCardsResponseDTO,
+  DepositResponseDTO,
+  SuccessResponseDTO,
+} from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
@@ -34,6 +41,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Add Bank params for deposit.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: DepositResponseDTO,
   })
   @JwtSessionAuth()
   @Post('/add/params')
@@ -48,6 +56,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Create Credit Card Resource.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: CreditCardResourceResponseDTO,
   })
   @JwtSessionAuth()
   @Post('/credit_card/resource')
@@ -58,6 +67,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Verify Credit Card.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: SuccessResponseDTO,
   })
   @JwtSessionAuth()
   @Post('/credit_card/verify')
@@ -70,6 +80,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Get Credit Cards.' })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: CreditCardsResponseDTO,
   })
   @JwtSessionAuth()
   @Get('/credit_cards')
@@ -80,6 +91,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Deposit funds by credit card.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: ContributionResponseDTO,
   })
   @JwtSessionAuth()
   @Post('/contribution')

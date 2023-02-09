@@ -1,4 +1,5 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
+import { TransferFundsResponseDTO } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
@@ -17,6 +18,7 @@ export class TransferController {
   @ApiOperation({ summary: 'Transfer funds.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: TransferFundsResponseDTO,
   })
   @JwtSessionAuth()
   @Post('/funds')

@@ -1,4 +1,12 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
+import {
+  AccountResponseDTO,
+  BalanceResponseDTO,
+  BankAccountParamsDTO,
+  BankAccountResponseDTO,
+  ContactResponseDTO,
+  DocumentResponseDTO,
+} from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
   Body,
@@ -71,6 +79,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Account.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: AccountResponseDTO,
   })
   @JwtSessionAuth()
   @Get('/account')
@@ -81,6 +90,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Contact.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: ContactResponseDTO,
   })
   @JwtSessionAuth()
   @Get('/contact')
@@ -140,6 +150,7 @@ export class MainController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The file successfully uploaded.',
+    type: DocumentResponseDTO,
   })
   @JwtSessionAuth()
   @UseInterceptors(FileInterceptor('file'))
@@ -152,6 +163,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Balance.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: BalanceResponseDTO,
   })
   @JwtSessionAuth()
   @Post('/balance')
@@ -162,6 +174,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Bank Accounts.' })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: BankAccountResponseDTO,
   })
   @JwtSessionAuth()
   @Get('/bank/account')
@@ -171,6 +184,7 @@ export class MainController {
   @ApiOperation({ summary: 'Add Bank Account params.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: BankAccountParamsDTO,
   })
   @JwtSessionAuth()
   @Post('/bank/account')
