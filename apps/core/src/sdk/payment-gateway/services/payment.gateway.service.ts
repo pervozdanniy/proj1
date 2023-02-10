@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
+  AccountResponse,
   BankAccountParams,
   DepositParams,
   DocumentResponse,
@@ -60,7 +61,7 @@ export class PaymentGatewayService {
     return { data: token };
   }
 
-  async createAccount(payload: UserIdRequest): Promise<SuccessResponse> {
+  async createAccount(payload: UserIdRequest): Promise<AccountResponse> {
     const { id } = payload;
     const userDetails = await this.userService.getUserInfo(id);
 
@@ -243,6 +244,24 @@ export class PaymentGatewayService {
     return paymentGateway.makeContribution(request);
   }
 
+  async getAccount(request: UserIdRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getAccount(request.id);
+  }
+
+  async getContact(request: UserIdRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getContact(request.id);
+  }
+
   async addDepositParams(request: DepositParams) {
     const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
@@ -250,5 +269,14 @@ export class PaymentGatewayService {
     );
 
     return paymentGateway.addDepositParams(request);
+  }
+
+  async getTransfers(request: UserIdRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getTransfers(request.id);
   }
 }

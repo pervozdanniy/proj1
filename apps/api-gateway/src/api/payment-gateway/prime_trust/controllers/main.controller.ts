@@ -1,4 +1,12 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
+import {
+  AccountResponseDTO,
+  BalanceResponseDTO,
+  BankAccountParamsDTO,
+  BankAccountResponseDTO,
+  ContactResponseDTO,
+  DocumentResponseDTO,
+} from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
   Body,
@@ -68,6 +76,28 @@ export class MainController {
     return this.paymentGatewayService.createAccount({ id });
   }
 
+  @ApiOperation({ summary: 'Get Account.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: AccountResponseDTO,
+  })
+  @JwtSessionAuth()
+  @Get('/account')
+  async getAccount(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getAccount({ id });
+  }
+
+  @ApiOperation({ summary: 'Get Contact.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: ContactResponseDTO,
+  })
+  @JwtSessionAuth()
+  @Get('/contact')
+  async getContact(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getContact({ id });
+  }
+
   @Post('/account/webhook')
   async webhook(@Body() payload: any) {
     const { resource_type, action } = payload;
@@ -120,6 +150,7 @@ export class MainController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The file successfully uploaded.',
+    type: DocumentResponseDTO,
   })
   @JwtSessionAuth()
   @UseInterceptors(FileInterceptor('file'))
@@ -132,6 +163,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Balance.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: BalanceResponseDTO,
   })
   @JwtSessionAuth()
   @Post('/balance')
@@ -142,6 +174,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Bank Accounts.' })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: BankAccountResponseDTO,
   })
   @JwtSessionAuth()
   @Get('/bank/account')
@@ -151,6 +184,7 @@ export class MainController {
   @ApiOperation({ summary: 'Add Bank Account params.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: BankAccountParamsDTO,
   })
   @JwtSessionAuth()
   @Post('/bank/account')

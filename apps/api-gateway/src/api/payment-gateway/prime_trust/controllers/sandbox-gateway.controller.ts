@@ -1,6 +1,7 @@
 import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Patch, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtSessionAuth } from '~common/session';
+import { AccountIdDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/account-id.dto';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';
 import { DocumentIdDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/document-id.dto';
@@ -29,6 +30,13 @@ export class SandboxGatewayController {
     return this.sandboxService.bind(payload);
   }
 
+  @ApiOperation({ summary: 'Open Account Testing Mode.' })
+  @Post('/account/open')
+  @JwtSessionAuth()
+  async openAccount(@Body() payload: AccountIdDto) {
+    return this.sandboxService.openAccount(payload);
+  }
+
   @ApiOperation({ summary: 'Verify document by id.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -38,7 +46,6 @@ export class SandboxGatewayController {
   async verifyDocument(@Body() payload: DocumentIdDto) {
     return this.sandboxService.verifyDocument(payload);
   }
-
   @ApiOperation({ summary: 'Fail document by id.' })
   @ApiResponse({
     status: HttpStatus.CREATED,

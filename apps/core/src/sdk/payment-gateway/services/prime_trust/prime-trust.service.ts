@@ -113,7 +113,18 @@ export class PrimeTrustService {
     return this.primeTransactionsManager.makeContribution(request);
   }
 
+  getAccount(id: number) {
+    return this.primeAccountManager.getAccount(id);
+  }
+
+  getContact(id: number) {
+    return this.primeKycManager.getContact(id);
+  }
   addDepositParams(request: DepositParams) {
     return this.primeTransactionsManager.addDepositParams(request);
+  }
+
+  getTransfers(id: number) {
+    return this.primeTransactionsManager.getTransfers(id);
   }
 }

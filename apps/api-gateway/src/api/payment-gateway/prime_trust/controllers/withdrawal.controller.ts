@@ -1,4 +1,8 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
+import {
+  WithdrawalResponseDTO,
+  WithdrawalsDataResponseDTO,
+} from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
@@ -19,6 +23,7 @@ export class WithdrawalController {
   @ApiOperation({ summary: 'Get Bank params for withdrawal.' })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: WithdrawalsDataResponseDTO,
   })
   @JwtSessionAuth()
   @Get('/params')
@@ -29,6 +34,7 @@ export class WithdrawalController {
   @ApiOperation({ summary: 'Add Bank params for withdrawal.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: WithdrawalResponseDTO,
   })
   @JwtSessionAuth()
   @Post('/params')

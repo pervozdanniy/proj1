@@ -6,6 +6,39 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface Transfer {
+  receiver_first_name: string;
+  receiver_last_name: string;
+  sender_first_name: string;
+  sender_last_name: string;
+  amount: string;
+  currency_type: string;
+  status: string;
+  created_at: string;
+}
+
+export interface TransferResponse {
+  data: Transfer[];
+}
+
+export interface ContactResponse {
+  uuid: string;
+  first_name: string;
+  last_name: string;
+  identity_confirmed: boolean;
+  proof_of_address_documents_verified: boolean;
+  identity_documents_verified: boolean;
+  aml_cleared: boolean;
+  cip_cleared: boolean;
+}
+
+export interface AccountResponse {
+  uuid: string;
+  name: string;
+  number: string;
+  status: string;
+}
+
 export interface DocumentResponse {
   document_id: string;
 }
@@ -182,7 +215,11 @@ export interface PaymentGatewayServiceClient {
 
   getToken(request: IdRequest, metadata?: Metadata): Observable<PG_Token>;
 
-  createAccount(request: UserIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  createAccount(request: UserIdRequest, metadata?: Metadata): Observable<AccountResponse>;
+
+  getAccount(request: UserIdRequest, metadata?: Metadata): Observable<AccountResponse>;
+
+  getContact(request: UserIdRequest, metadata?: Metadata): Observable<ContactResponse>;
 
   updateAccount(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
@@ -197,6 +234,8 @@ export interface PaymentGatewayServiceClient {
   createReference(request: UserIdRequest, metadata?: Metadata): Observable<PrimeTrustData>;
 
   getBalance(request: UserIdRequest, metadata?: Metadata): Observable<BalanceResponse>;
+
+  getTransfers(request: UserIdRequest, metadata?: Metadata): Observable<TransferResponse>;
 
   getWithdrawalParams(request: UserIdRequest, metadata?: Metadata): Observable<WithdrawalsDataResponse>;
 
@@ -238,7 +277,17 @@ export interface PaymentGatewayServiceController {
   createAccount(
     request: UserIdRequest,
     metadata?: Metadata,
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+  ): Promise<AccountResponse> | Observable<AccountResponse> | AccountResponse;
+
+  getAccount(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<AccountResponse> | Observable<AccountResponse> | AccountResponse;
+
+  getContact(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<ContactResponse> | Observable<ContactResponse> | ContactResponse;
 
   updateAccount(
     request: AccountIdRequest,
@@ -274,6 +323,11 @@ export interface PaymentGatewayServiceController {
     request: UserIdRequest,
     metadata?: Metadata,
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
+
+  getTransfers(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<TransferResponse> | Observable<TransferResponse> | TransferResponse;
 
   getWithdrawalParams(
     request: UserIdRequest,
@@ -352,6 +406,8 @@ export function PaymentGatewayServiceControllerMethods() {
       "list",
       "getToken",
       "createAccount",
+      "getAccount",
+      "getContact",
       "updateAccount",
       "createContact",
       "uploadDocument",
@@ -359,6 +415,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "cipCheck",
       "createReference",
       "getBalance",
+      "getTransfers",
       "getWithdrawalParams",
       "updateBalance",
       "updateContribution",

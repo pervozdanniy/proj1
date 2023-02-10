@@ -62,6 +62,10 @@ export interface ConfigInterface {
     pubKey: string;
     privKey: string;
   };
+  telesign: {
+    customerId: string;
+    apiKey: string;
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -134,5 +138,9 @@ export default (): ConfigInterface => ({
   slicktext: {
     pubKey: process.env.SLICKTEXT_PUB_KEY,
     privKey: process.env.SLICKTEXT_PRIV_KEY,
+  },
+  telesign: {
+    customerId: process.env.TELESIGN_CUSTOMER_ID,
+    apiKey: process.env.TELESIGN_API_KEY,
   },
 });

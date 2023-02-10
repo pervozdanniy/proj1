@@ -7,7 +7,7 @@ import process from 'process';
 import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { AccountIdRequest, DocumentResponse } from '~common/grpc/interfaces/payment-gateway';
+import { AccountIdRequest, ContactResponse, DocumentResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
@@ -92,7 +92,7 @@ export class PrimeKycManager {
     }
   }
 
-  collectContractData(contactData) {
+  collectContactData(contactData) {
     return {
       uuid: contactData.data.id,
       first_name: contactData.data.attributes['first-name'],
@@ -108,7 +108,7 @@ export class PrimeKycManager {
   }
 
   async saveContact(contactData, user_id) {
-    const data = this.collectContractData(contactData);
+    const data = this.collectContactData(contactData);
     await this.primeTrustContactEntityRepository.save(
       this.primeTrustContactEntityRepository.create({
         user_id,
@@ -250,7 +250,10 @@ export class PrimeKycManager {
         .leftJoinAndSelect('a.contact', 'c')
         .leftJoinAndSelect('c.documents', 'd')
         .select([
-          'd.kyc_check_uuid as kyc_check_uuid,' + 'a.uuid as account_id,' + 'c.uuid as contact_id,' + 'u.id as user_id',
+          'd.kyc_check_uuid as kyc_check_uuid',
+          'a.uuid as account_id',
+          'c.uuid as contact_id',
+          'u.id as user_id',
         ])
         .where('d.kyc_check_uuid = :resource_id', { resource_id })
         .getRawOne();
@@ -291,8 +294,7 @@ export class PrimeKycManager {
         where: { uuid: contactData.data.id },
       });
 
-      const data = this.collectContractData(contactData);
-
+      const data = this.collectContactData(contactData);
       await this.primeTrustContactEntityRepository.save({
         ...contact,
         ...data,
@@ -353,5 +355,20 @@ export class PrimeKycManager {
 
       throw new GrpcException(Status.ABORTED, e.response.data, 400);
     }
+  }
+
+  async getContact(id: number): Promise<ContactResponse> {
+    const contact = await this.primeTrustContactEntityRepository.findOneByOrFail({ user_id: id });
+
+    return {
+      uuid: contact.uuid,
+      first_name: contact.first_name,
+      last_name: contact.last_name,
+      proof_of_address_documents_verified: contact.proof_of_address_documents_verified,
+      identity_documents_verified: contact.identity_documents_verified,
+      aml_cleared: contact.aml_cleared,
+      cip_cleared: contact.cip_cleared,
+      identity_confirmed: contact.identity_confirmed,
+    };
   }
 }
