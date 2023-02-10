@@ -1,16 +1,13 @@
 import { Metadata } from '@grpc/grpc-js';
 import { applyDecorators, createParamDecorator, ExecutionContext, SetMetadata, UseGuards } from '@nestjs/common';
-import activeSessions from '../active-sessions.map';
-import { GRPC_AUTH_METADATA } from '../constants/meta';
-import { GrpcSessionGuard } from '../guards/grpc.guard';
-import { SessionMetadataOptions } from '../interfaces/session.interface';
+import { SessionMetadataOptions } from '~common/session';
+import { GrpcSessionGuard } from './grpc.guard';
+import { ActiveSessions } from './grpc.middleware';
+import { GRPC_AUTH_METADATA } from './meta';
 
 export const GrpcSession = createParamDecorator((prop: string | undefined, ctx: ExecutionContext) => {
-  const metadata = ctx.switchToRpc().getContext<Metadata>();
-  const value = metadata.get('sessionId');
-  if (value.length) {
-    const sessionId = value[0].toString();
-    const session = activeSessions.get(sessionId);
+  const session = ActiveSessions.get(ctx.getArgByIndex(2));
+  if (session) {
     if (prop) {
       return session.get(prop);
     }
@@ -22,6 +19,13 @@ export const GrpcSession = createParamDecorator((prop: string | undefined, ctx: 
 });
 
 export const GrpcSessionUser = () => GrpcSession('user');
+
+export const GrpcSessionId = createParamDecorator((prop: never, ctx: ExecutionContext) => {
+  const metadata = ctx.switchToRpc().getContext<Metadata>();
+  const [sessionId] = metadata.get('sessionId');
+
+  return sessionId?.toString();
+});
 
 export const GrpcSessionAuth = (options: SessionMetadataOptions = {}) =>
   applyDecorators(SetMetadata(GRPC_AUTH_METADATA, options), UseGuards(GrpcSessionGuard));

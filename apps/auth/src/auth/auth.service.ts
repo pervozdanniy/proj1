@@ -3,11 +3,11 @@ import { JwtService } from '@nestjs/jwt';
 import { ClientGrpc } from '@nestjs/microservices';
 import bcrypt from 'bcrypt';
 import { firstValueFrom } from 'rxjs';
+import { SessionInterface, SessionService } from '~common/grpc-session';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { PreRegisterRequest } from '~common/grpc/interfaces/auth';
+import { RegisterStartRequest } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
-import { UserServiceClient } from '~common/grpc/interfaces/core';
-import { SessionInterface, SessionService } from '~common/session';
+import { CreateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
 import { AuthApiService } from '../api/services/api.service';
 
 @Injectable()
@@ -54,10 +54,15 @@ export class AuthService implements OnModuleInit {
     return firstValueFrom(this.userService.getById({ id }));
   }
 
-  async checkIfUnique(payload: PreRegisterRequest) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async checkIfUnique({ password, ...payload }: RegisterStartRequest) {
     const { success } = await firstValueFrom(this.userService.checkIfUnique(payload));
 
     return success;
+  }
+
+  async createUser(payload: CreateRequest) {
+    return firstValueFrom(this.userService.create(payload));
   }
 
   async generateSession(data: SessionInterface) {

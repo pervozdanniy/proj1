@@ -1,15 +1,20 @@
-import { Metadata, status } from '@grpc/grpc-js';
+import { status } from '@grpc/grpc-js';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { Payload } from '@nestjs/microservices';
+import { PreRegisteredSessionInterface } from '~common/constants/auth';
+import { GrpcSession, GrpcSessionAuth, GrpcSessionId, SessionInterface, SessionProxy } from '~common/grpc-session';
 import {
   AuthData,
   AuthServiceController,
   AuthServiceControllerMethods,
-  PreRegisterRequest,
+  RegisterFinishRequest,
+  RegisterStartRequest,
   SocialsAuthRequest,
+  TwoFactorCode,
+  TwoFactorVerificationResponse,
 } from '~common/grpc/interfaces/auth';
-import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { SuccessResponse, User } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
-import { GrpcSessionAuth } from '~common/session';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { ApiSocialsService } from '~svc/auth/src/api/services/api.socials.service';
@@ -21,8 +26,26 @@ import { AuthApiService } from '../services/api.service';
 export class AuthApiController implements AuthServiceController {
   constructor(private readonly authService: AuthApiService, private readonly socialAuthService: ApiSocialsService) {}
 
-  preRegister(request: PreRegisterRequest): Promise<AuthData> {
-    return this.authService.preRegister(request);
+  registerStart(request: RegisterStartRequest): Promise<AuthData> {
+    return this.authService.registerStart(request);
+  }
+
+  @GrpcSessionAuth({ allowUnauthorized: true })
+  registerVerify(
+    @Payload() request: TwoFactorCode,
+    _metadata,
+    @GrpcSessionId() sessionId?: string,
+  ): Promise<TwoFactorVerificationResponse> {
+    return this.authService.registerVerify(request, sessionId);
+  }
+
+  @GrpcSessionAuth({ allowUnauthorized: true })
+  registerFinish(
+    @Payload() request: RegisterFinishRequest,
+    _metadata,
+    @GrpcSession() session?: SessionProxy<PreRegisteredSessionInterface>,
+  ): Promise<User> {
+    return this.authService.registerFinish(request, session);
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
@@ -40,9 +63,11 @@ export class AuthApiController implements AuthServiceController {
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
-  async logout(_request: Empty, metadata: Metadata): Promise<SuccessResponse> {
-    const [sessionId] = metadata.get('sessionId');
-
-    return this.authService.logout(sessionId.toString());
+  async logout(
+    _request: Empty,
+    _metadata,
+    @GrpcSession() session?: SessionProxy<SessionInterface>,
+  ): Promise<SuccessResponse> {
+    return this.authService.logout(session);
   }
 }

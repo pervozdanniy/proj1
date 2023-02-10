@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { JWT_AUTH_METADATA } from '../constants/meta';
-import { SessionInterface, SessionMetadataOptions, WithSession } from '../interfaces/session.interface';
+import { SessionInterface, SessionMetadataOptions, WithSession } from '~common/session';
+import { JWT_AUTH_METADATA } from './meta';
 
 @Injectable()
 export class JwtSessionGuard implements CanActivate {

@@ -6,7 +6,6 @@ import { Module } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
-import { SessionModule } from '~common/session';
 import { PaymentGatewayEntity } from '~svc/core/src/sdk/payment-gateway/entities/payment-gateway.entity';
 import { BankAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/card-resource.entity';
@@ -32,7 +31,6 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
 
 @Module({
   imports: [
-    SessionModule,
     HttpModule,
     UserModule,
     NotificationModule,

@@ -1,10 +1,9 @@
 import { applyDecorators, createParamDecorator, ExecutionContext, SetMetadata, UseGuards } from '@nestjs/common';
 import { ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request } from 'express';
-import { JWT_AUTH_METADATA } from '../constants/meta';
-import { JwtSessionGuard } from '../guards/jwt.guard';
-import { SessionInterface, SessionMetadataOptions, WithSession } from '../interfaces/session.interface';
-import { SessionProxy } from '../session-host';
+import { SessionInterface, SessionMetadataOptions, SessionProxy, WithSession } from '~common/session';
+import { JwtSessionGuard } from './jwt.guard';
+import { JWT_AUTH_METADATA } from './meta';
 
 export const JwtSession = createParamDecorator(
   (prop: keyof SessionProxy<SessionInterface> | undefined, ctx: ExecutionContext) => {

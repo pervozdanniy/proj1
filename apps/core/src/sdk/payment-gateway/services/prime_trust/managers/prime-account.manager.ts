@@ -1,4 +1,3 @@
-import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
@@ -14,13 +13,11 @@ import { AuthServiceClient } from '~common/grpc/interfaces/auth';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountResponse } from '~common/grpc/interfaces/payment-gateway';
 import { WebsocketServiceClient } from '~common/grpc/interfaces/websocket';
-import { SessionInterface, SessionService } from '~common/session';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustHttpService } from '~svc/core/src/sdk/payment-gateway/request/prime-trust-http.service';
 import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
-import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
@@ -34,19 +31,13 @@ export class PrimeAccountManager {
 
     private readonly notificationService: NotificationService,
 
-    private readonly userService: UserService,
-
     private readonly primeKycManager: PrimeKycManager,
-
-    private readonly primeTokenManager: PrimeTokenManager,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
 
     @InjectGrpc('websocket') private readonly webSocketClient: ClientGrpc,
     @InjectGrpc('auth') private readonly authClient: ClientGrpc,
-
-    private readonly session: SessionService<SessionInterface>,
 
     @InjectRedis() private readonly redis: Redis,
   ) {

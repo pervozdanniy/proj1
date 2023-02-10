@@ -59,7 +59,7 @@ export class EnableRequestDto implements TwoFactorEnableRequest {
   settings: BaseSettingsDto;
 }
 
-class TwoFactorCodeDto implements TwoFactorCode {
+export class TwoFactorCodeDto implements TwoFactorCode {
   @IsNotEmpty()
   @IsEnum(TwoFactorMethod)
   method: TwoFactorMethod;

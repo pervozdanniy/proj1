@@ -5,9 +5,7 @@ import jwt, { JwtPayload, VerifyOptions } from 'jsonwebtoken';
 import util from 'node:util';
 import { ExtractJwt } from 'passport-jwt';
 import { ConfigInterface } from '~common/config/configuration';
-import { SessionInterface, WithSession } from '../interfaces/session.interface';
-import { SessionHost, sessionProxyFactory } from '../session-host';
-import { SessionService } from '../session.service';
+import { SessionHost, SessionInterface, sessionProxyFactory, SessionService, WithSession } from '~common/session';
 
 @Injectable()
 export class JwtSessionMiddleware implements NestMiddleware {
@@ -22,14 +20,12 @@ export class JwtSessionMiddleware implements NestMiddleware {
       return next();
     }
 
-    let host: SessionHost<SessionInterface> & SessionInterface;
+    let proxy: SessionHost<SessionInterface> & SessionInterface;
     const nextCb = (err?: any) => {
       try {
-        const res = next(err);
-
-        return res;
+        return next(err);
       } finally {
-        host?.isModified && host.save();
+        proxy?.isModified && proxy.save();
       }
     };
 
@@ -43,8 +39,8 @@ export class JwtSessionMiddleware implements NestMiddleware {
       .then((sessionId) => this.session.get(sessionId).then((session) => ({ sessionId, session })))
       .then(({ sessionId, session }) => {
         if (session) {
-          host = sessionProxyFactory(this.session, sessionId, session);
-          req.session = host;
+          proxy = sessionProxyFactory(this.session, sessionId, session);
+          req.session = proxy;
         }
       })
       .then(nextCb)

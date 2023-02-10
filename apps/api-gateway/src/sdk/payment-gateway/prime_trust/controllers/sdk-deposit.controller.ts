@@ -1,7 +1,7 @@
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionAuth, JwtSessionUser } from '~common/session';
+import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 import { DepositParamsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-params.dto';
 import { CardResourceDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { MakeContributionDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/make-contribution.dto';

@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
-import { JwtSessionMiddleware } from '~common/session';
+import { JwtSessionMiddleware } from '~common/http-session';
 import { AuthModule } from '../auth';
 import { UserController } from './controllers/user.controller';
 import { UserService } from './user.service';

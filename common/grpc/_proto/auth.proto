@@ -6,13 +6,18 @@ import "common.proto";
 import "google/protobuf/empty.proto";
 
 service AuthService {
-  rpc PreRegister (PreRegisterRequest) returns (AuthData);
-
   rpc Login (AuthRequest) returns (AuthData);
 
   rpc Logout (google.protobuf.Empty) returns (common.SuccessResponse);
 
   rpc LoginSocials (SocialsAuthRequest) returns (AuthData);
+
+
+  rpc RegisterStart (RegisterStartRequest) returns (AuthData);
+
+  rpc RegisterVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
+
+  rpc RegisterFinish (RegisterFinishRequest) returns (common.User);
 }
 
 service ClientService {
@@ -32,12 +37,9 @@ service TwoFactorService {
 
   rpc Verify (TwoFactorVerificationRequest) returns (TwoFactorVerificationResponse);
 
-  rpc Require(google.protobuf.Empty) returns (TwoFactorRequireResponse);
-}
+  rpc VerifyOne (TwoFactorCode) returns (TwoFactorVerificationResponse);
 
-message PreRegisterRequest {
-  string email = 1;
-  string phone = 2;
+  rpc Require(google.protobuf.Empty) returns (TwoFactorRequireResponse);
 }
 
 message AuthRequest {
@@ -111,6 +113,7 @@ message TwoFactorVerificationRequest {
 message TwoFactorVerificationResponse {
   bool valid = 1;
   optional string reason = 2;
+  optional TwoFactorEnabledMethodsResponse unverified = 3;
 }
 
 message TwoFactorRequireResponse {
@@ -118,4 +121,17 @@ message TwoFactorRequireResponse {
     TwoFactorEnabledMethodsResponse required = 1;
     string error = 2;
   }
+}
+
+message RegisterStartRequest {
+  string email = 1;
+  string phone = 2;
+  string password = 3;
+}
+
+message RegisterFinishRequest {
+  string username = 1;
+  uint32 country_id = 5;
+  optional common.UserDetails details = 7;
+  repeated string contacts = 8;
 }

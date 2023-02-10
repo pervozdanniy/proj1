@@ -1,7 +1,8 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SuccessDto } from '../../utils/success.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
+import { TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
 import {
   TwoFactorDisableRequestDto,
   TwoFactorEnableRequestDto,
@@ -19,7 +20,7 @@ export class TwoFactorController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Enable 2FA' })
-  @ApiResponse({ status: HttpStatus.OK, type: SuccessDto })
+  @ApiOkResponse({ type: SuccessDto })
   @HttpCode(HttpStatus.OK)
   @Post('enable')
   @JwtSessionAuth({ allowUnverified: true })
@@ -29,7 +30,7 @@ export class TwoFactorController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Disable 2FA' })
-  @ApiResponse({ status: HttpStatus.OK, type: SuccessDto })
+  @ApiOkResponse({ type: SuccessDto })
   @HttpCode(HttpStatus.OK)
   @Post('disable')
   @JwtSessionAuth({ allowUnverified: true })
@@ -39,7 +40,7 @@ export class TwoFactorController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Verify 2FA codes and login' })
-  @ApiResponse({ status: HttpStatus.OK, type: SuccessDto })
+  @ApiOkResponse({ type: TwoFactorSuccessResponseDto })
   @HttpCode(HttpStatus.OK)
   @Post('verify')
   verify(@Body() payload: TwoFactorVerifyRequestDto, @JwtSessionId() sessionId: string) {
