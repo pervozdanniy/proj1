@@ -9,10 +9,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { PreRegisteredSessionInterface } from '~common/constants/auth/registration/interfaces';
-import { SessionProxy } from '~common/session';
 import { PublicUserDto } from '../../utils/public-user.dto';
-import { JwtSession, JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
+import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
 import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
 import {
   RegistrationFinishRequestDto,
@@ -58,11 +56,8 @@ export class RegistrationController {
   @ApiBearerAuth()
   @JwtSessionAuth({ allowUnauthorized: true, requirePreRegistration: true, require2FA: true })
   @Post('finish')
-  async finish(
-    @Body() payload: RegistrationFinishRequestDto,
-    @JwtSession() session: SessionProxy<PreRegisteredSessionInterface>,
-  ) {
-    const user = await this.registerService.finish(payload, session);
+  async finish(@Body() payload: RegistrationFinishRequestDto, @JwtSessionId() sessionId: string) {
+    const user = await this.registerService.finish(payload, sessionId);
 
     return plainToInstance(PublicUserDto, user);
   }

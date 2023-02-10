@@ -14,7 +14,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { TwoFactorMethod } from '~common/constants/auth';
-import { SendType } from '~common/constants/user';
 import { UserDetails } from '../../user/dtos/create-user.dto';
 
 export class RegistrationStartRequestDto {

@@ -5,9 +5,7 @@ import jwt, { JwtPayload, VerifyOptions } from 'jsonwebtoken';
 import util from 'node:util';
 import { ExtractJwt } from 'passport-jwt';
 import { ConfigInterface } from '~common/config/configuration';
-import { SessionInterface, WithSession } from '../interfaces/session.interface';
-import { SessionHost, sessionProxyFactory } from '../session-host';
-import { SessionService } from '../session.service';
+import { SessionHost, SessionInterface, sessionProxyFactory, SessionService, WithSession } from '~common/session';
 
 @Injectable()
 export class JwtSessionMiddleware implements NestMiddleware {

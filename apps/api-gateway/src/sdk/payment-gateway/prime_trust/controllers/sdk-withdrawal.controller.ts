@@ -1,7 +1,7 @@
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionAuth, JwtSessionUser } from '~common/session';
+import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/withdrawal-make.dto';
 import { WithdrawalParamsDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/withdrawal-params.dto';
 import { SdkPaymentGatewayService } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';

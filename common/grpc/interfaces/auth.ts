@@ -2,16 +2,10 @@
 import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { SuccessResponse } from "./common";
+import { SuccessResponse, User, UserDetails } from "./common";
 import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.auth";
-
-export interface PreRegisterRequest {
-  email: string;
-  phone: string;
-  password: string;
-}
 
 export interface AuthRequest {
   login: string;
@@ -92,6 +86,19 @@ export interface TwoFactorRequireResponse {
   error?: string | undefined;
 }
 
+export interface RegisterStartRequest {
+  email: string;
+  phone: string;
+  password: string;
+}
+
+export interface RegisterFinishRequest {
+  username: string;
+  country_id: number;
+  details?: UserDetails | undefined;
+  contacts: string[];
+}
+
 export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
 
 export interface AuthServiceClient {
@@ -101,9 +108,11 @@ export interface AuthServiceClient {
 
   loginSocials(request: SocialsAuthRequest, metadata?: Metadata): Observable<AuthData>;
 
-  preRegister(request: PreRegisterRequest, metadata?: Metadata): Observable<AuthData>;
+  registerStart(request: RegisterStartRequest, metadata?: Metadata): Observable<AuthData>;
 
-  verifyRegister(request: TwoFactorCode, metadata?: Metadata): Observable<TwoFactorVerificationResponse>;
+  registerVerify(request: TwoFactorCode, metadata?: Metadata): Observable<TwoFactorVerificationResponse>;
+
+  registerFinish(request: RegisterFinishRequest, metadata?: Metadata): Observable<User>;
 }
 
 export interface AuthServiceController {
@@ -113,17 +122,29 @@ export interface AuthServiceController {
 
   loginSocials(request: SocialsAuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
 
-  preRegister(request: PreRegisterRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
+  registerStart(
+    request: RegisterStartRequest,
+    metadata?: Metadata,
+  ): Promise<AuthData> | Observable<AuthData> | AuthData;
 
-  verifyRegister(
+  registerVerify(
     request: TwoFactorCode,
     metadata?: Metadata,
   ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
+
+  registerFinish(request: RegisterFinishRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["login", "logout", "loginSocials", "preRegister", "verifyRegister"];
+    const grpcMethods: string[] = [
+      "login",
+      "logout",
+      "loginSocials",
+      "registerStart",
+      "registerVerify",
+      "registerFinish",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);

@@ -1,5 +1,7 @@
-import { Metadata } from '@grpc/grpc-js';
+import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { Payload } from '@nestjs/microservices';
+import { GrpcSession, GrpcSessionAuth, GrpcSessionId, SessionInterface, SessionProxy } from '~common/grpc-session';
 import {
   TwoFactorEnabledMethodsResponse,
   TwoFactorRequireResponse,
@@ -9,7 +11,6 @@ import {
 } from '~common/grpc/interfaces/auth';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
-import { GrpcSessionAuth, SessionInterface, SessionService } from '~common/session';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { Auth2FAService } from '../../auth-2fa/2fa.service';
 import { DisableRequestDto, EnableRequestDto, TwoFactorCodeDto, VerifyRequestDto } from '../dto/2fa.dto';
@@ -17,15 +18,16 @@ import { DisableRequestDto, EnableRequestDto, TwoFactorCodeDto, VerifyRequestDto
 @RpcController()
 @TwoFactorServiceControllerMethods()
 export class TwoFactorController implements TwoFactorServiceController {
-  constructor(private readonly auth2FA: Auth2FAService, private readonly session: SessionService<SessionInterface>) {}
+  constructor(private readonly auth2FA: Auth2FAService) {}
 
   @GrpcSessionAuth({ allowUnauthorized: true })
-  async require(_data: Empty, metadata?: Metadata): Promise<TwoFactorRequireResponse> {
-    const [sessionId] = metadata.get('sessionId');
-    const session = await this.session.get(sessionId.toString());
-
+  async require(
+    _data: Empty,
+    _metadata,
+    @GrpcSession() session?: SessionProxy<SessionInterface>,
+  ): Promise<TwoFactorRequireResponse> {
     try {
-      const methods = await this.auth2FA.requireOrFail(sessionId.toString(), session);
+      const methods = await this.auth2FA.requireOrFail(session.sessionId, session);
 
       return { required: { methods } };
     } catch (error) {
@@ -34,10 +36,11 @@ export class TwoFactorController implements TwoFactorServiceController {
   }
 
   @GrpcSessionAuth()
-  async list(_data: Empty, metadata: Metadata): Promise<TwoFactorEnabledMethodsResponse> {
-    const [sessionId] = metadata.get('sessionId');
-    const session = await this.session.get(sessionId.toString());
-
+  async list(
+    _data: Empty,
+    _metadata,
+    @GrpcSession() session?: SessionInterface,
+  ): Promise<TwoFactorEnabledMethodsResponse> {
     const methods = await this.auth2FA.getEnabled(session.user.id);
 
     return { methods };
@@ -45,37 +48,45 @@ export class TwoFactorController implements TwoFactorServiceController {
 
   @GrpcSessionAuth()
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async enable({ settings }: EnableRequestDto, metadata: Metadata): Promise<SuccessResponse> {
-    const [sessionId] = metadata.get('sessionId');
-
-    await this.auth2FA.enable(settings, sessionId.toString());
+  async enable(
+    @Payload() { settings }: EnableRequestDto,
+    _metadata,
+    @GrpcSessionId() sessionId?: string,
+  ): Promise<SuccessResponse> {
+    await this.auth2FA.enable(settings, sessionId);
 
     return { success: true };
   }
 
   @GrpcSessionAuth()
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async disable({ methods }: DisableRequestDto, metadata: Metadata): Promise<SuccessResponse> {
-    const [sessionId] = metadata.get('sessionId');
-
-    await this.auth2FA.disable(methods, sessionId.toString());
+  async disable(
+    @Payload() { methods }: DisableRequestDto,
+    _metadata,
+    @GrpcSessionId() sessionId?: string,
+  ): Promise<SuccessResponse> {
+    await this.auth2FA.disable(methods, sessionId);
 
     return { success: true };
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  verify({ codes }: VerifyRequestDto, metadata: Metadata): Promise<TwoFactorVerificationResponse> {
-    const [sessionId] = metadata.get('sessionId');
-
-    return this.auth2FA.verify(codes, sessionId.toString());
+  verify(
+    @Payload() data: VerifyRequestDto,
+    _metadata,
+    @GrpcSessionId() sessionId?: string,
+  ): Promise<TwoFactorVerificationResponse> {
+    return this.auth2FA.verify(data.codes, sessionId);
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  verifyOne(request: TwoFactorCodeDto, metadata: Metadata): Promise<TwoFactorVerificationResponse> {
-    const [sessionId] = metadata.get('sessionId');
-
-    return this.auth2FA.verifyOne(request, sessionId.toString());
+  verifyOne(
+    @Payload() request: TwoFactorCodeDto,
+    _metadata,
+    @GrpcSessionId() sessionId?: string,
+  ): Promise<TwoFactorVerificationResponse> {
+    return this.auth2FA.verifyOne(request, sessionId);
   }
 }

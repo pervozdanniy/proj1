@@ -12,8 +12,13 @@ import { is2FA } from '~common/constants/auth/2fa/helpers';
 import { With2FA } from '~common/constants/auth/2fa/interfaces';
 import { isPreRegistered } from '~common/constants/auth/registration/helpers';
 import { WithPreRegistration } from '~common/constants/auth/registration/interfaces';
-import { JwtSessionGuard as BaseGuard, SessionInterface, SessionMetadataOptions, SessionProxy } from '~common/session';
-import { JWT_AUTH_METADATA } from '~common/session/constants/meta';
+import {
+  JwtSessionGuard as BaseGuard,
+  SessionInterface,
+  SessionMetadataOptions,
+  SessionProxy,
+} from '~common/http-session';
+import { JWT_AUTH_METADATA } from '~common/http-session/meta';
 import { TwoFactorService } from '../services/2fa.service';
 
 @Injectable()

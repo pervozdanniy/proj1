@@ -6,7 +6,7 @@ import { Test } from '@nestjs/testing';
 import { join } from 'path';
 import configuration, { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
-import { SessionModule } from '~common/session';
+import { HttpSessionModule } from '~common/http-session';
 import { AuthApiController } from '~svc/auth/src/api/controllers/api.controller';
 import { AuthApiService } from '~svc/auth/src/api/services/api.service';
 import { ApiSocialsService } from '~svc/auth/src/api/services/api.socials.service';
@@ -27,7 +27,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
         inject: [ConfigService],
       }),
       ClientsModule.registerAsync([asyncClientOptions('core')]),
-      SessionModule,
+      HttpSessionModule,
       AuthModule,
     ],
     controllers: [AuthApiController],

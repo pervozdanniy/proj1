@@ -10,7 +10,7 @@ import {
   TwoFactorConstraint,
   TwoFactorSessionInterface,
 } from '~common/constants/auth';
-import { SessionInterface, SessionService } from '~common/session';
+import { SessionInterface, SessionService } from '~common/grpc-session';
 import { BaseSettingsDto } from '../api/dto/2fa.dto';
 import { TwoFactorMethod, TwoFactorSettingsEntity } from '../entities/2fa_settings.entity';
 import { Notifier2FAService } from './notifier.service';

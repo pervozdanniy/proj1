@@ -12,9 +12,12 @@ service AuthService {
 
   rpc LoginSocials (SocialsAuthRequest) returns (AuthData);
 
-  rpc PreRegister (PreRegisterRequest) returns (AuthData);
 
-  rpc VerifyRegister (TwoFactorCode) returns (TwoFactorVerificationResponse);
+  rpc RegisterStart (RegisterStartRequest) returns (AuthData);
+
+  rpc RegisterVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
+
+  rpc RegisterFinish (RegisterFinishRequest) returns (common.User);
 }
 
 service ClientService {
@@ -37,12 +40,6 @@ service TwoFactorService {
   rpc VerifyOne (TwoFactorCode) returns (TwoFactorVerificationResponse);
 
   rpc Require(google.protobuf.Empty) returns (TwoFactorRequireResponse);
-}
-
-message PreRegisterRequest {
-  string email = 1;
-  string phone = 2;
-  string password = 3;
 }
 
 message AuthRequest {
@@ -124,4 +121,17 @@ message TwoFactorRequireResponse {
     TwoFactorEnabledMethodsResponse required = 1;
     string error = 2;
   }
+}
+
+message RegisterStartRequest {
+  string email = 1;
+  string phone = 2;
+  string password = 3;
+}
+
+message RegisterFinishRequest {
+  string username = 1;
+  uint32 country_id = 5;
+  optional common.UserDetails details = 7;
+  repeated string contacts = 8;
 }

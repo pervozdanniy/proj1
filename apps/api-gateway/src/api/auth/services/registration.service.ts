@@ -3,12 +3,9 @@ import { ConflictException, HttpException, Injectable, OnModuleInit } from '@nes
 import { HttpStatus } from '@nestjs/common/enums';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { PreRegisteredSessionInterface } from '~common/constants/auth/registration/interfaces';
-import { UserSourceEnum } from '~common/constants/user';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthServiceClient } from '~common/grpc/interfaces/auth';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
-import { SessionProxy } from '~common/session';
 import {
   RegistrationFinishRequestDto,
   RegistrationStartRequestDto,
@@ -31,14 +28,14 @@ export class RegistrationService implements OnModuleInit {
   }
 
   start(payload: RegistrationStartRequestDto) {
-    return firstValueFrom(this.authClient.preRegister(payload));
+    return firstValueFrom(this.authClient.registerStart(payload));
   }
 
   async verify(payload: RegistrationVerifyRequestDto, sessionId: string) {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 
-    const resp = await firstValueFrom(this.authClient.verifyRegister(payload, metadata));
+    const resp = await firstValueFrom(this.authClient.registerVerify(payload, metadata));
     if (!resp.valid) {
       throw new ConflictException(resp.reason);
     }
@@ -52,15 +49,10 @@ export class RegistrationService implements OnModuleInit {
     return { valid: resp.valid };
   }
 
-  async finish(payload: RegistrationFinishRequestDto, session: SessionProxy<PreRegisteredSessionInterface>) {
-    const user = firstValueFrom(
-      this.userService.create({ ...payload, ...session.register, source: UserSourceEnum.Api }),
-    );
-
+  async finish(payload: RegistrationFinishRequestDto, sessionId: string) {
     const metadata = new Metadata();
-    metadata.set('sessionId', session.sessionId);
-    await firstValueFrom(this.authClient.logout({}, metadata));
+    metadata.set('sessionId', sessionId);
 
-    return user;
+    return firstValueFrom(this.authClient.registerFinish(payload, metadata));
   }
 }

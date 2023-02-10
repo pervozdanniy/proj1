@@ -3,7 +3,7 @@ import { HttpModule } from '@nestjs/axios';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
-import { JwtSessionMiddleware } from '~common/session';
+import { JwtSessionMiddleware } from '~common/http-session';
 import { DepositController } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/controllers/deposit.controller';
 import { MainController } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/controllers/main.controller';
 import { SandboxGatewayController } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/controllers/sandbox-gateway.controller';

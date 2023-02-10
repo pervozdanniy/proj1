@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule } from '@nestjs/microservices';
 import { ConfigInterface } from '~common/config/configuration';
+import { GrpcSessionModule } from '~common/grpc-session';
 import { asyncClientOptions } from '~common/grpc/helpers';
-import { SessionModule } from '~common/session';
 import { AuthService } from './auth.service';
 
 @Module({
@@ -17,7 +17,7 @@ import { AuthService } from './auth.service';
       inject: [ConfigService],
     }),
     ClientsModule.registerAsync([asyncClientOptions('core')]),
-    SessionModule,
+    GrpcSessionModule,
   ],
   providers: [AuthService],
   exports: [AuthService],

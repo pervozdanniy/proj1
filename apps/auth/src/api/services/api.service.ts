@@ -2,12 +2,18 @@ import { Auth2FAService } from '@/auth-2fa/2fa.service';
 import { AuthService } from '@/auth/auth.service';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PreRegisteredSessionInterface } from '~common/constants/auth';
-import { AuthData, PreRegisterRequest, TwoFactorCode } from '~common/grpc/interfaces/auth';
+import { UserSourceEnum } from '~common/constants/user';
+import { SessionInterface, SessionProxy, SessionService } from '~common/grpc-session';
+import { AuthData, RegisterFinishRequest, RegisterStartRequest, TwoFactorCode } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
 
 @Injectable()
 export class AuthApiService {
-  constructor(private readonly auth: AuthService, private readonly auth2FA: Auth2FAService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly auth2FA: Auth2FAService,
+    private readonly session: SessionService<PreRegisteredSessionInterface>,
+  ) {}
 
   async validateUser(login: string, pass: string): Promise<User | null> {
     return this.auth.validateUser(login, pass);
@@ -34,9 +40,9 @@ export class AuthApiService {
     return resp;
   }
 
-  async logout(sessionId: string) {
+  async logout(session: SessionProxy<SessionInterface>) {
     try {
-      await this.auth.logout(sessionId.toString());
+      await session.destroy();
 
       return { success: true };
     } catch (error) {
@@ -44,7 +50,7 @@ export class AuthApiService {
     }
   }
 
-  async preRegister(payload: PreRegisterRequest) {
+  async registerStart(payload: RegisterStartRequest) {
     const isUnique = await this.auth.checkIfUnique(payload);
     if (!isUnique) {
       throw new ConflictException('User with same phone or email already exists');
@@ -63,7 +69,15 @@ export class AuthApiService {
     return resp;
   }
 
-  async verifyRegister(payload: TwoFactorCode, sessionId: string) {
+  async registerVerify(payload: TwoFactorCode, sessionId: string) {
     return this.auth2FA.verifyOne(payload, sessionId);
+  }
+
+  async registerFinish(payload: RegisterFinishRequest, session: SessionProxy<PreRegisteredSessionInterface>) {
+    await session.destroy();
+
+    const user = await this.auth.createUser({ ...payload, ...session.register, source: UserSourceEnum.Api });
+
+    return user;
   }
 }

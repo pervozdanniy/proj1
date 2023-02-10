@@ -7,8 +7,8 @@ import {
 } from '@nestjs/swagger';
 import { With2FA } from '~common/constants/auth/2fa/interfaces';
 import { WithPreRegistration } from '~common/constants/auth/registration/interfaces';
-import { JwtSession, JwtSessionId, JwtSessionUser, SessionMetadataOptions } from '~common/session';
-import { JWT_AUTH_METADATA } from '~common/session/constants/meta';
+import { JwtSession, JwtSessionId, JwtSessionUser, SessionMetadataOptions } from '~common/http-session';
+import { JWT_AUTH_METADATA } from '~common/http-session/meta';
 import { TwoFactorRequiredResponseDto } from '../dto/2fa.reponse.dto';
 import { JwtSessionGuard } from '../guards/jwt-session.guard';
 

@@ -1,6 +1,6 @@
 import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Patch, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtSessionAuth } from '~common/session';
+import { JwtSessionAuth } from '~common/http-session';
 import { AccountIdDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/account-id.dto';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { DepositFundsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';

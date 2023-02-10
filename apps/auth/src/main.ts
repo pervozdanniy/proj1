@@ -1,8 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { GrpcOptions, Transport } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { ConfigInterface } from '~common/config/configuration';
+import { GrpcSessionMiddleware } from '~common/grpc-session';
+import { GrpcOptions } from '~common/grpc-session/utils/interceptors';
 import sentryInit from '~common/sentry/init';
 import { AppModule } from './app.module';
 
@@ -14,8 +16,9 @@ async function bootstrap() {
 
   const app = await NestFactory.createMicroservice<GrpcOptions>(AppModule, {
     transport: Transport.GRPC,
+
     options: {
-      // url: `0.0.0.0:${config.get('grpcServices.auth.port', { infer: true })}`,
+      interceptors: [context.get(GrpcSessionMiddleware)],
       url: '0.0.0.0:5000',
       package: 'skopa.auth',
       loader: {
@@ -28,7 +31,6 @@ async function bootstrap() {
     },
     bufferLogs: true,
   });
-  // app.useLogger(app.get(Logger));
 
   await app.listen();
 }
