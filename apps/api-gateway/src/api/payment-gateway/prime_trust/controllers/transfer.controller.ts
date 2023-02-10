@@ -1,8 +1,5 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
-import {
-  BankAccountResponseDTO,
-  TransferFundsResponseDTO,
-} from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
+import { TransferFundsResponseDTO } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
