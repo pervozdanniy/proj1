@@ -9,8 +9,9 @@ import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 export class TelesignService {
   constructor(private readonly http: HttpService) {}
   async send(phone, body) {
+    const number = phone.replace('+', '');
     const data = stringify({
-      phone_number: phone,
+      phone_number: number,
       message: body,
       message_type: 'ARN',
     });
