@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import configuration, { ConfigInterface } from '~common/config/configuration';
-import { SessionModule } from '~common/session';
+import { GrpcSessionModule } from '~common/grpc-session';
 import { WebsocketController } from './websocket.controller';
 import { WebsocketGateway } from './websocket.gateway';
 
@@ -16,7 +16,7 @@ import { WebsocketGateway } from './websocket.gateway';
       }),
       inject: [ConfigService],
     }),
-    SessionModule,
+    GrpcSessionModule,
   ],
   controllers: [WebsocketController],
   providers: [WebsocketGateway],

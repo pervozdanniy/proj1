@@ -1,12 +1,11 @@
 import { Metadata } from '@grpc/grpc-js';
-import { UseGuards } from '@nestjs/common';
+import { GrpcSessionAuth } from '~common/grpc-session';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   WebsocketServiceController,
   WebsocketServiceControllerMethods,
   WsMessage,
 } from '~common/grpc/interfaces/websocket';
-import { GrpcSessionGuard } from '~common/session';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { WebsocketGateway } from './websocket.gateway';
 
@@ -15,7 +14,7 @@ import { WebsocketGateway } from './websocket.gateway';
 export class WebsocketController implements WebsocketServiceController {
   constructor(private readonly ws: WebsocketGateway) {}
 
-  @UseGuards(GrpcSessionGuard)
+  @GrpcSessionAuth()
   async send(payload: WsMessage, metadata: Metadata): Promise<SuccessResponse> {
     const [sessionId] = metadata.get('sessionId');
 

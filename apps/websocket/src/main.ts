@@ -1,8 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { GrpcOptions, Transport } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { ConfigInterface } from '~common/config/configuration';
+import { GrpcSessionMiddleware } from '~common/grpc-session';
+import { GrpcOptions } from '~common/grpc-session/utils/interceptors';
 import sentryInit from '~common/sentry/init';
 import { WebsocketModule } from './websocket.module';
 
@@ -15,6 +17,7 @@ async function bootstrap() {
   app.connectMicroservice<GrpcOptions>({
     transport: Transport.GRPC,
     options: {
+      interceptors: [app.get(GrpcSessionMiddleware)],
       url: '0.0.0.0:5000',
       package: 'skopa.websocket',
       loader: {

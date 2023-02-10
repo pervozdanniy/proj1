@@ -2,9 +2,9 @@ import { status } from '@grpc/grpc-js';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { SessionMetadataOptions, SessionService } from '~common/session';
-import { GRPC_AUTH_METADATA } from '~common/session/constants/meta';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { ActiveSessions } from './grpc.middleware';
+import { GRPC_AUTH_METADATA } from './meta';
 
 @Injectable()
 export class GrpcSessionGuard implements CanActivate {
