@@ -250,7 +250,10 @@ export class PrimeKycManager {
         .leftJoinAndSelect('a.contact', 'c')
         .leftJoinAndSelect('c.documents', 'd')
         .select([
-          'd.kyc_check_uuid as kyc_check_uuid,' + 'a.uuid as account_id,' + 'c.uuid as contact_id,' + 'u.id as user_id',
+          'd.kyc_check_uuid as kyc_check_uuid',
+          'a.uuid as account_id',
+          'c.uuid as contact_id',
+          'u.id as user_id',
         ])
         .where('d.kyc_check_uuid = :resource_id', { resource_id })
         .getRawOne();

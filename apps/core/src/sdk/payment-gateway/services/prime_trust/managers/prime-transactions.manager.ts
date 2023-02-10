@@ -456,11 +456,11 @@ export class PrimeTransactionsManager {
       .leftJoinAndSelect(BankAccountEntity, 'b', 'b.id = w.bank_account_id')
       .where('w.user_id = :id', { id })
       .select([
-        'w.uuid as transfer_method_id,' +
-          'b.bank_account_number as bank_account_number,' +
-          'b.routing_number as routing_number,' +
-          'w.funds_transfer_type as funds_transfer_type,' +
-          'b.bank_account_name',
+        'w.uuid as transfer_method_id',
+        'b.bank_account_number as bank_account_number',
+        'b.routing_number as routing_number',
+        'w.funds_transfer_type as funds_transfer_type',
+        'b.bank_account_name',
       ])
       .getRawMany();
 
@@ -551,15 +551,15 @@ export class PrimeTransactionsManager {
       .createQueryBuilder('c')
       .where('c.user_id = :id', { id })
       .select([
-        'c.uuid as uuid,' +
-          'c.transfer_method_id as transfer_method_id,' +
-          'c.credit_card_bin as credit_card_bin,' +
-          'c.credit_card_name as credit_card_name,' +
-          'c.credit_card_type as credit_card_type,' +
-          'c.credit_card_expiration_date as credit_card_expiration_date,' +
-          'c.created_at as created_at,' +
-          'c.updated_at as updated_at,' +
-          'c.status as status',
+        'c.uuid as uuid',
+        'c.transfer_method_id as transfer_method_id',
+        'c.credit_card_bin as credit_card_bin',
+        'c.credit_card_name as credit_card_name',
+        'c.credit_card_type as credit_card_type',
+        'c.credit_card_expiration_date as credit_card_expiration_date',
+        'c.created_at as created_at',
+        'c.updated_at as updated_at',
+        'c.status as status',
       ])
       .getRawMany();
 
@@ -719,16 +719,16 @@ export class PrimeTransactionsManager {
       .where('t.sender_id = :id', { id })
       .orWhere('t.receiver_id = :id', { id })
       .select([
-        `r.first_name as receiver_first_name,` +
-          `r.last_name as receiver_last_name,` +
-          `s.first_name as sender_first_name,` +
-          `s.last_name as sender_last_name,` +
-          `CONCAT(r.first_name, ' ', r.last_name) as "to",` +
-          `CONCAT(s.first_name, ' ', s.last_name) as "from",` +
-          `t.amount as amount,` +
-          `t.currency_type as currency_type,` +
-          `t.status as status,` +
-          `t.created_at as created_at`,
+        `r.first_name as receiver_first_name`,
+        `r.last_name as receiver_last_name`,
+        `s.first_name as sender_first_name`,
+        `s.last_name as sender_last_name`,
+        `CONCAT(r.first_name, ' ', r.last_name) as "to"`,
+        `CONCAT(s.first_name, ' ', s.last_name) as "from"`,
+        `t.amount as amount`,
+        `t.currency_type as currency_type`,
+        `t.status as status`,
+        `t.created_at as created_at`,
       ])
       .getRawMany();
 
