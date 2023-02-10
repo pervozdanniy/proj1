@@ -22,7 +22,7 @@ export class GrpcSessionMiddleware implements GrpcServerInterceptor {
       try {
         session = await this.session.get(sessionId.toString());
       } catch (error) {
-        this.logger.error('Fetching session: failed', error.stack, { sessionId, error });
+        this.logger.error('Session: fetch failed', error.stack, { sessionId, error });
       }
 
       if (session) {

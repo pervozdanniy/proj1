@@ -17,7 +17,7 @@ import {
 } from '@grpc/grpc-js/build/src/server-call';
 
 declare module '@grpc/grpc-js' {
-  type GrpcInteceptorContext<T extends ServerSurfaceCall> = {
+  type GrpcInteceptorContext<T extends ServerSurfaceCall = ServerUnaryCall<any, any>> = {
     data: any | null;
     metadata: Metadata;
     call: T;
@@ -63,23 +63,18 @@ Server.prototype.addService = function (
         | ServerReadableStream<any, any>
         | ServerWritableStream<any, any>
         | ServerDuplexStream<any, any>,
-      callback: sendUnaryData<any>,
+      callback?: sendUnaryData<any>,
     ) => {
       const ctx: GrpcInteceptorContext<typeof call> = {
         data: (call as { request: any }).request ?? null,
         metadata: call.metadata,
         call,
       };
-      const newCallback = (
-        error: ServerErrorResponse | ServerStatusResponse | null,
-        value?: ResponseType | null,
-        trailer?: Metadata,
-        flags?: number,
-      ) => {
-        if (error) {
-          ctx.error = error;
+      const newCb = (...args: Parameters<typeof callback>) => {
+        if (args[0]) {
+          ctx.error = args[0];
         }
-        callback(error, value, trailer, flags);
+        callback?.(...args);
       };
 
       const interceptors = this.intercept();
@@ -88,27 +83,26 @@ Server.prototype.addService = function (
         // if we don't have any interceptors
         return Promise.resolve(fn(call as any, callback));
       }
-      function next(err?: any) {
-        return new Promise((resolve) => {
+      const next = (err?: any) =>
+        new Promise((resolve) => {
           if (err) {
-            return resolve(callback(err));
+            return resolve(newCb(err));
           }
           const i = interceptors.next();
           if (i.done) {
-            return resolve(fn(call as any, newCallback));
+            return resolve(fn(call as any, newCb));
           }
           try {
             return resolve(i.value(ctx, next));
           } catch (error) {
-            return resolve(callback(error));
+            return resolve(newCb(error));
           }
         });
-      }
 
       try {
         return await first.value(ctx, next);
       } catch (error) {
-        return callback(error);
+        return newCb(error);
       }
     };
   }
