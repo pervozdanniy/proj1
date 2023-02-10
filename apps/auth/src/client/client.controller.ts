@@ -27,13 +27,13 @@ export class ClientController implements ClientServiceController {
     };
   }
 
-  async validate(request: SignedRequest, metadata?: Metadata): Promise<AuthClient> {
+  async validate(request: SignedRequest, metadata: Metadata): Promise<AuthClient> {
     const [apiKey] = metadata.get('api-key');
 
     return this.clientService.validate(request, apiKey?.toString());
   }
 
-  async login(request: SignedRequest, metdata?: Metadata): Promise<AuthData> {
+  async login(request: SignedRequest, metdata: Metadata): Promise<AuthData> {
     const [apiKey] = metdata.get('api-key');
     const client = await this.clientService.validate(request, apiKey?.toString());
     if (!client) {
