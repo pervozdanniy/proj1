@@ -22,6 +22,7 @@ import {
   TransferFundsRequest,
   TransferFundsResponse,
   TransferMethodRequest,
+  TransferResponse,
   UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
@@ -35,6 +36,9 @@ import { PaymentGatewayService } from '../services/payment.gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  getTransfers(request: UserIdRequest): Promise<TransferResponse> {
+    return this.paymentGatewayService.getTransfers(request);
+  }
   getAccount(request: UserIdRequest): Promise<AccountResponse> {
     return this.paymentGatewayService.getAccount(request);
   }

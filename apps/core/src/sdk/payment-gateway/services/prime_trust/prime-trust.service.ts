@@ -123,4 +123,8 @@ export class PrimeTrustService {
   addDepositParams(request: DepositParams) {
     return this.primeTransactionsManager.addDepositParams(request);
   }
+
+  getTransfers(id: number) {
+    return this.primeTransactionsManager.getTransfers(id);
+  }
 }

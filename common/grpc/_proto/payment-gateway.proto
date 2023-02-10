@@ -17,6 +17,7 @@ service PaymentGatewayService {
   rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateReference (UserIdRequest) returns (PrimeTrustData);
   rpc GetBalance (UserIdRequest) returns (BalanceResponse);
+  rpc GetTransfers (UserIdRequest) returns (TransferResponse);
   rpc GetWithdrawalParams (UserIdRequest) returns (WithdrawalsDataResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
@@ -32,6 +33,19 @@ service PaymentGatewayService {
   rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
   rpc AddDepositParams (DepositParams) returns (DepositResponse);
 
+}
+
+message Transfer {
+  string to = 1;
+  string from = 2;
+  string amount = 3;
+  string currency_type = 4;
+  string status = 5;
+  string created_at = 6;
+}
+
+message TransferResponse {
+  repeated Transfer data = 1;
 }
 
 message ContactResponse {

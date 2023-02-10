@@ -1,3 +1,4 @@
+import { UserDetailsEntity } from '@/user/entities/user-details.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -19,6 +20,7 @@ import {
   TransferFundsRequest,
   TransferFundsResponse,
   TransferMethodRequest,
+  TransferResponse,
   WithdrawalParams,
   WithdrawalResponse,
   WithdrawalsDataResponse,
@@ -707,5 +709,29 @@ export class PrimeTransactionsManager {
     if (data.length === 0) {
       throw new GrpcException(Status.ABORTED, 'Bank account does`nt exist!', 400);
     }
+  }
+
+  async getTransfers(id: number): Promise<TransferResponse> {
+    const transferParams = await this.transferFundsEntityRepository
+      .createQueryBuilder('t')
+      .leftJoinAndSelect(UserDetailsEntity, 's', 's.user_id = t.sender_id')
+      .leftJoinAndSelect(UserDetailsEntity, 'r', 'r.user_id = t.receiver_id')
+      .where('t.sender_id = :id', { id })
+      .orWhere('t.receiver_id = :id', { id })
+      .select([
+        `r.first_name as receiver_first_name,` +
+          `r.last_name as receiver_last_name,` +
+          `s.first_name as sender_first_name,` +
+          `s.last_name as sender_last_name,` +
+          `CONCAT(r.first_name, ' ', r.last_name) as "to",` +
+          `CONCAT(s.first_name, ' ', s.last_name) as "from",` +
+          `t.amount as amount,` +
+          `t.currency_type as currency_type,` +
+          `t.status as status,` +
+          `t.created_at as created_at`,
+      ])
+      .getRawMany();
+
+    return { data: transferParams };
   }
 }

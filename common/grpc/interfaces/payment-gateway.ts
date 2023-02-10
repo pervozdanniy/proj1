@@ -6,6 +6,20 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface Transfer {
+  receiver_first_name: string;
+  receiver_last_name: string;
+  sender_first_name: string;
+  sender_last_name: string;
+  amount: string;
+  currency_type: string;
+  status: string;
+  created_at: string;
+}
+
+export interface TransferResponse {
+  data: Transfer[];
+}
 
 export interface ContactResponse {
   uuid: string;
@@ -24,6 +38,7 @@ export interface AccountResponse {
   number: string;
   status: string;
 }
+
 export interface DocumentResponse {
   document_id: string;
 }
@@ -220,6 +235,8 @@ export interface PaymentGatewayServiceClient {
 
   getBalance(request: UserIdRequest, metadata?: Metadata): Observable<BalanceResponse>;
 
+  getTransfers(request: UserIdRequest, metadata?: Metadata): Observable<TransferResponse>;
+
   getWithdrawalParams(request: UserIdRequest, metadata?: Metadata): Observable<WithdrawalsDataResponse>;
 
   updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
@@ -307,6 +324,11 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 
+  getTransfers(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<TransferResponse> | Observable<TransferResponse> | TransferResponse;
+
   getWithdrawalParams(
     request: UserIdRequest,
     metadata?: Metadata,
@@ -393,6 +415,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "cipCheck",
       "createReference",
       "getBalance",
+      "getTransfers",
       "getWithdrawalParams",
       "updateBalance",
       "updateContribution",

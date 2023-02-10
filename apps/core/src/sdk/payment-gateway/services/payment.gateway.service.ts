@@ -270,4 +270,13 @@ export class PaymentGatewayService {
 
     return paymentGateway.addDepositParams(request);
   }
+
+  async getTransfers(request: UserIdRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getTransfers(request.id);
+  }
 }
