@@ -53,9 +53,6 @@ export class PrimeTrustContactEntity {
   @OneToMany(() => WithdrawalParamsEntity, (params) => params.contact)
   withdrawalParams?: WithdrawalParamsEntity[];
 
-  @OneToMany(() => CardResourceEntity, (params) => params.contact)
-  cardResources?: CardResourceEntity[];
-
   @OneToMany(() => TransferFundsEntity, (params) => params.contact)
   transferFunds?: TransferFundsEntity[];
 

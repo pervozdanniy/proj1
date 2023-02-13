@@ -9,6 +9,7 @@ import {
   ContributionResponse,
   CreditCardResourceResponse,
   CreditCardsResponse,
+  DepositDataResponse,
   DepositParams,
   DepositResponse,
   DocumentResponse,
@@ -19,6 +20,7 @@ import {
   PaymentGatewayServiceControllerMethods,
   PG_Token,
   PrimeTrustData,
+  TransactionResponse,
   TransferFundsRequest,
   TransferFundsResponse,
   TransferMethodRequest,
@@ -36,19 +38,6 @@ import { PaymentGatewayService } from '../services/payment.gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
-  getTransfers(request: UserIdRequest): Promise<TransferResponse> {
-    return this.paymentGatewayService.getTransfers(request);
-  }
-  getAccount(request: UserIdRequest): Promise<AccountResponse> {
-    return this.paymentGatewayService.getAccount(request);
-  }
-
-  getContact(request: UserIdRequest): Promise<ContactResponse> {
-    return this.paymentGatewayService.getContact(request);
-  }
-  createCreditCardResource(request: UserIdRequest): Promise<CreditCardResourceResponse> {
-    return this.paymentGatewayService.createCreditCardResource(request);
-  }
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   getToken({ id }: IdRequest): Promise<PG_Token> {
@@ -119,6 +108,8 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
 
   getCreditCards(request: UserIdRequest): Promise<CreditCardsResponse> {
+    console.log('okkokokokok');
+
     return this.paymentGatewayService.getCreditCards(request);
   }
 
@@ -140,5 +131,25 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   addDepositParams(request: DepositParams): Promise<DepositResponse> {
     return this.paymentGatewayService.addDepositParams(request);
+  }
+
+  getDepositById(request: UserIdRequest): Promise<DepositDataResponse> {
+    return this.paymentGatewayService.getDepositById(request);
+  }
+  getTransferById(request: UserIdRequest): Promise<TransferResponse> {
+    return this.paymentGatewayService.getTransferById(request);
+  }
+  getTransactions(request: UserIdRequest): Promise<TransactionResponse> {
+    return this.paymentGatewayService.getTransactions(request);
+  }
+  getAccount(request: UserIdRequest): Promise<AccountResponse> {
+    return this.paymentGatewayService.getAccount(request);
+  }
+
+  getContact(request: UserIdRequest): Promise<ContactResponse> {
+    return this.paymentGatewayService.getContact(request);
+  }
+  createCreditCardResource(request: UserIdRequest): Promise<CreditCardResourceResponse> {
+    return this.paymentGatewayService.createCreditCardResource(request);
   }
 }

@@ -1,5 +1,10 @@
 import { NotificationEntity } from '@/notification/entities/notification.entity';
 import { NotificationModule } from '@/notification/notification.module';
+import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
+import { PrimeDepositManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-deposit.manager';
+import { PrimeFundsTransferManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-funds-transfer.manager';
+import { PrimeTransactionsManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-transactions.manager';
+import { PrimeWithdrawalManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-withdrawal.manager';
 import { UserModule } from '@/user/user.module';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
@@ -25,7 +30,6 @@ import { PrimeAccountManager } from '~svc/core/src/sdk/payment-gateway/services/
 import { PrimeBankAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
 import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
-import { PrimeTransactionsManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-transactions.manager';
 import { PrimeTrustService } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/prime-trust.service';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 
@@ -59,9 +63,13 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
     PrimeTokenManager,
     PrimeAccountManager,
     PrimeKycManager,
-    PrimeTransactionsManager,
+    PrimeBalanceManager,
+    PrimeDepositManager,
+    PrimeFundsTransferManager,
+    PrimeWithdrawalManager,
     PrimeTrustHttpService,
     PrimeBankAccountManager,
+    PrimeTransactionsManager,
   ],
   controllers: [PaymentGatewayController],
   exports: [PaymentGatewayManager],

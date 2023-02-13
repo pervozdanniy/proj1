@@ -108,6 +108,9 @@ export class SuccessResponseDTO implements SuccessResponse {
 
 export class CreditCardDTO implements CreditCard {
   @ApiProperty()
+  id: string;
+
+  @ApiProperty()
   created_at: string;
   @ApiProperty()
   credit_card_bin: string;

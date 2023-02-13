@@ -6,6 +6,7 @@ import {
   BankAccountResponseDTO,
   ContactResponseDTO,
   DocumentResponseDTO,
+  TransferFundsResponseDTO,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
@@ -134,15 +135,15 @@ export class MainController {
     }
   }
 
-  @ApiOperation({ summary: 'Add New Contact.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/contact')
-  async createContact(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.createContact({ id });
-  }
+  // @ApiOperation({ summary: 'Add New Contact.' })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  // })
+  // @JwtSessionAuth()
+  // @Post('/contact')
+  // async createContact(@JwtSessionUser() { id }: User) {
+  //   return this.paymentGatewayService.createContact({ id });
+  // }
 
   @Post('kyc/upload-document')
   @ApiConsumes('multipart/form-data')
@@ -166,7 +167,7 @@ export class MainController {
     type: BalanceResponseDTO,
   })
   @JwtSessionAuth()
-  @Post('/balance')
+  @Get('/balance')
   async getBalance(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBalance({ id });
   }
@@ -190,5 +191,16 @@ export class MainController {
   @Post('/bank/account')
   async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
     return this.paymentGatewayService.addBankAccountParams({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Get all transactions.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: TransferFundsResponseDTO,
+  })
+  @JwtSessionAuth()
+  @Get('/transactions')
+  async getTransactions(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getTransactions({ id });
   }
 }

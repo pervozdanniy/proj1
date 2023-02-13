@@ -1,3 +1,4 @@
+import { CardResourceEntity } from '@/sdk/payment-gateway/entities/prime_trust/card-resource.entity';
 import {
   Column,
   CreateDateColumn,
@@ -20,6 +21,9 @@ export class ContributionEntity {
 
   @Column('integer', { nullable: true })
   deposit_param_id: number;
+
+  @Column('integer', { nullable: true })
+  card_resource_id: number;
 
   @Column('character varying', { length: 50, nullable: true })
   uuid: string;
@@ -57,5 +61,9 @@ export class ContributionEntity {
 
   @ManyToOne(() => DepositParamsEntity, (d) => d.contributions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'deposit_param_id' })
-  depositParams?: PrimeTrustContactEntity;
+  depositParams?: DepositParamsEntity;
+
+  @ManyToOne(() => CardResourceEntity, (c) => c.contributions, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'card_resource_id' })
+  cardResource?: CardResourceEntity;
 }

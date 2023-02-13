@@ -17,7 +17,9 @@ service PaymentGatewayService {
   rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateReference (UserIdRequest) returns (PrimeTrustData);
   rpc GetBalance (UserIdRequest) returns (BalanceResponse);
-  rpc GetTransfers (UserIdRequest) returns (TransferResponse);
+  rpc GetTransferById (UserIdRequest) returns (TransferResponse);
+  rpc GetDepositById (UserIdRequest) returns (DepositDataResponse);
+  rpc GetTransactions (UserIdRequest) returns (TransactionResponse);
   rpc GetWithdrawalParams (UserIdRequest) returns (WithdrawalsDataResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
@@ -35,17 +37,36 @@ service PaymentGatewayService {
 
 }
 
-message Transfer {
+message DepositDataResponse {
+  uint32 id = 1;
+  string uuid = 2;
+  string amount = 3;
+  string currency_type = 4;
+  string contributor_email = 5;
+  string contributor_name = 6;
+  string funds_transfer_type = 7;
+  optional uint32 deposit_param_id = 8;
+  optional uint32 card_resource_id = 9;
+}
+
+message TransactionResponse {
+  repeated Transaction data = 1;
+}
+
+message Transaction {
+  uint32 id = 1;
+  string title = 2;
+  string url = 3;
+  string created_at = 4;
+}
+
+message TransferResponse {
   string to = 1;
   string from = 2;
   string amount = 3;
   string currency_type = 4;
   string status = 5;
   string created_at = 6;
-}
-
-message TransferResponse {
-  repeated Transfer data = 1;
 }
 
 message ContactResponse {
@@ -131,7 +152,7 @@ message CreditCardsResponse{
 }
 
 message CreditCard {
-  string uuid = 1;
+  string id = 1;
   string transfer_method_id = 2;
   string credit_card_bin = 3;
   string credit_card_type = 4;
@@ -139,6 +160,7 @@ message CreditCard {
   string created_at = 6;
   string updated_at = 7;
   string status = 8;
+  string uuid = 9;
 }
 
 message VerifyCreditCardRequest {
@@ -237,6 +259,7 @@ message UploadDocumentRequest {
 
 message UserIdRequest{
   uint32 id = 1;
+  optional uint32 resource_id = 2;
 }
 
 message PG_Token {

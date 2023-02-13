@@ -1,9 +1,11 @@
+import { ContributionEntity } from '@/sdk/payment-gateway/entities/prime_trust/contribution.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -47,7 +49,6 @@ export class CardResourceEntity {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.cardResources, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
-  contact?: PrimeTrustContactEntity;
+  @OneToMany(() => ContributionEntity, (c) => c.cardResource)
+  contributions?: ContributionEntity[];
 }

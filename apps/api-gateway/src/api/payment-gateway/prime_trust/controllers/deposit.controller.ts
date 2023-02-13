@@ -6,7 +6,16 @@ import {
   DepositResponseDTO,
   SuccessResponseDTO,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
-import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
@@ -97,5 +106,15 @@ export class DepositController {
   @Post('/contribution')
   async makeContribution(@JwtSessionUser() { id }: User, @Body() payload: MakeContributionDto) {
     return this.paymentGatewayService.makeContribution({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Get Deposit by id.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @JwtSessionAuth()
+  @Get(':deposit_id')
+  async getDepositById(@JwtSessionUser() { id }: User, @Param('deposit_id') deposit_id: number) {
+    return this.paymentGatewayService.getDepositById({ id, resource_id: deposit_id });
   }
 }

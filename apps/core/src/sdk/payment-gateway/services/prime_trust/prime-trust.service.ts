@@ -1,3 +1,8 @@
+import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
+import { PrimeDepositManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-deposit.manager';
+import { PrimeFundsTransferManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-funds-transfer.manager';
+import { PrimeTransactionsManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-transactions.manager';
+import { PrimeWithdrawalManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-withdrawal.manager';
 import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
@@ -6,13 +11,13 @@ import {
   MakeContributionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
+  UserIdRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-account.manager';
 import { PrimeBankAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
 import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
-import { PrimeTransactionsManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-transactions.manager';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
@@ -21,9 +26,17 @@ export class PrimeTrustService {
     private readonly primeTokenManager: PrimeTokenManager,
     private readonly primeAccountManager: PrimeAccountManager,
     private readonly primeKycManager: PrimeKycManager,
-    private readonly primeTransactionsManager: PrimeTransactionsManager,
+    private readonly primeBalanceManager: PrimeBalanceManager,
+
+    private readonly primeDepositManager: PrimeDepositManager,
+
+    private readonly primeFundsTransferManager: PrimeFundsTransferManager,
+
+    private readonly primeWithdrawalManager: PrimeWithdrawalManager,
 
     private readonly primeBankAccountManager: PrimeBankAccountManager,
+
+    private readonly primeTransactionsManager: PrimeTransactionsManager,
   ) {}
 
   getToken() {
@@ -54,51 +67,51 @@ export class PrimeTrustService {
   }
 
   createReference(userDetails: UserEntity) {
-    return this.primeTransactionsManager.createReference(userDetails);
+    return this.primeDepositManager.createReference(userDetails);
   }
 
   async updateAccountBalance(id: string) {
-    return this.primeTransactionsManager.updateAccountBalance(id);
+    return this.primeBalanceManager.updateAccountBalance(id);
   }
 
   async getBalance(id: number) {
-    return this.primeTransactionsManager.getAccountBalance(id);
+    return this.primeBalanceManager.getAccountBalance(id);
   }
 
   addWithdrawalParams(request: WithdrawalParams) {
-    return this.primeTransactionsManager.addWithdrawalParams(request);
+    return this.primeWithdrawalManager.addWithdrawalParams(request);
   }
 
   makeWithdrawal(request: TransferMethodRequest) {
-    return this.primeTransactionsManager.makeWithdrawal(request);
+    return this.primeWithdrawalManager.makeWithdrawal(request);
   }
 
   updateWithdraw(resource_id: string) {
-    return this.primeTransactionsManager.updateWithdraw(resource_id);
+    return this.primeWithdrawalManager.updateWithdraw(resource_id);
   }
 
   updateContribution(request: AccountIdRequest) {
-    return this.primeTransactionsManager.updateContribution(request);
+    return this.primeDepositManager.updateContribution(request);
   }
 
   getWithdrawalParams(id: number) {
-    return this.primeTransactionsManager.getWithdrawalParams(id);
+    return this.primeWithdrawalManager.getWithdrawalParams(id);
   }
 
   createCreditCardResource(id: number) {
-    return this.primeTransactionsManager.createCreditCardResource(id);
+    return this.primeDepositManager.createCreditCardResource(id);
   }
 
   verifyCreditCard(resource_id: string) {
-    return this.primeTransactionsManager.verifyCreditCard(resource_id);
+    return this.primeDepositManager.verifyCreditCard(resource_id);
   }
 
   getCreditCards(id: number) {
-    return this.primeTransactionsManager.getCreditCards(id);
+    return this.primeDepositManager.getCreditCards(id);
   }
 
   transferFunds(request: TransferFundsRequest) {
-    return this.primeTransactionsManager.transferFunds(request);
+    return this.primeFundsTransferManager.transferFunds(request);
   }
 
   addBankAccountParams(request: BankAccountParams) {
@@ -110,7 +123,7 @@ export class PrimeTrustService {
   }
 
   makeContribution(request: MakeContributionRequest) {
-    return this.primeTransactionsManager.makeContribution(request);
+    return this.primeDepositManager.makeContribution(request);
   }
 
   getAccount(id: number) {
@@ -121,10 +134,18 @@ export class PrimeTrustService {
     return this.primeKycManager.getContact(id);
   }
   addDepositParams(request: DepositParams) {
-    return this.primeTransactionsManager.addDepositParams(request);
+    return this.primeDepositManager.addDepositParams(request);
   }
 
-  getTransfers(id: number) {
-    return this.primeTransactionsManager.getTransfers(id);
+  getTransferById(request: UserIdRequest) {
+    return this.primeFundsTransferManager.getTransferById(request);
+  }
+
+  getTransactions(id: number) {
+    return this.primeTransactionsManager.getTransactions(id);
+  }
+
+  getDepositById(request: UserIdRequest) {
+    return this.primeDepositManager.getDepositById(request);
   }
 }
