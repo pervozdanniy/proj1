@@ -108,8 +108,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
 
   getCreditCards(request: UserIdRequest): Promise<CreditCardsResponse> {
-    console.log('okkokokokok');
-
     return this.paymentGatewayService.getCreditCards(request);
   }
 

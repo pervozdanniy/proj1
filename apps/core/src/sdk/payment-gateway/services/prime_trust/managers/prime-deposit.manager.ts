@@ -1,11 +1,10 @@
-import { BankAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { DepositTypes, WithdrawalTypes } from '~common/enum/document-types.enum';
+import { DepositTypes } from '~common/enum/document-types.enum';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
@@ -19,7 +18,6 @@ import {
   PrimeTrustData,
   UserIdRequest,
   WithdrawalParams,
-  WithdrawalsDataResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '~svc/core/src/notification/services/notification.service';
