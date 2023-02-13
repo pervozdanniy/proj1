@@ -1,4 +1,5 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
+import { ResourceDto } from '@/api/payment-gateway/prime_trust/dtos/resource.dto';
 import {
   ContributionResponseDTO,
   CreditCardResourceResponseDTO,
@@ -14,6 +15,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -113,8 +115,18 @@ export class DepositController {
     status: HttpStatus.OK,
   })
   @JwtSessionAuth()
-  @Get(':deposit_id')
-  async getDepositById(@JwtSessionUser() { id }: User, @Param('deposit_id') deposit_id: number) {
-    return this.paymentGatewayService.getDepositById({ id, resource_id: deposit_id });
+  @Get('/')
+  async getDepositById(@JwtSessionUser() { id }: User, @Query() query: ResourceDto) {
+    return this.paymentGatewayService.getDepositById({ id, resource_id: query.resource_id });
+  }
+
+  @ApiOperation({ summary: 'Get Deposit Params' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @JwtSessionAuth()
+  @Get('/params')
+  async getDepositParams(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getDepositParams({ id });
   }
 }

@@ -1,3 +1,4 @@
+import { BankAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -12,7 +13,8 @@ import {
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositDataResponse,
-  DepositParams,
+  DepositParamRequest,
+  DepositParamsResponse,
   DepositResponse,
   MakeContributionRequest,
   PrimeTrustData,
@@ -371,7 +373,7 @@ export class PrimeDepositManager {
     }
   }
 
-  async addDepositParams(request: DepositParams): Promise<DepositResponse> {
+  async addDepositParams(request: DepositParamRequest): Promise<DepositResponse> {
     const { id, bank_account_id, funds_transfer_type } = request;
     await this.checkBankExists(id, bank_account_id);
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
@@ -418,5 +420,23 @@ export class PrimeDepositManager {
     }
 
     return deposit;
+  }
+
+  async getDepositParams(id: number): Promise<DepositParamsResponse> {
+    const params = await this.depositParamsEntityRepository
+      .createQueryBuilder('d')
+      .leftJoinAndSelect(BankAccountEntity, 'b', 'b.id = d.bank_account_id')
+      .where('d.user_id = :id', { id })
+      .select([
+        'd.id as id',
+        'd.uuid as transfer_method_id',
+        'b.bank_account_number as bank_account_number',
+        'b.routing_number as routing_number',
+        'd.funds_transfer_type as funds_transfer_type',
+        'b.bank_account_name as bank_account_name',
+      ])
+      .getRawMany();
+
+    return { data: params };
   }
 }

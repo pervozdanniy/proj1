@@ -6,7 +6,7 @@ import {
   AccountIdRequest,
   AccountResponse,
   BankAccountParams,
-  DepositParams,
+  DepositParamRequest,
   DocumentResponse,
   MakeContributionRequest,
   PaymentGatewayListQuery,
@@ -262,7 +262,7 @@ export class PaymentGatewayService {
     return paymentGateway.getContact(request.id);
   }
 
-  async addDepositParams(request: DepositParams) {
+  async addDepositParams(request: DepositParamRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
@@ -295,5 +295,14 @@ export class PaymentGatewayService {
     );
 
     return paymentGateway.getTransactions(request.id);
+  }
+
+  async getDepositParams(request: UserIdRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
+      userDetails.country.payment_gateway.alias,
+    );
+
+    return paymentGateway.getDepositParams(request.id);
   }
 }

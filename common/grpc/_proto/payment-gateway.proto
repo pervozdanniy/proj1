@@ -21,6 +21,7 @@ service PaymentGatewayService {
   rpc GetDepositById (UserIdRequest) returns (DepositDataResponse);
   rpc GetTransactions (UserIdRequest) returns (TransactionResponse);
   rpc GetWithdrawalParams (UserIdRequest) returns (WithdrawalsDataResponse);
+  rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
   rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
@@ -33,8 +34,21 @@ service PaymentGatewayService {
   rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
   rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
-  rpc AddDepositParams (DepositParams) returns (DepositResponse);
+  rpc AddDepositParams (DepositParamRequest) returns (DepositResponse);
 
+}
+
+message DepositParamsResponse{
+  repeated DepositParam data = 1;
+}
+
+message DepositParam {
+  uint32 id = 1;
+  string transfer_method_id = 2;
+  string bank_account_number = 3;
+  string routing_number = 4;
+  string funds_transfer_type = 5;
+  string bank_account_name = 6;
 }
 
 message DepositDataResponse {
@@ -94,7 +108,7 @@ message DocumentResponse {
   string document_id = 1;
 }
 
-message DepositParams{
+message DepositParamRequest{
   uint32 id = 1;
   uint32 bank_account_id = 2;
   string funds_transfer_type = 3;
@@ -178,11 +192,12 @@ message WithdrawalsDataResponse{
 }
 
 message Withdrawal {
-  string transfer_method_id = 1;
-  string bank_account_number = 2;
-  string routing_number = 3;
-  string funds_transfer_type = 4;
-  string bank_account_name = 5;
+  uint32 id = 1;
+  string transfer_method_id = 2;
+  string bank_account_number = 3;
+  string routing_number = 4;
+  string funds_transfer_type = 5;
+  string bank_account_name = 6;
 }
 
 

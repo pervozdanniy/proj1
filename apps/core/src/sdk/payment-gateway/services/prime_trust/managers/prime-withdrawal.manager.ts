@@ -237,6 +237,7 @@ export class PrimeWithdrawalManager {
       .leftJoinAndSelect(BankAccountEntity, 'b', 'b.id = w.bank_account_id')
       .where('w.user_id = :id', { id })
       .select([
+        'w.id as id',
         'w.uuid as transfer_method_id',
         'b.bank_account_number as bank_account_number',
         'b.routing_number as routing_number',

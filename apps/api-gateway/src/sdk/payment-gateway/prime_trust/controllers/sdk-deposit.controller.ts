@@ -95,14 +95,4 @@ export class SdkDepositController {
   async makeContribution(@JwtSessionUser() { id }: User, @Body() payload: MakeContributionDto) {
     return this.paymentGatewayService.makeContribution({ id, ...payload });
   }
-
-  @ApiOperation({ summary: 'Get Deposit by id.' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-  })
-  @JwtSessionAuth()
-  @Get(':deposit_id')
-  async getDepositById(@JwtSessionUser() { id }: User, @Param('deposit_id') deposit_id: number) {
-    return this.paymentGatewayService.getDepositById({ id, resource_id: deposit_id });
-  }
 }

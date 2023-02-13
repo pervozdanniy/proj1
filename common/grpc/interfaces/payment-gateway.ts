@@ -6,6 +6,19 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface DepositParamsResponse {
+  data: DepositParam[];
+}
+
+export interface DepositParam {
+  id: number;
+  transfer_method_id: string;
+  bank_account_number: string;
+  routing_number: string;
+  funds_transfer_type: string;
+  bank_account_name: string;
+}
+
 export interface DepositDataResponse {
   id: number;
   uuid: string;
@@ -60,7 +73,7 @@ export interface DocumentResponse {
   document_id: string;
 }
 
-export interface DepositParams {
+export interface DepositParamRequest {
   id: number;
   bank_account_id: number;
   funds_transfer_type: string;
@@ -141,6 +154,7 @@ export interface WithdrawalsDataResponse {
 }
 
 export interface Withdrawal {
+  id: number;
   transfer_method_id: string;
   bank_account_number: string;
   routing_number: string;
@@ -262,6 +276,8 @@ export interface PaymentGatewayServiceClient {
 
   getWithdrawalParams(request: UserIdRequest, metadata?: Metadata): Observable<WithdrawalsDataResponse>;
 
+  getDepositParams(request: UserIdRequest, metadata?: Metadata): Observable<DepositParamsResponse>;
+
   updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
   updateContribution(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
@@ -286,7 +302,7 @@ export interface PaymentGatewayServiceClient {
 
   makeContribution(request: MakeContributionRequest, metadata?: Metadata): Observable<ContributionResponse>;
 
-  addDepositParams(request: DepositParams, metadata?: Metadata): Observable<DepositResponse>;
+  addDepositParams(request: DepositParamRequest, metadata?: Metadata): Observable<DepositResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -367,6 +383,11 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<WithdrawalsDataResponse> | Observable<WithdrawalsDataResponse> | WithdrawalsDataResponse;
 
+  getDepositParams(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<DepositParamsResponse> | Observable<DepositParamsResponse> | DepositParamsResponse;
+
   updateBalance(
     request: AccountIdRequest,
     metadata?: Metadata,
@@ -428,7 +449,7 @@ export interface PaymentGatewayServiceController {
   ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
 
   addDepositParams(
-    request: DepositParams,
+    request: DepositParamRequest,
     metadata?: Metadata,
   ): Promise<DepositResponse> | Observable<DepositResponse> | DepositResponse;
 }
@@ -452,6 +473,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "getDepositById",
       "getTransactions",
       "getWithdrawalParams",
+      "getDepositParams",
       "updateBalance",
       "updateContribution",
       "getBankAccounts",

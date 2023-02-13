@@ -3,7 +3,6 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { lastValueFrom } from 'rxjs';
-import { CardResourceDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/card-resource.dto';
 import { DepositFundsDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/deposit-funds.dto';
 import { SettleFundsDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/settle-funds.dto';
 import { SettleWithdrawDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/settle-withdraw.dto';
@@ -146,13 +145,13 @@ export class SdkSandboxService {
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };
+
     try {
       const webhooks = await lastValueFrom(
         this.httpService.get(`https://sandbox.primetrust.com/v2/webhook-configs`, {
           headers: headersRequest,
         }),
       );
-
       webhooks.data.data.map(async (w) => {
         await lastValueFrom(
           this.httpService.patch(`https://sandbox.primetrust.com/v2/webhook-configs/${w.id}`, formData, {
@@ -162,27 +161,6 @@ export class SdkSandboxService {
       });
 
       return { success: true };
-    } catch (e) {
-      throw new Error(e.response.data);
-    }
-  }
-
-  async getCardDescriptor(payload: CardResourceDto) {
-    const token = await this.redis.get('prime_token');
-    const { resource_id } = payload;
-
-    try {
-      const headersRequest = {
-        Authorization: `Bearer ${token}`,
-      };
-
-      const cardResponse = await lastValueFrom(
-        this.httpService.get(`https://sandbox.primetrust.com/v2/credit-card-resources/${resource_id}/sandbox`, {
-          headers: headersRequest,
-        }),
-      );
-
-      return cardResponse.data;
     } catch (e) {
       throw new Error(e.response.data);
     }

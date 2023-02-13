@@ -160,6 +160,8 @@ export class TransferFundsResponseDTO implements TransferFundsResponse {
 
 export class WithdrawalDTO implements Withdrawal {
   @ApiProperty()
+  id: number;
+  @ApiProperty()
   bank_account_name: string;
   @ApiProperty()
   bank_account_number: string;

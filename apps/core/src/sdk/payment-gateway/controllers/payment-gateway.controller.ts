@@ -10,7 +10,8 @@ import {
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositDataResponse,
-  DepositParams,
+  DepositParamRequest,
+  DepositParamsResponse,
   DepositResponse,
   DocumentResponse,
   MakeContributionRequest,
@@ -38,6 +39,9 @@ import { PaymentGatewayService } from '../services/payment.gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  getDepositParams(request: UserIdRequest): Promise<DepositParamsResponse> {
+    return this.paymentGatewayService.getDepositParams(request);
+  }
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   getToken({ id }: IdRequest): Promise<PG_Token> {
@@ -127,7 +131,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.makeContribution(request);
   }
 
-  addDepositParams(request: DepositParams): Promise<DepositResponse> {
+  addDepositParams(request: DepositParamRequest): Promise<DepositResponse> {
     return this.paymentGatewayService.addDepositParams(request);
   }
 
