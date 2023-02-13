@@ -14,7 +14,7 @@ COPY webpack.config.js ./
 #add common files
 COPY apps /usr/src/apps/
 COPY common /usr/src/common/
-
+ENV TEST "13022023"
 EXPOSE 3000
 
 ENTRYPOINT [ "node_modules/.bin/nest" ]
