@@ -28,7 +28,7 @@ export class PrimeFundsTransferManager {
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
 
-  private readonly asset_id: string = '1ecca8bab-dcb2-419a-973e-aebc39ff4f03';
+  private readonly asset_id: string = 'ecca8bab-dcb2-419a-973e-aebc39ff4f03';
   constructor(
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
