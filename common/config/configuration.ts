@@ -69,7 +69,7 @@ export interface ConfigInterface {
 }
 
 export default (): ConfigInterface => ({
-  basePath: process.env.BASE_PATH,
+  basePath: process.cwd(),
   port: parseInt(process.env.PORT, 10) || 3000,
   database: {
     host: process.env.POSTGRES_HOST,
