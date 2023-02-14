@@ -29,6 +29,7 @@ import {
   UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
+  WithdrawalDataResponse,
   WithdrawalParams,
   WithdrawalResponse,
   WithdrawalsDataResponse,
@@ -39,9 +40,6 @@ import { PaymentGatewayService } from '../services/payment.gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
-  getDepositParams(request: UserIdRequest): Promise<DepositParamsResponse> {
-    return this.paymentGatewayService.getDepositParams(request);
-  }
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   getToken({ id }: IdRequest): Promise<PG_Token> {
@@ -138,6 +136,10 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   getDepositById(request: UserIdRequest): Promise<DepositDataResponse> {
     return this.paymentGatewayService.getDepositById(request);
   }
+  getWithdrawalById(request: UserIdRequest): Promise<WithdrawalDataResponse> {
+    return this.paymentGatewayService.getWithdrawalById(request);
+  }
+
   getTransferById(request: UserIdRequest): Promise<TransferResponse> {
     return this.paymentGatewayService.getTransferById(request);
   }
@@ -153,5 +155,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
   createCreditCardResource(request: UserIdRequest): Promise<CreditCardResourceResponse> {
     return this.paymentGatewayService.createCreditCardResource(request);
+  }
+
+  getDepositParams(request: UserIdRequest): Promise<DepositParamsResponse> {
+    return this.paymentGatewayService.getDepositParams(request);
   }
 }

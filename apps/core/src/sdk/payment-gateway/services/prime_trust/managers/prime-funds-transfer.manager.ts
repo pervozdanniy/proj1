@@ -26,6 +26,8 @@ export class PrimeFundsTransferManager {
   private readonly logger = new Logger(PrimeFundsTransferManager.name);
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
+
+  private readonly asset_id: string = 'ecca8bab-dcb2-419a-973e-aebc39ff4f03';
   constructor(
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
@@ -57,12 +59,13 @@ export class PrimeFundsTransferManager {
         type: 'quotes',
         attributes: {
           'account-id': account_id,
-          'asset-id': 'ecca8bab-dcb2-419a-973e-aebc39ff4f03',
+          'asset-id': this.asset_id,
           'transaction-type': 'buy',
           amount,
         },
       },
     };
+
     try {
       const quoteResponse = await this.httpService.request({
         method: 'post',
@@ -93,7 +96,7 @@ export class PrimeFundsTransferManager {
         type: 'quotes',
         attributes: {
           'account-id': account_id,
-          'asset-id': 'ecca8bab-dcb2-419a-973e-aebc39ff4f03',
+          'asset-id': this.asset_id,
           'transaction-type': 'sell',
           amount,
         },
@@ -123,7 +126,7 @@ export class PrimeFundsTransferManager {
           type: 'internal-asset-transfers',
           attributes: {
             'unit-count': unit_count,
-            'asset-id': 'ecca8bab-dcb2-419a-973e-aebc39ff4f03',
+            'asset-id': this.asset_id,
             'from-account-id': fromAccountId,
             'to-account-id': toAccountId,
             reference: 'For Trade Settlement',
@@ -149,8 +152,8 @@ export class PrimeFundsTransferManager {
 
   async transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
     const { sender_id, receiver_id, amount } = request;
-    const { settled } = await this.primeTrustBalanceEntityRepository.findOneByOrFail({ user_id: sender_id });
-    if (parseFloat(settled) < parseFloat(amount) * 1.02) {
+    const { settled } = await this.primeTrustBalanceEntityRepository.findOneBy({ user_id: sender_id });
+    if (!settled || parseFloat(settled) < parseFloat(amount) * 1.02) {
       throw new GrpcException(Status.ABORTED, 'Not enough money for transfer!', 400);
     }
 
@@ -162,7 +165,6 @@ export class PrimeFundsTransferManager {
     const { uuid, status, created_at } = await this.sendFunds(fromAccountId, toAccountId, unit_count);
 
     await this.convertAssetToUSD(toAccountId, amount);
-
     const payload = {
       sender_id,
       receiver_id,

@@ -1,9 +1,19 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
+import { ResourceDto } from '@/api/payment-gateway/prime_trust/dtos/resource.dto';
 import {
   WithdrawalResponseDTO,
   WithdrawalsDataResponseDTO,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
-import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { WithdrawalMakeDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/withdrawal-make.dto';
@@ -19,6 +29,16 @@ import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/
 })
 export class WithdrawalController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
+
+  @ApiOperation({ summary: 'Get Withdrawal by id.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @JwtSessionAuth()
+  @Get('/')
+  async getWithdrawalById(@JwtSessionUser() { id }: User, @Query() query: ResourceDto) {
+    return this.paymentGatewayService.getWithdrawalById({ id, resource_id: query.resource_id });
+  }
 
   @ApiOperation({ summary: 'Get Bank params for withdrawal.' })
   @ApiResponse({

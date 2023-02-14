@@ -6,6 +6,16 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface WithdrawalDataResponse {
+  id: number;
+  params_id: number;
+  uuid: string;
+  amount: string;
+  currency_type: string;
+  status: string;
+  created_at: string;
+}
+
 export interface DepositParamsResponse {
   data: DepositParam[];
 }
@@ -272,6 +282,8 @@ export interface PaymentGatewayServiceClient {
 
   getDepositById(request: UserIdRequest, metadata?: Metadata): Observable<DepositDataResponse>;
 
+  getWithdrawalById(request: UserIdRequest, metadata?: Metadata): Observable<WithdrawalDataResponse>;
+
   getTransactions(request: UserIdRequest, metadata?: Metadata): Observable<TransactionResponse>;
 
   getWithdrawalParams(request: UserIdRequest, metadata?: Metadata): Observable<WithdrawalsDataResponse>;
@@ -373,6 +385,11 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<DepositDataResponse> | Observable<DepositDataResponse> | DepositDataResponse;
 
+  getWithdrawalById(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<WithdrawalDataResponse> | Observable<WithdrawalDataResponse> | WithdrawalDataResponse;
+
   getTransactions(
     request: UserIdRequest,
     metadata?: Metadata,
@@ -471,6 +488,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "getBalance",
       "getTransferById",
       "getDepositById",
+      "getWithdrawalById",
       "getTransactions",
       "getWithdrawalParams",
       "getDepositParams",

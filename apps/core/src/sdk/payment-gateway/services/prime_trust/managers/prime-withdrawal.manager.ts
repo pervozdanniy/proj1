@@ -7,6 +7,8 @@ import { ConfigInterface } from '~common/config/configuration';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
 import {
   TransferMethodRequest,
+  UserIdRequest,
+  WithdrawalDataResponse,
   WithdrawalParams,
   WithdrawalResponse,
   WithdrawalsDataResponse,
@@ -255,5 +257,19 @@ export class PrimeWithdrawalManager {
     if (data.length === 0) {
       throw new GrpcException(Status.ABORTED, 'Bank account does`nt exist!', 400);
     }
+  }
+
+  async getWithdrawalById(request: UserIdRequest): Promise<WithdrawalDataResponse> {
+    const { id, resource_id } = request;
+    const withdrawal = await this.withdrawalEntityRepository
+      .createQueryBuilder('w')
+      .select('*')
+      .where('w.id = :resource_id AND w.user_id=:id', { resource_id, id })
+      .getRawOne();
+    if (!withdrawal) {
+      throw new GrpcException(Status.NOT_FOUND, 'Withdrawal not found!', 404);
+    }
+
+    return withdrawal;
   }
 }

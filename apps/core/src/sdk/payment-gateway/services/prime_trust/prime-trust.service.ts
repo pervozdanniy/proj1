@@ -152,4 +152,8 @@ export class PrimeTrustService {
   getDepositParams(id: number) {
     return this.primeDepositManager.getDepositParams(id);
   }
+
+  getWithdrawalById(request: UserIdRequest) {
+    return this.primeWithdrawalManager.getWithdrawalById(request);
+  }
 }

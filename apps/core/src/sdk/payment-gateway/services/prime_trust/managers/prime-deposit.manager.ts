@@ -1,4 +1,5 @@
 import { BankAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
+import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -51,6 +52,8 @@ export class PrimeDepositManager {
     private readonly notificationService: NotificationService,
 
     private readonly primeBankAccountManager: PrimeBankAccountManager,
+
+    private readonly primeBalanceManager: PrimeBalanceManager,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -364,6 +367,7 @@ export class PrimeDepositManager {
         });
         contributionPayload['card_resource_id'] = cardResource.id;
       }
+      await this.primeBalanceManager.updateAccountBalance(account_id);
 
       await this.contributionEntityRepository.save(this.contributionEntityRepository.create(contributionPayload));
 

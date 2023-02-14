@@ -1,3 +1,4 @@
+import { ResourceDto } from '@/api/payment-gateway/prime_trust/dtos/resource.dto';
 import {
   Body,
   ClassSerializerInterceptor,
@@ -6,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -38,8 +40,8 @@ export class SdkTransferController {
     status: HttpStatus.OK,
   })
   @JwtSessionAuth()
-  @Get(':transfer_id')
-  async getTransferById(@JwtSessionUser() { id }: User, @Param('transfer_id') transfer_id: number) {
-    return this.paymentGatewayService.getTransferById({ id, resource_id: transfer_id });
+  @Get('/')
+  async getTransferById(@JwtSessionUser() { id }: User, @Query() query: ResourceDto) {
+    return this.paymentGatewayService.getTransferById({ id, resource_id: query.resource_id });
   }
 }
