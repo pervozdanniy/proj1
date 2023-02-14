@@ -2,7 +2,7 @@ import { status } from '@grpc/grpc-js';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
 import { PreRegisteredSessionInterface } from '~common/constants/auth';
-import { GrpcSession, GrpcSessionAuth, SessionInterface, SessionProxy } from '~common/grpc-session';
+import { GrpcSession, GrpcSessionAuth, SessionProxy } from '~common/grpc-session';
 import {
   AuthData,
   AuthServiceController,

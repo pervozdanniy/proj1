@@ -4,7 +4,7 @@ import { OnGatewayDisconnect, OnGatewayInit, WebSocketGateway, WsException } fro
 import { JwtPayload } from 'jsonwebtoken';
 import { ExtractJwt } from 'passport-jwt';
 import { Server, Socket } from 'socket.io';
-import { SessionProxy, sessionProxyFactory, SessionService } from '~common/session';
+import { SessionProxy, SessionService } from '~common/session';
 import { AllExceptionsFilter } from './utils/exception.filter';
 import { bind, isBound } from './utils/session/helpers';
 import { BoundSessionInterface } from './utils/session/interfaces';
