@@ -1,3 +1,4 @@
+import { BalanceAttributes } from '@/sdk/payment-gateway/types/response';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -56,7 +57,7 @@ export class PrimeBalanceManager {
     return this.saveBalance(user_id, cacheData);
   }
 
-  async getBalanceInfo(account_uuid: string) {
+  async getBalanceInfo(account_uuid: string): Promise<BalanceAttributes> {
     try {
       const cacheResponse = await this.httpService.request({
         method: 'get',
@@ -71,11 +72,11 @@ export class PrimeBalanceManager {
     }
   }
 
-  async saveBalance(user_id, cacheData) {
+  async saveBalance(user_id: number, cacheData: BalanceAttributes): Promise<SuccessResponse> {
     const currentBalance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id } });
     const balancePayload = {
-      settled: cacheData['settled'],
-      disbursable: cacheData['disbursable'],
+      settled: cacheData.settled,
+      disbursable: cacheData.disbursable,
       pending_transfer: cacheData['pending-transfer'],
       currency_type: cacheData['currency-type'],
       contingent_hold: cacheData['contingent-hold'],
