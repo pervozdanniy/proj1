@@ -39,7 +39,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user info' })
   @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
-  @JwtSessionAuth({ require2FA: true })
+  @JwtSessionAuth()
   @Get('me')
   async me(@JwtSessionUser() user: User) {
     return plainToInstance(PublicUserDto, user);

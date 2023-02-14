@@ -27,7 +27,12 @@ export default async (config: ConfigService<ConfigInterface>) => {
       { provide: JwtService, useValue: { signAsync: jest.fn().mockResolvedValue('mock_jwt') } },
       {
         provide: SessionService,
-        useValue: { generate: jest.fn().mockResolvedValue('mock_session_id'), set: jest.fn().mockResolvedValue(true) },
+        useValue: {
+          generate: jest.fn(() => ({
+            save: jest.fn().mockResolvedValue(true),
+            id: 'mock_session_id',
+          })),
+        },
       },
       { provide: getRepositoryToken(AuthClient), useFactory: authClientRepoFactory },
     ],
