@@ -152,10 +152,6 @@ export class PrimeFundsTransferManager {
 
   async transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
     const { sender_id, receiver_id, amount } = request;
-    const { settled } = await this.primeTrustBalanceEntityRepository.findOneBy({ user_id: sender_id });
-    if (!settled || parseFloat(settled) < parseFloat(amount) * 1.02) {
-      throw new GrpcException(Status.ABORTED, 'Not enough money for transfer!', 400);
-    }
 
     const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: sender_id });
     const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: receiver_id });
