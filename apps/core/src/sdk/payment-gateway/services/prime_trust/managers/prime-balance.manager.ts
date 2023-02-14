@@ -1,3 +1,4 @@
+import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { BalanceAttributes } from '@/sdk/payment-gateway/types/response';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -68,7 +69,11 @@ export class PrimeBalanceManager {
     } catch (e) {
       this.logger.error(e.response.data);
 
-      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+      if (e instanceof PrimeTrustException) {
+        throw new GrpcException(Status.ABORTED, e.message, 400);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 

@@ -1,3 +1,4 @@
+import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
@@ -130,7 +131,11 @@ export class PrimeAccountManager {
     } catch (e) {
       this.logger.error(e.response.data.errors);
 
-      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+      if (e instanceof PrimeTrustException) {
+        throw new GrpcException(Status.ABORTED, e.message, 400);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 
@@ -170,7 +175,11 @@ export class PrimeAccountManager {
 
       return account;
     } catch (e) {
-      throw new GrpcException(Status.ABORTED, e.message, 400);
+      if (e instanceof PrimeTrustException) {
+        throw new GrpcException(Status.ABORTED, e.message, 400);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 

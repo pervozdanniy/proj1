@@ -1,3 +1,4 @@
+import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { UserDetailsEntity } from '@/user/entities/user-details.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -27,7 +28,7 @@ export class PrimeFundsTransferManager {
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
 
-  private readonly asset_id: string = 'ecca8bab-dcb2-419a-973e-aebc39ff4f03';
+  private readonly asset_id: string = '1ecca8bab-dcb2-419a-973e-aebc39ff4f03';
   constructor(
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
@@ -86,7 +87,11 @@ export class PrimeFundsTransferManager {
         unit_count: quote.data.data.attributes['unit-count'],
       };
     } catch (e) {
-      throw new GrpcException(Status.ABORTED, e.response.data.errors[0].detail, 400);
+      if (e instanceof PrimeTrustException) {
+        throw new GrpcException(Status.ABORTED, e.message, 400);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 
@@ -115,7 +120,11 @@ export class PrimeFundsTransferManager {
         data: null,
       });
     } catch (e) {
-      throw new GrpcException(Status.ABORTED, e.response.data.errors[0].detail, 400);
+      if (e instanceof PrimeTrustException) {
+        throw new GrpcException(Status.ABORTED, e.message, 400);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 
@@ -146,7 +155,11 @@ export class PrimeFundsTransferManager {
         created_at: transferFundsResponse.data.data.attributes['created-at'],
       };
     } catch (e) {
-      throw new GrpcException(Status.ABORTED, e.response.data.errors[0].detail, 400);
+      if (e instanceof PrimeTrustException) {
+        throw new GrpcException(Status.ABORTED, e.message, 400);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 
@@ -202,7 +215,11 @@ export class PrimeFundsTransferManager {
     } catch (e) {
       this.logger.error(e.response.data);
 
-      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+      if (e instanceof PrimeTrustException) {
+        throw new GrpcException(Status.ABORTED, e.message, 400);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 
