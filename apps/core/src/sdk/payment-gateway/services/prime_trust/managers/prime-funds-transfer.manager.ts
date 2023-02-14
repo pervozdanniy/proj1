@@ -51,54 +51,146 @@ export class PrimeFundsTransferManager {
     this.app_domain = domain;
   }
 
-  async transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
-    try {
-      const { sender_id, receiver_id, amount } = request;
-      const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: sender_id });
-      const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: receiver_id });
-      const formData = {
-        data: {
-          type: 'account-cash-transfers',
-          attributes: {
-            amount,
-            'from-account-id': fromAccountId,
-            'to-account-id': toAccountId,
-          },
+  async convertUSDtoAsset(account_id: string, amount: string) {
+    const formData = {
+      data: {
+        type: 'quotes',
+        attributes: {
+          'account-id': account_id,
+          'asset-id': 'ecca8bab-dcb2-419a-973e-aebc39ff4f03',
+          'transaction-type': 'buy',
+          amount,
         },
-      };
-      const transferFundsResponse = await this.httpService.request({
+      },
+    };
+    try {
+      const quoteResponse = await this.httpService.request({
         method: 'post',
-        url: `${this.prime_trust_url}/v2/account-cash-transfers?include=from-account-cash-totals,to-account-cash-totals`,
+        url: `${this.prime_trust_url}/v2/quotes`,
         data: formData,
       });
 
-      const payload = {
-        sender_id,
-        receiver_id,
-        uuid: transferFundsResponse.data.data.id,
-        currency_type: transferFundsResponse.data.data.attributes['currency-type'],
-        status: transferFundsResponse.data.data.attributes['status'],
-        amount: transferFundsResponse.data.data.attributes['amount'],
-        created_at: transferFundsResponse.data.data.attributes['created-at'],
-      };
-
-      await this.transferFundsEntityRepository.save(this.transferFundsEntityRepository.create(payload));
-      await this.createTransferFundsNotification(
-        sender_id,
-        `Sending ${payload.amount} ${payload.currency_type} ${payload.status}`,
-      );
-
-      await this.createTransferFundsNotification(
-        receiver_id,
-        `Received ${payload.amount} ${payload.currency_type} ${payload.status}`,
-      );
+      const quote = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/quotes/${quoteResponse.data.data.id}/execute`,
+        data: null,
+      });
 
       return {
-        data: payload,
+        base_amount: quote.data.data.attributes['base-amount'],
+        fee_amount: quote.data.data.attributes['fee-amount'],
+        total_amount: quote.data.data.attributes['total-amount'],
+        unit_count: quote.data.data.attributes['unit-count'],
       };
     } catch (e) {
       throw new GrpcException(Status.ABORTED, e.response.data.errors[0].detail, 400);
     }
+  }
+
+  async convertAssetToUSD(account_id: string, amount: string) {
+    const formData = {
+      data: {
+        type: 'quotes',
+        attributes: {
+          'account-id': account_id,
+          'asset-id': 'ecca8bab-dcb2-419a-973e-aebc39ff4f03',
+          'transaction-type': 'sell',
+          amount,
+        },
+      },
+    };
+    try {
+      const quoteResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/quotes`,
+        data: formData,
+      });
+
+      await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/quotes/${quoteResponse.data.data.id}/execute`,
+        data: null,
+      });
+    } catch (e) {
+      throw new GrpcException(Status.ABORTED, e.response.data.errors[0].detail, 400);
+    }
+  }
+
+  async sendFunds(fromAccountId, toAccountId, unit_count) {
+    try {
+      const formData = {
+        data: {
+          type: 'internal-asset-transfers',
+          attributes: {
+            'unit-count': unit_count,
+            'asset-id': 'ecca8bab-dcb2-419a-973e-aebc39ff4f03',
+            'from-account-id': fromAccountId,
+            'to-account-id': toAccountId,
+            reference: 'For Trade Settlement',
+          },
+        },
+      };
+
+      const transferFundsResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/internal-asset-transfers`,
+        data: formData,
+      });
+
+      return {
+        uuid: transferFundsResponse.data.data.id,
+        status: transferFundsResponse.data.data.attributes['status'],
+        created_at: transferFundsResponse.data.data.attributes['created-at'],
+      };
+    } catch (e) {
+      throw new GrpcException(Status.ABORTED, e.response.data.errors[0].detail, 400);
+    }
+  }
+
+  async transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
+    const { sender_id, receiver_id, amount } = request;
+    const { settled } = await this.primeTrustBalanceEntityRepository.findOneByOrFail({ user_id: sender_id });
+    if (parseFloat(settled) < parseFloat(amount) * 1.02) {
+      throw new GrpcException(Status.ABORTED, 'Not enough money for transfer!', 400);
+    }
+
+    const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: sender_id });
+    const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: receiver_id });
+
+    const { base_amount, fee_amount, total_amount, unit_count } = await this.convertUSDtoAsset(fromAccountId, amount);
+
+    const { uuid, status, created_at } = await this.sendFunds(fromAccountId, toAccountId, unit_count);
+
+    await this.convertAssetToUSD(toAccountId, amount);
+
+    const payload = {
+      sender_id,
+      receiver_id,
+      uuid,
+      currency_type: 'USD',
+      status,
+      amount,
+      created_at,
+      base_amount,
+      fee_amount,
+      total_amount,
+      unit_count,
+    };
+
+    await this.transferFundsEntityRepository.save(this.transferFundsEntityRepository.create(payload));
+    await this.createTransferFundsNotification(
+      sender_id,
+      `Sending ${payload.amount} ${payload.currency_type} ${payload.status}`,
+    );
+
+    await this.createTransferFundsNotification(
+      receiver_id,
+      `Received ${payload.amount} ${payload.currency_type} ${payload.status}`,
+    );
+
+    return {
+      data: payload,
+    };
   }
 
   async getBalanceInfo(account_uuid: string) {

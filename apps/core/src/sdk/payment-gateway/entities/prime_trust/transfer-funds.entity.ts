@@ -27,6 +27,15 @@ export class TransferFundsEntity {
   amount: string;
 
   @Column('character varying', { length: 50, nullable: true })
+  fee_amount: string;
+
+  @Column('character varying', { length: 50, nullable: true })
+  total_amount: string;
+
+  @Column('character varying', { length: 50, nullable: true })
+  unit_count: string;
+
+  @Column('character varying', { length: 50, nullable: true })
   currency_type: string;
 
   @Column('character varying', { length: 50, nullable: true })
