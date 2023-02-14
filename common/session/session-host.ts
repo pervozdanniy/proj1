@@ -1,14 +1,16 @@
 import { Logger } from '@nestjs/common';
-import { SessionService } from './session.service';
+import crypto from 'node:crypto';
+import { SessionInterface } from './interfaces/session.interface';
+import { RedisStore } from './redis.store';
 
-export type SessionProxy<T> = SessionHost<T> & T;
+export type SessionProxy<T = SessionInterface> = SessionHost<T> & T;
 
-export const sessionProxyFactory = <T extends Record<PropertyKey, any>>(
-  session: SessionService<T>,
+export const sessionProxyFactory = <T extends Record<PropertyKey, unknown>>(
+  store: RedisStore,
   id: string,
-  data: T,
+  data?: string,
 ): SessionProxy<T> => {
-  const host = new SessionHost(session, id, data);
+  const host = new SessionHost(store, id, data);
 
   return new Proxy(host, {
     get(target, p) {
@@ -34,43 +36,50 @@ export const sessionProxyFactory = <T extends Record<PropertyKey, any>>(
   }) as SessionHost<T> & T;
 };
 
-export class SessionHost<T extends Record<string, any> = Record<string, any>> {
-  private modified = false;
+export class SessionHost<T extends Record<string, any> = Record<PropertyKey, unknown>> {
+  private origHash: string;
+  private data: T;
 
   private logger = new Logger(SessionHost.name);
 
-  constructor(private readonly session: SessionService<T>, private id: string, private data: T) {}
-
-  get sessionId() {
-    return this.id;
+  constructor(private readonly store: RedisStore, private sessionId: string, data: string) {
+    this.origHash = this.hash(data);
+    this.data = JSON.parse(data);
   }
 
-  get isModified() {
-    return this.modified;
+  private hash(data: string) {
+    return crypto.createHash('sha1').update(data, 'utf8').digest('hex');
   }
 
-  async regenerate() {
-    await this.session.destroy(this.id);
-    this.id = await this.session.generate();
+  private isModified(data: string) {
+    return this.hash(data) !== this.origHash;
+  }
+
+  get id() {
+    return this.sessionId;
   }
 
   async destroy() {
-    await this.session.destroy(this.id);
+    await this.store.destroy(this.sessionId);
     for (const key in this.data) {
       delete this.data[key];
     }
-    this.modified = false;
   }
 
   async reload() {
-    this.data = await this.session.get(this.id);
-    this.modified = false;
+    const data = await this.store.get(this.sessionId);
+    this.origHash = this.hash(data);
+    this.data = JSON.parse(data);
   }
 
-  async save() {
+  async save(force = false) {
+    const data = JSON.stringify(this.data);
+    if (!force && !this.isModified(data)) {
+      return false;
+    }
     try {
-      await this.session.set(this.id, this.data);
-      this.modified = false;
+      await this.store.set(this.sessionId, data);
+      this.origHash = this.hash(data);
 
       return true;
     } catch (error) {
@@ -89,12 +98,14 @@ export class SessionHost<T extends Record<string, any> = Record<string, any>> {
   }
 
   set<K extends keyof T>(prop: K, value: T[K]) {
-    this.modified = true;
     this.data[prop] = value;
   }
 
   delete(prop: keyof T) {
-    this.modified = true;
     delete this.data[prop];
+  }
+
+  getData() {
+    return this.data;
   }
 }

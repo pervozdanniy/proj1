@@ -2,7 +2,7 @@ import { status } from '@grpc/grpc-js';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
 import { PreRegisteredSessionInterface } from '~common/constants/auth';
-import { GrpcSession, GrpcSessionAuth, GrpcSessionId, SessionInterface, SessionProxy } from '~common/grpc-session';
+import { GrpcSession, GrpcSessionAuth, SessionInterface, SessionProxy } from '~common/grpc-session';
 import {
   AuthData,
   AuthServiceController,
@@ -34,9 +34,9 @@ export class AuthApiController implements AuthServiceController {
   registerVerify(
     @Payload() request: TwoFactorCode,
     _metadata,
-    @GrpcSessionId() sessionId?: string,
+    @GrpcSession() session?: SessionProxy,
   ): Promise<TwoFactorVerificationResponse> {
-    return this.authService.registerVerify(request, sessionId);
+    return this.authService.registerVerify(request, session);
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
@@ -63,11 +63,7 @@ export class AuthApiController implements AuthServiceController {
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
-  async logout(
-    _request: Empty,
-    _metadata,
-    @GrpcSession() session?: SessionProxy<SessionInterface>,
-  ): Promise<SuccessResponse> {
+  async logout(_request: Empty, _metadata, @GrpcSession() session?: SessionProxy): Promise<SuccessResponse> {
     return this.authService.logout(session);
   }
 }

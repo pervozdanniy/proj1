@@ -65,25 +65,17 @@ export class AuthService implements OnModuleInit {
     return firstValueFrom(this.userService.create(payload));
   }
 
-  async generateSession(data: SessionInterface) {
-    const sessionId = await this.session.generate();
-    await this.session.set(sessionId, data);
+  async createSession<T extends SessionInterface>(data: T) {
+    const session = await this.session.generate<T>(data);
+    await session.save(true);
 
-    return sessionId;
+    return session;
   }
 
   async login(user: User) {
-    const session = { user };
-    const sessionId = await this.generateSession(session);
+    const session: SessionInterface<User> = { user };
 
-    return {
-      sessionId,
-      session,
-    };
-  }
-
-  logout(sessionId: string) {
-    return this.session.destroy(sessionId);
+    return this.createSession(session);
   }
 
   generateToken(sessionId: string) {

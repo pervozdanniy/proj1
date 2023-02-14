@@ -1,19 +1,15 @@
 import { Auth2FAService } from '@/auth-2fa/2fa.service';
 import { AuthService } from '@/auth/auth.service';
 import { ConflictException, Injectable } from '@nestjs/common';
-import { PreRegisteredSessionInterface, register } from '~common/constants/auth';
+import { isPreRegistered, PreRegisteredSessionInterface, register } from '~common/constants/auth';
 import { UserSourceEnum } from '~common/constants/user';
-import { SessionInterface, SessionProxy, SessionService } from '~common/grpc-session';
+import { SessionProxy } from '~common/grpc-session';
 import { AuthData, RegisterFinishRequest, RegisterStartRequest, TwoFactorCode } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
 
 @Injectable()
 export class AuthApiService {
-  constructor(
-    private readonly auth: AuthService,
-    private readonly auth2FA: Auth2FAService,
-    private readonly session: SessionService<PreRegisteredSessionInterface>,
-  ) {}
+  constructor(private readonly auth: AuthService, private readonly auth2FA: Auth2FAService) {}
 
   async validateUser(login: string, pass: string): Promise<User | null> {
     return this.auth.validateUser(login, pass);
@@ -28,19 +24,13 @@ export class AuthApiService {
   }
 
   async login(user: User) {
-    const { sessionId, session } = await this.auth.login(user);
+    const session = await this.auth.login(user);
+    const token = await this.auth.generateToken(session.id);
 
-    const token = await this.auth.generateToken(sessionId);
-    const resp: AuthData = { access_token: token };
-    const methods = await this.auth2FA.requireIfEnabled(sessionId, session);
-    if (methods.length) {
-      resp.verify = { type: '2FA', methods };
-    }
-
-    return resp;
+    return { access_token: token };
   }
 
-  async logout(session: SessionProxy<SessionInterface>) {
+  async logout(session: SessionProxy) {
     try {
       await session.destroy();
 
@@ -56,12 +46,11 @@ export class AuthApiService {
       throw new ConflictException('User with same phone or email already exists');
     }
 
-    const session: PreRegisteredSessionInterface = { register: payload };
-    const sessionId = await this.auth.generateSession(session);
-
-    const token = await this.auth.generateToken(sessionId);
+    const session = await this.auth.createSession<PreRegisteredSessionInterface>({ register: payload });
+    const token = await this.auth.generateToken(session.id);
     const resp: AuthData = { access_token: token };
-    const methods = await this.auth2FA.requireConfirmation(sessionId, session);
+
+    const methods = await this.auth2FA.requireConfirmation(session);
     if (methods.length) {
       resp.verify = { type: 'Registration confirmation', methods };
     }
@@ -69,14 +58,20 @@ export class AuthApiService {
     return resp;
   }
 
-  async registerVerify(payload: TwoFactorCode, sessionId: string) {
-    return this.auth2FA.verifyOne(payload, sessionId);
+  async registerVerify(payload: TwoFactorCode, session: SessionProxy) {
+    if (!isPreRegistered(session)) {
+      throw new ConflictException('Registration process was not stated');
+    }
+
+    return this.auth2FA.verifyOne(payload, session);
   }
 
-  async registerFinish(payload: RegisterFinishRequest, session: SessionProxy<PreRegisteredSessionInterface>) {
+  async registerFinish(payload: RegisterFinishRequest, session: SessionProxy) {
+    if (!isPreRegistered(session)) {
+      throw new ConflictException('Registration process was not stated');
+    }
     const user = await this.auth.createUser({ ...payload, ...session.register, source: UserSourceEnum.Api });
     register(session, user);
-    await session.save();
 
     return user;
   }

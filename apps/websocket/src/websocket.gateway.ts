@@ -48,9 +48,10 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayDisconnect {
       } catch (err) {
         return next(new WsException(err.message));
       }
-      const session = await this.session.get(payload.sub);
+      const proxy = await this.session.get(payload.sub);
+      bind(proxy, socket.id);
 
-      socket.data.session = sessionProxyFactory(this.session, payload.sub, bind(session, socket.id));
+      socket.data.session = proxy;
       socket.data.session.save();
 
       return next();

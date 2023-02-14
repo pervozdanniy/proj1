@@ -77,8 +77,8 @@ export class ClientService {
       user.source === client.name &&
       (client.is_secure || (await bcrypt.compare(payload.password, user.password)))
     ) {
-      const { sessionId } = await this.auth.login(user);
-      const token = await this.auth.generateToken(sessionId);
+      const session = await this.auth.login(user);
+      const token = await this.auth.generateToken(session.id);
 
       return { access_token: token };
     }

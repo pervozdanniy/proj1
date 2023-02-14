@@ -1,6 +1,6 @@
 import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
-import { GrpcSession, GrpcSessionAuth, GrpcSessionId, SessionInterface, SessionProxy } from '~common/grpc-session';
+import { GrpcSession, GrpcSessionAuth, SessionProxy } from '~common/grpc-session';
 import {
   TwoFactorEnabledMethodsResponse,
   TwoFactorRequireResponse,
@@ -12,21 +12,36 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { Auth2FAService } from '../../auth-2fa/2fa.service';
-import { DisableRequestDto, EnableRequestDto, TwoFactorCodeDto, VerifyRequestDto } from '../dto/2fa.dto';
+import {
+  DisableRequestDto,
+  EnableRequestDto,
+  ResendRequestDto,
+  TwoFactorCodeDto,
+  VerifyRequestDto,
+} from '../dto/2fa.dto';
 
 @RpcController()
 @TwoFactorServiceControllerMethods()
 export class TwoFactorController implements TwoFactorServiceController {
   constructor(private readonly auth2FA: Auth2FAService) {}
+  async resend(
+    @Payload() { method }: ResendRequestDto,
+    _metadata,
+    @GrpcSession() session?: SessionProxy,
+  ): Promise<SuccessResponse> {
+    try {
+      await this.auth2FA.resend(method, session);
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
-  async require(
-    _data: Empty,
-    _metadata,
-    @GrpcSession() session?: SessionProxy<SessionInterface>,
-  ): Promise<TwoFactorRequireResponse> {
+  async require(_data: Empty, _metadata, @GrpcSession() session?: SessionProxy): Promise<TwoFactorRequireResponse> {
     try {
-      const methods = await this.auth2FA.requireOrFail(session.sessionId, session);
+      const methods = await this.auth2FA.requireOrFail(session);
 
       return { required: { methods } };
     } catch (error) {
@@ -35,11 +50,7 @@ export class TwoFactorController implements TwoFactorServiceController {
   }
 
   @GrpcSessionAuth()
-  async list(
-    _data: Empty,
-    _metadata,
-    @GrpcSession() session?: SessionInterface,
-  ): Promise<TwoFactorEnabledMethodsResponse> {
+  async list(_data: Empty, _metadata, @GrpcSession() session?: SessionProxy): Promise<TwoFactorEnabledMethodsResponse> {
     const methods = await this.auth2FA.getEnabled(session.user.id);
 
     return { methods };
@@ -50,9 +61,9 @@ export class TwoFactorController implements TwoFactorServiceController {
   async enable(
     @Payload() { settings }: EnableRequestDto,
     _metadata,
-    @GrpcSessionId() sessionId?: string,
+    @GrpcSession() session?: SessionProxy,
   ): Promise<SuccessResponse> {
-    await this.auth2FA.enable(settings, sessionId);
+    await this.auth2FA.enable(settings, session);
 
     return { success: true };
   }
@@ -62,9 +73,9 @@ export class TwoFactorController implements TwoFactorServiceController {
   async disable(
     @Payload() { methods }: DisableRequestDto,
     _metadata,
-    @GrpcSessionId() sessionId?: string,
+    @GrpcSession() session?: SessionProxy,
   ): Promise<SuccessResponse> {
-    await this.auth2FA.disable(methods, sessionId);
+    await this.auth2FA.disable(methods, session);
 
     return { success: true };
   }
@@ -74,9 +85,9 @@ export class TwoFactorController implements TwoFactorServiceController {
   verify(
     @Payload() data: VerifyRequestDto,
     _metadata,
-    @GrpcSessionId() sessionId?: string,
+    @GrpcSession() session?: SessionProxy,
   ): Promise<TwoFactorVerificationResponse> {
-    return this.auth2FA.verify(data.codes, sessionId);
+    return this.auth2FA.verify(data.codes, session);
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
@@ -84,8 +95,8 @@ export class TwoFactorController implements TwoFactorServiceController {
   verifyOne(
     @Payload() request: TwoFactorCodeDto,
     _metadata,
-    @GrpcSessionId() sessionId?: string,
+    @GrpcSession() session?: SessionProxy,
   ): Promise<TwoFactorVerificationResponse> {
-    return this.auth2FA.verifyOne(request, sessionId);
+    return this.auth2FA.verifyOne(request, session);
   }
 }
