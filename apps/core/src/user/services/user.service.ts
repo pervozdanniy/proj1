@@ -1,5 +1,6 @@
 import { CountryEntity } from '@/country/entities/country.entity';
 import { CountryService } from '@/country/services/country.service';
+import { UserCheckService } from '@/user/services/user-check.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,7 +22,7 @@ export class UserService {
 
     @InjectRepository(UserDetailsEntity)
     private userDetailsRepository: Repository<UserDetailsEntity>,
-
+    private userCheckService: UserCheckService,
     private countryService: CountryService,
   ) {}
 
@@ -30,7 +31,9 @@ export class UserService {
   }
 
   async create({ details, ...userData }: Omit<CreateRequestDto, 'contacts'>): Promise<UserEntity> {
-    const { country_id, source } = userData;
+    const { country_id, source, phone, email } = userData;
+    await this.userCheckService.checkUserData(phone, email);
+
     if (!source) {
       const country = await this.countryEntityRepository.findOneBy({ id: country_id });
       if (!country) {

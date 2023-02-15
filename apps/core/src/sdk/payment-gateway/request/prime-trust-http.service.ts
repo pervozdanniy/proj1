@@ -1,3 +1,4 @@
+import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
@@ -55,6 +56,10 @@ export class PrimeTrustHttpService {
           config = this.createConfig(config, token);
 
           return _retry(attempts - 1);
+        }
+
+        if (error.response) {
+          throw new PrimeTrustException(error.response);
         }
 
         throw error;

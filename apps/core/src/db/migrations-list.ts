@@ -1,3 +1,5 @@
+import { AlterCardResourceTable1676270704886 } from '@/db/migrations/1676270704886-AlterCardResourceTable';
+import { AlterTransferFundsTable1676353129263 } from '@/db/migrations/1676353129263-AlterTransferFundsTable';
 import { CreateCountriesTable1671025190389 } from '~svc/core/src/db/migrations/1671085183650-CreateCountriesTable';
 import { AlterUsersTable1671025295745 } from '~svc/core/src/db/migrations/1671085206872-AlterUsersTable';
 import { CreatePrimeTrustTable1671090646320 } from '~svc/core/src/db/migrations/1671090646320-CreatePrimeTrustTable';
@@ -58,4 +60,6 @@ export default [
   CreateDepositParamsTable1675752900884,
   AddPhoneUniqueContraint1675781764778,
   MakeUserPhoneNullable1675855993341,
+  AlterCardResourceTable1676270704886,
+  AlterTransferFundsTable1676353129263,
 ];

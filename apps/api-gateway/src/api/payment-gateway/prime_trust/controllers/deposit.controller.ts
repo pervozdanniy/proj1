@@ -1,4 +1,5 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
+import { ResourceDto } from '@/api/payment-gateway/prime_trust/dtos/resource.dto';
 import {
   ContributionResponseDTO,
   CreditCardResourceResponseDTO,
@@ -6,7 +7,16 @@ import {
   DepositResponseDTO,
   SuccessResponseDTO,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
-import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { CardResourceDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/card-resource.dto';
@@ -97,5 +107,25 @@ export class DepositController {
   @Post('/contribution')
   async makeContribution(@JwtSessionUser() { id }: User, @Body() payload: MakeContributionDto) {
     return this.paymentGatewayService.makeContribution({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Get Deposit by id.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @JwtSessionAuth()
+  @Get('/')
+  async getDepositById(@JwtSessionUser() { id }: User, @Query() query: ResourceDto) {
+    return this.paymentGatewayService.getDepositById({ id, resource_id: query.resource_id });
+  }
+
+  @ApiOperation({ summary: 'Get Deposit Params' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @JwtSessionAuth()
+  @Get('/params')
+  async getDepositParams(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getDepositParams({ id });
   }
 }

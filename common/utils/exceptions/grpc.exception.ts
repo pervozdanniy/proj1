@@ -54,6 +54,7 @@ export class GrpcException extends RpcException {
 
   constructor(code: status, message: string, error_code?: number, metadata?: Metadata) {
     super({ message, code, error_code });
+    console.log(code);
     this.code = code;
     this.details = message;
     this.metadata = metadata;

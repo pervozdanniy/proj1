@@ -6,17 +6,59 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
-export interface Transfer {
-  to: string;
-  from: string;
+export interface WithdrawalDataResponse {
+  id: number;
+  params_id: number;
+  uuid: string;
   amount: string;
   currency_type: string;
   status: string;
   created_at: string;
 }
 
+export interface DepositParamsResponse {
+  data: DepositParam[];
+}
+
+export interface DepositParam {
+  id: number;
+  transfer_method_id: string;
+  bank_account_number: string;
+  routing_number: string;
+  funds_transfer_type: string;
+  bank_account_name: string;
+}
+
+export interface DepositDataResponse {
+  id: number;
+  uuid: string;
+  amount: string;
+  currency_type: string;
+  contributor_email: string;
+  contributor_name: string;
+  funds_transfer_type: string;
+  deposit_param_id?: number | undefined;
+  card_resource_id?: number | undefined;
+}
+
+export interface TransactionResponse {
+  data: Transaction[];
+}
+
+export interface Transaction {
+  id: number;
+  title: string;
+  url: string;
+  created_at: string;
+}
+
 export interface TransferResponse {
-  data: Transfer[];
+  to: string;
+  from: string;
+  amount: string;
+  currency_type: string;
+  status: string;
+  created_at: string;
 }
 
 export interface ContactResponse {
@@ -41,7 +83,7 @@ export interface DocumentResponse {
   document_id: string;
 }
 
-export interface DepositParams {
+export interface DepositParamRequest {
   id: number;
   bank_account_id: number;
   funds_transfer_type: string;
@@ -96,7 +138,7 @@ export interface CreditCardsResponse {
 }
 
 export interface CreditCard {
-  uuid: string;
+  id: string;
   transfer_method_id: string;
   credit_card_bin: string;
   credit_card_type: string;
@@ -104,6 +146,7 @@ export interface CreditCard {
   created_at: string;
   updated_at: string;
   status: string;
+  uuid: string;
 }
 
 export interface VerifyCreditCardRequest {
@@ -121,6 +164,7 @@ export interface WithdrawalsDataResponse {
 }
 
 export interface Withdrawal {
+  id: number;
   transfer_method_id: string;
   bank_account_number: string;
   routing_number: string;
@@ -196,6 +240,7 @@ export interface UploadDocumentRequest {
 
 export interface UserIdRequest {
   id: number;
+  resource_id?: number | undefined;
 }
 
 export interface PG_Token {
@@ -233,9 +278,17 @@ export interface PaymentGatewayServiceClient {
 
   getBalance(request: UserIdRequest, metadata?: Metadata): Observable<BalanceResponse>;
 
-  getTransfers(request: UserIdRequest, metadata?: Metadata): Observable<TransferResponse>;
+  getTransferById(request: UserIdRequest, metadata?: Metadata): Observable<TransferResponse>;
+
+  getDepositById(request: UserIdRequest, metadata?: Metadata): Observable<DepositDataResponse>;
+
+  getWithdrawalById(request: UserIdRequest, metadata?: Metadata): Observable<WithdrawalDataResponse>;
+
+  getTransactions(request: UserIdRequest, metadata?: Metadata): Observable<TransactionResponse>;
 
   getWithdrawalParams(request: UserIdRequest, metadata?: Metadata): Observable<WithdrawalsDataResponse>;
+
+  getDepositParams(request: UserIdRequest, metadata?: Metadata): Observable<DepositParamsResponse>;
 
   updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
 
@@ -261,7 +314,7 @@ export interface PaymentGatewayServiceClient {
 
   makeContribution(request: MakeContributionRequest, metadata?: Metadata): Observable<ContributionResponse>;
 
-  addDepositParams(request: DepositParams, metadata?: Metadata): Observable<DepositResponse>;
+  addDepositParams(request: DepositParamRequest, metadata?: Metadata): Observable<DepositResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -322,15 +375,35 @@ export interface PaymentGatewayServiceController {
     metadata?: Metadata,
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 
-  getTransfers(
+  getTransferById(
     request: UserIdRequest,
     metadata?: Metadata,
   ): Promise<TransferResponse> | Observable<TransferResponse> | TransferResponse;
+
+  getDepositById(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<DepositDataResponse> | Observable<DepositDataResponse> | DepositDataResponse;
+
+  getWithdrawalById(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<WithdrawalDataResponse> | Observable<WithdrawalDataResponse> | WithdrawalDataResponse;
+
+  getTransactions(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
 
   getWithdrawalParams(
     request: UserIdRequest,
     metadata?: Metadata,
   ): Promise<WithdrawalsDataResponse> | Observable<WithdrawalsDataResponse> | WithdrawalsDataResponse;
+
+  getDepositParams(
+    request: UserIdRequest,
+    metadata?: Metadata,
+  ): Promise<DepositParamsResponse> | Observable<DepositParamsResponse> | DepositParamsResponse;
 
   updateBalance(
     request: AccountIdRequest,
@@ -393,7 +466,7 @@ export interface PaymentGatewayServiceController {
   ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
 
   addDepositParams(
-    request: DepositParams,
+    request: DepositParamRequest,
     metadata?: Metadata,
   ): Promise<DepositResponse> | Observable<DepositResponse> | DepositResponse;
 }
@@ -413,8 +486,12 @@ export function PaymentGatewayServiceControllerMethods() {
       "cipCheck",
       "createReference",
       "getBalance",
-      "getTransfers",
+      "getTransferById",
+      "getDepositById",
+      "getWithdrawalById",
+      "getTransactions",
       "getWithdrawalParams",
+      "getDepositParams",
       "updateBalance",
       "updateContribution",
       "getBankAccounts",

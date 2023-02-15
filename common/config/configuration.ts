@@ -66,6 +66,9 @@ export interface ConfigInterface {
     customerId: string;
     apiKey: string;
   };
+  ipqualityscore: {
+    api_key: string;
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -142,5 +145,8 @@ export default (): ConfigInterface => ({
   telesign: {
     customerId: process.env.TELESIGN_CUSTOMER_ID,
     apiKey: process.env.TELESIGN_API_KEY,
+  },
+  ipqualityscore: {
+    api_key: process.env.IPQUALITYSCORE_KEY,
   },
 });

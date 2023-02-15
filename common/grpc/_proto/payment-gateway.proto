@@ -17,8 +17,12 @@ service PaymentGatewayService {
   rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateReference (UserIdRequest) returns (PrimeTrustData);
   rpc GetBalance (UserIdRequest) returns (BalanceResponse);
-  rpc GetTransfers (UserIdRequest) returns (TransferResponse);
+  rpc GetTransferById (UserIdRequest) returns (TransferResponse);
+  rpc GetDepositById (UserIdRequest) returns (DepositDataResponse);
+  rpc GetWithdrawalById (UserIdRequest) returns (WithdrawalDataResponse);
+  rpc GetTransactions (UserIdRequest) returns (TransactionResponse);
   rpc GetWithdrawalParams (UserIdRequest) returns (WithdrawalsDataResponse);
+  rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
   rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
@@ -31,21 +35,63 @@ service PaymentGatewayService {
   rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
   rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
-  rpc AddDepositParams (DepositParams) returns (DepositResponse);
+  rpc AddDepositParams (DepositParamRequest) returns (DepositResponse);
 
 }
 
-message Transfer {
+message WithdrawalDataResponse {
+  uint32 id = 1;
+  uint32 params_id = 2;
+  string uuid = 3;
+  string amount = 4;
+  string currency_type = 5;
+  string status = 6;
+  string created_at = 7;
+}
+
+message DepositParamsResponse{
+  repeated DepositParam data = 1;
+}
+
+message DepositParam {
+  uint32 id = 1;
+  string transfer_method_id = 2;
+  string bank_account_number = 3;
+  string routing_number = 4;
+  string funds_transfer_type = 5;
+  string bank_account_name = 6;
+}
+
+message DepositDataResponse {
+  uint32 id = 1;
+  string uuid = 2;
+  string amount = 3;
+  string currency_type = 4;
+  string contributor_email = 5;
+  string contributor_name = 6;
+  string funds_transfer_type = 7;
+  optional uint32 deposit_param_id = 8;
+  optional uint32 card_resource_id = 9;
+}
+
+message TransactionResponse {
+  repeated Transaction data = 1;
+}
+
+message Transaction {
+  uint32 id = 1;
+  string title = 2;
+  string url = 3;
+  string created_at = 4;
+}
+
+message TransferResponse {
   string to = 1;
   string from = 2;
   string amount = 3;
   string currency_type = 4;
   string status = 5;
   string created_at = 6;
-}
-
-message TransferResponse {
-  repeated Transfer data = 1;
 }
 
 message ContactResponse {
@@ -73,7 +119,7 @@ message DocumentResponse {
   string document_id = 1;
 }
 
-message DepositParams{
+message DepositParamRequest{
   uint32 id = 1;
   uint32 bank_account_id = 2;
   string funds_transfer_type = 3;
@@ -131,7 +177,7 @@ message CreditCardsResponse{
 }
 
 message CreditCard {
-  string uuid = 1;
+  string id = 1;
   string transfer_method_id = 2;
   string credit_card_bin = 3;
   string credit_card_type = 4;
@@ -139,6 +185,7 @@ message CreditCard {
   string created_at = 6;
   string updated_at = 7;
   string status = 8;
+  string uuid = 9;
 }
 
 message VerifyCreditCardRequest {
@@ -156,11 +203,12 @@ message WithdrawalsDataResponse{
 }
 
 message Withdrawal {
-  string transfer_method_id = 1;
-  string bank_account_number = 2;
-  string routing_number = 3;
-  string funds_transfer_type = 4;
-  string bank_account_name = 5;
+  uint32 id = 1;
+  string transfer_method_id = 2;
+  string bank_account_number = 3;
+  string routing_number = 4;
+  string funds_transfer_type = 5;
+  string bank_account_name = 6;
 }
 
 
@@ -237,6 +285,7 @@ message UploadDocumentRequest {
 
 message UserIdRequest{
   uint32 id = 1;
+  optional uint32 resource_id = 2;
 }
 
 message PG_Token {

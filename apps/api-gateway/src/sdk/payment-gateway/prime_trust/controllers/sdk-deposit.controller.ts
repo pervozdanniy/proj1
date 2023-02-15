@@ -1,4 +1,14 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
+import { ResourceDto } from '@/api/payment-gateway/prime_trust/dtos/resource.dto';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
@@ -16,6 +26,16 @@ import { SdkPaymentGatewayService } from '~svc/api-gateway/src/sdk/payment-gatew
 })
 export class SdkDepositController {
   constructor(private paymentGatewayService: SdkPaymentGatewayService) {}
+
+  @ApiOperation({ summary: 'Get Deposit by id.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @JwtSessionAuth()
+  @Get('/')
+  async getDepositById(@JwtSessionUser() { id }: User, @Query() query: ResourceDto) {
+    return this.paymentGatewayService.getDepositById({ id, resource_id: query.resource_id });
+  }
 
   @ApiOperation({ summary: 'Add Wire transfer reference.' })
   @ApiResponse({

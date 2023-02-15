@@ -6,7 +6,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BankAccountParams,
-  DepositParams,
+  DepositParamRequest,
   MakeContributionRequest,
   PaymentGatewayServiceClient,
   TransferFundsRequest,
@@ -131,11 +131,27 @@ export class PaymentGatewayService implements OnModuleInit {
   getContact(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getContact(data));
   }
-  addDepositParams(data: DepositParams) {
+  addDepositParams(data: DepositParamRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.addDepositParams(data));
   }
 
-  getTransfers(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getTransfers(data));
+  getDepositById(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getDepositById(data));
+  }
+
+  getWithdrawalById(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getWithdrawalById(data));
+  }
+
+  getTransactions(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getTransactions(data));
+  }
+
+  getTransferById(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getTransferById(data));
+  }
+
+  getDepositParams(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getDepositParams(data));
   }
 }

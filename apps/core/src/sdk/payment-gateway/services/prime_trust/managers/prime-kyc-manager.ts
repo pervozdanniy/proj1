@@ -1,3 +1,4 @@
+import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -88,7 +89,13 @@ export class PrimeKycManager {
 
       return await this.saveContact(contactResponse.data, userDetails.id);
     } catch (e) {
-      throw new GrpcException(Status.ABORTED, e.message, 400);
+      if (e instanceof PrimeTrustException) {
+        const { detail, code } = e.getFirstError();
+
+        throw new GrpcException(code, detail);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 
@@ -190,7 +197,13 @@ export class PrimeKycManager {
     } catch (e) {
       this.logger.error(e);
 
-      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+      if (e instanceof PrimeTrustException) {
+        const { detail, code } = e.getFirstError();
+
+        throw new GrpcException(code, detail);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 
@@ -215,7 +228,13 @@ export class PrimeKycManager {
     } catch (e) {
       this.logger.error(e.response.data);
 
-      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+      if (e instanceof PrimeTrustException) {
+        const { detail, code } = e.getFirstError();
+
+        throw new GrpcException(code, detail);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 
@@ -235,7 +254,13 @@ export class PrimeKycManager {
     } catch (e) {
       this.logger.error(e.message);
 
-      throw new GrpcException(Status.ABORTED, e.message, 400);
+      if (e instanceof PrimeTrustException) {
+        const { detail, code } = e.getFirstError();
+
+        throw new GrpcException(code, detail);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
 
     return { document_id: documentCheckResponse.id };
@@ -316,7 +341,13 @@ export class PrimeKycManager {
     } catch (e) {
       this.logger.error(e.response.data.errors[0]);
 
-      throw new GrpcException(Status.ABORTED, e.response.data.errors[0].details, 400);
+      if (e instanceof PrimeTrustException) {
+        const { detail, code } = e.getFirstError();
+
+        throw new GrpcException(code, detail);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 
@@ -353,7 +384,13 @@ export class PrimeKycManager {
     } catch (e) {
       this.logger.error(e.response.data);
 
-      throw new GrpcException(Status.ABORTED, e.response.data, 400);
+      if (e instanceof PrimeTrustException) {
+        const { detail, code } = e.getFirstError();
+
+        throw new GrpcException(code, detail);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
     }
   }
 

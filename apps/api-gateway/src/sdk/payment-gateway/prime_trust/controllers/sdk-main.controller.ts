@@ -1,3 +1,4 @@
+import { TransferFundsResponseDTO } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
   Body,
@@ -173,5 +174,16 @@ export class SdkMainController {
   @Post('/bank/account')
   async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
     return this.paymentGatewayService.addBankAccountParams({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Get all transactions.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: TransferFundsResponseDTO,
+  })
+  @JwtSessionAuth()
+  @Get('/transactions')
+  async getTransactions(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getTransactions({ id });
   }
 }
