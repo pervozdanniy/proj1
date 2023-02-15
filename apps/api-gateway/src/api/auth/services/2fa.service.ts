@@ -52,6 +52,13 @@ export class TwoFactorService implements OnModuleInit {
     return firstValueFrom(this.authClient.verify({ codes }, metadata));
   }
 
+  resend(method: TwoFactorMethod, sessionId: string) {
+    const metadata = new Metadata();
+    metadata.set('sessionId', sessionId);
+
+    return firstValueFrom(this.authClient.resend({ method }, metadata));
+  }
+
   async validateAuthResponse({ access_token, verify }: AuthData) {
     if (verify) {
       throw new HttpException(

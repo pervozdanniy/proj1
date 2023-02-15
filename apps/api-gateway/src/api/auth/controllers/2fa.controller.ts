@@ -6,6 +6,7 @@ import { TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
 import {
   TwoFactorDisableRequestDto,
   TwoFactorEnableRequestDto,
+  TwoFactorResendRequestDto,
   TwoFactorVerifyRequestDto,
 } from '../dto/2fa.request.dto';
 import { TwoFactorService } from '../services/2fa.service';
@@ -45,5 +46,14 @@ export class TwoFactorController {
   @Post('verify')
   verify(@Body() payload: TwoFactorVerifyRequestDto, @JwtSessionId() sessionId: string) {
     return this.twoFactor.verify(payload, sessionId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Resend 2FA code' })
+  @ApiOkResponse({ type: TwoFactorSuccessResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Post('resend')
+  resend(@Body() { method }: TwoFactorResendRequestDto, @JwtSessionId() sessionId: string) {
+    return this.twoFactor.resend(method, sessionId);
   }
 }

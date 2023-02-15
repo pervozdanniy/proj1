@@ -15,8 +15,6 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<GrpcOptions>(CoreModule, {
     transport: Transport.GRPC,
     options: {
-      // url: `0.0.0.0:${config.get('grpcServices.core.port', { infer: true })}`,
-
       url: '0.0.0.0:5000',
       package: 'skopa.core',
       loader: {
@@ -29,7 +27,6 @@ async function bootstrap() {
     },
     bufferLogs: true,
   });
-  // app.useLogger(app.get(Logger));
 
   return app.listen();
 }

@@ -83,3 +83,9 @@ export class DisableRequestDto implements TwoFactorDisableRequest {
   @IsEnum(TwoFactorMethod, { each: true })
   methods: TwoFactorMethod[];
 }
+
+export class ResendRequestDto implements TwoFactorSettings {
+  @IsNotEmpty()
+  @IsEnum(TwoFactorMethod)
+  method: TwoFactorMethod;
+}

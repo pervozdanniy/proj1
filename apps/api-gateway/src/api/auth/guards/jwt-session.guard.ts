@@ -45,7 +45,7 @@ export class JwtSessionGuard extends BaseGuard {
       throw new PreconditionFailedException('Verification is not completed');
     }
     if (options.require2FA && !is2FA(session)) {
-      const { error, required } = await this.twoFactor.require(session.sessionId);
+      const { error, required } = await this.twoFactor.require(session.id);
       if (error) {
         throw new ConflictException(error);
       }
