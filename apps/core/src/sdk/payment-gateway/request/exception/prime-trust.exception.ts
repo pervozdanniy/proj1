@@ -1,7 +1,32 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { AxiosResponse } from 'axios';
 
-export class PrimeTrustException extends HttpException {
-  constructor(message) {
-    super(message, HttpStatus.BAD_REQUEST);
+type PrimeTrustError = {
+  detail: string;
+  title: string;
+  code: number;
+};
+
+export class PrimeTrustException extends Error {
+  readonly errors: PrimeTrustError[];
+  public code: number;
+  constructor(response: AxiosResponse) {
+    super('Prime trust');
+    this.code = response.data.status;
+    this.errors = response.data.errors;
+  }
+
+  getFirstError() {
+    if (this.errors[0].detail === 'Initiator has insufficient funds') {
+      this.code = 409;
+    }
+
+    return {
+      detail: this.errors[0].detail,
+      code: this.code,
+    };
+  }
+
+  getCode() {
+    return this.code;
   }
 }

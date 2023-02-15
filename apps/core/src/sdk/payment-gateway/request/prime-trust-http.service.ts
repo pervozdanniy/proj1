@@ -59,7 +59,7 @@ export class PrimeTrustHttpService {
         }
 
         if (error.response) {
-          throw new PrimeTrustException(error.response.data.errors[0].detail);
+          throw new PrimeTrustException(error.response);
         }
 
         throw error;

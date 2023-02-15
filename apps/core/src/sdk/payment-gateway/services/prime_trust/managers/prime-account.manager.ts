@@ -132,7 +132,7 @@ export class PrimeAccountManager {
       this.logger.error(e.response.data.errors);
 
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
@@ -176,7 +176,7 @@ export class PrimeAccountManager {
       return account;
     } catch (e) {
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }

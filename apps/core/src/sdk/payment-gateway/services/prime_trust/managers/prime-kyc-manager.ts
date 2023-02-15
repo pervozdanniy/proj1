@@ -90,7 +90,7 @@ export class PrimeKycManager {
       return await this.saveContact(contactResponse.data, userDetails.id);
     } catch (e) {
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
@@ -196,7 +196,7 @@ export class PrimeKycManager {
       this.logger.error(e);
 
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
@@ -225,7 +225,7 @@ export class PrimeKycManager {
       this.logger.error(e.response.data);
 
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
@@ -249,7 +249,7 @@ export class PrimeKycManager {
       this.logger.error(e.message);
 
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
@@ -334,7 +334,7 @@ export class PrimeKycManager {
       this.logger.error(e.response.data.errors[0]);
 
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
@@ -375,7 +375,7 @@ export class PrimeKycManager {
       this.logger.error(e.response.data);
 
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }

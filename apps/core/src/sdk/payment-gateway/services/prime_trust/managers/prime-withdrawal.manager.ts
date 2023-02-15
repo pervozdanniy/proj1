@@ -126,7 +126,7 @@ export class PrimeWithdrawalManager {
       this.logger.error(e.response.data);
 
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
@@ -190,7 +190,7 @@ export class PrimeWithdrawalManager {
       this.logger.error(e.response.data);
 
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
@@ -239,7 +239,7 @@ export class PrimeWithdrawalManager {
       this.logger.error(e.response.data);
 
       if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, e.getFirstError().detail, e.getFirstError().code);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
