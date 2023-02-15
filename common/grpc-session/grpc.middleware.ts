@@ -14,25 +14,27 @@ export class GrpcSessionMiddleware implements GrpcServerInterceptor {
   constructor(private readonly session: SessionService<SessionInterface>) {}
 
   async use({ metadata, call }: GrpcInteceptorContext<any>, next: (err?: any) => Promise<void>) {
-    const value = metadata.get('sessionId');
+    let proxy: SessionProxy;
 
+    const value = metadata.get('sessionId');
     if (value.length) {
       const sessionId = value[0].toString();
-      let proxy: SessionProxy<SessionInterface>;
+
       try {
         proxy = await this.session.get(sessionId.toString());
       } catch (error) {
         this.logger.error('Session: fetch failed', error.stack, { sessionId, error });
       }
-
-      if (proxy) {
-        ActiveSessions.set(call, proxy);
-
-        return next().finally(() => {
-          proxy.save().catch((error) => this.logger.error('Session: persist failed', error.stack, { error }));
-        });
-      }
     }
+
+    if (!proxy) {
+      proxy = await this.session.generate();
+    }
+    ActiveSessions.set(call, proxy);
+
+    return next().finally(() => {
+      proxy.save().catch((error) => this.logger.error('Session: persist failed', error.stack, { error }));
+    });
 
     return next();
   }

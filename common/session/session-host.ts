@@ -14,8 +14,13 @@ export const sessionProxyFactory = <T extends Record<PropertyKey, unknown>>(
 
   return new Proxy(host, {
     get(target, p) {
-      if (Reflect.has(target, p)) {
-        return Reflect.get(target, p);
+      if (Reflect.has(host, p)) {
+        const own = Reflect.get(host, p);
+        if (typeof own === 'function') {
+          return own.bind(host);
+        }
+
+        return own;
       }
 
       return host.get(p);
@@ -42,9 +47,13 @@ export class SessionHost<T extends Record<string, any> = Record<PropertyKey, unk
 
   private logger = new Logger(SessionHost.name);
 
-  constructor(private readonly store: RedisStore, private sessionId: string, data: string) {
-    this.origHash = this.hash(data);
-    this.data = JSON.parse(data);
+  constructor(private readonly store: RedisStore, private sessionId: string, data?: string) {
+    if (data) {
+      this.origHash = this.hash(data);
+      this.data = JSON.parse(data);
+    } else {
+      this.data = {} as T;
+    }
   }
 
   private hash(data: string) {

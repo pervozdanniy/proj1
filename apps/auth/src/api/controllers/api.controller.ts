@@ -26,8 +26,12 @@ import { AuthApiService } from '../services/api.service';
 export class AuthApiController implements AuthServiceController {
   constructor(private readonly authService: AuthApiService, private readonly socialAuthService: ApiSocialsService) {}
 
-  registerStart(request: RegisterStartRequest): Promise<AuthData> {
-    return this.authService.registerStart(request);
+  registerStart(
+    @Payload() request: RegisterStartRequest,
+    _metadata,
+    @GrpcSession() session?: SessionProxy,
+  ): Promise<AuthData> {
+    return this.authService.registerStart(request, session);
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
@@ -49,17 +53,21 @@ export class AuthApiController implements AuthServiceController {
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async login(req: LoginRequestDto) {
+  async login(@Payload() req: LoginRequestDto, _metadata, @GrpcSession() session?: SessionProxy) {
     const user = await this.authService.validateUser(req.login, req.password);
     if (!user) {
       throw new GrpcException(status.UNAUTHENTICATED, 'Unauthentcated', 401);
     }
 
-    return this.authService.login(user);
+    return this.authService.login(user, session);
   }
 
-  loginSocials(request: SocialsAuthRequest): Promise<AuthData> {
-    return this.socialAuthService.loginSocials(request);
+  loginSocials(
+    @Payload() request: SocialsAuthRequest,
+    _metadata,
+    @GrpcSession() session?: SessionProxy,
+  ): Promise<AuthData> {
+    return this.socialAuthService.loginSocials(request, session);
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })

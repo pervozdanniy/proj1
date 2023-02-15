@@ -5,7 +5,7 @@ import jwt, { JwtPayload, VerifyOptions } from 'jsonwebtoken';
 import util from 'node:util';
 import { ExtractJwt } from 'passport-jwt';
 import { ConfigInterface } from '~common/config/configuration';
-import { SessionInterface, SessionProxy, SessionService, WithSession } from '~common/session';
+import { SessionInterface, SessionService, WithSession } from '~common/session';
 
 @Injectable()
 export class JwtSessionMiddleware implements NestMiddleware {
@@ -15,19 +15,23 @@ export class JwtSessionMiddleware implements NestMiddleware {
   ) {}
 
   use(req: WithSession<Request>, _res: Response, next: NextFunction) {
-    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
-    if (!token) {
-      return next();
-    }
-
-    let proxy: SessionProxy<SessionInterface> & SessionInterface;
     const nextCb = (err?: any) => {
       try {
-        return next(err);
+        return next(err ? new UnauthorizedException(err.message) : null);
       } finally {
-        proxy?.save();
+        req.session?.save();
       }
     };
+
+    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+    if (!token) {
+      return this.session
+        .generate()
+        .then((proxy) => {
+          req.session = proxy;
+        })
+        .then(nextCb, nextCb);
+    }
 
     util
       .promisify<string, string, VerifyOptions, JwtPayload>(jwt.verify)(
@@ -35,14 +39,11 @@ export class JwtSessionMiddleware implements NestMiddleware {
         this.config.get('auth.jwt.secret', { infer: true }),
         {},
       )
-      .then((payload) => payload.sub)
+      .then((payload) => payload.su1b)
       .then((sessionId) => this.session.get(sessionId))
       .then((proxy) => {
-        if (proxy) {
-          req.session = proxy;
-        }
+        req.session = proxy;
       })
-      .then(nextCb)
-      .catch((err) => nextCb(new UnauthorizedException(err.message)));
+      .then(nextCb, nextCb);
   }
 }

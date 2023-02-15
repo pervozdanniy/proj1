@@ -1,7 +1,7 @@
 import { Auth2FAService } from '@/auth-2fa/2fa.service';
 import { AuthService } from '@/auth/auth.service';
 import { ConflictException, Injectable } from '@nestjs/common';
-import { isPreRegistered, PreRegisteredSessionInterface, register } from '~common/constants/auth';
+import { finishRegistration, isPreRegistered, startRegistration } from '~common/constants/auth';
 import { UserSourceEnum } from '~common/constants/user';
 import { SessionProxy } from '~common/grpc-session';
 import { AuthData, RegisterFinishRequest, RegisterStartRequest, TwoFactorCode } from '~common/grpc/interfaces/auth';
@@ -23,9 +23,8 @@ export class AuthApiService {
     return this.auth.findUser(id);
   }
 
-  async login(user: User) {
-    const session = await this.auth.login(user);
-    const token = await this.auth.generateToken(session.id);
+  async login(user: User, session: SessionProxy) {
+    const token = await this.auth.login(user, session);
 
     return { access_token: token };
   }
@@ -40,17 +39,16 @@ export class AuthApiService {
     }
   }
 
-  async registerStart(payload: RegisterStartRequest) {
+  async registerStart(payload: RegisterStartRequest, session: SessionProxy) {
     const isUnique = await this.auth.checkIfUnique(payload);
     if (!isUnique) {
       throw new ConflictException('User with same phone or email already exists');
     }
 
-    const session = await this.auth.createSession<PreRegisteredSessionInterface>({ register: payload });
     const token = await this.auth.generateToken(session.id);
     const resp: AuthData = { access_token: token };
 
-    const methods = await this.auth2FA.requireConfirmation(session);
+    const methods = await this.auth2FA.requireConfirmation(startRegistration(session, payload));
     if (methods.length) {
       resp.verify = { type: 'Registration confirmation', methods };
     }
@@ -71,7 +69,7 @@ export class AuthApiService {
       throw new ConflictException('Registration process was not stated');
     }
     const user = await this.auth.createUser({ ...payload, ...session.register, source: UserSourceEnum.Api });
-    register(session, user);
+    const a = finishRegistration(session, user);
 
     return user;
   }
