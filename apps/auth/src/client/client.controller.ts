@@ -12,6 +12,7 @@ import {
 } from '~common/grpc/interfaces/auth';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { ClientService } from './client.service';
+import { ApiKey } from './decorators/api-key.decorator';
 import { SignedLoginRequestDto, UnsignedLoginRequestDto } from './dto/login.request.dto';
 
 @RpcController()
@@ -37,11 +38,11 @@ export class ClientController implements ClientServiceController {
 
   async login(
     @Payload() request: SignedRequest,
-    metdata: Metadata,
+    _metadata,
     @GrpcSession() session?: SessionProxy,
+    @ApiKey() apiKey?: string,
   ): Promise<AuthData> {
-    const [apiKey] = metdata.get('api-key');
-    const client = await this.clientService.validate(request, apiKey?.toString());
+    const client = await this.clientService.validate(request, apiKey);
     if (!client) {
       throw new UnauthorizedException();
     }
