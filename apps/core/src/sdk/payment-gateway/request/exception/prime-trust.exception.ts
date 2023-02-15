@@ -25,8 +25,4 @@ export class PrimeTrustException extends Error {
       code: this.code,
     };
   }
-
-  getCode() {
-    return this.code;
-  }
 }
