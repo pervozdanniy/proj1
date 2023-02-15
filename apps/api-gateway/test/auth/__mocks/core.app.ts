@@ -1,3 +1,4 @@
+import { UserCheckService } from '@/user/services/user-check.service';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
 import { Test } from '@nestjs/testing';
@@ -25,6 +26,12 @@ export default async (config: ConfigService<ConfigInterface>) => {
         provide: CountryService,
         useFactory: jest.fn(() => ({
           checkUSA: jest.fn(),
+        })),
+      },
+      {
+        provide: UserCheckService,
+        useFactory: jest.fn(() => ({
+          checkUserData: jest.fn(),
         })),
       },
       {
