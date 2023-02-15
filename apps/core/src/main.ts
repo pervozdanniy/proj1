@@ -16,6 +16,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       // url: `0.0.0.0:${config.get('grpcServices.core.port', { infer: true })}`,
+
       url: '0.0.0.0:5000',
       package: 'skopa.core',
       loader: {

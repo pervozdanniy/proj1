@@ -66,10 +66,13 @@ export interface ConfigInterface {
     customerId: string;
     apiKey: string;
   };
+  ipqualityscore: {
+    api_key: string;
+  };
 }
 
 export default (): ConfigInterface => ({
-  basePath: process.env.BASE_PATH,
+  basePath: process.cwd(),
   port: parseInt(process.env.PORT, 10) || 3000,
   database: {
     host: process.env.POSTGRES_HOST,
@@ -142,5 +145,8 @@ export default (): ConfigInterface => ({
   telesign: {
     customerId: process.env.TELESIGN_CUSTOMER_ID,
     apiKey: process.env.TELESIGN_API_KEY,
+  },
+  ipqualityscore: {
+    api_key: process.env.IPQUALITYSCORE_KEY,
   },
 });

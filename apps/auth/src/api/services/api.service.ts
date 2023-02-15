@@ -1,7 +1,7 @@
 import { Auth2FAService } from '@/auth-2fa/2fa.service';
 import { AuthService } from '@/auth/auth.service';
 import { ConflictException, Injectable } from '@nestjs/common';
-import { PreRegisteredSessionInterface } from '~common/constants/auth';
+import { PreRegisteredSessionInterface, register } from '~common/constants/auth';
 import { UserSourceEnum } from '~common/constants/user';
 import { SessionInterface, SessionProxy, SessionService } from '~common/grpc-session';
 import { AuthData, RegisterFinishRequest, RegisterStartRequest, TwoFactorCode } from '~common/grpc/interfaces/auth';
@@ -74,9 +74,9 @@ export class AuthApiService {
   }
 
   async registerFinish(payload: RegisterFinishRequest, session: SessionProxy<PreRegisteredSessionInterface>) {
-    await session.destroy();
-
     const user = await this.auth.createUser({ ...payload, ...session.register, source: UserSourceEnum.Api });
+    register(session, user);
+    await session.save();
 
     return user;
   }

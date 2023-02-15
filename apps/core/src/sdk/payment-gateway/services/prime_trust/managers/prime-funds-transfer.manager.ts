@@ -1,4 +1,6 @@
 import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
+import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
+import { SendFundsResponse, USDtoAssetResponse } from '@/sdk/payment-gateway/types/response';
 import { UserDetailsEntity } from '@/user/entities/user-details.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -37,6 +39,8 @@ export class PrimeFundsTransferManager {
 
     private readonly primeBankAccountManager: PrimeBankAccountManager,
 
+    private readonly primeBalanceManager: PrimeBalanceManager,
+
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
 
@@ -54,7 +58,7 @@ export class PrimeFundsTransferManager {
     this.app_domain = domain;
   }
 
-  async convertUSDtoAsset(account_id: string, amount: string) {
+  async convertUSDtoAsset(account_id: string, amount: string): Promise<USDtoAssetResponse> {
     const formData = {
       data: {
         type: 'quotes',
@@ -95,7 +99,7 @@ export class PrimeFundsTransferManager {
     }
   }
 
-  async convertAssetToUSD(account_id: string, amount: string) {
+  async convertAssetToUSD(account_id: string, amount: string): Promise<void> {
     const formData = {
       data: {
         type: 'quotes',
@@ -128,7 +132,7 @@ export class PrimeFundsTransferManager {
     }
   }
 
-  async sendFunds(fromAccountId, toAccountId, unit_count) {
+  async sendFunds(fromAccountId: string, toAccountId: string, unit_count: string): Promise<SendFundsResponse> {
     try {
       const formData = {
         data: {
@@ -204,25 +208,6 @@ export class PrimeFundsTransferManager {
     };
   }
 
-  async getBalanceInfo(account_uuid: string) {
-    try {
-      const cacheResponse = await this.httpService.request({
-        method: 'get',
-        url: `${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-cash-totals`,
-      });
-
-      return cacheResponse.data.included[0].attributes;
-    } catch (e) {
-      this.logger.error(e.response.data);
-
-      if (e instanceof PrimeTrustException) {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
-      } else {
-        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
-      }
-    }
-  }
-
   async createTransferFundsNotification(id: number, description: string) {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
@@ -232,7 +217,7 @@ export class PrimeFundsTransferManager {
       .getRawOne();
     const { account_id } = accountData;
 
-    const balanceData = await this.getBalanceInfo(account_id);
+    const balanceData = await this.primeBalanceManager.getBalanceInfo(account_id);
 
     const notificationPayload = {
       user_id: id,
