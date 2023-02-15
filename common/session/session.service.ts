@@ -1,29 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import uid from 'uid-safe';
 import { RedisStore } from './redis.store';
+import { SessionProxy, sessionProxyFactory } from './session-host';
 
 @Injectable()
-export class SessionService<T extends Record<string, any> = Record<string, any>> {
+export class SessionService<T extends Record<PropertyKey, any> = Record<PropertyKey, any>> {
   constructor(private readonly store: RedisStore) {}
 
-  generate() {
-    return uid(18);
+  async generate(): Promise<SessionProxy<T>> {
+    const id = await uid(18);
+
+    return sessionProxyFactory(this.store, id);
   }
 
-  async destroy(id: string) {
-    await this.store.destroy(id);
-  }
+  async get<U extends T>(id: string): Promise<SessionProxy<U>> {
+    const data = await this.store.get(id);
 
-  async get<U extends T>(id: string): Promise<U | null> {
-    const session = await this.store.get(id);
-    if (session) {
-      return JSON.parse(session);
-    }
-
-    return null;
-  }
-
-  async set(id: string, session: T) {
-    await this.store.set(id, JSON.stringify(session));
+    return sessionProxyFactory(this.store, id, data);
   }
 }

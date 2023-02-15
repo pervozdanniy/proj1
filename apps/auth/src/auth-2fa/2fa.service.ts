@@ -5,12 +5,11 @@ import {
   confirm2FA,
   confirm2FAMethod,
   is2FA,
-  PreRegisteredSessionInterface,
+  isPreRegistered,
   require2FA,
   TwoFactorConstraint,
-  TwoFactorSessionInterface,
 } from '~common/constants/auth';
-import { SessionInterface, SessionService } from '~common/grpc-session';
+import { SessionProxy } from '~common/grpc-session';
 import { BaseSettingsDto } from '../api/dto/2fa.dto';
 import { TwoFactorMethod, TwoFactorSettingsEntity } from '../entities/2fa_settings.entity';
 import { Notifier2FAService } from './notifier.service';
@@ -19,46 +18,54 @@ import { Notifier2FAService } from './notifier.service';
 export class Auth2FAService {
   constructor(
     @InjectRepository(TwoFactorSettingsEntity) private readonly settingsRepo: Repository<TwoFactorSettingsEntity>,
-    private readonly session: SessionService<SessionInterface | TwoFactorSessionInterface>,
     private readonly notify: Notifier2FAService,
   ) {}
 
-  async requireConfirmation(sessionId: string, session: PreRegisteredSessionInterface) {
+  private generate(settings: Array<{ method: TwoFactorMethod; destination?: string }>): TwoFactorConstraint[] {
+    return settings.map(({ method, destination }) => ({
+      method,
+      code: this.generateCode(),
+      destination,
+    }));
+  }
+
+  private generateCode() {
+    return Math.floor(100000 + Math.random() * 899999);
+  }
+
+  async requireConfirmation(session: SessionProxy) {
+    if (!isPreRegistered(session)) {
+      throw new ConflictException('Registration process was not stated');
+    }
     const codes = this.generate([
       { method: TwoFactorMethod.Sms, destination: session.register.phone },
       { method: TwoFactorMethod.Email, destination: session.register.email },
     ]);
-    await this.session.set(
-      sessionId,
-      require2FA(session, {
-        verify: codes,
-        expiresAt: Date.now() + 15 * 60 * 60 * 1000,
-      }),
-    );
-    this.notify.send(codes, sessionId);
+    require2FA(session, {
+      verify: codes,
+      expiresAt: Date.now() + 15 * 60 * 60 * 1000,
+    });
+    this.notify.send(codes, session.id);
 
     return [TwoFactorMethod.Email, TwoFactorMethod.Sms];
   }
 
-  async requireIfEnabled(sessionId: string, session: SessionInterface) {
+  async requireIfEnabled(session: SessionProxy) {
     const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
     if (enabled.length) {
       const codes = this.generate(enabled);
-      await this.session.set(
-        sessionId,
-        require2FA(session, {
-          verify: codes,
-          expiresAt: Date.now() + 15 * 60 * 60 * 1000,
-        }),
-      );
-      this.notify.send(codes, sessionId);
+      require2FA(session, {
+        verify: codes,
+        expiresAt: Date.now() + 15 * 60 * 60 * 1000,
+      });
+      this.notify.send(codes, session.id);
     }
 
     return enabled.map((s) => s.method);
   }
 
-  async requireOrFail(sessionId: string, session: SessionInterface) {
-    const enabled = await this.requireIfEnabled(sessionId, session);
+  async requireOrFail(session: SessionProxy) {
+    const enabled = await this.requireIfEnabled(session);
     if (enabled.length === 0) {
       throw new Error('No 2FA methods are enabled. Enable at least one to continue');
     }
@@ -72,59 +79,51 @@ export class Auth2FAService {
     return entities.map((e) => e.method);
   }
 
-  generateCode() {
-    return Math.floor(100000 + Math.random() * 899999);
-  }
-
-  private generate(settings: Array<{ method: TwoFactorMethod; destination?: string }>): TwoFactorConstraint[] {
-    return settings.map(({ method, destination }) => ({
-      method,
-      code: this.generateCode(),
-      destination,
-    }));
-  }
-
-  async enable(settings: BaseSettingsDto, sessionId: string) {
-    const session = await this.session.get<TwoFactorSessionInterface>(sessionId);
+  async enable(settings: BaseSettingsDto, session: SessionProxy) {
     const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
     const codes = this.generate(enabled);
     if (enabled.findIndex((s) => s.method === settings.method) >= 0) {
       throw new ConflictException(`Method ${settings.method} is already enabled`);
     }
 
-    await this.session.set(
-      sessionId,
-      require2FA(session, {
-        verify: codes,
-        add: { method: settings.method, destination: settings.destination, code: this.generateCode() },
-        expiresAt: Date.now() + 15 * 60 * 60 * 1000,
-      }),
-    );
-    this.notify.send([...codes, session.twoFactor.add], sessionId);
+    const { twoFactor } = require2FA(session, {
+      verify: codes,
+      add: { method: settings.method, destination: settings.destination, code: this.generateCode() },
+      expiresAt: Date.now() + 15 * 60 * 60 * 1000,
+    });
+    this.notify.send([...codes, twoFactor.add], session.id);
   }
 
-  async disable(methods: TwoFactorMethod[], sessionId: string) {
-    const session = await this.session.get(sessionId);
+  async disable(methods: TwoFactorMethod[], session: SessionProxy) {
     const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
     if (enabled.length === 0) {
       throw new ConflictException('No 2FA methods are enabled');
     }
     const codes = this.generate(enabled);
+    require2FA(session, {
+      verify: codes,
+      remove: methods.length ? methods : enabled.map((s) => s.method),
+      expiresAt: Date.now() + 15 * 60 * 60 * 1000,
+    });
 
-    await this.session.set(
-      sessionId,
-      require2FA(session, {
-        verify: codes,
-        remove: methods.length ? methods : enabled.map((s) => s.method),
-        expiresAt: Date.now() + 15 * 60 * 60 * 1000,
-      }),
-    );
-    this.notify.send(codes, sessionId);
+    this.notify.send(codes, session.id);
   }
 
-  async verify(codes: Array<{ code: number; method: string }>, sessionId: string) {
-    const session = await this.session.get(sessionId);
-    if (!session || !is2FA(session)) {
+  async resend(method: TwoFactorMethod, session: SessionProxy) {
+    if (!is2FA(session)) {
+      throw new ConflictException('No 2FA codes have been sent');
+    }
+    const sent = session.twoFactor.verify.find((c) => c.method === method);
+    if (!sent) {
+      throw new ConflictException(`2FA code for ${method} has not been sent`);
+    }
+    sent.code = this.generateCode();
+
+    this.notify.send([sent], session.id);
+  }
+
+  async verify(codes: Array<{ code: number; method: string }>, session: SessionProxy) {
+    if (!is2FA(session)) {
       throw new ConflictException('No verification required');
     }
     if (session.twoFactor.expiresAt < Date.now()) {
@@ -163,22 +162,22 @@ export class Auth2FAService {
       if (session.twoFactor.remove) {
         await this.settingsRepo.delete({ user_id: session.user.id, method: In(session.twoFactor.remove) });
       }
-      await this.session.set(sessionId, confirm2FA(session));
+      confirm2FA(session);
     }
 
     return { valid: !reason, reason };
   }
 
-  async verifyOne(verification: { method: string; code: number }, sessionId: string) {
-    const session = await this.session.get(sessionId);
-    if (!session || !is2FA(session)) {
+  async verifyOne(verification: { method: string; code: number }, session: SessionProxy) {
+    if (!is2FA(session)) {
       throw new ConflictException('No verification required');
     }
 
     for (const { code, method } of session.twoFactor.verify ?? []) {
       if (verification.method === method) {
         if (verification.code === code) {
-          await this.session.set(sessionId, confirm2FAMethod(session, method));
+          confirm2FAMethod(session, method);
+          await session.save();
 
           return { valid: true, unverified: { methods: (session.twoFactor.verify ?? []).map((c) => c.method) } };
         }

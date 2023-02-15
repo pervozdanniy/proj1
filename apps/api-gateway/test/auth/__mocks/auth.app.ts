@@ -5,6 +5,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Test } from '@nestjs/testing';
 import { join } from 'path';
 import configuration, { ConfigInterface } from '~common/config/configuration';
+import { GrpcSessionMiddleware } from '~common/grpc-session';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { HttpSessionModule } from '~common/http-session';
 import { AuthApiController } from '~svc/auth/src/api/controllers/api.controller';
@@ -49,6 +50,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
   return auth.createNestMicroservice({
     transport: Transport.GRPC,
     options: {
+      interceptors: [auth.get(GrpcSessionMiddleware)],
       url: `localhost:${config.get('grpcServices.auth.port', { infer: true })}`,
       package: 'skopa.auth',
       loader: {

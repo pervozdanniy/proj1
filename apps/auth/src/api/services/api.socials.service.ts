@@ -6,6 +6,7 @@ import { UserStatusEnum } from '~common/constants/user';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { SocialsAuthRequest } from '~common/grpc/interfaces/auth';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
+import { SessionProxy } from '~common/session';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { AuthApiService } from '~svc/auth/src/api/services/api.service';
 
@@ -18,7 +19,7 @@ export class ApiSocialsService implements OnModuleInit {
     this.userService = this.client.getService('UserService');
   }
 
-  async loginSocials(request: SocialsAuthRequest) {
+  async loginSocials(request: SocialsAuthRequest, session: SessionProxy) {
     const { email, username, source } = request;
     const payload = {
       email,
@@ -37,6 +38,6 @@ export class ApiSocialsService implements OnModuleInit {
       }
     }
 
-    return this.authService.login(user);
+    return this.authService.login(user, session);
   }
 }

@@ -5,6 +5,7 @@ import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { join } from 'path';
 import configuration, { ConfigInterface } from '~common/config/configuration';
+import { GrpcSessionMiddleware } from '~common/grpc-session';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionService } from '~common/session';
 import { AuthService } from '~svc/auth/src/auth/auth.service';
@@ -22,12 +23,18 @@ export default async (config: ConfigService<ConfigInterface>) => {
     ],
     controllers: [ClientController],
     providers: [
+      GrpcSessionMiddleware,
       ClientService,
       AuthService,
       { provide: JwtService, useValue: { signAsync: jest.fn().mockResolvedValue('mock_jwt') } },
       {
         provide: SessionService,
-        useValue: { generate: jest.fn().mockResolvedValue('mock_session_id'), set: jest.fn().mockResolvedValue(true) },
+        useValue: {
+          generate: jest.fn(() => ({
+            save: jest.fn().mockResolvedValue(true),
+            id: 'mock_session_id',
+          })),
+        },
       },
       { provide: getRepositoryToken(AuthClient), useFactory: authClientRepoFactory },
     ],
@@ -36,6 +43,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
   return auth.createNestMicroservice({
     transport: Transport.GRPC,
     options: {
+      interceptors: [auth.get(GrpcSessionMiddleware)],
       url: `localhost:${config.get('grpcServices.auth.port', { infer: true })}`,
       package: 'skopa.auth',
       loader: {

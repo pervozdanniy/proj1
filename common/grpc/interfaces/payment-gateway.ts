@@ -7,10 +7,8 @@ import { IdRequest, SuccessResponse } from "./common";
 export const protobufPackage = "skopa.core";
 
 export interface Transfer {
-  receiver_first_name: string;
-  receiver_last_name: string;
-  sender_first_name: string;
-  sender_last_name: string;
+  to: string;
+  from: string;
   amount: string;
   currency_type: string;
   status: string;

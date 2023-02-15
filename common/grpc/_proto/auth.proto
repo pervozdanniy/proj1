@@ -39,7 +39,9 @@ service TwoFactorService {
 
   rpc VerifyOne (TwoFactorCode) returns (TwoFactorVerificationResponse);
 
-  rpc Require(google.protobuf.Empty) returns (TwoFactorRequireResponse);
+  rpc Require (google.protobuf.Empty) returns (TwoFactorRequireResponse);
+
+  rpc Resend (TwoFactorSettings) returns (common.SuccessResponse);
 }
 
 message AuthRequest {

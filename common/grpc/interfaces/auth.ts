@@ -204,6 +204,8 @@ export interface TwoFactorServiceClient {
   verifyOne(request: TwoFactorCode, metadata?: Metadata): Observable<TwoFactorVerificationResponse>;
 
   require(request: Empty, metadata?: Metadata): Observable<TwoFactorRequireResponse>;
+
+  resend(request: TwoFactorSettings, metadata?: Metadata): Observable<SuccessResponse>;
 }
 
 export interface TwoFactorServiceController {
@@ -239,11 +241,16 @@ export interface TwoFactorServiceController {
     request: Empty,
     metadata?: Metadata,
   ): Promise<TwoFactorRequireResponse> | Observable<TwoFactorRequireResponse> | TwoFactorRequireResponse;
+
+  resend(
+    request: TwoFactorSettings,
+    metadata?: Metadata,
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function TwoFactorServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["list", "enable", "disable", "verify", "verifyOne", "require"];
+    const grpcMethods: string[] = ["list", "enable", "disable", "verify", "verifyOne", "require", "resend"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("TwoFactorService", method)(constructor.prototype[method], method, descriptor);

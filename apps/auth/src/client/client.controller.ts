@@ -1,5 +1,7 @@
 import { Metadata } from '@grpc/grpc-js';
 import { UnauthorizedException, ValidationPipe } from '@nestjs/common';
+import { Payload } from '@nestjs/microservices';
+import { GrpcSession, SessionProxy } from '~common/grpc-session';
 import {
   AuthClient,
   AuthData,
@@ -10,6 +12,7 @@ import {
 } from '~common/grpc/interfaces/auth';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { ClientService } from './client.service';
+import { ApiKey } from './decorators/api-key.decorator';
 import { SignedLoginRequestDto, UnsignedLoginRequestDto } from './dto/login.request.dto';
 
 @RpcController()
@@ -33,9 +36,13 @@ export class ClientController implements ClientServiceController {
     return this.clientService.validate(request, apiKey?.toString());
   }
 
-  async login(request: SignedRequest, metdata: Metadata): Promise<AuthData> {
-    const [apiKey] = metdata.get('api-key');
-    const client = await this.clientService.validate(request, apiKey?.toString());
+  async login(
+    @Payload() request: SignedRequest,
+    _metadata,
+    @GrpcSession() session?: SessionProxy,
+    @ApiKey() apiKey?: string,
+  ): Promise<AuthData> {
+    const client = await this.clientService.validate(request, apiKey);
     if (!client) {
       throw new UnauthorizedException();
     }
@@ -46,6 +53,6 @@ export class ClientController implements ClientServiceController {
       metatype: client.is_secure ? SignedLoginRequestDto : UnsignedLoginRequestDto,
     });
 
-    return this.clientService.login(payload, client);
+    return this.clientService.login(payload, client, session);
   }
 }

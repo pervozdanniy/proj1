@@ -10,6 +10,7 @@ import {
   ClientLoginRequest,
   SignedRequest,
 } from '~common/grpc/interfaces/auth';
+import { SessionProxy } from '~common/session';
 import { AuthService } from '../auth/auth.service';
 import { AuthClient } from '../entities/auth_client.entity';
 import { isDerFormatted, isRaw, rawToDer } from './helpers/ed25519-public';
@@ -70,15 +71,14 @@ export class ClientService {
     throw new BadRequestException({ message: ['Invalid pub_key format'] });
   }
 
-  async login(payload: ClientLoginRequest, client: AuthClientInterface) {
+  async login(payload: ClientLoginRequest, client: AuthClientInterface, session: SessionProxy) {
     const user = await this.auth.findByLogin(payload.login);
     if (
       user &&
       user.source === client.name &&
       (client.is_secure || (await bcrypt.compare(payload.password, user.password)))
     ) {
-      const { sessionId } = await this.auth.login(user);
-      const token = await this.auth.generateToken(sessionId);
+      const token = await this.auth.login(user, session);
 
       return { access_token: token };
     }

@@ -13,11 +13,12 @@ export class EmailHandler {
 
   private readonly from_email: string;
 
-  constructor(private config: ConfigService<ConfigInterface>) {
+  constructor(config: ConfigService<ConfigInterface>) {
     const { key, email } = config.get('sendgrid');
     this.from_email = email;
     sendGrid.setApiKey(key);
   }
+
   @Process('send')
   async handleSms(job: Job<AddNotificationRequest>) {
     const {

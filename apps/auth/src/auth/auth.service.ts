@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ClientGrpc } from '@nestjs/microservices';
 import bcrypt from 'bcrypt';
 import { firstValueFrom } from 'rxjs';
-import { SessionInterface, SessionService } from '~common/grpc-session';
+import { SessionInterface, SessionProxy, SessionService } from '~common/grpc-session';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { RegisterStartRequest } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
@@ -65,25 +65,10 @@ export class AuthService implements OnModuleInit {
     return firstValueFrom(this.userService.create(payload));
   }
 
-  async generateSession(data: SessionInterface) {
-    const sessionId = await this.session.generate();
-    await this.session.set(sessionId, data);
+  async login(user: User, session: SessionProxy) {
+    session.user = user;
 
-    return sessionId;
-  }
-
-  async login(user: User) {
-    const session = { user };
-    const sessionId = await this.generateSession(session);
-
-    return {
-      sessionId,
-      session,
-    };
-  }
-
-  logout(sessionId: string) {
-    return this.session.destroy(sessionId);
+    return this.generateToken(session.id);
   }
 
   generateToken(sessionId: string) {

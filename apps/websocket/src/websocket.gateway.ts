@@ -4,7 +4,7 @@ import { OnGatewayDisconnect, OnGatewayInit, WebSocketGateway, WsException } fro
 import { JwtPayload } from 'jsonwebtoken';
 import { ExtractJwt } from 'passport-jwt';
 import { Server, Socket } from 'socket.io';
-import { SessionProxy, sessionProxyFactory, SessionService } from '~common/session';
+import { SessionProxy, SessionService } from '~common/session';
 import { AllExceptionsFilter } from './utils/exception.filter';
 import { bind, isBound } from './utils/session/helpers';
 import { BoundSessionInterface } from './utils/session/interfaces';
@@ -48,9 +48,10 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayDisconnect {
       } catch (err) {
         return next(new WsException(err.message));
       }
-      const session = await this.session.get(payload.sub);
+      const proxy = await this.session.get(payload.sub);
+      bind(proxy, socket.id);
 
-      socket.data.session = sessionProxyFactory(this.session, payload.sub, bind(session, socket.id));
+      socket.data.session = proxy;
       socket.data.session.save();
 
       return next();

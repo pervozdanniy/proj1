@@ -43,3 +43,10 @@ export class TwoFactorDisableRequestDto {
   @ApiPropertyOptional({ enum: Object.values(TwoFactorMethod), isArray: true })
   methods?: TwoFactorMethod[];
 }
+
+export class TwoFactorResendRequestDto {
+  @IsNotEmpty()
+  @IsEnum(TwoFactorMethod)
+  @ApiProperty({ enum: Object.values(TwoFactorMethod) })
+  method: TwoFactorMethod;
+}
