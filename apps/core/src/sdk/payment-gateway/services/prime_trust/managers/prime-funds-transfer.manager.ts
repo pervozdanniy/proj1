@@ -94,7 +94,7 @@ export class PrimeFundsTransferManager {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
-        throw new GrpcException(Status.ABORTED, detail, code);
+        throw new GrpcException(code, detail);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
@@ -129,7 +129,7 @@ export class PrimeFundsTransferManager {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
-        throw new GrpcException(Status.ABORTED, detail, code);
+        throw new GrpcException(code, detail);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
@@ -166,7 +166,7 @@ export class PrimeFundsTransferManager {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
-        throw new GrpcException(Status.ABORTED, detail, code);
+        throw new GrpcException(code, detail);
       } else {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }

@@ -1,3 +1,4 @@
+import { Status } from '@grpc/grpc-js/build/src/constants';
 import { AxiosResponse } from 'axios';
 
 type PrimeTrustError = {
@@ -11,13 +12,13 @@ export class PrimeTrustException extends Error {
   public code: number;
   constructor(response: AxiosResponse) {
     super('Prime trust');
-    this.code = response.data.status;
+    this.code = Status.ABORTED;
     this.errors = response.data.errors;
   }
 
   getFirstError() {
     if (this.errors[0].detail === 'Initiator has insufficient funds') {
-      this.code = 409;
+      this.code = Status.ALREADY_EXISTS;
     }
 
     return {
