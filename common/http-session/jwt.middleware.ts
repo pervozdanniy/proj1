@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload, VerifyOptions } from 'jsonwebtoken';
@@ -44,6 +44,6 @@ export class JwtSessionMiddleware implements NestMiddleware {
         }
       })
       .then(nextCb)
-      .catch(nextCb);
+      .catch((err) => nextCb(new UnauthorizedException(err.message)));
   }
 }

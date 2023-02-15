@@ -1,9 +1,10 @@
 FROM node:18-alpine as vendors
 WORKDIR /usr/src
 
+ENV NODE_ENV production
+
 COPY package.json .
 COPY yarn.lock .
-
 RUN yarn install --production --frozen-lockfile
 
 
@@ -11,8 +12,9 @@ RUN yarn install --production --frozen-lockfile
 FROM node:18-alpine as build
 WORKDIR /usr/src
 
-COPY --from=vendors /usr/src .
-RUN yarn install --frozen-lockfile --dev-dependencies
+COPY package.json .
+COPY yarn.lock .
+RUN yarn install --frozen-lockfile
 
 #add config files
 COPY nest-cli.json .
@@ -32,8 +34,12 @@ RUN node_modules/.bin/nest build api-gateway
 
 FROM node:18-alpine as prod
 WORKDIR /usr/src
+USER node
 
-COPY --from=vendors /usr/src .
-COPY --from=build /usr/src/dist ./dist
+ENV NODE_ENV production
+
+COPY --from=vendors --chown=node:node /usr/src .
+COPY --from=build --chown=node:node /usr/src/dist ./dist
+COPY --from=build --chown=node:node /usr/src/common/grpc/_proto ./common/grpc/_proto
 
 ENTRYPOINT [ "npm", "run", "start:prod" ]
