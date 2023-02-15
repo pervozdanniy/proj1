@@ -39,7 +39,7 @@ export class JwtSessionMiddleware implements NestMiddleware {
         this.config.get('auth.jwt.secret', { infer: true }),
         {},
       )
-      .then((payload) => payload.su1b)
+      .then((payload) => payload.sub)
       .then((sessionId) => this.session.get(sessionId))
       .then((proxy) => {
         req.session = proxy;

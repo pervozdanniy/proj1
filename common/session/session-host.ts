@@ -53,6 +53,7 @@ export class SessionHost<T extends Record<string, any> = Record<PropertyKey, unk
       this.data = JSON.parse(data);
     } else {
       this.data = {} as T;
+      this.origHash = this.hash('{}');
     }
   }
 

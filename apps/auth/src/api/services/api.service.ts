@@ -69,7 +69,7 @@ export class AuthApiService {
       throw new ConflictException('Registration process was not stated');
     }
     const user = await this.auth.createUser({ ...payload, ...session.register, source: UserSourceEnum.Api });
-    const a = finishRegistration(session, user);
+    finishRegistration(session, user);
 
     return user;
   }
