@@ -8,11 +8,10 @@ import { InjectGrpc } from '~common/grpc/helpers';
 import { RegisterStartRequest } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
 import { CreateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
-import { AuthApiService } from '../api/services/api.service';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
-  private logger = new Logger(AuthApiService.name);
+  private logger = new Logger(AuthService.name);
   private userService: UserServiceClient;
 
   constructor(@InjectGrpc('core') private readonly client: ClientGrpc, private readonly jwt: JwtService) {}

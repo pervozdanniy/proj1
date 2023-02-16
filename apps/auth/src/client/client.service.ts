@@ -1,3 +1,4 @@
+import { AuthService } from '@/auth/auth.service';
 import { BadRequestException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
@@ -11,7 +12,6 @@ import {
   SignedRequest,
 } from '~common/grpc/interfaces/auth';
 import { SessionProxy } from '~common/session';
-import { AuthService } from '../auth/auth.service';
 import { AuthClient } from '../entities/auth_client.entity';
 import { isDerFormatted, isRaw, rawToDer } from './helpers/ed25519-public';
 
