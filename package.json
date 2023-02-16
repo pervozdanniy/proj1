@@ -26,7 +26,7 @@
     "typeorm:generate": "cross-var npm run typeorm -- -d ./apps/$npm_config_component/src/db/data-source.ts migration:generate ./apps/$npm_config_component/src/db/migrations/$npm_config_name",
     "typeorm:create": "cross-var npm run typeorm -- migration:create ./apps/$npm_config_component/src/db/migrations/$npm_config_name",
     "typeorm:revert": "cross-var npm run typeorm -- -d ./apps/$npm_config_component/src/db/data-source.ts migration:revert",
-    "proto:generate": "node_modules/.bin/protoc --plugin=node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_opt=nestJs=true --ts_proto_opt=addGrpcMetadata=true --ts_proto_opt=snakeToCamel=false --ts_proto_out=./common/grpc/interfaces --proto_path=./common/grpc/_proto ./common/grpc/_proto/*.proto"
+    "proto:generate": "node_modules/.bin/protoc --plugin=node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_opt=nestJs=true --ts_proto_opt=addGrpcMetadata=false --ts_proto_opt=snakeToCamel=false --ts_proto_opt=addNestjsRestParameter=true --ts_proto_out=./common/grpc/interfaces --proto_path=./common/grpc/_proto ./common/grpc/_proto/*.proto"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.224.0",

@@ -16,7 +16,6 @@ async function bootstrap() {
 
   const app = await NestFactory.createMicroservice<GrpcOptions>(AppModule, {
     transport: Transport.GRPC,
-
     options: {
       interceptors: [context.get(GrpcSessionMiddleware)],
       url: '0.0.0.0:5000',
@@ -29,7 +28,6 @@ async function bootstrap() {
       },
       protoPath: join(config.get('basePath'), 'common/grpc/_proto/auth.proto'),
     },
-    bufferLogs: true,
   });
 
   await app.listen();

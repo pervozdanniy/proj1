@@ -25,7 +25,6 @@ async function bootstrap() {
       },
       protoPath: join(config.get('basePath'), 'common/grpc/_proto/notifier.proto'),
     },
-    bufferLogs: true,
   });
 
   await app.listen();

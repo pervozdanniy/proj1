@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 
@@ -25,13 +24,13 @@ export interface Country {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface CountryServiceClient {
-  list(request: CountryListQuery, metadata?: Metadata): Observable<CountryListResponse>;
+  list(request: CountryListQuery, ...rest: any): Observable<CountryListResponse>;
 }
 
 export interface CountryServiceController {
   list(
     request: CountryListQuery,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<CountryListResponse> | Observable<CountryListResponse> | CountryListResponse;
 }
 

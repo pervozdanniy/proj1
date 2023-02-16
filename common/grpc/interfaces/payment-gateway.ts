@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { IdRequest, SuccessResponse } from "./common";
@@ -254,220 +253,220 @@ export interface Token_Data {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface PaymentGatewayServiceClient {
-  list(request: PaymentGatewayListQuery, metadata?: Metadata): Observable<PaymentGatewayListResponse>;
+  list(request: PaymentGatewayListQuery, ...rest: any): Observable<PaymentGatewayListResponse>;
 
-  getToken(request: IdRequest, metadata?: Metadata): Observable<PG_Token>;
+  getToken(request: IdRequest, ...rest: any): Observable<PG_Token>;
 
-  createAccount(request: UserIdRequest, metadata?: Metadata): Observable<AccountResponse>;
+  createAccount(request: UserIdRequest, ...rest: any): Observable<AccountResponse>;
 
-  getAccount(request: UserIdRequest, metadata?: Metadata): Observable<AccountResponse>;
+  getAccount(request: UserIdRequest, ...rest: any): Observable<AccountResponse>;
 
-  getContact(request: UserIdRequest, metadata?: Metadata): Observable<ContactResponse>;
+  getContact(request: UserIdRequest, ...rest: any): Observable<ContactResponse>;
 
-  updateAccount(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  updateAccount(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  createContact(request: UserIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  createContact(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  uploadDocument(request: UploadDocumentRequest, metadata?: Metadata): Observable<DocumentResponse>;
+  uploadDocument(request: UploadDocumentRequest, ...rest: any): Observable<DocumentResponse>;
 
-  documentCheck(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  documentCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  cipCheck(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  cipCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  createReference(request: UserIdRequest, metadata?: Metadata): Observable<PrimeTrustData>;
+  createReference(request: UserIdRequest, ...rest: any): Observable<PrimeTrustData>;
 
-  getBalance(request: UserIdRequest, metadata?: Metadata): Observable<BalanceResponse>;
+  getBalance(request: UserIdRequest, ...rest: any): Observable<BalanceResponse>;
 
-  getTransferById(request: UserIdRequest, metadata?: Metadata): Observable<TransferResponse>;
+  getTransferById(request: UserIdRequest, ...rest: any): Observable<TransferResponse>;
 
-  getDepositById(request: UserIdRequest, metadata?: Metadata): Observable<DepositDataResponse>;
+  getDepositById(request: UserIdRequest, ...rest: any): Observable<DepositDataResponse>;
 
-  getWithdrawalById(request: UserIdRequest, metadata?: Metadata): Observable<WithdrawalDataResponse>;
+  getWithdrawalById(request: UserIdRequest, ...rest: any): Observable<WithdrawalDataResponse>;
 
-  getTransactions(request: UserIdRequest, metadata?: Metadata): Observable<TransactionResponse>;
+  getTransactions(request: UserIdRequest, ...rest: any): Observable<TransactionResponse>;
 
-  getWithdrawalParams(request: UserIdRequest, metadata?: Metadata): Observable<WithdrawalsDataResponse>;
+  getWithdrawalParams(request: UserIdRequest, ...rest: any): Observable<WithdrawalsDataResponse>;
 
-  getDepositParams(request: UserIdRequest, metadata?: Metadata): Observable<DepositParamsResponse>;
+  getDepositParams(request: UserIdRequest, ...rest: any): Observable<DepositParamsResponse>;
 
-  updateBalance(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  updateContribution(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  getBankAccounts(request: UserIdRequest, metadata?: Metadata): Observable<BankAccountsResponse>;
+  getBankAccounts(request: UserIdRequest, ...rest: any): Observable<BankAccountsResponse>;
 
-  addBankAccountParams(request: BankAccountParams, metadata?: Metadata): Observable<BankAccountParams>;
+  addBankAccountParams(request: BankAccountParams, ...rest: any): Observable<BankAccountParams>;
 
-  addWithdrawalParams(request: WithdrawalParams, metadata?: Metadata): Observable<WithdrawalResponse>;
+  addWithdrawalParams(request: WithdrawalParams, ...rest: any): Observable<WithdrawalResponse>;
 
-  makeWithdrawal(request: TransferMethodRequest, metadata?: Metadata): Observable<PrimeTrustData>;
+  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<PrimeTrustData>;
 
-  updateWithdraw(request: AccountIdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  createCreditCardResource(request: UserIdRequest, metadata?: Metadata): Observable<CreditCardResourceResponse>;
+  createCreditCardResource(request: UserIdRequest, ...rest: any): Observable<CreditCardResourceResponse>;
 
-  verifyCreditCard(request: VerifyCreditCardRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  verifyCreditCard(request: VerifyCreditCardRequest, ...rest: any): Observable<SuccessResponse>;
 
-  getCreditCards(request: UserIdRequest, metadata?: Metadata): Observable<CreditCardsResponse>;
+  getCreditCards(request: UserIdRequest, ...rest: any): Observable<CreditCardsResponse>;
 
-  transferFunds(request: TransferFundsRequest, metadata?: Metadata): Observable<TransferFundsResponse>;
+  transferFunds(request: TransferFundsRequest, ...rest: any): Observable<TransferFundsResponse>;
 
-  makeContribution(request: MakeContributionRequest, metadata?: Metadata): Observable<ContributionResponse>;
+  makeContribution(request: MakeContributionRequest, ...rest: any): Observable<ContributionResponse>;
 
-  addDepositParams(request: DepositParamRequest, metadata?: Metadata): Observable<DepositResponse>;
+  addDepositParams(request: DepositParamRequest, ...rest: any): Observable<DepositResponse>;
 }
 
 export interface PaymentGatewayServiceController {
   list(
     request: PaymentGatewayListQuery,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<PaymentGatewayListResponse> | Observable<PaymentGatewayListResponse> | PaymentGatewayListResponse;
 
-  getToken(request: IdRequest, metadata?: Metadata): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
+  getToken(request: IdRequest, ...rest: any): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
 
   createAccount(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<AccountResponse> | Observable<AccountResponse> | AccountResponse;
 
   getAccount(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<AccountResponse> | Observable<AccountResponse> | AccountResponse;
 
   getContact(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<ContactResponse> | Observable<ContactResponse> | ContactResponse;
 
   updateAccount(
     request: AccountIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   createContact(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   uploadDocument(
     request: UploadDocumentRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<DocumentResponse> | Observable<DocumentResponse> | DocumentResponse;
 
   documentCheck(
     request: AccountIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   cipCheck(
     request: AccountIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   createReference(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
 
   getBalance(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 
   getTransferById(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<TransferResponse> | Observable<TransferResponse> | TransferResponse;
 
   getDepositById(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<DepositDataResponse> | Observable<DepositDataResponse> | DepositDataResponse;
 
   getWithdrawalById(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<WithdrawalDataResponse> | Observable<WithdrawalDataResponse> | WithdrawalDataResponse;
 
   getTransactions(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
 
   getWithdrawalParams(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<WithdrawalsDataResponse> | Observable<WithdrawalsDataResponse> | WithdrawalsDataResponse;
 
   getDepositParams(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<DepositParamsResponse> | Observable<DepositParamsResponse> | DepositParamsResponse;
 
   updateBalance(
     request: AccountIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   updateContribution(
     request: AccountIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   getBankAccounts(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<BankAccountsResponse> | Observable<BankAccountsResponse> | BankAccountsResponse;
 
   addBankAccountParams(
     request: BankAccountParams,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<BankAccountParams> | Observable<BankAccountParams> | BankAccountParams;
 
   addWithdrawalParams(
     request: WithdrawalParams,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<WithdrawalResponse> | Observable<WithdrawalResponse> | WithdrawalResponse;
 
   makeWithdrawal(
     request: TransferMethodRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
 
   updateWithdraw(
     request: AccountIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   createCreditCardResource(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<CreditCardResourceResponse> | Observable<CreditCardResourceResponse> | CreditCardResourceResponse;
 
   verifyCreditCard(
     request: VerifyCreditCardRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   getCreditCards(
     request: UserIdRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<CreditCardsResponse> | Observable<CreditCardsResponse> | CreditCardsResponse;
 
   transferFunds(
     request: TransferFundsRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<TransferFundsResponse> | Observable<TransferFundsResponse> | TransferFundsResponse;
 
   makeContribution(
     request: MakeContributionRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
 
   addDepositParams(
     request: DepositParamRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<DepositResponse> | Observable<DepositResponse> | DepositResponse;
 }
 

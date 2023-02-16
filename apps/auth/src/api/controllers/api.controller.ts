@@ -26,19 +26,14 @@ import { AuthApiService } from '../services/api.service';
 export class AuthApiController implements AuthServiceController {
   constructor(private readonly authService: AuthApiService, private readonly socialAuthService: ApiSocialsService) {}
 
-  registerStart(
-    @Payload() request: RegisterStartRequest,
-    _metadata,
-    @GrpcSession() session?: SessionProxy,
-  ): Promise<AuthData> {
+  registerStart(@Payload() request: RegisterStartRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
     return this.authService.registerStart(request, session);
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
   registerVerify(
     @Payload() request: TwoFactorCode,
-    _metadata,
-    @GrpcSession() session?: SessionProxy,
+    @GrpcSession() session: SessionProxy,
   ): Promise<TwoFactorVerificationResponse> {
     return this.authService.registerVerify(request, session);
   }
@@ -46,14 +41,13 @@ export class AuthApiController implements AuthServiceController {
   @GrpcSessionAuth({ allowUnauthorized: true })
   registerFinish(
     @Payload() request: RegisterFinishRequest,
-    _metadata,
-    @GrpcSession() session?: SessionProxy<PreRegisteredSessionInterface>,
+    @GrpcSession() session: SessionProxy<PreRegisteredSessionInterface>,
   ): Promise<User> {
     return this.authService.registerFinish(request, session);
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async login(@Payload() req: LoginRequestDto, _metadata, @GrpcSession() session?: SessionProxy) {
+  async login(@Payload() req: LoginRequestDto, @GrpcSession() session: SessionProxy) {
     const user = await this.authService.validateUser(req.login, req.password);
     if (!user) {
       throw new GrpcException(status.UNAUTHENTICATED, 'Unauthentcated', 401);
@@ -62,16 +56,12 @@ export class AuthApiController implements AuthServiceController {
     return this.authService.login(user, session);
   }
 
-  loginSocials(
-    @Payload() request: SocialsAuthRequest,
-    _metadata,
-    @GrpcSession() session?: SessionProxy,
-  ): Promise<AuthData> {
+  loginSocials(@Payload() request: SocialsAuthRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
     return this.socialAuthService.loginSocials(request, session);
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
-  async logout(_request: Empty, _metadata, @GrpcSession() session?: SessionProxy): Promise<SuccessResponse> {
+  async logout(_request: Empty, @GrpcSession() session: SessionProxy): Promise<SuccessResponse> {
     return this.authService.logout(session);
   }
 }

@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ClientGrpc } from '@nestjs/microservices';
 import bcrypt from 'bcrypt';
 import { firstValueFrom } from 'rxjs';
-import { SessionInterface, SessionProxy, SessionService } from '~common/grpc-session';
+import { SessionProxy } from '~common/grpc-session';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { RegisterStartRequest } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
@@ -15,11 +15,7 @@ export class AuthService implements OnModuleInit {
   private logger = new Logger(AuthApiService.name);
   private userService: UserServiceClient;
 
-  constructor(
-    @InjectGrpc('core') private readonly client: ClientGrpc,
-    private readonly jwt: JwtService,
-    private readonly session: SessionService<SessionInterface>,
-  ) {}
+  constructor(@InjectGrpc('core') private readonly client: ClientGrpc, private readonly jwt: JwtService) {}
 
   onModuleInit() {
     this.userService = this.client.getService('UserService');

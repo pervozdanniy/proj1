@@ -26,8 +26,7 @@ export class TwoFactorController implements TwoFactorServiceController {
   constructor(private readonly auth2FA: Auth2FAService) {}
   async resend(
     @Payload() { method }: ResendRequestDto,
-    _metadata,
-    @GrpcSession() session?: SessionProxy,
+    @GrpcSession() session: SessionProxy,
   ): Promise<SuccessResponse> {
     try {
       await this.auth2FA.resend(method, session);
@@ -39,7 +38,7 @@ export class TwoFactorController implements TwoFactorServiceController {
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })
-  async require(_data: Empty, _metadata, @GrpcSession() session?: SessionProxy): Promise<TwoFactorRequireResponse> {
+  async require(_data: Empty, @GrpcSession() session: SessionProxy): Promise<TwoFactorRequireResponse> {
     try {
       const methods = await this.auth2FA.requireOrFail(session);
 
@@ -50,7 +49,7 @@ export class TwoFactorController implements TwoFactorServiceController {
   }
 
   @GrpcSessionAuth()
-  async list(_data: Empty, _metadata, @GrpcSession() session?: SessionProxy): Promise<TwoFactorEnabledMethodsResponse> {
+  async list(_data: Empty, @GrpcSession() session: SessionProxy): Promise<TwoFactorEnabledMethodsResponse> {
     const methods = await this.auth2FA.getEnabled(session.user.id);
 
     return { methods };
@@ -60,8 +59,7 @@ export class TwoFactorController implements TwoFactorServiceController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async enable(
     @Payload() { settings }: EnableRequestDto,
-    _metadata,
-    @GrpcSession() session?: SessionProxy,
+    @GrpcSession() session: SessionProxy,
   ): Promise<SuccessResponse> {
     await this.auth2FA.enable(settings, session);
 
@@ -72,8 +70,7 @@ export class TwoFactorController implements TwoFactorServiceController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async disable(
     @Payload() { methods }: DisableRequestDto,
-    _metadata,
-    @GrpcSession() session?: SessionProxy,
+    @GrpcSession() session: SessionProxy,
   ): Promise<SuccessResponse> {
     await this.auth2FA.disable(methods, session);
 
@@ -84,8 +81,7 @@ export class TwoFactorController implements TwoFactorServiceController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   verify(
     @Payload() data: VerifyRequestDto,
-    _metadata,
-    @GrpcSession() session?: SessionProxy,
+    @GrpcSession() session: SessionProxy,
   ): Promise<TwoFactorVerificationResponse> {
     return this.auth2FA.verify(data.codes, session);
   }
@@ -94,8 +90,7 @@ export class TwoFactorController implements TwoFactorServiceController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   verifyOne(
     @Payload() request: TwoFactorCodeDto,
-    _metadata,
-    @GrpcSession() session?: SessionProxy,
+    @GrpcSession() session: SessionProxy,
   ): Promise<TwoFactorVerificationResponse> {
     return this.auth2FA.verifyOne(request, session);
   }

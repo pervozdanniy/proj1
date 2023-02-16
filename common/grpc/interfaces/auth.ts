@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { SuccessResponse, User, UserDetails } from "./common";
@@ -102,37 +101,34 @@ export interface RegisterFinishRequest {
 export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
 
 export interface AuthServiceClient {
-  login(request: AuthRequest, metadata?: Metadata): Observable<AuthData>;
+  login(request: AuthRequest, ...rest: any): Observable<AuthData>;
 
-  logout(request: Empty, metadata?: Metadata): Observable<SuccessResponse>;
+  logout(request: Empty, ...rest: any): Observable<SuccessResponse>;
 
-  loginSocials(request: SocialsAuthRequest, metadata?: Metadata): Observable<AuthData>;
+  loginSocials(request: SocialsAuthRequest, ...rest: any): Observable<AuthData>;
 
-  registerStart(request: RegisterStartRequest, metadata?: Metadata): Observable<AuthData>;
+  registerStart(request: RegisterStartRequest, ...rest: any): Observable<AuthData>;
 
-  registerVerify(request: TwoFactorCode, metadata?: Metadata): Observable<TwoFactorVerificationResponse>;
+  registerVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
 
-  registerFinish(request: RegisterFinishRequest, metadata?: Metadata): Observable<User>;
+  registerFinish(request: RegisterFinishRequest, ...rest: any): Observable<User>;
 }
 
 export interface AuthServiceController {
-  login(request: AuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
+  login(request: AuthRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
 
-  logout(request: Empty, metadata?: Metadata): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+  logout(request: Empty, ...rest: any): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  loginSocials(request: SocialsAuthRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
+  loginSocials(request: SocialsAuthRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
 
-  registerStart(
-    request: RegisterStartRequest,
-    metadata?: Metadata,
-  ): Promise<AuthData> | Observable<AuthData> | AuthData;
+  registerStart(request: RegisterStartRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
 
   registerVerify(
     request: TwoFactorCode,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
 
-  registerFinish(request: RegisterFinishRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
+  registerFinish(request: RegisterFinishRequest, ...rest: any): Promise<User> | Observable<User> | User;
 }
 
 export function AuthServiceControllerMethods() {
@@ -160,19 +156,19 @@ export function AuthServiceControllerMethods() {
 export const AUTH_SERVICE_NAME = "AuthService";
 
 export interface ClientServiceClient {
-  create(request: ClientCreateRequest, metadata?: Metadata): Observable<AuthClient>;
+  create(request: ClientCreateRequest, ...rest: any): Observable<AuthClient>;
 
-  validate(request: SignedRequest, metadata?: Metadata): Observable<AuthClient>;
+  validate(request: SignedRequest, ...rest: any): Observable<AuthClient>;
 
-  login(request: SignedRequest, metadata?: Metadata): Observable<AuthData>;
+  login(request: SignedRequest, ...rest: any): Observable<AuthData>;
 }
 
 export interface ClientServiceController {
-  create(request: ClientCreateRequest, metadata?: Metadata): Promise<AuthClient> | Observable<AuthClient> | AuthClient;
+  create(request: ClientCreateRequest, ...rest: any): Promise<AuthClient> | Observable<AuthClient> | AuthClient;
 
-  validate(request: SignedRequest, metadata?: Metadata): Promise<AuthClient> | Observable<AuthClient> | AuthClient;
+  validate(request: SignedRequest, ...rest: any): Promise<AuthClient> | Observable<AuthClient> | AuthClient;
 
-  login(request: SignedRequest, metadata?: Metadata): Promise<AuthData> | Observable<AuthData> | AuthData;
+  login(request: SignedRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
 }
 
 export function ClientServiceControllerMethods() {
@@ -193,25 +189,25 @@ export function ClientServiceControllerMethods() {
 export const CLIENT_SERVICE_NAME = "ClientService";
 
 export interface TwoFactorServiceClient {
-  list(request: Empty, metadata?: Metadata): Observable<TwoFactorEnabledMethodsResponse>;
+  list(request: Empty, ...rest: any): Observable<TwoFactorEnabledMethodsResponse>;
 
-  enable(request: TwoFactorEnableRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  enable(request: TwoFactorEnableRequest, ...rest: any): Observable<SuccessResponse>;
 
-  disable(request: TwoFactorDisableRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  disable(request: TwoFactorDisableRequest, ...rest: any): Observable<SuccessResponse>;
 
-  verify(request: TwoFactorVerificationRequest, metadata?: Metadata): Observable<TwoFactorVerificationResponse>;
+  verify(request: TwoFactorVerificationRequest, ...rest: any): Observable<TwoFactorVerificationResponse>;
 
-  verifyOne(request: TwoFactorCode, metadata?: Metadata): Observable<TwoFactorVerificationResponse>;
+  verifyOne(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
 
-  require(request: Empty, metadata?: Metadata): Observable<TwoFactorRequireResponse>;
+  require(request: Empty, ...rest: any): Observable<TwoFactorRequireResponse>;
 
-  resend(request: TwoFactorSettings, metadata?: Metadata): Observable<SuccessResponse>;
+  resend(request: TwoFactorSettings, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface TwoFactorServiceController {
   list(
     request: Empty,
-    metadata?: Metadata,
+    ...rest: any
   ):
     | Promise<TwoFactorEnabledMethodsResponse>
     | Observable<TwoFactorEnabledMethodsResponse>
@@ -219,32 +215,32 @@ export interface TwoFactorServiceController {
 
   enable(
     request: TwoFactorEnableRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   disable(
     request: TwoFactorDisableRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   verify(
     request: TwoFactorVerificationRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
 
   verifyOne(
     request: TwoFactorCode,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
 
   require(
     request: Empty,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<TwoFactorRequireResponse> | Observable<TwoFactorRequireResponse> | TwoFactorRequireResponse;
 
   resend(
     request: TwoFactorSettings,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 

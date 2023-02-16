@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { SuccessResponse } from "./common";
@@ -33,13 +32,13 @@ export interface AddNotificationRequest {
 export const SKOPA_NOTIFIER_PACKAGE_NAME = "skopa.notifier";
 
 export interface NotifierServiceClient {
-  add(request: AddNotificationRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  add(request: AddNotificationRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface NotifierServiceController {
   add(
     request: AddNotificationRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 

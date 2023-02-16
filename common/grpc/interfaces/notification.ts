@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 
@@ -38,20 +37,20 @@ export interface Notification {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface NotificationServiceClient {
-  list(request: NotificationRequest, metadata?: Metadata): Observable<NotificationListResponse>;
+  list(request: NotificationRequest, ...rest: any): Observable<NotificationListResponse>;
 
-  update(request: UpdateNotificationRequest, metadata?: Metadata): Observable<Notification>;
+  update(request: UpdateNotificationRequest, ...rest: any): Observable<Notification>;
 }
 
 export interface NotificationServiceController {
   list(
     request: NotificationRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<NotificationListResponse> | Observable<NotificationListResponse> | NotificationListResponse;
 
   update(
     request: UpdateNotificationRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<Notification> | Observable<Notification> | Notification;
 }
 

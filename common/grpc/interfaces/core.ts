@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { IdRequest, SuccessResponse, User, UserDetails } from "./common";
@@ -52,43 +51,37 @@ export interface CheckIfUniqueRequest {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface UserServiceClient {
-  getById(request: IdRequest, metadata?: Metadata): Observable<User>;
+  getById(request: IdRequest, ...rest: any): Observable<User>;
 
-  findByLogin(request: LoginRequest, metadata?: Metadata): Observable<NullableUser>;
+  findByLogin(request: LoginRequest, ...rest: any): Observable<NullableUser>;
 
-  create(request: CreateRequest, metadata?: Metadata): Observable<User>;
+  create(request: CreateRequest, ...rest: any): Observable<User>;
 
-  delete(request: IdRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  delete(request: IdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  update(request: UpdateRequest, metadata?: Metadata): Observable<User>;
+  update(request: UpdateRequest, ...rest: any): Observable<User>;
 
-  updateContacts(request: UpdateContactsRequest, metadata?: Metadata): Observable<User>;
+  updateContacts(request: UpdateContactsRequest, ...rest: any): Observable<User>;
 
-  checkIfUnique(request: CheckIfUniqueRequest, metadata?: Metadata): Observable<SuccessResponse>;
+  checkIfUnique(request: CheckIfUniqueRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface UserServiceController {
-  getById(request: IdRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
+  getById(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
-  findByLogin(
-    request: LoginRequest,
-    metadata?: Metadata,
-  ): Promise<NullableUser> | Observable<NullableUser> | NullableUser;
+  findByLogin(request: LoginRequest, ...rest: any): Promise<NullableUser> | Observable<NullableUser> | NullableUser;
 
-  create(request: CreateRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
+  create(request: CreateRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
-  delete(
-    request: IdRequest,
-    metadata?: Metadata,
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+  delete(request: IdRequest, ...rest: any): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  update(request: UpdateRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
+  update(request: UpdateRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
-  updateContacts(request: UpdateContactsRequest, metadata?: Metadata): Promise<User> | Observable<User> | User;
+  updateContacts(request: UpdateContactsRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
   checkIfUnique(
     request: CheckIfUniqueRequest,
-    metadata?: Metadata,
+    ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 

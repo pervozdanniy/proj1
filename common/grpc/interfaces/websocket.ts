@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { SuccessResponse } from "./common";
@@ -14,14 +13,11 @@ export interface WsMessage {
 export const SKOPA_WEBSOCKET_PACKAGE_NAME = "skopa.websocket";
 
 export interface WebsocketServiceClient {
-  send(request: WsMessage, metadata?: Metadata): Observable<SuccessResponse>;
+  send(request: WsMessage, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface WebsocketServiceController {
-  send(
-    request: WsMessage,
-    metadata?: Metadata,
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+  send(request: WsMessage, ...rest: any): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function WebsocketServiceControllerMethods() {
