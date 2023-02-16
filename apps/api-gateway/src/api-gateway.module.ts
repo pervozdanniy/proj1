@@ -1,7 +1,7 @@
+import { ApiModule } from '@/api/api.module';
+import { SdkModule } from '@/sdk/sdk.module';
 import { Module } from '@nestjs/common';
 import * as process from 'process';
-import { ApiModule } from '~svc/api-gateway/src/api/api.module';
-import { SdkModule } from '~svc/api-gateway/src/sdk/sdk.module';
 
 @Module({
   imports: (() => {

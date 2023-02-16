@@ -8,7 +8,7 @@ import { SocialsAuthRequest } from '~common/grpc/interfaces/auth';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
 import { SessionProxy } from '~common/session';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { AuthApiService } from '~svc/auth/src/api/services/api.service';
+import { AuthApiService } from './api.service';
 
 @Injectable()
 export class ApiSocialsService implements OnModuleInit {

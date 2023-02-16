@@ -1,5 +1,5 @@
+import { SdkPrimeTrustModule } from '@/sdk/payment-gateway/prime_trust/sdk-prime-trust.module';
 import { Module } from '@nestjs/common';
-import { SdkPrimeTrustModule } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/sdk-prime-trust.module';
 
 @Module({
   imports: [SdkPrimeTrustModule],

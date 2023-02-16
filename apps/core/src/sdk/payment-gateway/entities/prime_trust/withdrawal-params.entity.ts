@@ -8,8 +8,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
-import { WithdrawalEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal.entity';
+import { PrimeTrustContactEntity } from './prime-trust-contact.entity';
+import { WithdrawalEntity } from './withdrawal.entity';
 
 @Entity('withdrawal_params')
 export class WithdrawalParamsEntity {

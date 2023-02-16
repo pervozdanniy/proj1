@@ -1,3 +1,5 @@
+import { PaymentGatewayEntity } from '@/sdk/payment-gateway/entities/payment-gateway.entity';
+import { UserService } from '@/user/services/user.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,8 +21,6 @@ import {
   VerifyCreditCardRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
-import { PaymentGatewayEntity } from '~svc/core/src/sdk/payment-gateway/entities/payment-gateway.entity';
-import { UserService } from '~svc/core/src/user/services/user.service';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
 
 @Injectable()

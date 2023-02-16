@@ -1,4 +1,3 @@
-import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
@@ -6,7 +5,8 @@ import { AxiosRequestConfig } from 'axios';
 import Redis from 'ioredis';
 import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
-import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
+import { PrimeTokenManager } from '../services/prime_trust/managers/prime-token.manager';
+import { PrimeTrustException } from './exception/prime-trust.exception';
 
 export class PrimeTrustHttpService {
   private readonly prime_trust_url: string;

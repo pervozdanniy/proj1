@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { WithdrawalParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
+import { WithdrawalParamsEntity } from './withdrawal-params.entity';
 
 @Entity('withdrawals')
 export class WithdrawalEntity {

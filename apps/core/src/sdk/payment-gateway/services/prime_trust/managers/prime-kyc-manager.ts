@@ -1,4 +1,11 @@
+import { NotificationService } from '@/notification/services/notification.service';
+import { PrimeTrustAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
+import { PrimeTrustContactEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { PrimeTrustKycDocumentEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
 import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
+import { PrimeTrustHttpService } from '@/sdk/payment-gateway/request/prime-trust-http.service';
+import { PrimeTokenManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
+import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -10,13 +17,6 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountIdRequest, ContactResponse, DocumentResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { NotificationService } from '~svc/core/src/notification/services/notification.service';
-import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
-import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
-import { PrimeTrustKycDocumentEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
-import { PrimeTrustHttpService } from '~svc/core/src/sdk/payment-gateway/request/prime-trust-http.service';
-import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
-import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
 export class PrimeKycManager {

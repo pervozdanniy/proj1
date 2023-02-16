@@ -8,8 +8,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CountriesListDto } from '~svc/api-gateway/src/api/country/dtos/countries-list.dto';
-import { CountryService } from '~svc/api-gateway/src/api/country/services/country.service';
+import { CountriesListDto } from '../dtos/countries-list.dto';
+import { CountryService } from '../services/country.service';
 
 @ApiTags('Country')
 @Controller({

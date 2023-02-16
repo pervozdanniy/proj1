@@ -1,8 +1,13 @@
+import { PrimeAccountManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-account.manager';
 import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
+import { PrimeBankAccountManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
 import { PrimeDepositManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-deposit.manager';
 import { PrimeFundsTransferManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-funds-transfer.manager';
+import { PrimeKycManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
+import { PrimeTokenManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
 import { PrimeTransactionsManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-transactions.manager';
 import { PrimeWithdrawalManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-withdrawal.manager';
+import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
@@ -14,11 +19,6 @@ import {
   UserIdRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
-import { PrimeAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-account.manager';
-import { PrimeBankAccountManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
-import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
-import { PrimeTokenManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
-import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
 export class PrimeTrustService {

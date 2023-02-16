@@ -1,3 +1,4 @@
+import { UpdateUserDto, UserContactsDto } from '@/api/user/dtos/update-user.dto';
 import {
   Body,
   ClassSerializerInterceptor,
@@ -22,7 +23,6 @@ import {
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
-import { UpdateUserDto, UserContactsDto } from '~svc/api-gateway/src/api/user/dtos/update-user.dto';
 import { JwtSessionAuth, JwtSessionUser } from '../../auth';
 import { PublicUserDto, PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { CreateUserDTO } from '../dtos/create-user.dto';

@@ -1,7 +1,7 @@
+import { ToBoolean } from '@/api/utils/transformer.util';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsBoolean, IsNumber, IsOptional, Min } from 'class-validator';
-import { ToBoolean } from '~svc/api-gateway/src/api/utils/transformer.util';
 
 export class ListNotificationsDto {
   @ApiProperty({ description: 'The number of records.', required: false, default: 20, minimum: 0 })

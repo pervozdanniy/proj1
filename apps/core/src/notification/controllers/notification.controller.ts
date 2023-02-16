@@ -7,7 +7,7 @@ import {
   UpdateNotificationRequest,
 } from '~common/grpc/interfaces/notification';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { NotificationService } from '~svc/core/src/notification/services/notification.service';
+import { NotificationService } from '../services/notification.service';
 
 @RpcController()
 @NotificationServiceControllerMethods()

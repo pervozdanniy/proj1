@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { KMS, SharedIniFileCredentials, SQS } from 'aws-sdk';
 import { AwsSdkModule } from 'nest-aws-sdk';
 import { ConfigInterface } from '~common/config/configuration';
-import { AwsKmsService } from '~svc/core/src/aws/services/aws.kms.service';
-import { AwsSqsProducerService } from '~svc/core/src/aws/services/aws.sqs.producer.service';
+import { AwsKmsService } from './services/aws.kms.service';
+import { AwsSqsProducerService } from './services/aws.sqs.producer.service';
 
 @Module({
   imports: [

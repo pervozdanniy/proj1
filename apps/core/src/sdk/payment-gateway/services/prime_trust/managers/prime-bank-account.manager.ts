@@ -1,10 +1,10 @@
+import { BankAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BankAccountParams, BankAccountsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { BankAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
 
 @Injectable()
 export class PrimeBankAccountManager {

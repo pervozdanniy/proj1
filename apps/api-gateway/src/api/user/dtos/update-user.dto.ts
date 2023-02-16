@@ -1,3 +1,4 @@
+import { UserDetails } from '@/api/user/dtos/create-user.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -11,7 +12,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
-import { UserDetails } from '~svc/api-gateway/src/api/user/dtos/create-user.dto';
 
 export class UserContactsDto {
   @IsOptional()

@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { PrimeTrustContactEntity } from './prime-trust-contact.entity';
 
 @Entity('transfer_funds')
 export class TransferFundsEntity {

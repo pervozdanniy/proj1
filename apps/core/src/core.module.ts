@@ -4,12 +4,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration, { ConfigInterface } from '~common/config/configuration';
-import { CoreSdkModule } from '~svc/core/src/sdk/core-sdk.module';
 import { AwsModule } from './aws/AwsModule';
 import { CountryModule } from './country/country.module';
 import dbConfig from './db/db.config';
 import migrations from './db/migrations-list';
 import { NotificationModule } from './notification/notification.module';
+import { CoreSdkModule } from './sdk/core-sdk.module';
 import { UserModule } from './user/user.module';
 
 @Module({

@@ -17,9 +17,9 @@ import { SuccessResponse, User } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { ApiSocialsService } from '~svc/auth/src/api/services/api.socials.service';
 import { LoginRequestDto } from '../dto/login.dto';
 import { AuthApiService } from '../services/api.service';
+import { ApiSocialsService } from '../services/api.socials.service';
 
 @RpcController()
 @AuthServiceControllerMethods()

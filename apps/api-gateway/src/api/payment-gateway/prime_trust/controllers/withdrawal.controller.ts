@@ -1,5 +1,8 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
 import { ResourceDto } from '@/api/payment-gateway/prime_trust/dtos/resource.dto';
+import { WithdrawalMakeDto } from '@/api/payment-gateway/prime_trust/dtos/withdrawal-make.dto';
+import { WithdrawalParamsDto } from '@/api/payment-gateway/prime_trust/dtos/withdrawal-params.dto';
+import { PaymentGatewayService } from '@/api/payment-gateway/prime_trust/services/payment-gateway.service';
 import {
   WithdrawalResponseDTO,
   WithdrawalsDataResponseDTO,
@@ -16,9 +19,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { WithdrawalMakeDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/withdrawal-make.dto';
-import { WithdrawalParamsDto } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/dtos/withdrawal-params.dto';
-import { PaymentGatewayService } from '~svc/api-gateway/src/api/payment-gateway/prime_trust/services/payment-gateway.service';
 
 @ApiTags('Prime Trust/Withdrawal Funds')
 @ApiBearerAuth()

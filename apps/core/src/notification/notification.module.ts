@@ -1,11 +1,11 @@
+import { UserModule } from '@/user/user.module';
 import { Module } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
-import { NotificationController } from '~svc/core/src/notification/controllers/notification.controller';
-import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
-import { NotificationService } from '~svc/core/src/notification/services/notification.service';
-import { UserModule } from '~svc/core/src/user/user.module';
+import { NotificationController } from './controllers/notification.controller';
+import { NotificationEntity } from './entities/notification.entity';
+import { NotificationService } from './services/notification.service';
 
 @Module({
   imports: [

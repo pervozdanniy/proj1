@@ -3,16 +3,15 @@ services:
   core:
     build: 
       context: .
-      dockerfile: Dockerfile.prod
-    # volumes:
-    #   - ./apps/core:/usr/src/apps/core
-    #   - ./common:/usr/src/common
+      dockerfile: Dockerfile.local
+    volumes:
+      - ./apps/core:/usr/src/apps/core
+      - ./common:/usr/src/common
     networks:
       - backend
     env_file:
       - .env
-    # command: "start -w core"
-    command: "--component=core"
+    command: "start -w core"
     depends_on:
       postgres:
         condition: service_healthy

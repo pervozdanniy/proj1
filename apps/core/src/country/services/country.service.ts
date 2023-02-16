@@ -1,11 +1,11 @@
+import { CountryEntity } from '@/country/entities/country.entity';
+import { states } from '@/user/constants/states';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CountryListQuery, CountryListResponse } from '~common/grpc/interfaces/country';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
-import { states } from '~svc/core/src/user/constants/states';
 import { UserDetails } from '../../user/dto/user-request.dto';
 
 @Injectable()

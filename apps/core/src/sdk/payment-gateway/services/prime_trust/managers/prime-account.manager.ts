@@ -1,4 +1,9 @@
+import { NotificationService } from '@/notification/services/notification.service';
+import { PrimeTrustAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
+import { PrimeTrustHttpService } from '@/sdk/payment-gateway/request/prime-trust-http.service';
+import { PrimeKycManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
+import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
@@ -15,11 +20,6 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountResponse } from '~common/grpc/interfaces/payment-gateway';
 import { WebsocketServiceClient } from '~common/grpc/interfaces/websocket';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { NotificationService } from '~svc/core/src/notification/services/notification.service';
-import { PrimeTrustAccountEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
-import { PrimeTrustHttpService } from '~svc/core/src/sdk/payment-gateway/request/prime-trust-http.service';
-import { PrimeKycManager } from '~svc/core/src/sdk/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
-import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Injectable()
 export class PrimeAccountManager {

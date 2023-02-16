@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { PrimeTrustContactEntity } from './prime-trust-contact.entity';
 
 @Entity('prime_kyc_documents')
 export class PrimeTrustKycDocumentEntity {

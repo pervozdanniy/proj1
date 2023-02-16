@@ -3,7 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthRequest, AuthServiceClient } from '~common/grpc/interfaces/auth';
-import { SocialsUserDto } from '~svc/api-gateway/src/api/auth/dto/socials-user.dto';
+import { SocialsUserDto } from '../dto/socials-user.dto';
 
 export class AuthService implements OnModuleInit {
   private authClient: AuthServiceClient;

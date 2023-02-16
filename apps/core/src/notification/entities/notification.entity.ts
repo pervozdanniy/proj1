@@ -1,3 +1,4 @@
+import { UserEntity } from '@/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,7 +8,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Entity('notifications')
 export class NotificationEntity {

@@ -1,3 +1,5 @@
+import { NotificationDto } from '@/api/notification/dtos/notification.dto';
+import { PaginatedNotificationsDto } from '@/api/notification/dtos/paginated-notifications.dto';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
@@ -7,8 +9,6 @@ import {
   NotificationServiceClient,
   UpdateNotificationRequest,
 } from '~common/grpc/interfaces/notification';
-import { NotificationDto } from '~svc/api-gateway/src/api/notification/dtos/notification.dto';
-import { PaginatedNotificationsDto } from '~svc/api-gateway/src/api/notification/dtos/paginated-notifications.dto';
 
 @Injectable()
 export class NotificationService implements OnModuleInit {

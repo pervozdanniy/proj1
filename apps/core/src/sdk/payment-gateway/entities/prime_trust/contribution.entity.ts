@@ -1,4 +1,3 @@
-import { CardResourceEntity } from '@/sdk/payment-gateway/entities/prime_trust/card-resource.entity';
 import {
   Column,
   CreateDateColumn,
@@ -8,8 +7,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { DepositParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/deposit-params.entity';
-import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { CardResourceEntity } from './card-resource.entity';
+import { DepositParamsEntity } from './deposit-params.entity';
+import { PrimeTrustContactEntity } from './prime-trust-contact.entity';
 
 @Entity('contributions')
 export class ContributionEntity {

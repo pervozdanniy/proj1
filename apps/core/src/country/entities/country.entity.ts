@@ -1,6 +1,6 @@
+import { PaymentGatewayEntity } from '@/sdk/payment-gateway/entities/payment-gateway.entity';
+import { UserEntity } from '@/user/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { PaymentGatewayEntity } from '~svc/core/src/sdk/payment-gateway/entities/payment-gateway.entity';
-import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 
 @Entity('countries')
 export class CountryEntity {

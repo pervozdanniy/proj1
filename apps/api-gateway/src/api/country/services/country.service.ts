@@ -3,7 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { CountryServiceClient } from '~common/grpc/interfaces/country';
-import { CountriesListDto } from '~svc/api-gateway/src/api/country/dtos/countries-list.dto';
+import { CountriesListDto } from '../dtos/countries-list.dto';
 
 @Injectable()
 export class CountryService implements OnModuleInit {

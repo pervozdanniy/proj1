@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { AchCheckType, BankAccountTypes } from '~common/enum/document-types.enum';
-import { PrimeTrustContactEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { PrimeTrustContactEntity } from './prime-trust-contact.entity';
 
 @Entity('bank_accounts')
 export class BankAccountEntity {

@@ -1,4 +1,9 @@
 import { TransferFundsResponseDTO } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
+import { BankParamsDto } from '@/sdk/payment-gateway/prime_trust/dtos/bank-params.dto';
+import { PaymentGatewaysListDto } from '@/sdk/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
+import { SendDocumentDto } from '@/sdk/payment-gateway/prime_trust/dtos/send-document.dto';
+import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
+import { webhookData } from '@/sdk/payment-gateway/prime_trust/webhooks/data';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
   Body,
@@ -18,11 +23,6 @@ import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
-import { BankParamsDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/bank-params.dto';
-import { PaymentGatewaysListDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
-import { SendDocumentDto } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/dtos/send-document.dto';
-import { SdkPaymentGatewayService } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
-import { webhookData } from '~svc/api-gateway/src/sdk/payment-gateway/prime_trust/webhooks/data';
 
 @ApiTags('Prime Trust')
 @ApiBearerAuth()

@@ -1,6 +1,6 @@
+import { NotificationDto } from '@/api/notification/dtos/notification.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { NotificationDto } from '~svc/api-gateway/src/api/notification/dtos/notification.dto';
 
 export class PaginatedNotificationsDto {
   @ApiProperty({ description: 'Notifications list.', type: NotificationDto, isArray: true })

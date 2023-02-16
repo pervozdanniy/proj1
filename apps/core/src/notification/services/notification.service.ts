@@ -1,3 +1,4 @@
+import { UserService } from '@/user/services/user.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,8 +7,7 @@ import { Repository } from 'typeorm';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { NotificationRequest, UpdateNotificationRequest } from '~common/grpc/interfaces/notification';
 import { NotifierServiceClient, NotifyOptions, NotifyRequest, SendType } from '~common/grpc/interfaces/notifier';
-import { NotificationEntity } from '~svc/core/src/notification/entities/notification.entity';
-import { UserService } from '~svc/core/src/user/services/user.service';
+import { NotificationEntity } from '../entities/notification.entity';
 
 @Injectable()
 export class NotificationService implements OnModuleInit {

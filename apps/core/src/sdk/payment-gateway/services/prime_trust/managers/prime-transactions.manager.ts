@@ -1,14 +1,14 @@
+import { NotificationService } from '@/notification/services/notification.service';
+import { ContributionEntity } from '@/sdk/payment-gateway/entities/prime_trust/contribution.entity';
+import { DepositParamsEntity } from '@/sdk/payment-gateway/entities/prime_trust/deposit-params.entity';
+import { TransferFundsEntity } from '@/sdk/payment-gateway/entities/prime_trust/transfer-funds.entity';
+import { WithdrawalParamsEntity } from '@/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
+import { WithdrawalEntity } from '@/sdk/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { UserDetailsEntity } from '@/user/entities/user-details.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TransactionResponse } from '~common/grpc/interfaces/payment-gateway';
-import { NotificationService } from '~svc/core/src/notification/services/notification.service';
-import { ContributionEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/contribution.entity';
-import { DepositParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/deposit-params.entity';
-import { TransferFundsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/transfer-funds.entity';
-import { WithdrawalParamsEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
-import { WithdrawalEntity } from '~svc/core/src/sdk/payment-gateway/entities/prime_trust/withdrawal.entity';
 
 @Injectable()
 export class PrimeTransactionsManager {
