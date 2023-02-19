@@ -1,7 +1,5 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
-import { BankParamsDto } from '@/api/payment-gateway/prime_trust/dtos/bank-params.dto';
 import { PaymentGatewaysListDto } from '@/api/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
-import { SendDocumentDto } from '@/api/payment-gateway/prime_trust/dtos/send-document.dto';
 import { PaymentGatewayService } from '@/api/payment-gateway/prime_trust/services/payment-gateway.service';
 import {
   AccountResponseDTO,
@@ -31,6 +29,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
+import { BankParamsDto } from '../dtos/main/bank-params.dto';
+import { SendDocumentDto } from '../dtos/main/send-document.dto';
 
 @ApiTags('Prime Trust')
 @ApiBearerAuth()

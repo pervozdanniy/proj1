@@ -5,6 +5,8 @@ import "common.proto";
 package skopa.core;
 
 service PaymentGatewayService {
+
+
   rpc List(PaymentGatewayListQuery) returns (PaymentGatewayListResponse);
   rpc GetToken (common.IdRequest) returns (PG_Token);
   rpc CreateAccount (UserIdRequest) returns (AccountResponse);
@@ -15,29 +17,54 @@ service PaymentGatewayService {
   rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
   rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
-  rpc CreateReference (UserIdRequest) returns (PrimeTrustData);
   rpc GetBalance (UserIdRequest) returns (BalanceResponse);
-  rpc GetTransferById (UserIdRequest) returns (TransferResponse);
+  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
+  rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
+  rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
+
+  //deposit funds
+  rpc CreateReference (UserIdRequest) returns (PrimeTrustData);
+  rpc AddDepositParams (DepositParamRequest) returns (DepositResponse);
   rpc GetDepositById (UserIdRequest) returns (DepositDataResponse);
+  rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
+  rpc CreateCreditCardResource (UserIdRequest) returns (CreditCardResourceResponse);
+  rpc VerifyCreditCard (VerifyCreditCardRequest) returns (common.SuccessResponse);
+  rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
+  rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
+  rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
+
+
+  //transfer funds
+  rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
+  rpc GetTransferById (UserIdRequest) returns (TransferResponse);
+
+  //withdrawal
   rpc GetWithdrawalById (UserIdRequest) returns (WithdrawalDataResponse);
   rpc GetTransactions (UserIdRequest) returns (TransactionResponse);
   rpc GetWithdrawalParams (UserIdRequest) returns (WithdrawalsDataResponse);
-  rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
-  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
-  rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
-  rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalResponse);
   rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
-  rpc CreateCreditCardResource (UserIdRequest) returns (CreditCardResourceResponse);
-  rpc VerifyCreditCard (VerifyCreditCardRequest) returns (common.SuccessResponse);
-  rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
-  rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
-  rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
-  rpc AddDepositParams (DepositParamRequest) returns (DepositResponse);
 
+  //assets
+
+  rpc CreateWallet(CreateWalledRequest) returns (WalletResponse);
 }
+
+message CreateWalledRequest {
+  uint32 id = 1;
+  string label = 2;
+}
+
+message WalletResponse {
+  optional uint32 id = 1;
+  string label = 2;
+  string wallet_address = 3;
+  string wallet_for = 4;
+  string asset_transfer_method_id = 5;
+  string created_at = 6;
+}
+
 
 message WithdrawalDataResponse {
   uint32 id = 1;

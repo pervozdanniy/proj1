@@ -1,6 +1,4 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
-import { ResourceDto } from '@/api/payment-gateway/prime_trust/dtos/resource.dto';
-import { TransferFundsDto } from '@/api/payment-gateway/prime_trust/dtos/transfer-funds.dto';
 import { PaymentGatewayService } from '@/api/payment-gateway/prime_trust/services/payment-gateway.service';
 import { TransferFundsResponseDTO } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import {
@@ -15,6 +13,8 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
+import { ResourceDto } from '../dtos/deposit/resource.dto';
+import { TransferFundsDto } from '../dtos/transfer/transfer-funds.dto';
 
 @ApiTags('Prime Trust/Transfer Funds')
 @ApiBearerAuth()

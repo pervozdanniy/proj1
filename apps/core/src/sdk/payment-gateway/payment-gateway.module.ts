@@ -17,12 +17,14 @@ import { PrimeTrustBalanceEntity } from './entities/prime_trust/prime-trust-bala
 import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
 import { TransferFundsEntity } from './entities/prime_trust/transfer-funds.entity';
+import { WalletEntity } from './entities/prime_trust/wallet.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { PaymentGatewayService } from './services/payment.gateway.service';
 import { PrimeAccountManager } from './services/prime_trust/managers/prime-account.manager';
+import { PrimeAssetsManager } from './services/prime_trust/managers/prime-assets.manager';
 import { PrimeBalanceManager } from './services/prime_trust/managers/prime-balance.manager';
 import { PrimeBankAccountManager } from './services/prime_trust/managers/prime-bank-account.manager';
 import { PrimeDepositManager } from './services/prime_trust/managers/prime-deposit.manager';
@@ -52,6 +54,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       TransferFundsEntity,
       BankAccountEntity,
       DepositParamsEntity,
+      WalletEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('websocket')]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
@@ -70,6 +73,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PrimeTrustHttpService,
     PrimeBankAccountManager,
     PrimeTransactionsManager,
+    PrimeAssetsManager,
   ],
   controllers: [PaymentGatewayController],
   exports: [PaymentGatewayManager],

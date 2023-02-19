@@ -30,3 +30,8 @@ export enum BankAccountTypes {
   CHECKING = 'checking',
   SAVINGS = 'savings',
 }
+
+export enum WalletFor {
+  DEPOSIT = 'deposit',
+  WITHDRAWAL = 'withdrawal',
+}

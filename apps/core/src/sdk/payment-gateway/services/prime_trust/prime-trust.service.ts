@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
   BankAccountParams,
+  CreateWalledRequest,
   DepositParamRequest,
   MakeContributionRequest,
   TransferFundsRequest,
@@ -11,6 +12,7 @@ import {
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from './managers/prime-account.manager';
+import { PrimeAssetsManager } from './managers/prime-assets.manager';
 import { PrimeBalanceManager } from './managers/prime-balance.manager';
 import { PrimeBankAccountManager } from './managers/prime-bank-account.manager';
 import { PrimeDepositManager } from './managers/prime-deposit.manager';
@@ -37,6 +39,8 @@ export class PrimeTrustService {
     private readonly primeBankAccountManager: PrimeBankAccountManager,
 
     private readonly primeTransactionsManager: PrimeTransactionsManager,
+
+    private readonly primeAssetsManager: PrimeAssetsManager,
   ) {}
 
   getToken() {
@@ -155,5 +159,9 @@ export class PrimeTrustService {
 
   getWithdrawalById(request: UserIdRequest) {
     return this.primeWithdrawalManager.getWithdrawalById(request);
+  }
+
+  createWallet(request: CreateWalledRequest) {
+    return this.primeAssetsManager.createWallet(request);
   }
 }

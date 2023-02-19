@@ -1,8 +1,4 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
-import { CardResourceDto } from '@/api/payment-gateway/prime_trust/dtos/card-resource.dto';
-import { DepositParamsDto } from '@/api/payment-gateway/prime_trust/dtos/deposit-params.dto';
-import { MakeContributionDto } from '@/api/payment-gateway/prime_trust/dtos/make-contribution.dto';
-import { ResourceDto } from '@/api/payment-gateway/prime_trust/dtos/resource.dto';
 import { PaymentGatewayService } from '@/api/payment-gateway/prime_trust/services/payment-gateway.service';
 import {
   ContributionResponseDTO,
@@ -23,6 +19,10 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
+import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
+import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
+import { MakeContributionDto } from '../dtos/deposit/make-contribution.dto';
+import { ResourceDto } from '../dtos/deposit/resource.dto';
 
 @ApiTags('Prime Trust/Deposit Funds')
 @ApiBearerAuth()

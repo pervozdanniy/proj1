@@ -1,0 +1,121 @@
+import { NotificationService } from '@/notification/services/notification.service';
+import { PrimeTrustAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
+import { PrimeTrustBalanceEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
+import { PrimeTrustContactEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { TransferFundsEntity } from '@/sdk/payment-gateway/entities/prime_trust/transfer-funds.entity';
+import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
+import { PrimeTrustHttpService } from '@/sdk/payment-gateway/request/prime-trust-http.service';
+import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
+import { PrimeBankAccountManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
+import { Status } from '@grpc/grpc-js/build/src/constants';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ConfigInterface } from '~common/config/configuration';
+import { WalletFor } from '~common/enum/document-types.enum';
+import { CreateWalledRequest, WalletResponse } from '~common/grpc/interfaces/payment-gateway';
+import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { WalletEntity } from '../../../entities/prime_trust/wallet.entity';
+
+@Injectable()
+export class PrimeAssetsManager {
+  private readonly logger = new Logger(PrimeAssetsManager.name);
+  private readonly prime_trust_url: string;
+  private readonly app_domain: string;
+
+  private readonly asset_id: string = 'ecca8bab-dcb2-419a-973e-aebc39ff4f03';
+
+  constructor(
+    private config: ConfigService<ConfigInterface>,
+    private readonly httpService: PrimeTrustHttpService,
+    private readonly notificationService: NotificationService,
+    private readonly primeBankAccountManager: PrimeBankAccountManager,
+    private readonly primeBalanceManager: PrimeBalanceManager,
+    @InjectRepository(PrimeTrustAccountEntity)
+    private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
+    @InjectRepository(PrimeTrustContactEntity)
+    private readonly primeTrustContactEntityRepository: Repository<PrimeTrustContactEntity>,
+    @InjectRepository(PrimeTrustBalanceEntity)
+    private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
+    @InjectRepository(WalletEntity)
+    private readonly walletEntityRepository: Repository<WalletEntity>,
+    @InjectRepository(TransferFundsEntity)
+    private readonly transferFundsEntityRepository: Repository<TransferFundsEntity>,
+  ) {
+    const { prime_trust_url, domain } = config.get('app');
+    this.prime_trust_url = prime_trust_url;
+    this.app_domain = domain;
+  }
+
+  async createWallet(request: CreateWalledRequest): Promise<WalletResponse> {
+    const { id } = request;
+    const prime_trust_params = await this.primeAccountRepository
+      .createQueryBuilder('a')
+      .leftJoinAndSelect(PrimeTrustContactEntity, 'c', 'a.user_id = c.user_id')
+      .where('a.user_id = :id', { id })
+      .select(['a.uuid as account_id', 'c.uuid as contact_id'])
+      .getRawOne();
+
+    const { account_id, contact_id } = prime_trust_params;
+    const walletPayload = await this.createAssetTransferMethod(account_id, contact_id);
+    const payload = { ...walletPayload, wallet_for: WalletFor.DEPOSIT, user_id: id };
+    await this.walletEntityRepository.save(this.walletEntityRepository.create(payload));
+
+    return payload;
+  }
+
+  createDate() {
+    const date = new Date();
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const formattedDate = `${day}-${month}-${year}`;
+
+    return formattedDate;
+  }
+
+  async createAssetTransferMethod(account_id: string, contact_id: string): Promise<Omit<WalletResponse, 'wallet_for'>> {
+    const formData = {
+      data: {
+        type: 'asset-transfer-methods',
+        attributes: {
+          label: 'Deposit Address for Counterparty 1',
+          'cost-basis': '55',
+          'acquisition-on': this.createDate(),
+          'currency-type': 'USD',
+          'asset-id': this.asset_id,
+          'contact-id': contact_id,
+          'account-id': account_id,
+          'transfer-direction': 'incoming',
+          'single-use': false,
+          'asset-transfer-type': 'ethereum',
+        },
+      },
+    };
+    try {
+      const walletResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/asset-transfer-methods`,
+        data: formData,
+      });
+
+      return {
+        created_at: walletResponse.data.data.attributes['created-at'],
+        label: walletResponse.data.data.attributes['label'],
+        wallet_address: walletResponse.data.data.attributes['wallet-address'],
+        asset_transfer_method_id: walletResponse.data.data.id,
+      };
+    } catch (e) {
+      this.logger.error(e.response.data);
+
+      if (e instanceof PrimeTrustException) {
+        const { detail, code } = e.getFirstError();
+
+        throw new GrpcException(code, detail);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
+    }
+  }
+}

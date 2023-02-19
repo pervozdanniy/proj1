@@ -7,6 +7,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BankAccountParams,
+  CreateWalledRequest,
   DepositParamRequest,
   MakeContributionRequest,
   PaymentGatewayServiceClient,
@@ -153,5 +154,9 @@ export class PaymentGatewayService implements OnModuleInit {
 
   getDepositParams(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getDepositParams(data));
+  }
+
+  createWallet(data: CreateWalledRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.createWallet(data));
   }
 }

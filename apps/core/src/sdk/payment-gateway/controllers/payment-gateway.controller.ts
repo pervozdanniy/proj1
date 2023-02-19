@@ -7,6 +7,7 @@ import {
   BankAccountsResponse,
   ContactResponse,
   ContributionResponse,
+  CreateWalledRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositDataResponse,
@@ -29,6 +30,7 @@ import {
   UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
+  WalletResponse,
   WithdrawalDataResponse,
   WithdrawalParams,
   WithdrawalResponse,
@@ -40,6 +42,9 @@ import { PaymentGatewayService } from '../services/payment.gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  createWallet(request: CreateWalledRequest): Promise<WalletResponse> {
+    return this.paymentGatewayService.createWallet(request);
+  }
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   getToken({ id }: IdRequest): Promise<PG_Token> {

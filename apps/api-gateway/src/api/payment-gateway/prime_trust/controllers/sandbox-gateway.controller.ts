@@ -1,15 +1,15 @@
-import { AccountIdDto } from '@/api/payment-gateway/prime_trust/dtos/account-id.dto';
-import { CardResourceDto } from '@/api/payment-gateway/prime_trust/dtos/card-resource.dto';
-import { DepositFundsDto } from '@/api/payment-gateway/prime_trust/dtos/deposit-funds.dto';
-import { DocumentIdDto } from '@/api/payment-gateway/prime_trust/dtos/document-id.dto';
-import { SettleFundsDto } from '@/api/payment-gateway/prime_trust/dtos/settle-funds.dto';
-import { SettleWithdrawDto } from '@/api/payment-gateway/prime_trust/dtos/settle-withdraw.dto';
-import { VerifyOwnerDto } from '@/api/payment-gateway/prime_trust/dtos/verify-owner.dto';
-import { WebhookUrlDto } from '@/api/payment-gateway/prime_trust/dtos/webhook-url.dto';
 import { SandboxService } from '@/api/payment-gateway/prime_trust/services/sandbox.service';
 import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Patch, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtSessionAuth } from '~common/http-session';
+import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
+import { DepositFundsDto } from '../dtos/deposit/deposit-funds.dto';
+import { SettleFundsDto } from '../dtos/deposit/settle-funds.dto';
+import { VerifyOwnerDto } from '../dtos/deposit/verify-owner.dto';
+import { AccountIdDto } from '../dtos/main/account-id.dto';
+import { DocumentIdDto } from '../dtos/main/document-id.dto';
+import { WebhookUrlDto } from '../dtos/main/webhook-url.dto';
+import { SettleWithdrawDto } from '../dtos/withdrawal/settle-withdraw.dto';
 
 @ApiTags('Prime Trust/Sandbox')
 @ApiBearerAuth()
