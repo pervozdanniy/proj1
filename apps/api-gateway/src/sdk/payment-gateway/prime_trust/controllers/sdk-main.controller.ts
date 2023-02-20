@@ -21,8 +21,8 @@ import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
-import { PaymentGatewaysListDto } from '../dtos/main/payment-gateways-list.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
+import { PaymentGatewaysListDto } from '../dtos/payment-gateways-list.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Prime Trust')

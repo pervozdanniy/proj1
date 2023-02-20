@@ -30,6 +30,7 @@ import { AlterCardResourceTable1676270704886 } from './migrations/1676270704886-
 import { AlterTransferFundsTable1676353129263 } from './migrations/1676353129263-AlterTransferFundsTable';
 import { CreateWalletsTable1676625568346 } from './migrations/1676625568346-CreateWalletsTable';
 import { AlterTransfersTable1676796180024 } from './migrations/1676796180024-AlterTransfersTable';
+import { AlterWalletTable1676897676021 } from './migrations/1676897676021-AlterWalletTable';
 import { SeedPaymentGateway1671466516817 } from './seeds/1671466516817-SeedPaymentGateway';
 
 export default [
@@ -66,4 +67,5 @@ export default [
   AlterTransferFundsTable1676353129263,
   CreateWalletsTable1676625568346,
   AlterTransfersTable1676796180024,
+  AlterWalletTable1676897676021,
 ];

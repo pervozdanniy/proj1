@@ -12,10 +12,10 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
-import { DepositParamsDto } from '../../../../api/payment-gateway/prime_trust/dtos/deposit/deposit-params.dto';
-import { ResourceDto } from '../../../../api/payment-gateway/prime_trust/dtos/deposit/resource.dto';
 import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
+import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
 import { MakeContributionDto } from '../dtos/deposit/make-contribution.dto';
+import { ResourceDto } from '../dtos/deposit/resource.dto';
 
 @ApiTags('Prime Trust/Deposit Funds')
 @ApiBearerAuth()

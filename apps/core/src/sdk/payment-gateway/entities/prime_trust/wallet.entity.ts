@@ -7,7 +7,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { WalletFor } from '~common/enum/document-types.enum';
 import { PrimeTrustContactEntity } from './prime-trust-contact.entity';
 
 @Entity('wallets')
@@ -27,12 +26,8 @@ export class WalletEntity {
   @Column('character varying', { nullable: true })
   wallet_address: string;
 
-  @Column({
-    type: 'enum',
-    enum: WalletFor,
-    default: WalletFor.DEPOSIT,
-  })
-  wallet_for: WalletFor;
+  @Column('character varying', { nullable: true })
+  wallet_for: string;
 
   @Column('character varying', { nullable: true })
   asset_id: string;

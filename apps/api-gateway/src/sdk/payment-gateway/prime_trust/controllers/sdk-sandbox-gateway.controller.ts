@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { JwtSessionAuth } from '~common/http-session';
 import { DepositFundsDto } from '../dtos/deposit/deposit-funds.dto';
 import { SettleFundsDto } from '../dtos/deposit/settle-funds.dto';
-import { VerifyOwnerDto } from '../dtos/main/verify-owner.dto';
+import { VerifyOwnerDto } from '../dtos/deposit/verify-owner.dto';
 import { WebhookUrlDto } from '../dtos/main/webhook-url.dto';
 import { SettleWithdrawDto } from '../dtos/withdrawal/settle-withdraw.dto';
 

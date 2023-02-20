@@ -12,7 +12,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
-import { ResourceDto } from '../../../../api/payment-gateway/prime_trust/dtos/deposit/resource.dto';
+import { ResourceDto } from '../dtos/deposit/resource.dto';
 import { WithdrawalMakeDto } from '../dtos/withdrawal/withdrawal-make.dto';
 import { WithdrawalParamsDto } from '../dtos/withdrawal/withdrawal-params.dto';
 
