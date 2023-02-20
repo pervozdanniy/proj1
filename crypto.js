@@ -1,10 +1,14 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs');
+const path = require('node:path');
+
+const DIR = '.tmp/crypto';
+const PRIV_KEY = path.join(DIR, 'priv.pem');
 
 function register() {
   const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
-  fs.mkdirSync('~/.skopa', { recursive: true });
-  fs.writeFileSync('~/.skopa/priv.pem', privateKey.export({ format: 'pem', type: 'pkcs8' }).toString('utf8'));
+  fs.mkdirSync(DIR, { recursive: true });
+  fs.writeFileSync(PRIV_KEY, privateKey.export({ format: 'pem', type: 'pkcs8' }).toString('utf8'));
 
   console.log('PUBLIC KEY: ', publicKey.export({ format: 'der', type: 'spki' }).toString('hex'));
 }
@@ -64,7 +68,7 @@ function fromRaw(raw) {
 }
 
 function clean() {
-  fs.rmSync('~/.skopa/priv.pem');
+  fs.rmSync(PRIV_KEY);
 }
 
 const actions = { register, sign, verify, fromRaw, clean };
