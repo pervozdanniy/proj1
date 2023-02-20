@@ -23,7 +23,7 @@ function sign(data, priv) {
     });
   } else {
     privateKey = crypto.createPrivateKey({
-      key: fs.readFileSync('~/.skopa/priv.pem', { encoding: 'utf8' }),
+      key: fs.readFileSync(PRIV_KEY, { encoding: 'utf8' }),
       format: 'pem',
       type: 'pkcs8',
     });
