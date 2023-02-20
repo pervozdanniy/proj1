@@ -31,6 +31,7 @@ import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
+import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Prime Trust')
 @ApiBearerAuth()
@@ -200,7 +201,7 @@ export class MainController {
   })
   @JwtSessionAuth()
   @Get('/transactions')
-  async getTransactions(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getTransactions({ id });
+  async getTransactions(@JwtSessionUser() { id }: User, @Query() query: GetTransfersDto) {
+    return this.paymentGatewayService.getTransactions({ user_id: id, ...query });
   }
 }

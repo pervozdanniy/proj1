@@ -22,6 +22,7 @@ import {
   PaymentGatewayServiceControllerMethods,
   PG_Token,
   PrimeTrustData,
+  SearchTransactionRequest,
   TransactionResponse,
   TransferFundsRequest,
   TransferFundsResponse,
@@ -144,7 +145,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   getWithdrawalById(request: UserIdRequest): Promise<WithdrawalDataResponse> {
     return this.paymentGatewayService.getWithdrawalById(request);
   }
-  getTransactions(request: UserIdRequest): Promise<TransactionResponse> {
+  getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {
     return this.paymentGatewayService.getTransactions(request);
   }
   getAccount(request: UserIdRequest): Promise<AccountResponse> {

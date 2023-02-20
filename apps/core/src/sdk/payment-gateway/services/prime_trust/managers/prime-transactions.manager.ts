@@ -6,8 +6,8 @@ import { WithdrawalEntity } from '@/sdk/payment-gateway/entities/prime_trust/wit
 import { UserDetailsEntity } from '@/user/entities/user-details.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { TransactionResponse } from '~common/grpc/interfaces/payment-gateway';
+import { Brackets, Repository } from 'typeorm';
+import { SearchTransactionRequest, TransactionResponse } from '~common/grpc/interfaces/payment-gateway';
 import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 
 @Injectable()
@@ -31,25 +31,62 @@ export class PrimeTransactionsManager {
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
   ) {}
 
-  async getTransactions(id: number): Promise<TransactionResponse> {
-    const transfers = await this.transferFundsEntityRepository
+  async getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {
+    const { user_id, searchTerm, page, limit } = request;
+
+    const queryBuilder = this.transferFundsEntityRepository
       .createQueryBuilder('t')
       .leftJoinAndSelect(UserDetailsEntity, 's', 's.user_id = t.user_id')
-      .leftJoinAndSelect(UserDetailsEntity, 'r', 'r.user_id = t.receiver_id')
-      .where('t.user_id = :id', { id })
-      .orWhere('t.receiver_id = :id', { id })
-      .select([
-        't.*',
-        `CASE
-          WHEN t.type = 'transfer' AND t.user_id = ${id} THEN 'to ' || r.first_name || ' ' || r.last_name
-          WHEN t.type = 'transfer' THEN 'from ' || s.first_name || ' ' || s.last_name
-          ELSE t.type
-        END as title`,
-      ])
+      .leftJoinAndSelect(UserDetailsEntity, 'r', 'r.user_id = t.receiver_id');
+
+    queryBuilder.andWhere(
+      new Brackets((qb) => {
+        qb.where('t.user_id = :user_id', { user_id }).orWhere('t.receiver_id = :user_id', { user_id });
+      }),
+    );
+
+    if (searchTerm) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('t.type ILIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          })
+            .orWhere('s.first_name ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
+            .orWhere('s.last_name ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
+            .orWhere('r.first_name ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
+            .orWhere('r.last_name ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            });
+        }),
+      );
+    }
+    queryBuilder.select([
+      't.*',
+      `CASE
+        WHEN t.type = 'transfer' AND t.user_id = ${user_id} THEN 'to ' || r.first_name || ' ' || r.last_name
+        WHEN t.type = 'transfer' THEN 'from ' || s.first_name || ' ' || s.last_name
+        ELSE t.type
+      END as title`,
+    ]);
+
+    const totalTransactions = await queryBuilder.getCount();
+
+    const transactions = await queryBuilder
+      .skip((page - 1) * limit)
+      .take(limit)
       .getRawMany();
 
     return {
-      data: transfers,
+      transactions,
+      totalTransactions,
+      totalPages: Math.ceil(totalTransactions / limit),
+      currentPage: page,
     };
   }
 }

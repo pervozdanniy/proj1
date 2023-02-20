@@ -1,5 +1,3 @@
-import { CardResourceDto } from '@/sdk/payment-gateway/prime_trust/dtos/card-resource.dto';
-import { MakeContributionDto } from '@/sdk/payment-gateway/prime_trust/dtos/make-contribution.dto';
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
 import {
   Body,
@@ -16,6 +14,8 @@ import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 import { DepositParamsDto } from '../../../../api/payment-gateway/prime_trust/dtos/deposit/deposit-params.dto';
 import { ResourceDto } from '../../../../api/payment-gateway/prime_trust/dtos/deposit/resource.dto';
+import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
+import { MakeContributionDto } from '../dtos/deposit/make-contribution.dto';
 
 @ApiTags('Prime Trust/Deposit Funds')
 @ApiBearerAuth()

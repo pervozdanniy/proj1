@@ -1,4 +1,3 @@
-import { TransferFundsDto } from '@/sdk/payment-gateway/prime_trust/dtos/transfer-funds.dto';
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
 import {
   Body,
@@ -14,6 +13,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 import { ResourceDto } from '../../../../api/payment-gateway/prime_trust/dtos/deposit/resource.dto';
+import { TransferFundsDto } from '../dtos/transfer/transfer-funds.dto';
 
 @ApiTags('Prime Trust/Transfer Funds')
 @ApiBearerAuth()

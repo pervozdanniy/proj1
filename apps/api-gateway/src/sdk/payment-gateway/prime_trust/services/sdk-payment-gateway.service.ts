@@ -1,4 +1,3 @@
-import { PaymentGatewaysListDto } from '@/sdk/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
@@ -10,6 +9,7 @@ import {
   DepositParamRequest,
   MakeContributionRequest,
   PaymentGatewayServiceClient,
+  SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
@@ -17,6 +17,7 @@ import {
   VerifyCreditCardRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
+import { PaymentGatewaysListDto } from '../dtos/main/payment-gateways-list.dto';
 
 @Injectable()
 export class SdkPaymentGatewayService implements OnModuleInit {
@@ -143,7 +144,7 @@ export class SdkPaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getWithdrawalById(data));
   }
 
-  getTransactions(data: UserIdRequest) {
+  getTransactions(data: SearchTransactionRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getTransactions(data));
   }
 }

@@ -5,6 +5,13 @@ import { IdRequest, SuccessResponse } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface SearchTransactionRequest {
+  user_id: number;
+  page: number;
+  limit: number;
+  searchTerm?: string | undefined;
+}
+
 export interface CreateWalledRequest {
   id: number;
   label: string;
@@ -55,7 +62,10 @@ export interface DepositDataResponse {
 }
 
 export interface TransactionResponse {
-  data: Transaction[];
+  transactions: Transaction[];
+  totalTransactions: number;
+  totalPages: number;
+  currentPage: number;
 }
 
 export interface Transaction {
@@ -297,6 +307,8 @@ export interface PaymentGatewayServiceClient {
 
   addBankAccountParams(request: BankAccountParams, ...rest: any): Observable<BankAccountParams>;
 
+  getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
+
   /** deposit funds */
 
   createReference(request: UserIdRequest, ...rest: any): Observable<PrimeTrustData>;
@@ -324,8 +336,6 @@ export interface PaymentGatewayServiceClient {
   /** withdrawal */
 
   getWithdrawalById(request: UserIdRequest, ...rest: any): Observable<WithdrawalDataResponse>;
-
-  getTransactions(request: UserIdRequest, ...rest: any): Observable<TransactionResponse>;
 
   getWithdrawalParams(request: UserIdRequest, ...rest: any): Observable<WithdrawalsDataResponse>;
 
@@ -406,6 +416,11 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<BankAccountParams> | Observable<BankAccountParams> | BankAccountParams;
 
+  getTransactions(
+    request: SearchTransactionRequest,
+    ...rest: any
+  ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
+
   /** deposit funds */
 
   createReference(
@@ -467,11 +482,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<WithdrawalDataResponse> | Observable<WithdrawalDataResponse> | WithdrawalDataResponse;
 
-  getTransactions(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
-
   getWithdrawalParams(
     request: UserIdRequest,
     ...rest: any
@@ -515,6 +525,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "updateBalance",
       "getBankAccounts",
       "addBankAccountParams",
+      "getTransactions",
       "createReference",
       "addDepositParams",
       "getDepositById",
@@ -526,7 +537,6 @@ export function PaymentGatewayServiceControllerMethods() {
       "getCreditCards",
       "transferFunds",
       "getWithdrawalById",
-      "getTransactions",
       "getWithdrawalParams",
       "addWithdrawalParams",
       "makeWithdrawal",

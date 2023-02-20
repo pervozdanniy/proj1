@@ -11,6 +11,7 @@ import {
   DepositParamRequest,
   MakeContributionRequest,
   PaymentGatewayServiceClient,
+  SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
@@ -144,7 +145,7 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getWithdrawalById(data));
   }
 
-  getTransactions(data: UserIdRequest) {
+  getTransactions(data: SearchTransactionRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getTransactions(data));
   }
 

@@ -1,7 +1,4 @@
 import { TransferFundsResponseDTO } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
-import { BankParamsDto } from '@/sdk/payment-gateway/prime_trust/dtos/bank-params.dto';
-import { PaymentGatewaysListDto } from '@/sdk/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
-import { SendDocumentDto } from '@/sdk/payment-gateway/prime_trust/dtos/send-document.dto';
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
 import { webhookData } from '@/sdk/payment-gateway/prime_trust/webhooks/data';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -23,6 +20,10 @@ import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
+import { BankParamsDto } from '../dtos/main/bank-params.dto';
+import { PaymentGatewaysListDto } from '../dtos/main/payment-gateways-list.dto';
+import { SendDocumentDto } from '../dtos/main/send-document.dto';
+import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Prime Trust')
 @ApiBearerAuth()
@@ -183,7 +184,7 @@ export class SdkMainController {
   })
   @JwtSessionAuth()
   @Get('/transactions')
-  async getTransactions(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getTransactions({ id });
+  async getTransactions(@JwtSessionUser() { id }: User, @Query() query: GetTransfersDto) {
+    return this.paymentGatewayService.getTransactions({ user_id: id, ...query });
   }
 }

@@ -6,6 +6,7 @@ import {
   CreateWalledRequest,
   DepositParamRequest,
   MakeContributionRequest,
+  SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
   UserIdRequest,
@@ -141,8 +142,8 @@ export class PrimeTrustService {
     return this.primeDepositManager.addDepositParams(request);
   }
 
-  getTransactions(id: number) {
-    return this.primeTransactionsManager.getTransactions(id);
+  getTransactions(request: SearchTransactionRequest) {
+    return this.primeTransactionsManager.getTransactions(request);
   }
 
   getDepositById(request: UserIdRequest) {

@@ -21,6 +21,7 @@ service PaymentGatewayService {
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
   rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
+  rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
   //deposit funds
   rpc CreateReference (UserIdRequest) returns (PrimeTrustData);
@@ -39,7 +40,6 @@ service PaymentGatewayService {
 
   //withdrawal
   rpc GetWithdrawalById (UserIdRequest) returns (WithdrawalDataResponse);
-  rpc GetTransactions (UserIdRequest) returns (TransactionResponse);
   rpc GetWithdrawalParams (UserIdRequest) returns (WithdrawalsDataResponse);
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalResponse);
   rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
@@ -48,6 +48,14 @@ service PaymentGatewayService {
   //assets
 
   rpc CreateWallet(CreateWalledRequest) returns (WalletResponse);
+}
+
+
+message SearchTransactionRequest {
+  uint32 user_id = 1;
+  uint32 page = 2;
+  uint32 limit = 3;
+  optional string searchTerm = 4;
 }
 
 message CreateWalledRequest {
@@ -101,7 +109,10 @@ message DepositDataResponse {
 }
 
 message TransactionResponse {
-  repeated Transaction data = 1;
+  repeated Transaction transactions = 1;
+  uint32 totalTransactions = 2;
+  uint32 totalPages = 3;
+  uint32 currentPage = 4;
 }
 
 message Transaction {

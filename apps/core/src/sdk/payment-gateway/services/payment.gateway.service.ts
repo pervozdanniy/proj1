@@ -15,6 +15,7 @@ import {
   PaymentGatewayListQuery,
   PaymentGatewayListResponse,
   PG_Token,
+  SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
@@ -280,13 +281,13 @@ export class PaymentGatewayService {
 
     return paymentGateway.getDepositById(request);
   }
-  async getTransactions(request: UserIdRequest) {
-    const userDetails = await this.userService.getUserInfo(request.id);
+  async getTransactions(request: SearchTransactionRequest) {
+    const userDetails = await this.userService.getUserInfo(request.user_id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(
       userDetails.country.payment_gateway.alias,
     );
 
-    return paymentGateway.getTransactions(request.id);
+    return paymentGateway.getTransactions(request);
   }
 
   async getDepositParams(request: UserIdRequest) {
