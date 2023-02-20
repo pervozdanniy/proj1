@@ -27,7 +27,6 @@ import {
   TransferFundsRequest,
   TransferFundsResponse,
   TransferMethodRequest,
-  TransferResponse,
   UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,

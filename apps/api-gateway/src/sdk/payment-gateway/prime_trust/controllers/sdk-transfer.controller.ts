@@ -1,18 +1,8 @@
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
-import {
-  Body,
-  ClassSerializerInterceptor,
-  Controller,
-  Get,
-  HttpStatus,
-  Post,
-  Query,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
-import { ResourceDto } from '../../../../api/payment-gateway/prime_trust/dtos/deposit/resource.dto';
 import { TransferFundsDto } from '../dtos/transfer/transfer-funds.dto';
 
 @ApiTags('Prime Trust/Transfer Funds')

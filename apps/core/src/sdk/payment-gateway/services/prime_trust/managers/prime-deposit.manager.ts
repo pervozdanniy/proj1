@@ -1,7 +1,6 @@
 import { NotificationService } from '@/notification/services/notification.service';
 import { BankAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from '@/sdk/payment-gateway/entities/prime_trust/card-resource.entity';
-import { ContributionEntity } from '@/sdk/payment-gateway/entities/prime_trust/contribution.entity';
 import { DepositParamsEntity } from '@/sdk/payment-gateway/entities/prime_trust/deposit-params.entity';
 import { PrimeTrustAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
