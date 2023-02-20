@@ -27,7 +27,7 @@ export class PrimeTrustHttpService {
   }
 
   async ensureAuth(force = false) {
-    let prime_token;
+    let prime_token: string;
     if (!force) {
       prime_token = await this.redis.get('prime_token');
       if (!prime_token) {
@@ -69,7 +69,7 @@ export class PrimeTrustHttpService {
     return _retry(attempts);
   }
 
-  createConfig(config, token) {
+  createConfig(config: AxiosRequestConfig, token: string) {
     if (!config.headers) {
       config = {
         ...config,

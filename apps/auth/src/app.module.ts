@@ -8,6 +8,7 @@ import { AuthApiModule } from './api/api.module';
 import { ClientModule } from './client/client.module';
 import dbConfig from './db/db.config';
 import migrations from './db/migrations-list';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import migrations from './db/migrations-list';
     AuthApiModule,
     ClientModule,
     GrpcSessionModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

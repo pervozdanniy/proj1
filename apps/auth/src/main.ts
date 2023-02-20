@@ -9,27 +9,32 @@ import sentryInit from '~common/sentry/init';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const context = await NestFactory.createApplicationContext(AppModule);
+  const context = await NestFactory.create(AppModule);
   const config = context.get(ConfigService<ConfigInterface>);
 
   sentryInit();
 
-  const app = await NestFactory.createMicroservice<GrpcOptions>(AppModule, {
+  const app = context.connectMicroservice<GrpcOptions>({
     transport: Transport.GRPC,
     options: {
       interceptors: [context.get(GrpcSessionMiddleware)],
       url: '0.0.0.0:5000',
-      package: 'skopa.auth',
+      package: ['skopa.auth', 'grpc.health.v1'],
       loader: {
         keepCase: true,
         longs: String,
         defaults: true,
         oneofs: true,
       },
-      protoPath: join(config.get('basePath'), 'common/grpc/_proto/auth.proto'),
+      protoPath: [
+        join(config.get('basePath'), 'common/grpc/_proto/auth.proto'),
+        join(config.get('basePath'), 'common/grpc/_proto/health.proto'),
+      ],
     },
   });
 
-  await app.listen();
+  await context.init();
+
+  return app.listen();
 }
 bootstrap();
