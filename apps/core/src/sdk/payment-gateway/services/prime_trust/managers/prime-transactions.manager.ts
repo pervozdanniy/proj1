@@ -8,6 +8,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { SearchTransactionRequest, TransactionResponse } from '~common/grpc/interfaces/payment-gateway';
+import { UserEntity } from '../../../../../user/entities/user.entity';
 import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 
 @Injectable()
@@ -37,7 +38,9 @@ export class PrimeTransactionsManager {
     const queryBuilder = this.transferFundsEntityRepository
       .createQueryBuilder('t')
       .leftJoinAndSelect(UserDetailsEntity, 's', 's.user_id = t.user_id')
-      .leftJoinAndSelect(UserDetailsEntity, 'r', 'r.user_id = t.receiver_id');
+      .leftJoinAndSelect(UserDetailsEntity, 'r', 'r.user_id = t.receiver_id')
+      .leftJoinAndSelect(UserEntity, 'sender_details', 'sender_details.id = t.user_id')
+      .leftJoinAndSelect(UserEntity, 'receiver_details', 'receiver_details.id = t.receiver_id');
 
     queryBuilder.andWhere(
       new Brackets((qb) => {
@@ -48,9 +51,18 @@ export class PrimeTransactionsManager {
     if (searchTerm) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
-          qb.where('t.type ILIKE :searchTerm', {
+          qb.where('sender_details.email ILIKE :searchTerm', {
             searchTerm: `%${searchTerm}%`,
           })
+            .orWhere('receiver_details.email ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
+            .orWhere('sender_details.phone ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
+            .orWhere('receiver_details.phone ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
             .orWhere('s.first_name ILIKE :searchTerm', {
               searchTerm: `%${searchTerm}%`,
             })
