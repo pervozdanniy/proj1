@@ -62,11 +62,19 @@ export class AuthService implements OnModuleInit {
     return success;
   }
 
-  createUser(payload: CreateRequest) {
+  async createUser(payload: CreateRequest) {
+    if (payload.password) {
+      payload.password = await bcrypt.hash(payload.password, 10);
+    }
+
     return firstValueFrom(this.userService.create(payload));
   }
 
-  updateUser(payload: UpdateRequest) {
+  async updateUser(payload: UpdateRequest) {
+    if (payload.password) {
+      payload.password = await bcrypt.hash(payload.password, 10);
+    }
+
     return firstValueFrom(this.userService.update(payload));
   }
 

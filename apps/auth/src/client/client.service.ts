@@ -11,8 +11,10 @@ import {
   ClientLoginRequest,
   SignedRequest,
 } from '~common/grpc/interfaces/auth';
+import { CreateRequest } from '~common/grpc/interfaces/core';
 import { SessionProxy } from '~common/session';
 import { AuthClient } from '../entities/auth_client.entity';
+import { UnsignedRegisterRequest } from './dto/register.request.dto';
 import { isDerFormatted, isRaw, rawToDer } from './helpers/ed25519-public';
 
 @Injectable()
@@ -84,5 +86,18 @@ export class ClientService {
     }
 
     throw new UnauthorizedException();
+  }
+
+  async register(request: UnsignedRegisterRequest, client: AuthClientInterface) {
+    const payload: CreateRequest = {
+      email: request.login,
+      username: request.login,
+      password: request.password ?? null,
+      country_id: request.countryId,
+      contacts: [],
+      source: client.name,
+    };
+
+    return this.auth.createUser(payload);
   }
 }

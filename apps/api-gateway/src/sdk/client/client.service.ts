@@ -4,23 +4,16 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthClient, ClientServiceClient, SignedRequest } from '~common/grpc/interfaces/auth';
-import { UserServiceClient } from '~common/grpc/interfaces/core';
 import { CreateRequestDto } from './dto/create.request.dto';
-import { RegisterRequestDto } from './dto/register.request.dto';
 
 @Injectable()
 export class ClientService implements OnModuleInit {
   private readonly logger = new Logger(ClientService.name);
-  private userService: UserServiceClient;
   private authClientService: ClientServiceClient;
 
-  constructor(
-    @InjectGrpc('core') private readonly core: ClientGrpc,
-    @InjectGrpc('auth') private readonly auth: ClientGrpc,
-  ) {}
+  constructor(@InjectGrpc('auth') private readonly auth: ClientGrpc) {}
 
   async onModuleInit() {
-    this.userService = this.core.getService('UserService');
     this.authClientService = this.auth.getService('ClientService');
   }
 
@@ -44,21 +37,11 @@ export class ClientService implements OnModuleInit {
     return client;
   }
 
-  async registerUser(payload: RegisterRequestDto, client?: AuthClient) {
-    if (!client || (!payload.password && !payload.secure)) {
-      throw new UnauthorizedException();
-    }
+  async registerUser(payload: SignedRequest, apiKey: string) {
+    const metadata = new Metadata();
+    metadata.set('api-key', apiKey);
 
-    return firstValueFrom(
-      this.userService.create({
-        username: payload.login,
-        email: payload.login,
-        password: payload.password ?? null,
-        country_id: payload.countryId,
-        source: client.name,
-        contacts: [],
-      }),
-    );
+    return firstValueFrom(this.authClientService.register(payload, metadata));
   }
 
   loginUser(payload: SignedRequest, apiKey: string) {

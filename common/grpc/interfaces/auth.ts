@@ -194,6 +194,8 @@ export interface ClientServiceClient {
   validate(request: SignedRequest, ...rest: any): Observable<AuthClient>;
 
   login(request: SignedRequest, ...rest: any): Observable<AuthData>;
+
+  register(request: SignedRequest, ...rest: any): Observable<User>;
 }
 
 export interface ClientServiceController {
@@ -202,11 +204,13 @@ export interface ClientServiceController {
   validate(request: SignedRequest, ...rest: any): Promise<AuthClient> | Observable<AuthClient> | AuthClient;
 
   login(request: SignedRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  register(request: SignedRequest, ...rest: any): Promise<User> | Observable<User> | User;
 }
 
 export function ClientServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["create", "validate", "login"];
+    const grpcMethods: string[] = ["create", "validate", "login", "register"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("ClientService", method)(constructor.prototype[method], method, descriptor);

@@ -30,9 +30,11 @@ service AuthService {
 service ClientService {
   rpc Create (ClientCreateRequest) returns (AuthClient);
 
-  rpc Validate(SignedRequest) returns (AuthClient);
+  rpc Validate (SignedRequest) returns (AuthClient);
 
-  rpc Login(SignedRequest) returns (AuthData);
+  rpc Login (SignedRequest) returns (AuthData);
+
+  rpc Register (SignedRequest) returns (common.User);
 }
 
 service TwoFactorService {

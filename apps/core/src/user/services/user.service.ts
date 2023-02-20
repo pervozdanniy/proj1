@@ -4,7 +4,6 @@ import { UserCheckService } from '@/user/services/user-check.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { FindRequestDto } from '../dto/find.request.dto';
@@ -43,9 +42,6 @@ export class UserService {
       if (country.code === 'US' && details) {
         this.countryService.checkUSA(details);
       }
-    }
-    if (userData.password) {
-      userData.password = await bcrypt.hash(userData.password, 10);
     }
 
     const user = await this.userRepository.save(this.userRepository.create(userData));
@@ -98,9 +94,6 @@ export class UserService {
       }
     }
 
-    if (payload.password) {
-      payload.password = await bcrypt.hash(payload.password, 10);
-    }
     await this.userRepository.update({ id }, payload);
 
     if (details) {

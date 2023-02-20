@@ -10,10 +10,12 @@ import {
   ClientServiceControllerMethods,
   SignedRequest,
 } from '~common/grpc/interfaces/auth';
+import { User } from '~common/grpc/interfaces/common';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { ClientService } from './client.service';
 import { ApiKey } from './decorators/api-key.decorator';
 import { SignedLoginRequestDto, UnsignedLoginRequestDto } from './dto/login.request.dto';
+import { SignedRegisterRequest, UnsignedRegisterRequest } from './dto/register.request.dto';
 
 @RpcController()
 @ClientServiceControllerMethods()
@@ -38,9 +40,8 @@ export class ClientController implements ClientServiceController {
 
   async login(
     @Payload() request: SignedRequest,
-    _metadata,
-    @GrpcSession() session?: SessionProxy,
-    @ApiKey() apiKey?: string,
+    @GrpcSession() session: SessionProxy,
+    @ApiKey() apiKey: string,
   ): Promise<AuthData> {
     const client = await this.clientService.validate(request, apiKey);
     if (!client) {
@@ -54,5 +55,20 @@ export class ClientController implements ClientServiceController {
     });
 
     return this.clientService.login(payload, client, session);
+  }
+
+  async register(@Payload() request: SignedRequest, @ApiKey() apiKey: string): Promise<User> {
+    const client = await this.clientService.validate(request, apiKey);
+    if (!client) {
+      throw new UnauthorizedException();
+    }
+    const data = JSON.parse(Buffer.from(request.data).toString('utf8'));
+    const pipe = new ValidationPipe({ transform: true, whitelist: true });
+    const payload = await pipe.transform(data, {
+      type: 'body',
+      metatype: client.is_secure ? SignedRegisterRequest : UnsignedRegisterRequest,
+    });
+
+    return this.clientService.register(payload, client);
   }
 }

@@ -12,10 +12,8 @@ import {
 import { ApiBody, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Buffer } from 'node:buffer';
-import { AuthClient as AuthClientInterface } from '~common/grpc/interfaces/auth';
-import { SuccessDto } from '../utils/success.dto';
+import { PublicUserDto } from '../utils/public-user.dto';
 import { ClientService } from './client.service';
-import { AuthClient } from './decorators/auth-client.decorator';
 import { CreateRequestDto } from './dto/create.request.dto';
 import { LoginRequestDto } from './dto/login.request.dto';
 import { RegisterRequestDto } from './dto/register.request.dto';
@@ -40,11 +38,15 @@ export class ClientController {
   @ApiBody({ type: RegisterRequestDto })
   @ApiHeader({ name: 'signature' })
   @ApiHeader({ name: 'api-key' })
-  @ApiResponse({ status: HttpStatus.CREATED, type: SuccessDto })
-  async register(@Body() payload: RegisterRequestDto, @AuthClient() client: AuthClientInterface) {
-    await this.clientService.registerUser(payload, client);
+  @ApiResponse({ status: HttpStatus.CREATED, type: PublicUserDto })
+  async register(@Req() req: RawBodyRequest<Request>) {
+    const sign = req.header('signature');
+    const apiKey = req.header('api-key');
 
-    return { success: true };
+    return this.clientService.registerUser(
+      { data: req.rawBody, signature: sign ? Buffer.from(sign, 'hex') : undefined },
+      apiKey,
+    );
   }
 
   @Post('login')

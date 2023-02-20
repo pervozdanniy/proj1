@@ -27,41 +27,51 @@ export class UserContactsDto {
 }
 
 export class UserDetails {
+  @ApiProperty({ example: 'first_name' })
   @IsString()
   @IsNotEmpty()
+  @Length(2, 50)
   first_name: string;
 
+  @ApiProperty({ example: 'last_name' })
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
   last_name: string;
 
+  @ApiProperty({ example: 'Las Vegas' })
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
   city: string;
 
+  @ApiProperty({ example: 'NV' })
+  @IsString()
+  @IsOptional()
+  region: string;
+
+  @ApiProperty({ format: 'date', example: '1995-09-09' })
+  @IsString()
+  @IsNotEmpty()
+  date_of_birth: string;
+
+  @ApiProperty({ example: '123 MK Road' })
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
   street: string;
 
-  @IsString()
-  @IsNotEmpty()
-  region: string;
-
-  @IsString()
-  @IsNotEmpty()
-  date_of_birth: string;
-
+  @ApiProperty({ example: 89145 })
   @IsNumber()
   @IsOptional()
   postal_code: number;
 
+  @ApiProperty({ example: 123123123 })
   @IsNumber()
   @IsNotEmpty()
   tax_id_number: number;
 
+  @ApiProperty({ enum: Object.values(SendType), default: SendType.ALL })
   @IsEnum(SendType)
   @Type(() => Number)
   send_type?: SendType;
