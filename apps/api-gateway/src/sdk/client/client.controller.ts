@@ -19,7 +19,7 @@ import { LoginRequestDto } from './dto/login.request.dto';
 import { RegisterRequestDto } from './dto/register.request.dto';
 import { AuthClientGuard } from './guards/auth-client.guard';
 
-@ApiTags('SDK/Client')
+@ApiTags('SDK')
 @Controller({
   version: '1',
   path: 'sdk/clients',
