@@ -19,6 +19,7 @@ export interface UpdateRequest {
   username?: string | undefined;
   country_id?: number | undefined;
   phone?: string | undefined;
+  password?: string | undefined;
   details?: UserDetails | undefined;
   contacts?: UserContacts | undefined;
 }
@@ -34,8 +35,9 @@ export interface CreateRequest {
   contacts: string[];
 }
 
-export interface LoginRequest {
-  login: string;
+export interface FindByLoginRequest {
+  email?: string | undefined;
+  phone?: string | undefined;
 }
 
 export interface UpdateContactsRequest {
@@ -53,7 +55,7 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface UserServiceClient {
   getById(request: IdRequest, ...rest: any): Observable<User>;
 
-  findByLogin(request: LoginRequest, ...rest: any): Observable<NullableUser>;
+  findByLogin(request: FindByLoginRequest, ...rest: any): Observable<NullableUser>;
 
   create(request: CreateRequest, ...rest: any): Observable<User>;
 
@@ -69,7 +71,10 @@ export interface UserServiceClient {
 export interface UserServiceController {
   getById(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
-  findByLogin(request: LoginRequest, ...rest: any): Promise<NullableUser> | Observable<NullableUser> | NullableUser;
+  findByLogin(
+    request: FindByLoginRequest,
+    ...rest: any
+  ): Promise<NullableUser> | Observable<NullableUser> | NullableUser;
 
   create(request: CreateRequest, ...rest: any): Promise<User> | Observable<User> | User;
 

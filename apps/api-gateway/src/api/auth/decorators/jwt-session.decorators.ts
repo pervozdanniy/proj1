@@ -5,14 +5,13 @@ import {
   ApiResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { With2FA } from '~common/constants/auth/2fa/interfaces';
-import { WithPreRegistration } from '~common/constants/auth/registration/interfaces';
-import { JwtSession, JwtSessionId, JwtSessionUser, SessionMetadataOptions } from '~common/http-session';
+import { JwtSession, JwtSessionId, JwtSessionUser } from '~common/http-session';
 import { JWT_AUTH_METADATA } from '~common/http-session/meta';
 import { TwoFactorRequiredResponseDto } from '../dto/2fa.reponse.dto';
 import { JwtSessionGuard } from '../guards/jwt-session.guard';
+import { SessionMetadataOptions } from '../interfaces/session.interface';
 
-const JwtSessionAuth = (options: WithPreRegistration<With2FA<SessionMetadataOptions>> = {}) => {
+const JwtSessionAuth = (options: SessionMetadataOptions = {}) => {
   const decorators: Parameters<typeof applyDecorators> = [
     SetMetadata(JWT_AUTH_METADATA, options),
     UseGuards(JwtSessionGuard),
@@ -34,6 +33,9 @@ const JwtSessionAuth = (options: WithPreRegistration<With2FA<SessionMetadataOpti
   }
   if (options.requirePreRegistration) {
     decorators.push(ApiConflictResponse({ description: "You haven't started registration process" }));
+  }
+  if (options.requirePasswordReset) {
+    decorators.push(ApiConflictResponse({ description: "You haven't started password reset process" }));
   }
 
   return applyDecorators(...decorators);

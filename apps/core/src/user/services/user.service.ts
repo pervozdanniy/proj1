@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { FindRequestDto } from '../dto/find.request.dto';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserDetailsEntity } from '../entities/user-details.entity';
 import { UserEntity } from '../entities/user.entity';
@@ -67,8 +68,15 @@ export class UserService {
     return userDetails;
   }
 
-  async findByLogin(login: string) {
-    return this.userRepository.findOneBy({ email: login });
+  async findByLogin({ email, phone }: FindRequestDto) {
+    if (email) {
+      return this.userRepository.findOneBy({ email });
+    }
+    if (phone) {
+      return this.userRepository.findOneBy({ phone });
+    }
+
+    return undefined;
   }
 
   async delete(id: number) {
@@ -77,18 +85,24 @@ export class UserService {
     return affected === 1;
   }
 
-  async update(request: Omit<UpdateRequestDto, 'new_contacts' | 'removed_contacts'>) {
-    const { id, username, country_id, phone, details } = request;
-    const country = await this.countryEntityRepository.findOneBy({ id: country_id });
-    if (!country) {
-      throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
+  async update(request: Omit<UpdateRequestDto, 'contacts'>) {
+    const { details, id, ...payload } = request;
+    if (payload.country_id) {
+      const country = await this.countryEntityRepository.findOneBy({ id: payload.country_id });
+      if (!country) {
+        throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
+      }
+
+      if (country.code === 'US' && details) {
+        this.countryService.checkUSA(details);
+      }
     }
 
-    if (country.code === 'US' && details) {
-      this.countryService.checkUSA(details);
+    if (payload.password) {
+      payload.password = await bcrypt.hash(payload.password, 10);
     }
+    await this.userRepository.update({ id }, payload);
 
-    await this.userRepository.update({ id }, { username, country_id, phone });
     if (details) {
       const currentDetails = await this.userDetailsRepository.findOneBy({ user_id: id });
       if (currentDetails) {

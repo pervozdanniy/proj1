@@ -117,6 +117,10 @@ export class UpdateRequestDto implements UpdateRequest {
   @IsPhoneNumber()
   phone?: string;
 
+  @IsOptional()
+  @IsString()
+  password?: string;
+
   @ValidateNested()
   @Type(() => UserDetails)
   @IsOptional()

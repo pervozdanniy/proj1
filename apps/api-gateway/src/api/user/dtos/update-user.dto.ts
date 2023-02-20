@@ -1,8 +1,8 @@
-import { UserDetails } from '@/api/user/dtos/create-user.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -11,6 +11,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
+import { SendType } from '~common/constants/user';
 import { UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 
 export class UserContactsDto {
@@ -25,24 +26,65 @@ export class UserContactsDto {
   removed: string[];
 }
 
+export class UserDetails {
+  @IsString()
+  @IsNotEmpty()
+  first_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  last_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  city: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  street: string;
+
+  @IsString()
+  @IsNotEmpty()
+  region: string;
+
+  @IsString()
+  @IsNotEmpty()
+  date_of_birth: string;
+
+  @IsNumber()
+  @IsOptional()
+  postal_code: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  tax_id_number: number;
+
+  @IsEnum(SendType)
+  @Type(() => Number)
+  send_type?: SendType;
+}
+
 export class UpdateUserDto implements UpdateRequest {
   id: number;
 
-  @ApiProperty({ example: 'gevorg' })
+  @ApiPropertyOptional({ example: 'gevorg' })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @Length(2, 200)
-  username: string;
+  username?: string;
 
-  @ApiProperty({ required: true, example: '+37495017680' })
+  @ApiPropertyOptional({ required: true, example: '+37495017680' })
   @IsString()
   @IsOptional()
   phone?: string;
 
-  @ApiProperty({ example: 1 })
+  @ApiPropertyOptional({ example: 1 })
   @IsNumber()
-  @IsNotEmpty()
-  country_id: number;
+  @IsOptional()
+  country_id?: number;
 
   @ApiProperty({ type: UserDetails })
   @ValidateNested()

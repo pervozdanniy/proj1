@@ -72,7 +72,7 @@ export class ClientService {
   }
 
   async login(payload: ClientLoginRequest, client: AuthClientInterface, session: SessionProxy) {
-    const user = await this.auth.findByLogin(payload.login);
+    const user = await this.auth.findByEmail(payload.login);
     if (
       user &&
       user.source === client.name &&

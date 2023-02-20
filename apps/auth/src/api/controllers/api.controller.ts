@@ -9,6 +9,7 @@ import {
   AuthServiceControllerMethods,
   RegisterFinishRequest,
   RegisterStartRequest,
+  ResetPasswordFinishRequest,
   SocialsAuthRequest,
   TwoFactorCode,
   TwoFactorVerificationResponse,
@@ -18,6 +19,7 @@ import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { LoginRequestDto } from '../dto/login.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { AuthApiService } from '../services/api.service';
 import { ApiSocialsService } from '../services/api.socials.service';
 
@@ -63,5 +65,26 @@ export class AuthApiController implements AuthServiceController {
   @GrpcSessionAuth({ allowUnauthorized: true })
   async logout(_request: Empty, @GrpcSession() session: SessionProxy): Promise<SuccessResponse> {
     return this.authService.logout(session);
+  }
+
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  resetPasswordStart(@Payload() request: ResetPasswordDto, @GrpcSession() session: SessionProxy): Promise<AuthData> {
+    return this.authService.resetPasswordStart(request, session);
+  }
+
+  @GrpcSessionAuth({ allowUnauthorized: true })
+  resetPasswordVerify(
+    @Payload() request: TwoFactorCode,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<TwoFactorVerificationResponse> {
+    return this.authService.resetPasswordVerify(request, session);
+  }
+
+  @GrpcSessionAuth()
+  async resetPasswordFinish(
+    @Payload() request: ResetPasswordFinishRequest,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<SuccessResponse> {
+    return this.authService.resetPasswordFinish(request.password, session);
   }
 }

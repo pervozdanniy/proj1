@@ -18,6 +18,13 @@ service AuthService {
   rpc RegisterVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
 
   rpc RegisterFinish (RegisterFinishRequest) returns (common.User);
+  
+
+  rpc ResetPasswordStart (ResetPasswordStartRequest) returns (AuthData);
+
+  rpc ResetPasswordVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
+
+  rpc ResetPasswordFinish (ResetPasswordFinishRequest) returns (common.SuccessResponse);
 }
 
 service ClientService {
@@ -136,4 +143,15 @@ message RegisterFinishRequest {
   uint32 country_id = 5;
   optional common.UserDetails details = 7;
   repeated string contacts = 8;
+}
+
+message ResetPasswordStartRequest {
+  oneof method {
+    string email = 1;
+    string phone = 2;
+  }
+}
+
+message ResetPasswordFinishRequest {
+  string password = 1;
 }
