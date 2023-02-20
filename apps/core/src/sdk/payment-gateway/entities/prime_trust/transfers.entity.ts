@@ -9,31 +9,34 @@ import {
 } from 'typeorm';
 import { PrimeTrustContactEntity } from './prime-trust-contact.entity';
 
-@Entity('transfer_funds')
-export class TransferFundsEntity {
+@Entity('transfers')
+export class TransfersEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column('integer')
-  sender_id: number;
+  user_id: number;
 
-  @Column('integer')
+  @Column('integer', { nullable: true })
   receiver_id: number;
 
-  @Column('character varying', { length: 50, nullable: false })
+  @Column('character varying', { length: 50, nullable: true })
   uuid: string;
+
+  @Column('integer', { nullable: true })
+  param_id: number;
+
+  @Column('character varying', { length: 50, nullable: true })
+  param_type: string;
+
+  @Column('character varying', { length: 50, nullable: true })
+  type: string;
 
   @Column('character varying', { length: 50, nullable: true })
   amount: string;
 
   @Column('character varying', { length: 50, nullable: true })
-  fee_amount: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  total_amount: string;
-
-  @Column('character varying', { length: 50, nullable: true })
-  unit_count: string;
+  fee: string;
 
   @Column('character varying', { length: 50, nullable: true })
   currency_type: string;
@@ -48,6 +51,6 @@ export class TransferFundsEntity {
   updated_at: Date;
 
   @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.transferFunds, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'sender_id' })
+  @JoinColumn({ name: 'user_id' })
   contact?: PrimeTrustContactEntity;
 }

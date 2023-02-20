@@ -25,6 +25,7 @@ import {
   WithdrawalsDataResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 
 @Injectable()
 export class PrimeWithdrawalManager {
@@ -48,8 +49,8 @@ export class PrimeWithdrawalManager {
     @InjectRepository(PrimeTrustBalanceEntity)
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
 
-    @InjectRepository(WithdrawalEntity)
-    private readonly withdrawalEntityRepository: Repository<WithdrawalEntity>,
+    @InjectRepository(TransfersEntity)
+    private readonly withdrawalEntityRepository: Repository<TransfersEntity>,
 
     @InjectRepository(WithdrawalParamsEntity)
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
@@ -149,9 +150,11 @@ export class PrimeWithdrawalManager {
         user_id: id,
         amount,
         uuid: withdrawalResponse.id,
-        params_id: withdrawalParams.id,
         status: withdrawalResponse.attributes['status'],
         currency_type: withdrawalResponse.attributes['currency-type'],
+        param_type: 'withdrawal_param',
+        param_id: withdrawalParams.id,
+        type: 'withdrawal',
       }),
     );
 

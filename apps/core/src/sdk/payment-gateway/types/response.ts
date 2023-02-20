@@ -15,8 +15,6 @@ export type SendFundsResponse = {
 };
 
 export type USDtoAssetResponse = {
-  base_amount: string;
   fee_amount: string;
-  total_amount: string;
   unit_count: string;
 };

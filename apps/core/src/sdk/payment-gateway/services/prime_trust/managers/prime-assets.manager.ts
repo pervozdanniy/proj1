@@ -2,7 +2,6 @@ import { NotificationService } from '@/notification/services/notification.servic
 import { PrimeTrustAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
-import { TransferFundsEntity } from '@/sdk/payment-gateway/entities/prime_trust/transfer-funds.entity';
 import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/sdk/payment-gateway/request/prime-trust-http.service';
 import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
@@ -40,8 +39,6 @@ export class PrimeAssetsManager {
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
     @InjectRepository(WalletEntity)
     private readonly walletEntityRepository: Repository<WalletEntity>,
-    @InjectRepository(TransferFundsEntity)
-    private readonly transferFundsEntityRepository: Repository<TransferFundsEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;

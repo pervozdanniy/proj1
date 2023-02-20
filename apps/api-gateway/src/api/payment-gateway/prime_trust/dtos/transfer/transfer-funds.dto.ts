@@ -12,4 +12,9 @@ export class TransferFundsDto {
   @IsString()
   @IsNotEmpty()
   amount: string;
+
+  @ApiProperty({ description: 'USD' })
+  @IsString()
+  @IsNotEmpty()
+  currency_type: string;
 }

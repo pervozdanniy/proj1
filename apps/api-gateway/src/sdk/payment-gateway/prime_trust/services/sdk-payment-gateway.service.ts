@@ -146,8 +146,4 @@ export class SdkPaymentGatewayService implements OnModuleInit {
   getTransactions(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getTransactions(data));
   }
-
-  getTransferById(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getTransferById(data));
-  }
 }

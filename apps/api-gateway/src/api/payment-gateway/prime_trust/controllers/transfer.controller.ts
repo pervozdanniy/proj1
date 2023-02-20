@@ -36,14 +36,4 @@ export class TransferController {
   async transferFunds(@JwtSessionUser() { id }: User, @Body() payload: TransferFundsDto) {
     return this.paymentGatewayService.transferFunds({ sender_id: id, ...payload });
   }
-
-  @ApiOperation({ summary: 'Get Transfer by id.' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-  })
-  @JwtSessionAuth()
-  @Get('/')
-  async getTransferById(@JwtSessionUser() { id }: User, @Query() query: ResourceDto) {
-    return this.paymentGatewayService.getTransferById({ id, resource_id: query.resource_id });
-  }
 }

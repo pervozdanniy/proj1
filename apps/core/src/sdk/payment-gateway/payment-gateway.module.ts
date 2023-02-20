@@ -16,7 +16,7 @@ import { PrimeTrustAccountEntity } from './entities/prime_trust/prime-trust-acco
 import { PrimeTrustBalanceEntity } from './entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
-import { TransferFundsEntity } from './entities/prime_trust/transfer-funds.entity';
+import { TransfersEntity } from './entities/prime_trust/transfers.entity';
 import { WalletEntity } from './entities/prime_trust/wallet.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
@@ -51,7 +51,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       NotificationEntity,
       ContributionEntity,
       CardResourceEntity,
-      TransferFundsEntity,
+      TransfersEntity,
       BankAccountEntity,
       DepositParamsEntity,
       WalletEntity,

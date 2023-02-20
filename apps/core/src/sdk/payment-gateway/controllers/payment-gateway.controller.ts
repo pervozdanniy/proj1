@@ -144,10 +144,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   getWithdrawalById(request: UserIdRequest): Promise<WithdrawalDataResponse> {
     return this.paymentGatewayService.getWithdrawalById(request);
   }
-
-  getTransferById(request: UserIdRequest): Promise<TransferResponse> {
-    return this.paymentGatewayService.getTransferById(request);
-  }
   getTransactions(request: UserIdRequest): Promise<TransactionResponse> {
     return this.paymentGatewayService.getTransactions(request);
   }

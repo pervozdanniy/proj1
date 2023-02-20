@@ -36,6 +36,7 @@ import {
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 
 @Injectable()
 export class PrimeDepositManager {
@@ -65,8 +66,8 @@ export class PrimeDepositManager {
     @InjectRepository(PrimeTrustBalanceEntity)
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
 
-    @InjectRepository(ContributionEntity)
-    private readonly contributionEntityRepository: Repository<ContributionEntity>,
+    @InjectRepository(TransfersEntity)
+    private readonly depositEntityRepository: Repository<TransfersEntity>,
 
     @InjectRepository(DepositParamsEntity)
     private readonly depositParamsEntityRepository: Repository<DepositParamsEntity>,
@@ -203,7 +204,21 @@ export class PrimeDepositManager {
     const { user_id } = accountData;
 
     const contributionResponse = await this.getContributionInfo(resource_id);
-    await this.contributionEntityRepository.update({ uuid: resource_id }, { status: contributionResponse['status'] });
+    const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
+    if (existedDeposit) {
+      await this.depositEntityRepository.update({ uuid: resource_id }, { status: contributionResponse['status'] });
+    } else {
+      const contributionPayload = {
+        user_id,
+        uuid: resource_id,
+        currency_type: contributionResponse['currency-type'],
+        amount: contributionResponse['amount'],
+        status: contributionResponse['status'],
+        param_type: contributionResponse['payment-type'],
+        type: 'deposit',
+      };
+      await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
+    }
 
     const notificationPayload = {
       user_id,
@@ -218,12 +233,12 @@ export class PrimeDepositManager {
 
   private async getContributionInfo(contribution_id: string) {
     try {
-      const withDrawResponse = await this.httpService.request({
+      const contributionResponse = await this.httpService.request({
         method: 'get',
         url: `${this.prime_trust_url}/v2/contributions/${contribution_id}`,
       });
 
-      return withDrawResponse.data.data.attributes;
+      return contributionResponse.data.data.attributes;
     } catch (e) {
       this.logger.error(e.response.data);
 
@@ -383,30 +398,29 @@ export class PrimeDepositManager {
       });
       const contributionAttributes = contributionResponse.data.data.attributes;
       const contributionPayload = {
+        type: 'deposit',
         user_id: id,
         uuid: contributionResponse.data.data.id,
         currency_type: contributionAttributes['currency-type'],
         amount: contributionAttributes['amount'],
-        contributor_email: contributionAttributes['contributor-email'],
-        contributor_name: contributionAttributes['contributor-name'],
-        funds_transfer_type: contributionAttributes['funds-transfer-type'],
-        reference: contributionAttributes['reference'],
         status: contributionAttributes['status'],
       };
       if (contributionAttributes['payment-type'] !== 'credit_card') {
         const depositParam = await this.depositParamsEntityRepository.findOne({
           where: { uuid: funds_transfer_method_id },
         });
-        contributionPayload['deposit_param_id'] = depositParam.id;
+        contributionPayload['param_type'] = 'deposit_param';
+        contributionPayload['param_id'] = depositParam.id;
       } else {
         const cardResource = await this.cardResourceEntityRepository.findOne({
           where: { transfer_method_id: funds_transfer_method_id },
         });
-        contributionPayload['card_resource_id'] = cardResource.id;
+        contributionPayload['param_type'] = 'credit_card';
+        contributionPayload['param_id'] = cardResource.id;
       }
       await this.primeBalanceManager.updateAccountBalance(account_id);
 
-      await this.contributionEntityRepository.save(this.contributionEntityRepository.create(contributionPayload));
+      await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
 
       return { contribution_id: contributionResponse.data.data.id };
     } catch (e) {
@@ -457,7 +471,7 @@ export class PrimeDepositManager {
 
   async getDepositById(request: UserIdRequest): Promise<DepositDataResponse> {
     const { id, resource_id } = request;
-    const deposit = await this.contributionEntityRepository
+    const deposit = await this.depositEntityRepository
       .createQueryBuilder('c')
       .select('*')
       .where('c.id = :resource_id AND c.user_id=:id', { resource_id, id })

@@ -141,10 +141,6 @@ export class PrimeTrustService {
     return this.primeDepositManager.addDepositParams(request);
   }
 
-  getTransferById(request: UserIdRequest) {
-    return this.primeFundsTransferManager.getTransferById(request);
-  }
-
   getTransactions(id: number) {
     return this.primeTransactionsManager.getTransactions(id);
   }

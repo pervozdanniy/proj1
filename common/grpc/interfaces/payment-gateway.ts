@@ -61,7 +61,9 @@ export interface TransactionResponse {
 export interface Transaction {
   id: number;
   title: string;
-  url: string;
+  amount: string;
+  fee: string;
+  status: string;
   created_at: string;
 }
 
@@ -132,6 +134,7 @@ export interface TransferFundsRequest {
   sender_id: number;
   receiver_id: number;
   amount: string;
+  currency_type: string;
 }
 
 export interface TransferFundsResponse {
@@ -139,7 +142,6 @@ export interface TransferFundsResponse {
 }
 
 export interface TransferFunds {
-  uuid: string;
   amount: string;
   currency_type: string;
   status: string;
@@ -319,8 +321,6 @@ export interface PaymentGatewayServiceClient {
 
   transferFunds(request: TransferFundsRequest, ...rest: any): Observable<TransferFundsResponse>;
 
-  getTransferById(request: UserIdRequest, ...rest: any): Observable<TransferResponse>;
-
   /** withdrawal */
 
   getWithdrawalById(request: UserIdRequest, ...rest: any): Observable<WithdrawalDataResponse>;
@@ -460,11 +460,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<TransferFundsResponse> | Observable<TransferFundsResponse> | TransferFundsResponse;
 
-  getTransferById(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<TransferResponse> | Observable<TransferResponse> | TransferResponse;
-
   /** withdrawal */
 
   getWithdrawalById(
@@ -530,7 +525,6 @@ export function PaymentGatewayServiceControllerMethods() {
       "makeContribution",
       "getCreditCards",
       "transferFunds",
-      "getTransferById",
       "getWithdrawalById",
       "getTransactions",
       "getWithdrawalParams",
