@@ -42,7 +42,7 @@ export class PrimeTransactionsManager {
       .leftJoinAndSelect(UserEntity, 'sender_details', 'sender_details.id = t.user_id')
       .leftJoinAndSelect(UserEntity, 'receiver_details', 'receiver_details.id = t.receiver_id');
 
-    if (searchAfter && searchAfter > 1) {
+    if (searchAfter) {
       queryBuilder.where('t.id < :searchAfter', { searchAfter });
     }
 
@@ -95,15 +95,22 @@ export class PrimeTransactionsManager {
       .orderBy('t.created_at', 'DESC');
     let hasMore = false;
 
-    const transactions = await queryBuilder.limit(limit).getRawMany();
-    const transactionsCount = await queryBuilder.limit(limit + 1).getRawMany();
-    if (transactionsCount.length === limit + 1) {
+    const transactions = await queryBuilder.limit(limit + 1).getRawMany();
+    let last_id = 0;
+
+    if (transactions.length > 0) {
+      const { id } = transactions.at(-1);
+      last_id = id;
+    }
+
+    if (transactions.length === limit + 1) {
       hasMore = true;
     }
 
     return {
       transactions,
       hasMore,
+      last_id,
     };
   }
 }

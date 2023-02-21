@@ -20,6 +20,8 @@ import { TransfersEntity } from './entities/prime_trust/transfers.entity';
 import { WalletEntity } from './entities/prime_trust/wallet.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
+import { ChilePaymentGateway } from './manager/countries/chile-payment.gateway';
+import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { KoyweService } from './services/koywe/koywe.service';
@@ -78,6 +80,8 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PrimeBankAccountManager,
     PrimeTransactionsManager,
     PrimeAssetsManager,
+    USPaymentGateway,
+    ChilePaymentGateway,
   ],
   controllers: [PaymentGatewayController],
   exports: [PaymentGatewayManager],

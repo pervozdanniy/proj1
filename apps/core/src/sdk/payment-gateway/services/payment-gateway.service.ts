@@ -7,6 +7,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountResponse,
   BankAccountParams,
+  CreateReferenceRequest,
   CreateWalledRequest,
   DepositParamRequest,
   DocumentResponse,
@@ -148,11 +149,11 @@ export class PaymentGatewayService {
     return paymentGateway.getBankAccounts(request.id);
   }
 
-  async createReference(request: UserIdRequest) {
+  async createReference(request: CreateReferenceRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
 
-    return paymentGateway.createReference(userDetails);
+    return paymentGateway.createReference(userDetails, request);
   }
 
   async makeWithdrawal(request: TransferMethodRequest) {

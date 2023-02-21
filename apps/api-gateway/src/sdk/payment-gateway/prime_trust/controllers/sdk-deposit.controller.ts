@@ -13,6 +13,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
+import { CreateReferenceDto } from '../dtos/deposit/deposit-funds.dto';
 import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
 import { MakeContributionDto } from '../dtos/deposit/make-contribution.dto';
 import { ResourceDto } from '../dtos/deposit/resource.dto';
@@ -43,8 +44,8 @@ export class SdkDepositController {
   })
   @JwtSessionAuth()
   @Post('/wire/reference')
-  async createReference(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.createReference({ id });
+  async createReference(@JwtSessionUser() { id }: User, @Body() payload: CreateReferenceDto) {
+    return this.paymentGatewayService.createReference({ id, ...payload });
   }
 
   @ApiOperation({ summary: 'Create Credit Card Resource.' })

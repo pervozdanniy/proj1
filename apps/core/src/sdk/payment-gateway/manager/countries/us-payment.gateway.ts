@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   BankAccountParams,
   BankAccountsResponse,
@@ -8,6 +9,7 @@ import { UserEntity } from '../../../../user/entities/user.entity';
 import { PaymentGatewayInterface } from '../../interfaces/payment-gateway.interface';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
+@Injectable()
 export class USPaymentGateway implements PaymentGatewayInterface {
   private primeTrustService: PrimeTrustService;
   constructor(primeTrustService: PrimeTrustService) {

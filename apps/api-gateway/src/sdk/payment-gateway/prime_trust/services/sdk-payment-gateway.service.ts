@@ -6,6 +6,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BankAccountParams,
+  CreateReferenceRequest,
   DepositParamRequest,
   MakeContributionRequest,
   PaymentGatewayServiceClient,
@@ -72,7 +73,7 @@ export class SdkPaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getBalance(data));
   }
 
-  async createReference(data: UserIdRequest) {
+  async createReference(data: CreateReferenceRequest) {
     const response = await lastValueFrom(this.paymentGatewayServiceClient.createReference(data));
 
     return { data: JSON.parse(response.data) };

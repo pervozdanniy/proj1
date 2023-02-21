@@ -22,7 +22,7 @@ service PaymentGatewayService {
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
   //deposit funds
-  rpc CreateReference (UserIdRequest) returns (PrimeTrustData);
+  rpc CreateReference (CreateReferenceRequest) returns (PrimeTrustData);
   rpc AddDepositParams (DepositParamRequest) returns (DepositResponse);
   rpc GetDepositById (UserIdRequest) returns (DepositDataResponse);
   rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
@@ -46,6 +46,12 @@ service PaymentGatewayService {
   //assets
 
   rpc CreateWallet(CreateWalledRequest) returns (WalletResponse);
+}
+
+message CreateReferenceRequest {
+  uint32 id = 1;
+  string amount = 2;
+  string currency_type = 3;
 }
 
 
@@ -104,6 +110,7 @@ message DepositDataResponse {
 message TransactionResponse {
   repeated Transaction transactions = 1;
   bool hasMore = 2;
+  uint32 last_id = 3;
 }
 
 message Transaction {

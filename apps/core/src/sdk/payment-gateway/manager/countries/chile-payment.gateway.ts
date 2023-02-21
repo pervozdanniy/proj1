@@ -1,6 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import {
   BankAccountParams,
   BankAccountsResponse,
+  CreateReferenceRequest,
   PrimeTrustData,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -9,6 +11,7 @@ import { PaymentGatewayInterface } from '../../interfaces/payment-gateway.interf
 import { KoyweService } from '../../services/koywe/koywe.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
+@Injectable()
 export class ChilePaymentGateway implements PaymentGatewayInterface {
   private primeTrustService: PrimeTrustService;
   private koyweService: KoyweService;
@@ -24,8 +27,8 @@ export class ChilePaymentGateway implements PaymentGatewayInterface {
     return this.primeTrustService.addBankAccountParams(request);
   }
 
-  createReference(request: UserEntity): Promise<PrimeTrustData> {
-    return this.koyweService.createReference(request);
+  createReference(userDetails: UserEntity, depositParams: CreateReferenceRequest): Promise<PrimeTrustData> {
+    return this.koyweService.createReference(userDetails, depositParams);
   }
   makeWithdrawal(request: TransferMethodRequest): Promise<PrimeTrustData> {
     return this.primeTrustService.makeWithdrawal(request);

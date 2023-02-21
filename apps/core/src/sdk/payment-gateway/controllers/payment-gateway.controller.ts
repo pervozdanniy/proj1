@@ -7,6 +7,7 @@ import {
   BankAccountsResponse,
   ContactResponse,
   ContributionResponse,
+  CreateReferenceRequest,
   CreateWalledRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
@@ -73,7 +74,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.webhooksService.cipCheck(request);
   }
 
-  createReference(request: UserIdRequest): Promise<PrimeTrustData> {
+  createReference(request: CreateReferenceRequest): Promise<PrimeTrustData> {
     return this.paymentGatewayService.createReference(request);
   }
 

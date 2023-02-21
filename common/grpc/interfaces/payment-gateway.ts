@@ -6,6 +6,12 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
+export interface CreateReferenceRequest {
+  id: number;
+  amount: string;
+  currency_type: string;
+}
+
 export interface SearchTransactionRequest {
   user_id: number;
   searchAfter: number;
@@ -60,6 +66,7 @@ export interface DepositDataResponse {
 export interface TransactionResponse {
   transactions: Transaction[];
   hasMore: boolean;
+  last_id: number;
 }
 
 export interface Transaction {
@@ -289,7 +296,7 @@ export interface PaymentGatewayServiceClient {
 
   /** deposit funds */
 
-  createReference(request: UserIdRequest, ...rest: any): Observable<PrimeTrustData>;
+  createReference(request: CreateReferenceRequest, ...rest: any): Observable<PrimeTrustData>;
 
   addDepositParams(request: DepositParamRequest, ...rest: any): Observable<DepositResponse>;
 
@@ -397,7 +404,7 @@ export interface PaymentGatewayServiceController {
   /** deposit funds */
 
   createReference(
-    request: UserIdRequest,
+    request: CreateReferenceRequest,
     ...rest: any
   ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
 
