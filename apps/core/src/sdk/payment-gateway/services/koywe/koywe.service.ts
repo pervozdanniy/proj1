@@ -1,5 +1,4 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { log } from '@grpc/grpc-js/build/src/logging';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
