@@ -1,13 +1,14 @@
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { IdRequest, SuccessResponse } from "./common";
+import { SuccessResponse } from "./common";
+import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
 export interface SearchTransactionRequest {
   user_id: number;
-  page: number;
+  searchAfter: number;
   limit: number;
   searchTerm?: string | undefined;
 }
@@ -54,18 +55,11 @@ export interface DepositDataResponse {
   uuid: string;
   amount: string;
   currency_type: string;
-  contributor_email: string;
-  contributor_name: string;
-  funds_transfer_type: string;
-  deposit_param_id?: number | undefined;
-  card_resource_id?: number | undefined;
 }
 
 export interface TransactionResponse {
   transactions: Transaction[];
-  totalTransactions: number;
-  totalPages: number;
-  currentPage: number;
+  hasMore: boolean;
 }
 
 export interface Transaction {
@@ -197,20 +191,6 @@ export interface Withdrawal {
   bank_account_name: string;
 }
 
-export interface PaymentGatewayRequest {
-  name: string;
-}
-
-export interface PaymentGatewayListQuery {
-  limit: number;
-  offset: number;
-}
-
-export interface PaymentGatewayListResponse {
-  items: PaymentGateway[];
-  count: number;
-}
-
 export interface PaymentGateway {
   id: number;
   alias: string;
@@ -279,9 +259,7 @@ export interface Token_Data {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface PaymentGatewayServiceClient {
-  list(request: PaymentGatewayListQuery, ...rest: any): Observable<PaymentGatewayListResponse>;
-
-  getToken(request: IdRequest, ...rest: any): Observable<PG_Token>;
+  getToken(request: Empty, ...rest: any): Observable<PG_Token>;
 
   createAccount(request: UserIdRequest, ...rest: any): Observable<AccountResponse>;
 
@@ -349,12 +327,7 @@ export interface PaymentGatewayServiceClient {
 }
 
 export interface PaymentGatewayServiceController {
-  list(
-    request: PaymentGatewayListQuery,
-    ...rest: any
-  ): Promise<PaymentGatewayListResponse> | Observable<PaymentGatewayListResponse> | PaymentGatewayListResponse;
-
-  getToken(request: IdRequest, ...rest: any): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
+  getToken(request: Empty, ...rest: any): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
 
   createAccount(
     request: UserIdRequest,
@@ -511,7 +484,6 @@ export interface PaymentGatewayServiceController {
 export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "list",
       "getToken",
       "createAccount",
       "getAccount",

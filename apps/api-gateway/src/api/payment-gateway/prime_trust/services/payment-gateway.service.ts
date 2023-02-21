@@ -1,4 +1,3 @@
-import { PaymentGatewaysListDto } from '@/api/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
@@ -30,10 +29,6 @@ export class PaymentGatewayService implements OnModuleInit {
     this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');
   }
 
-  list(query: PaymentGatewaysListDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.list(query));
-  }
-
   updateAccount(data: AccountIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.updateAccount(data));
   }
@@ -50,8 +45,8 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.cipCheck(data));
   }
 
-  getToken(id: number) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
+  getToken() {
+    return lastValueFrom(this.paymentGatewayServiceClient.getToken({}));
   }
 
   createAccount(data: UserIdRequest) {

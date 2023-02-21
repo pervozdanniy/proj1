@@ -10,7 +10,7 @@ export class GetTransfersDto {
   readonly limit: number = 20;
 
   @ApiProperty({
-    description: 'Page number.',
+    description: 'Last id.',
     required: false,
     default: 1,
     minimum: 1,
@@ -18,7 +18,7 @@ export class GetTransfersDto {
   @IsNumber()
   @Min(0)
   @Type(() => Number)
-  readonly page: number = 0;
+  readonly searchAfter: number = 0;
 
   @ApiProperty({
     description: 'Search item',

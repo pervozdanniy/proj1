@@ -17,7 +17,6 @@ import {
   VerifyCreditCardRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
-import { PaymentGatewaysListDto } from '../dtos/payment-gateways-list.dto';
 
 @Injectable()
 export class SdkPaymentGatewayService implements OnModuleInit {
@@ -27,10 +26,6 @@ export class SdkPaymentGatewayService implements OnModuleInit {
 
   onModuleInit() {
     this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');
-  }
-
-  list(query: PaymentGatewaysListDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.list(query));
   }
 
   updateAccount(data: AccountIdRequest) {

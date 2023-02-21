@@ -22,7 +22,9 @@ import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params
 import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
-import { PaymentGatewayService } from './services/payment.gateway.service';
+import { KoyweService } from './services/koywe/koywe.service';
+import { PaymentGatewayWebhooksService } from './services/payment-gateway-webhooks.service';
+import { PaymentGatewayService } from './services/payment-gateway.service';
 import { PrimeAccountManager } from './services/prime_trust/managers/prime-account.manager';
 import { PrimeAssetsManager } from './services/prime_trust/managers/prime-assets.manager';
 import { PrimeBalanceManager } from './services/prime_trust/managers/prime-balance.manager';
@@ -63,6 +65,8 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PaymentGatewayService,
     PaymentGatewayManager,
     PrimeTrustService,
+    KoyweService,
+    PaymentGatewayWebhooksService,
     PrimeTokenManager,
     PrimeAccountManager,
     PrimeKycManager,

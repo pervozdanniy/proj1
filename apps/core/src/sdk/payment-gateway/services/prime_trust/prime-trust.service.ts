@@ -12,6 +12,7 @@ import {
   UserIdRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
+import { PaymentGatewayInterface } from '../../interfaces/payment-gateway.interface';
 import { PrimeAccountManager } from './managers/prime-account.manager';
 import { PrimeAssetsManager } from './managers/prime-assets.manager';
 import { PrimeBalanceManager } from './managers/prime-balance.manager';

@@ -1,5 +1,4 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
-import { PaymentGatewaysListDto } from '@/api/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
 import { PaymentGatewayService } from '@/api/payment-gateway/prime_trust/services/payment-gateway.service';
 import {
   AccountResponseDTO,
@@ -44,14 +43,6 @@ export class MainController {
   private readonly logger = new Logger(MainController.name);
   constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: PaymentGatewayService) {}
 
-  @ApiOperation({ summary: 'Get list of payment gateways' })
-  @ApiResponse({ status: HttpStatus.OK })
-  @HttpCode(HttpStatus.OK)
-  @Get()
-  async list(@Query() query: PaymentGatewaysListDto) {
-    return this.paymentGatewayService.list(query);
-  }
-
   @ApiOperation({ summary: 'Get Token.' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -59,10 +50,10 @@ export class MainController {
   @HttpCode(HttpStatus.OK)
   @JwtSessionAuth()
   @Post('/token')
-  async getToken(@JwtSessionUser() { id }: User) {
+  async getToken() {
     const {
       data: { token },
-    } = await this.paymentGatewayService.getToken(id);
+    } = await this.paymentGatewayService.getToken();
     await this.redis.set('prime_token', token);
 
     return { token };

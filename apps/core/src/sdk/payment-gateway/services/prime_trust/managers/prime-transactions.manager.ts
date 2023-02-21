@@ -33,7 +33,7 @@ export class PrimeTransactionsManager {
   ) {}
 
   async getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {
-    const { user_id, searchTerm, page, limit } = request;
+    const { user_id, searchTerm, searchAfter, limit } = request;
 
     const queryBuilder = this.transferFundsEntityRepository
       .createQueryBuilder('t')
@@ -41,6 +41,10 @@ export class PrimeTransactionsManager {
       .leftJoinAndSelect(UserDetailsEntity, 'r', 'r.user_id = t.receiver_id')
       .leftJoinAndSelect(UserEntity, 'sender_details', 'sender_details.id = t.user_id')
       .leftJoinAndSelect(UserEntity, 'receiver_details', 'receiver_details.id = t.receiver_id');
+
+    if (searchAfter && searchAfter > 1) {
+      queryBuilder.where('t.id < :searchAfter', { searchAfter });
+    }
 
     queryBuilder.andWhere(
       new Brackets((qb) => {
@@ -78,27 +82,28 @@ export class PrimeTransactionsManager {
         }),
       );
     }
-    queryBuilder.select([
-      't.*',
-      `CASE
+
+    queryBuilder
+      .select([
+        't.*',
+        `CASE
         WHEN t.type = 'transfer' AND t.user_id = ${user_id} THEN 'to ' || r.first_name || ' ' || r.last_name
         WHEN t.type = 'transfer' THEN 'from ' || s.first_name || ' ' || s.last_name
         ELSE t.type
       END as title`,
-    ]);
+      ])
+      .orderBy('t.created_at', 'DESC');
+    let hasMore = false;
 
-    const totalTransactions = await queryBuilder.getCount();
-
-    const transactions = await queryBuilder
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getRawMany();
+    const transactions = await queryBuilder.limit(limit).getRawMany();
+    const transactionsCount = await queryBuilder.limit(limit + 1).getRawMany();
+    if (transactionsCount.length === limit + 1) {
+      hasMore = true;
+    }
 
     return {
       transactions,
-      totalTransactions,
-      totalPages: Math.ceil(totalTransactions / limit),
-      currentPage: page,
+      hasMore,
     };
   }
 }

@@ -22,7 +22,6 @@ import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
-import { PaymentGatewaysListDto } from '../dtos/payment-gateways-list.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Prime Trust')
@@ -35,14 +34,6 @@ import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 export class SdkMainController {
   private readonly logger = new Logger(SdkMainController.name);
   constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: SdkPaymentGatewayService) {}
-
-  @ApiOperation({ summary: 'Get list of payment gateways' })
-  @ApiResponse({ status: HttpStatus.OK })
-  @HttpCode(HttpStatus.OK)
-  @Get()
-  async list(@Query() query: PaymentGatewaysListDto) {
-    return this.paymentGatewayService.list(query);
-  }
 
   @ApiOperation({ summary: 'Get Token.' })
   @ApiResponse({

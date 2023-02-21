@@ -1,14 +1,12 @@
 syntax = "proto3";
 
 import "common.proto";
-
+import "google/protobuf/empty.proto";
 package skopa.core;
 
 service PaymentGatewayService {
 
-
-  rpc List(PaymentGatewayListQuery) returns (PaymentGatewayListResponse);
-  rpc GetToken (common.IdRequest) returns (PG_Token);
+  rpc GetToken (google.protobuf.Empty) returns (PG_Token);
   rpc CreateAccount (UserIdRequest) returns (AccountResponse);
   rpc GetAccount (UserIdRequest) returns (AccountResponse);
   rpc GetContact (UserIdRequest) returns (ContactResponse);
@@ -53,7 +51,7 @@ service PaymentGatewayService {
 
 message SearchTransactionRequest {
   uint32 user_id = 1;
-  uint32 page = 2;
+  uint32 searchAfter = 2;
   uint32 limit = 3;
   optional string searchTerm = 4;
 }
@@ -101,18 +99,11 @@ message DepositDataResponse {
   string uuid = 2;
   string amount = 3;
   string currency_type = 4;
-  string contributor_email = 5;
-  string contributor_name = 6;
-  string funds_transfer_type = 7;
-  optional uint32 deposit_param_id = 8;
-  optional uint32 card_resource_id = 9;
 }
 
 message TransactionResponse {
   repeated Transaction transactions = 1;
-  uint32 totalTransactions = 2;
-  uint32 totalPages = 3;
-  uint32 currentPage = 4;
+  bool hasMore = 2;
 }
 
 message Transaction {
@@ -248,21 +239,6 @@ message Withdrawal {
   string routing_number = 4;
   string funds_transfer_type = 5;
   string bank_account_name = 6;
-}
-
-
-message PaymentGatewayRequest {
-  string name = 1;
-}
-
-message PaymentGatewayListQuery {
-  uint32 limit = 1;
-  uint32 offset = 2;
-}
-
-message PaymentGatewayListResponse {
-  repeated PaymentGateway items = 1;
-  uint32 count = 2;
 }
 
 message PaymentGateway {

@@ -16,8 +16,6 @@ import {
   DepositResponse,
   DocumentResponse,
   MakeContributionRequest,
-  PaymentGatewayListQuery,
-  PaymentGatewayListResponse,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
@@ -37,18 +35,19 @@ import {
   WithdrawalsDataResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { PaymentGatewayService } from '../services/payment.gateway.service';
+import { PaymentGatewayWebhooksService } from '../services/payment-gateway-webhooks.service';
+import { PaymentGatewayService } from '../services/payment-gateway.service';
 
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
-  createWallet(request: CreateWalledRequest): Promise<WalletResponse> {
-    return this.paymentGatewayService.createWallet(request);
-  }
-  constructor(private paymentGatewayService: PaymentGatewayService) {}
+  constructor(
+    private paymentGatewayService: PaymentGatewayService,
+    private webhooksService: PaymentGatewayWebhooksService,
+  ) {}
 
-  getToken({ id }: IdRequest): Promise<PG_Token> {
-    return this.paymentGatewayService.getToken(id);
+  getToken(): Promise<PG_Token> {
+    return this.paymentGatewayService.getToken();
   }
 
   createAccount(request: UserIdRequest): Promise<AccountResponse> {
@@ -64,14 +63,14 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
 
   updateAccount(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.updateAccount(request);
+    return this.webhooksService.updateAccount(request);
   }
   documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.documentCheck(request);
+    return this.webhooksService.documentCheck(request);
   }
 
   cipCheck(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.cipCheck(request);
+    return this.webhooksService.cipCheck(request);
   }
 
   createReference(request: UserIdRequest): Promise<PrimeTrustData> {
@@ -79,7 +78,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
 
   updateBalance(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.updateBalance(request);
+    return this.webhooksService.updateBalance(request);
   }
 
   getBalance(request: UserIdRequest): Promise<BalanceResponse> {
@@ -91,15 +90,11 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
 
   updateWithdraw(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.updateWithdraw(request);
+    return this.webhooksService.updateWithdraw(request);
   }
 
   updateContribution(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.updateContribution(request);
-  }
-
-  list(request: PaymentGatewayListQuery): Promise<PaymentGatewayListResponse> {
-    return this.paymentGatewayService.list(request);
+    return this.webhooksService.updateContribution(request);
   }
 
   addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
@@ -160,5 +155,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   getDepositParams(request: UserIdRequest): Promise<DepositParamsResponse> {
     return this.paymentGatewayService.getDepositParams(request);
+  }
+
+  createWallet(request: CreateWalledRequest): Promise<WalletResponse> {
+    return this.paymentGatewayService.createWallet(request);
   }
 }

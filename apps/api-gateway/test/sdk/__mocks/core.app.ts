@@ -1,3 +1,5 @@
+import { PaymentGatewayWebhooksService } from '@/sdk/payment-gateway/services/payment-gateway-webhooks.service';
+import { PaymentGatewayService } from '@/sdk/payment-gateway/services/payment-gateway.service';
 import { UserCheckService } from '@/user/services/user-check.service';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
@@ -8,7 +10,6 @@ import { ConfigInterface } from '~common/config/configuration';
 import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
 import { CountryService } from '~svc/core/src/country/services/country.service';
 import { PaymentGatewayController } from '~svc/core/src/sdk/payment-gateway/controllers/payment-gateway.controller';
-import { PaymentGatewayService } from '~svc/core/src/sdk/payment-gateway/services/payment.gateway.service';
 import { UserController } from '~svc/core/src/user/controllers/user.controller';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
@@ -23,6 +24,12 @@ export default async (config: ConfigService<ConfigInterface>) => {
       UserService,
       {
         provide: PaymentGatewayService,
+        useValue: {
+          createUser: jest.fn().mockResolvedValue(false),
+        },
+      },
+      {
+        provide: PaymentGatewayWebhooksService,
         useValue: {
           createUser: jest.fn().mockResolvedValue(false),
         },

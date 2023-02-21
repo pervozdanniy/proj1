@@ -21,6 +21,7 @@ import {
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
+import { KoyweService } from './koywe/koywe.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
 @Injectable()
@@ -31,6 +32,8 @@ export class PaymentGatewayService {
     private paymentGatewayManager: PaymentGatewayManager,
 
     private primeTrustService: PrimeTrustService,
+
+    private koyweService: KoyweService,
 
     @InjectRepository(PaymentGatewayEntity)
     private readonly paymentGatewayEntityRepository: Repository<PaymentGatewayEntity>,

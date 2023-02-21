@@ -473,7 +473,7 @@ export class PrimeDepositManager {
     const deposit = await this.depositEntityRepository
       .createQueryBuilder('c')
       .select('*')
-      .where('c.id = :resource_id AND c.user_id=:id', { resource_id, id })
+      .where('c.id = :resource_id AND c.user_id=:id AND type=:type', { resource_id, id, type: 'deposit' })
       .getRawOne();
     if (!deposit) {
       throw new GrpcException(Status.NOT_FOUND, 'Deposit not found!', 404);
