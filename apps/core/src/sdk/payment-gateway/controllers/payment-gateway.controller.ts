@@ -1,4 +1,4 @@
-import { IdRequest, SuccessResponse } from '~common/grpc/interfaces/common';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   AccountResponse,
