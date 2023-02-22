@@ -33,7 +33,7 @@ export class PrimeTransactionsManager {
   ) {}
 
   async getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {
-    const { user_id, searchTerm, searchAfter, limit } = request;
+    const { user_id, search_after, search_term, limit } = request;
 
     const queryBuilder = this.transferFundsEntityRepository
       .createQueryBuilder('t')
@@ -42,8 +42,8 @@ export class PrimeTransactionsManager {
       .leftJoinAndSelect(UserEntity, 'sender_details', 'sender_details.id = t.user_id')
       .leftJoinAndSelect(UserEntity, 'receiver_details', 'receiver_details.id = t.receiver_id');
 
-    if (searchAfter) {
-      queryBuilder.where('t.id < :searchAfter', { searchAfter });
+    if (search_after) {
+      queryBuilder.where('t.id < :search_after', { search_after });
     }
 
     queryBuilder.andWhere(
@@ -52,32 +52,32 @@ export class PrimeTransactionsManager {
       }),
     );
 
-    if (searchTerm) {
+    if (search_term) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
-          qb.where('sender_details.email ILIKE :searchTerm', {
-            searchTerm: `%${searchTerm}%`,
+          qb.where('sender_details.email ILIKE :search_term', {
+            search_term: `%${search_term}%`,
           })
-            .orWhere('receiver_details.email ILIKE :searchTerm', {
-              searchTerm: `%${searchTerm}%`,
+            .orWhere('receiver_details.email ILIKE :search_term', {
+              search_term: `%${search_term}%`,
             })
-            .orWhere('sender_details.phone ILIKE :searchTerm', {
-              searchTerm: `%${searchTerm}%`,
+            .orWhere('sender_details.phone ILIKE :search_term', {
+              search_term: `%${search_term}%`,
             })
-            .orWhere('receiver_details.phone ILIKE :searchTerm', {
-              searchTerm: `%${searchTerm}%`,
+            .orWhere('receiver_details.phone ILIKE :search_term', {
+              search_term: `%${search_term}%`,
             })
-            .orWhere('s.first_name ILIKE :searchTerm', {
-              searchTerm: `%${searchTerm}%`,
+            .orWhere('s.first_name ILIKE :search_term', {
+              search_term: `%${search_term}%`,
             })
-            .orWhere('s.last_name ILIKE :searchTerm', {
-              searchTerm: `%${searchTerm}%`,
+            .orWhere('s.last_name ILIKE :search_term', {
+              search_term: `%${search_term}%`,
             })
-            .orWhere('r.first_name ILIKE :searchTerm', {
-              searchTerm: `%${searchTerm}%`,
+            .orWhere('r.first_name ILIKE :search_term', {
+              search_term: `%${search_term}%`,
             })
-            .orWhere('r.last_name ILIKE :searchTerm', {
-              searchTerm: `%${searchTerm}%`,
+            .orWhere('r.last_name ILIKE :search_term', {
+              search_term: `%${search_term}%`,
             });
         }),
       );
@@ -97,15 +97,15 @@ export class PrimeTransactionsManager {
     const transactions = await queryBuilder.limit(limit).getRawMany();
 
     if (transactions.length === 0) {
-      return { transactions, hasMore: false };
+      return { transactions, has_more: false };
     }
 
-    const { id: lastId } = transactions.at(-1);
+    const { id: last_id } = transactions.at(-1);
 
     return {
-      lastId,
+      last_id,
       transactions,
-      hasMore: lastId > 1,
+      has_more: last_id > 1,
     };
   }
 }

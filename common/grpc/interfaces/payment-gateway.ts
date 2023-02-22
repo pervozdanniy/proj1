@@ -14,9 +14,9 @@ export interface CreateReferenceRequest {
 
 export interface SearchTransactionRequest {
   user_id: number;
-  searchAfter: number;
+  search_after: number;
   limit: number;
-  searchTerm?: string | undefined;
+  search_term?: string | undefined;
 }
 
 export interface WalletResponse {
@@ -55,8 +55,8 @@ export interface DepositDataResponse {
 
 export interface TransactionResponse {
   transactions: Transaction[];
-  hasMore: boolean;
-  lastId?: number | undefined;
+  has_more: boolean;
+  last_id?: number | undefined;
 }
 
 export interface Transaction {
