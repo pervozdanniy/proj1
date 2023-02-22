@@ -9,7 +9,7 @@ import { PrimeBankAccountManager } from '@/sdk/payment-gateway/services/prime_tr
 import { SendFundsResponse, USDtoAssetResponse } from '@/sdk/payment-gateway/types/response';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -20,11 +20,9 @@ import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity'
 
 @Injectable()
 export class PrimeFundsTransferManager {
-  private readonly logger = new Logger(PrimeFundsTransferManager.name);
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
-
-  private readonly asset_id: string = 'ecca8bab-dcb2-419a-973e-aebc39ff4f03';
+  private readonly asset_id: string;
   constructor(
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
@@ -48,6 +46,8 @@ export class PrimeFundsTransferManager {
     private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
+    const { id } = config.get('asset');
+    this.asset_id = id;
     this.prime_trust_url = prime_trust_url;
     this.app_domain = domain;
   }

@@ -75,6 +75,10 @@ export interface ConfigInterface {
   ipqualityscore: {
     api_key: string;
   };
+  asset: {
+    id: string;
+    type: string;
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -159,5 +163,9 @@ export default (): ConfigInterface => ({
   koywe: {
     client_id: process.env.KOYWE_ID,
     secret: process.env.KOYWE_SECRET,
+  },
+  asset: {
+    id: process.env.ASSET_ID,
+    type: process.env.ASSET_TYPE,
   },
 });

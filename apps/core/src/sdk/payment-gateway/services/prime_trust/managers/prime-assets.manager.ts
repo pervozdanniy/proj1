@@ -20,8 +20,8 @@ export class PrimeAssetsManager {
   private readonly logger = new Logger(PrimeAssetsManager.name);
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
-
-  private readonly asset_id: string = 'ecca8bab-dcb2-419a-973e-aebc39ff4f03';
+  private readonly asset_id: string;
+  private readonly asset_type: string;
 
   constructor(
     private config: ConfigService<ConfigInterface>,
@@ -37,6 +37,9 @@ export class PrimeAssetsManager {
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
+    const { id, type } = config.get('asset');
+    this.asset_id = id;
+    this.asset_type = type;
     this.prime_trust_url = prime_trust_url;
     this.app_domain = domain;
   }
@@ -90,8 +93,8 @@ export class PrimeAssetsManager {
           'contact-id': contact_id,
           'account-id': account_id,
           'transfer-direction': 'incoming',
-          'single-use': false,
-          'asset-transfer-type': 'ethereum',
+          'single-use': true,
+          'asset-transfer-type': this.asset_type,
         },
       },
     };
