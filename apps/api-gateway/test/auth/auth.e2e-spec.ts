@@ -80,59 +80,6 @@ describe('AuthService (e2e)', () => {
     return request(app.getHttpServer()).post('/auth/login').send({ login: 'INCORRECT_LOGIN', password }).expect(401);
   });
 
-  describe('Registration', () => {
-    it('creates a new user', async () => {
-      const mockPayload = {
-        email: 'mock@mock.com',
-        phone: '+380637814501',
-        username: 'mock',
-        password: 'mock12345678',
-        country_id: 1,
-      };
-      await request(app.getHttpServer()).post('/users').send(mockPayload).expect(201);
-      expect(userStorage).toHaveLength(1);
-      const createdUser = userStorage.find((u) => u.email === mockPayload.email);
-      expect(createdUser).not.toBeUndefined();
-      expect(bcrypt.compareSync(mockPayload.password, createdUser.password)).toBe(true);
-    });
-
-    it('validates missing field', async () => {
-      await request(app.getHttpServer())
-        .post('/users')
-        .send({
-          email: 'mock@mock.com',
-          password: 'mock',
-        })
-        .expect(400);
-    });
-
-    it('validates invalid email', async () => {
-      await request(app.getHttpServer())
-        .post('/users')
-        .send({
-          email: 'INVALID_EMAIL',
-          username: 'mock',
-          password: 'mock',
-        })
-        .expect(400);
-    });
-
-    it('ignores extra fields', async () => {
-      const payload = {
-        email: 'mock@mock.com',
-        phone: '+380637814501',
-        username: 'mock',
-        password: 'mock12345678',
-        country_id: 1,
-        extraField1: 1,
-        extraField2: 2,
-      };
-      await request(app.getHttpServer()).post('/users').send(payload);
-      const createdUser = userStorage.find((u) => u.email === payload.email);
-      expect(createdUser).not.toHaveProperty('extraField1');
-    });
-  });
-
   describe('JWT', () => {
     it('generates valid token with proper payload', () => {
       const config = app.get(ConfigService<ConfigInterface>);

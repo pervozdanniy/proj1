@@ -1,8 +1,8 @@
-import { UserDetails } from '@/api/user/dtos/create-user.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -11,6 +11,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
+import { SendType } from '~common/constants/user';
 import { UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 
 export class UserContactsDto {
@@ -25,24 +26,75 @@ export class UserContactsDto {
   removed: string[];
 }
 
+export class UserDetails {
+  @ApiProperty({ example: 'first_name' })
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  first_name: string;
+
+  @ApiProperty({ example: 'last_name' })
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  last_name: string;
+
+  @ApiProperty({ example: 'Las Vegas' })
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  city: string;
+
+  @ApiProperty({ example: 'NV' })
+  @IsString()
+  @IsOptional()
+  region: string;
+
+  @ApiProperty({ format: 'date', example: '1995-09-09' })
+  @IsString()
+  @IsNotEmpty()
+  date_of_birth: string;
+
+  @ApiProperty({ example: '123 MK Road' })
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  street: string;
+
+  @ApiProperty({ example: 89145 })
+  @IsNumber()
+  @IsOptional()
+  postal_code: number;
+
+  @ApiProperty({ example: 123123123 })
+  @IsNumber()
+  @IsNotEmpty()
+  tax_id_number: number;
+
+  @ApiProperty({ enum: Object.values(SendType), default: SendType.ALL })
+  @IsEnum(SendType)
+  @Type(() => Number)
+  send_type?: SendType;
+}
+
 export class UpdateUserDto implements UpdateRequest {
   id: number;
 
-  @ApiProperty({ example: 'gevorg' })
+  @ApiPropertyOptional({ example: 'gevorg' })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @Length(2, 200)
-  username: string;
+  username?: string;
 
-  @ApiProperty({ required: true, example: '+37495017680' })
+  @ApiPropertyOptional({ required: true, example: '+37495017680' })
   @IsString()
   @IsOptional()
   phone?: string;
 
-  @ApiProperty({ example: 1 })
+  @ApiPropertyOptional({ example: 1 })
   @IsNumber()
-  @IsNotEmpty()
-  country_id: number;
+  @IsOptional()
+  country_id?: number;
 
   @ApiProperty({ type: UserDetails })
   @ValidateNested()

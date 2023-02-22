@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class RegisterRequestDto {
   @ApiProperty()
@@ -12,12 +12,8 @@ export class RegisterRequestDto {
   @IsInt()
   countryId: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  @ValidateIf((obj) => !obj?.secure)
-  password?: string;
-
+  @ApiPropertyOptional()
   @IsOptional()
-  secure?: boolean;
+  @IsString()
+  password?: string;
 }

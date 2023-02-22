@@ -1,11 +1,20 @@
 import { Auth2FAService } from '@/auth-2fa/2fa.service';
 import { AuthService } from '@/auth/auth.service';
-import { ConflictException, Injectable } from '@nestjs/common';
-import { finishRegistration, isPreRegistered, startRegistration } from '~common/constants/auth';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  finishRegistration,
+  isPasswordReset,
+  isPreRegistered,
+  resetPassword,
+  startRegistration,
+  TwoFactorMethod,
+} from '~common/constants/auth';
 import { UserSourceEnum } from '~common/constants/user';
 import { SessionProxy } from '~common/grpc-session';
 import { AuthData, RegisterFinishRequest, RegisterStartRequest, TwoFactorCode } from '~common/grpc/interfaces/auth';
-import { User } from '~common/grpc/interfaces/common';
+import { SuccessResponse, User } from '~common/grpc/interfaces/common';
+import { BaseSettingsDto } from '../dto/2fa.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
 
 @Injectable()
 export class AuthApiService {
@@ -13,14 +22,6 @@ export class AuthApiService {
 
   async validateUser(login: string, pass: string): Promise<User | null> {
     return this.auth.validateUser(login, pass);
-  }
-
-  async findByLogin(login: string) {
-    return this.auth.findByLogin(login);
-  }
-
-  async findUser(id: number) {
-    return this.auth.findUser(id);
   }
 
   async login(user: User, session: SessionProxy) {
@@ -72,5 +73,50 @@ export class AuthApiService {
     finishRegistration(session, user);
 
     return user;
+  }
+
+  async resetPasswordStart(payload: ResetPasswordDto, session: SessionProxy) {
+    let user: User | undefined;
+    let settings: BaseSettingsDto;
+    if (payload.email) {
+      user = await this.auth.findByEmail(payload.email);
+      settings = { method: TwoFactorMethod.Email, destination: payload.email };
+    } else if (payload.phone) {
+      user = await this.auth.findByPhone(payload.phone);
+      settings = { method: TwoFactorMethod.Sms, destination: payload.phone };
+    } else {
+      throw new BadRequestException('Phone or email should be specified');
+    }
+    if (!user) {
+      throw new NotFoundException('No such user exists');
+    }
+    this.auth2FA.requireOne(settings, resetPassword(session));
+
+    const resp: AuthData = await this.login(user, session);
+    resp.verify = { type: 'Reset password confirmation', methods: [settings.method] };
+
+    return resp;
+  }
+
+  async resetPasswordVerify(payload: TwoFactorCode, session: SessionProxy) {
+    if (!isPasswordReset(session)) {
+      throw new ConflictException('Password reset process was not stated');
+    }
+
+    return this.auth2FA.verifyOne(payload, session);
+  }
+
+  async resetPasswordFinish(password: string, session: SessionProxy): Promise<SuccessResponse> {
+    if (!isPasswordReset(session)) {
+      throw new ConflictException('Password reset process was not stated');
+    }
+    try {
+      await this.auth.updateUser({ id: session.user.id, password });
+    } catch (error) {
+      return { success: false, error: 'Failed to update user password' };
+    }
+    await session.destroy().catch(() => {});
+
+    return { success: true };
   }
 }

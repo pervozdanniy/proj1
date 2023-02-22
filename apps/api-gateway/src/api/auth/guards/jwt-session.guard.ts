@@ -8,17 +8,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { is2FA } from '~common/constants/auth/2fa/helpers';
-import { With2FA } from '~common/constants/auth/2fa/interfaces';
-import { isPreRegistered } from '~common/constants/auth/registration/helpers';
-import { WithPreRegistration } from '~common/constants/auth/registration/interfaces';
-import {
-  JwtSessionGuard as BaseGuard,
-  SessionInterface,
-  SessionMetadataOptions,
-  SessionProxy,
-} from '~common/http-session';
+import { is2FA, isPasswordReset, isPreRegistered } from '~common/constants/auth';
+import { JwtSessionGuard as BaseGuard, SessionInterface, SessionProxy } from '~common/http-session';
 import { JWT_AUTH_METADATA } from '~common/http-session/meta';
+import { SessionMetadataOptions } from '../interfaces/session.interface';
 import { TwoFactorService } from '../services/2fa.service';
 
 @Injectable()
@@ -33,10 +26,7 @@ export class JwtSessionGuard extends BaseGuard {
   ): Promise<boolean> {
     const res = await super.validateSession(session, context);
 
-    const options = this.reflector.get<WithPreRegistration<With2FA<SessionMetadataOptions>>>(
-      JWT_AUTH_METADATA,
-      context.getHandler(),
-    );
+    const options = this.reflector.get<SessionMetadataOptions>(JWT_AUTH_METADATA, context.getHandler());
 
     if (!options.allowUnauthorized && !session.user) {
       throw new UnauthorizedException();
@@ -57,6 +47,9 @@ export class JwtSessionGuard extends BaseGuard {
     }
     if (options.requirePreRegistration && !isPreRegistered(session)) {
       throw new ConflictException({ message: "You haven't started registration process" });
+    }
+    if (options.requirePasswordReset && !isPasswordReset(session)) {
+      throw new ConflictException({ message: "You haven't started password reset process" });
     }
 
     return res;

@@ -10,7 +10,7 @@ import public "notification.proto";
 service UserService {
   rpc GetById (common.IdRequest) returns (common.User);
 
-  rpc FindByLogin (LoginRequest) returns (NullableUser);
+  rpc FindByLogin (FindByLoginRequest) returns (NullableUser);
 
   rpc Create (CreateRequest) returns (common.User);
 
@@ -37,6 +37,7 @@ message UpdateRequest {
   optional string username = 2;
   optional uint32 country_id = 3;
   optional string phone = 4;
+  optional string password = 5;
   optional common.UserDetails details = 6;
   optional UserContacts contacts = 7;
 }
@@ -52,8 +53,11 @@ message CreateRequest {
   repeated string contacts = 8;
 }
 
-message LoginRequest {
-  string login = 1;
+message FindByLoginRequest {
+  oneof login {
+    string email = 1;
+    string phone = 2;
+  }
 }
 
 message UpdateContactsRequest {

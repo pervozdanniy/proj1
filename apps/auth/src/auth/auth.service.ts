@@ -7,7 +7,7 @@ import { SessionProxy } from '~common/grpc-session';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { RegisterStartRequest } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
-import { CreateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
+import { CreateRequest, UpdateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -23,7 +23,7 @@ export class AuthService implements OnModuleInit {
   async validateUser(login: string, pass: string): Promise<User | null> {
     let user: User | undefined;
     try {
-      user = await this.findByLogin(login);
+      user = await this.findByEmail(login);
     } catch (error) {
       this.logger.error('Validate user: ', error.stack, { error });
     }
@@ -39,8 +39,14 @@ export class AuthService implements OnModuleInit {
     return null;
   }
 
-  async findByLogin(login: string) {
-    const { user } = await firstValueFrom(this.userService.findByLogin({ login }));
+  async findByEmail(email: string) {
+    const { user } = await firstValueFrom(this.userService.findByLogin({ email }));
+
+    return user;
+  }
+
+  async findByPhone(phone: string) {
+    const { user } = await firstValueFrom(this.userService.findByLogin({ phone }));
 
     return user;
   }
@@ -57,10 +63,22 @@ export class AuthService implements OnModuleInit {
   }
 
   async createUser(payload: CreateRequest) {
+    if (payload.password) {
+      payload.password = await bcrypt.hash(payload.password, 10);
+    }
+
     return firstValueFrom(this.userService.create(payload));
   }
 
-  async login(user: User, session: SessionProxy) {
+  async updateUser(payload: UpdateRequest) {
+    if (payload.password) {
+      payload.password = await bcrypt.hash(payload.password, 10);
+    }
+
+    return firstValueFrom(this.userService.update(payload));
+  }
+
+  login(user: User, session: SessionProxy) {
     session.user = user;
 
     return this.generateToken(session.id);
