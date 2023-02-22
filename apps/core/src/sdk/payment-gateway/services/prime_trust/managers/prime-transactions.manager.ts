@@ -93,18 +93,14 @@ export class PrimeTransactionsManager {
       END as title`,
       ])
       .orderBy('t.created_at', 'DESC');
-    let hasMore = false;
 
-    const transactions = await queryBuilder.limit(limit + 1).getRawMany();
+    let transactions = await queryBuilder.limit(limit + 1).getRawMany();
     let last_id = 0;
-
+    const hasMore = transactions.length > limit;
+    transactions = transactions.slice(0, limit);
     if (transactions.length > 0) {
       const { id } = transactions.at(-1);
       last_id = id;
-    }
-
-    if (transactions.length === limit + 1) {
-      hasMore = true;
     }
 
     return {
