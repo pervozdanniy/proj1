@@ -6,7 +6,6 @@ import {
   PrimeTrustData,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { UserEntity } from '../../../../user/entities/user.entity';
 import { PaymentGatewayInterface } from '../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../services/koywe/koywe.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
@@ -27,8 +26,10 @@ export class ChilePaymentGateway implements PaymentGatewayInterface {
     return this.primeTrustService.addBankAccountParams(request);
   }
 
-  createReference(userDetails: UserEntity, depositParams: CreateReferenceRequest): Promise<PrimeTrustData> {
-    return this.koyweService.createReference(userDetails, depositParams);
+  async createReference(request: CreateReferenceRequest): Promise<PrimeTrustData> {
+    const { wallet_address } = await this.primeTrustService.createWallet(request);
+
+    return this.koyweService.createReference(request, wallet_address);
   }
   makeWithdrawal(request: TransferMethodRequest): Promise<PrimeTrustData> {
     return this.primeTrustService.makeWithdrawal(request);

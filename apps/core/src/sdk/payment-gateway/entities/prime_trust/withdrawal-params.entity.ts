@@ -25,9 +25,6 @@ export class WithdrawalParamsEntity {
   @Column('integer', { nullable: true })
   bank_account_id: number;
 
-  @Column('integer', { nullable: true })
-  wallet_id: number;
-
   @Column('character varying', { length: 50, nullable: true })
   funds_transfer_type: string;
 

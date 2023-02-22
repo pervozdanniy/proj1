@@ -43,9 +43,6 @@ service PaymentGatewayService {
   rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
 
-  //assets
-
-  rpc CreateWallet(CreateWalledRequest) returns (WalletResponse);
 }
 
 message CreateReferenceRequest {
@@ -62,18 +59,8 @@ message SearchTransactionRequest {
   optional string searchTerm = 4;
 }
 
-message CreateWalledRequest {
-  uint32 id = 1;
-  string label = 2;
-}
-
 message WalletResponse {
-  optional uint32 id = 1;
-  string label = 2;
   string wallet_address = 3;
-  string wallet_for = 4;
-  string asset_transfer_method_id = 5;
-  string created_at = 6;
 }
 
 

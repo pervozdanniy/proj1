@@ -23,6 +23,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   ContributionResponse,
+  CreateReferenceRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositDataResponse,
@@ -79,14 +80,22 @@ export class PrimeDepositManager {
     this.app_domain = domain;
   }
 
-  async createReference(userDetails: UserEntity): Promise<PrimeTrustData> {
-    const user_id = userDetails.id;
-    let refInfo = await this.getReferenceInfo(user_id);
+  async createReference(request: CreateReferenceRequest): Promise<PrimeTrustData> {
+    let refInfo = await this.getReferenceInfo(request.id);
     if (refInfo.data.length == 0) {
-      refInfo = await this.createFundsReference(user_id);
+      refInfo = await this.createFundsReference(request.id);
+    }
+    const newData = [];
+    for (let i = 0; i < refInfo.data.length; i++) {
+      const attributes = refInfo.data[i].attributes;
+      for (const key in attributes) {
+        if (key.includes('wire')) {
+          newData.push(attributes[key]);
+        }
+      }
     }
 
-    return { data: JSON.stringify(refInfo.data) };
+    return { data: JSON.stringify(newData) };
   }
 
   async getReferenceInfo(user_id: number) {

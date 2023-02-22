@@ -12,10 +12,8 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { WalletFor } from '~common/enum/document-types.enum';
-import { CreateWalledRequest, WalletResponse } from '~common/grpc/interfaces/payment-gateway';
+import { CreateReferenceRequest, WalletResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { WalletEntity } from '../../../entities/prime_trust/wallet.entity';
 
 @Injectable()
 export class PrimeAssetsManager {
@@ -37,16 +35,20 @@ export class PrimeAssetsManager {
     private readonly primeTrustContactEntityRepository: Repository<PrimeTrustContactEntity>,
     @InjectRepository(PrimeTrustBalanceEntity)
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
-    @InjectRepository(WalletEntity)
-    private readonly walletEntityRepository: Repository<WalletEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
     this.app_domain = domain;
   }
 
-  async createWallet(request: CreateWalledRequest): Promise<WalletResponse> {
-    const { id } = request;
+  async createWallet(depositParams: CreateReferenceRequest): Promise<WalletResponse> {
+    let { amount, currency_type } = depositParams;
+    const { id } = depositParams;
+
+    if (currency_type === 'CLP') {
+      amount = (parseFloat(amount) * 0.0012).toString();
+      currency_type = 'USD';
+    }
     const prime_trust_params = await this.primeAccountRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect(PrimeTrustContactEntity, 'c', 'a.user_id = c.user_id')
@@ -55,11 +57,9 @@ export class PrimeAssetsManager {
       .getRawOne();
 
     const { account_id, contact_id } = prime_trust_params;
-    const walletPayload = await this.createAssetTransferMethod(account_id, contact_id);
-    const payload = { ...walletPayload, wallet_for: WalletFor.DEPOSIT, user_id: id };
-    await this.walletEntityRepository.save(this.walletEntityRepository.create(payload));
+    const walletPayload = await this.createAssetTransferMethod(account_id, contact_id, amount, currency_type);
 
-    return payload;
+    return walletPayload;
   }
 
   createDate() {
@@ -72,15 +72,20 @@ export class PrimeAssetsManager {
     return formattedDate;
   }
 
-  async createAssetTransferMethod(account_id: string, contact_id: string): Promise<Omit<WalletResponse, 'wallet_for'>> {
+  async createAssetTransferMethod(
+    account_id: string,
+    contact_id: string,
+    amount: string,
+    currency_type: string,
+  ): Promise<WalletResponse> {
     const formData = {
       data: {
         type: 'asset-transfer-methods',
         attributes: {
-          label: 'Deposit Address for Counterparty 1',
-          'cost-basis': '55',
+          label: 'Deposit Address',
+          'cost-basis': amount,
           'acquisition-on': this.createDate(),
-          'currency-type': 'USD',
+          'currency-type': currency_type,
           'asset-id': this.asset_id,
           'contact-id': contact_id,
           'account-id': account_id,
@@ -98,10 +103,7 @@ export class PrimeAssetsManager {
       });
 
       return {
-        created_at: walletResponse.data.data.attributes['created-at'],
-        label: walletResponse.data.data.attributes['label'],
         wallet_address: walletResponse.data.data.attributes['wallet-address'],
-        asset_transfer_method_id: walletResponse.data.data.id,
       };
     } catch (e) {
       this.logger.error(e.response.data);

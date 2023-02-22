@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
   BankAccountParams,
-  CreateWalledRequest,
+  CreateReferenceRequest,
   DepositParamRequest,
   MakeContributionRequest,
   SearchTransactionRequest,
@@ -71,8 +71,8 @@ export class PrimeTrustService {
     return this.primeKycManager.cipCheck(id, resource_id);
   }
 
-  createReference(userDetails: UserEntity) {
-    return this.primeDepositManager.createReference(userDetails);
+  createReference(request: CreateReferenceRequest) {
+    return this.primeDepositManager.createReference(request);
   }
 
   async updateAccountBalance(id: string) {
@@ -158,7 +158,7 @@ export class PrimeTrustService {
     return this.primeWithdrawalManager.getWithdrawalById(request);
   }
 
-  createWallet(request: CreateWalledRequest) {
-    return this.primeAssetsManager.createWallet(request);
+  createWallet(depositParams: CreateReferenceRequest) {
+    return this.primeAssetsManager.createWallet(depositParams);
   }
 }

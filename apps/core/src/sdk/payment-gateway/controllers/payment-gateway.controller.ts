@@ -8,7 +8,6 @@ import {
   ContactResponse,
   ContributionResponse,
   CreateReferenceRequest,
-  CreateWalledRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositDataResponse,
@@ -29,7 +28,6 @@ import {
   UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
-  WalletResponse,
   WithdrawalDataResponse,
   WithdrawalParams,
   WithdrawalResponse,
@@ -156,9 +154,5 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   getDepositParams(request: UserIdRequest): Promise<DepositParamsResponse> {
     return this.paymentGatewayService.getDepositParams(request);
-  }
-
-  createWallet(request: CreateWalledRequest): Promise<WalletResponse> {
-    return this.paymentGatewayService.createWallet(request);
   }
 }

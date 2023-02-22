@@ -8,7 +8,7 @@ import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
 import { CreateReferenceRequest, PrimeTrustData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { UserEntity } from '../../../../user/entities/user.entity';
+import { UserService } from '../../../../user/services/user.service';
 
 @Injectable()
 export class KoyweService {
@@ -17,6 +17,7 @@ export class KoyweService {
   private readonly secret: string;
   constructor(
     private readonly httpService: HttpService,
+    private userService: UserService,
     private config: ConfigService<ConfigInterface>,
     @InjectRedis() private readonly redis: Redis,
   ) {
@@ -34,20 +35,34 @@ export class KoyweService {
       secret: this.secret,
     };
     const result = await lastValueFrom(this.httpService.post(`${this.koywe_url}/auth`, data));
+    if (result.data) {
+      this.redis.set('koywe_token', result.data.token);
+    }
 
     return { token: result.data.token };
   }
 
-  async createReference(userDetails: UserEntity, depositParams: CreateReferenceRequest): Promise<PrimeTrustData> {
-    const { amount, currency_type } = depositParams;
-    const token = await this.getToken(userDetails.email);
-    const { quoteId } = await this.createQuote(amount, currency_type, token);
-    const order = await this.createOrder(quoteId, userDetails.email, token);
+  async createReference(depositParams: CreateReferenceRequest, wallet_address: string): Promise<PrimeTrustData> {
+    const { amount, currency_type, id } = depositParams;
+    const userDetails = await this.userService.getUserInfo(id);
+    await this.getToken(userDetails.email);
 
-    return { data: JSON.stringify(order) };
+    const { quoteId } = await this.createQuote(amount, currency_type);
+    const order = await this.createOrder(quoteId, userDetails.email, wallet_address);
+    const parts = order.providedAddress.split('\n');
+
+    const data = {
+      name: parts[0],
+      account_number: parts[1],
+      tax_id: parts[2],
+      bank: parts[3],
+      email: parts[4],
+    };
+
+    return { data: JSON.stringify([data]) };
   }
 
-  async createQuote(amount, currency_type, token) {
+  async createQuote(amount, currency_type) {
     try {
       const formData = {
         symbolIn: currency_type,
@@ -56,13 +71,8 @@ export class KoyweService {
         paymentMethodId: '632d7fe6237ded3a748112cf',
         executable: true,
       };
-      const headersRequest = {
-        Authorization: `Bearer ${token}`,
-      };
 
-      const result = await lastValueFrom(
-        this.httpService.post(`${this.koywe_url}/quotes`, formData, { headers: headersRequest }),
-      );
+      const result = await lastValueFrom(this.httpService.post(`${this.koywe_url}/quotes`, formData));
 
       return result.data;
     } catch (e) {
@@ -70,13 +80,13 @@ export class KoyweService {
     }
   }
 
-  async createOrder(quoteId, email, token) {
+  async createOrder(quoteId, email, wallet_address) {
     try {
+      const token = await this.redis.get('koywe_token');
       const formData = {
-        destinationAddress: '0x9fB17767f61c36799C11D94785360f9E69aC7220',
+        destinationAddress: wallet_address,
         quoteId,
         email,
-        documentNumber: '111111111',
         metadata: 'in esse',
       };
       const headersRequest = {

@@ -19,18 +19,8 @@ export interface SearchTransactionRequest {
   searchTerm?: string | undefined;
 }
 
-export interface CreateWalledRequest {
-  id: number;
-  label: string;
-}
-
 export interface WalletResponse {
-  id?: number | undefined;
-  label: string;
   wallet_address: string;
-  wallet_for: string;
-  asset_transfer_method_id: string;
-  created_at: string;
 }
 
 export interface WithdrawalDataResponse {
@@ -329,8 +319,6 @@ export interface PaymentGatewayServiceClient {
   makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<PrimeTrustData>;
 
   updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  createWallet(request: CreateWalledRequest, ...rest: any): Observable<WalletResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -481,11 +469,6 @@ export interface PaymentGatewayServiceController {
     request: AccountIdRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  createWallet(
-    request: CreateWalledRequest,
-    ...rest: any
-  ): Promise<WalletResponse> | Observable<WalletResponse> | WalletResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -520,7 +503,6 @@ export function PaymentGatewayServiceControllerMethods() {
       "addWithdrawalParams",
       "makeWithdrawal",
       "updateWithdraw",
-      "createWallet",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

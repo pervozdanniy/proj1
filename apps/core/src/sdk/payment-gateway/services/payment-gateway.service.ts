@@ -8,7 +8,6 @@ import {
   AccountResponse,
   BankAccountParams,
   CreateReferenceRequest,
-  CreateWalledRequest,
   DepositParamRequest,
   DocumentResponse,
   MakeContributionRequest,
@@ -119,10 +118,6 @@ export class PaymentGatewayService {
     return this.primeTrustService.getWithdrawalById(request);
   }
 
-  async createWallet(request: CreateWalledRequest) {
-    return this.primeTrustService.createWallet(request);
-  }
-
   async addDepositParams(request: DepositParamRequest) {
     return this.primeTrustService.addDepositParams(request);
   }
@@ -153,7 +148,7 @@ export class PaymentGatewayService {
     const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
 
-    return paymentGateway.createReference(userDetails, request);
+    return paymentGateway.createReference(request);
   }
 
   async makeWithdrawal(request: TransferMethodRequest) {

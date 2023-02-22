@@ -11,31 +11,16 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { JwtSessionMiddleware } from '~common/http-session';
-import { AssetController } from './controllers/asset.controller';
 
 @Module({
   imports: [HttpModule, AuthModule, ClientsModule.registerAsync([asyncClientOptions('core')])],
-  controllers: [
-    MainController,
-    DepositController,
-    TransferController,
-    WithdrawalController,
-    AssetController,
-    SandboxGatewayController,
-  ],
+  controllers: [MainController, DepositController, TransferController, WithdrawalController, SandboxGatewayController],
   providers: [PaymentGatewayService, SandboxService],
 })
 export class PrimeTrustModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtSessionMiddleware)
-      .forRoutes(
-        MainController,
-        DepositController,
-        TransferController,
-        WithdrawalController,
-        AssetController,
-        SandboxGatewayController,
-      );
+      .forRoutes(MainController, DepositController, TransferController, WithdrawalController, SandboxGatewayController);
   }
 }

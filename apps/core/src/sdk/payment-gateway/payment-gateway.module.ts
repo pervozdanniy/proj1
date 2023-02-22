@@ -17,7 +17,6 @@ import { PrimeTrustBalanceEntity } from './entities/prime_trust/prime-trust-bala
 import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
 import { TransfersEntity } from './entities/prime_trust/transfers.entity';
-import { WalletEntity } from './entities/prime_trust/wallet.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
 import { ChilePaymentGateway } from './manager/countries/chile-payment.gateway';
@@ -58,7 +57,6 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       TransfersEntity,
       BankAccountEntity,
       DepositParamsEntity,
-      WalletEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('websocket')]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
