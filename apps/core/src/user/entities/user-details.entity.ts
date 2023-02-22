@@ -37,6 +37,9 @@ export class UserDetailsEntity {
   @Column('integer', { nullable: true })
   tax_id_number: number;
 
+  @Column('varchar', { nullable: true })
+  avatar?: string;
+
   @CreateDateColumn()
   created_at: Date;
 

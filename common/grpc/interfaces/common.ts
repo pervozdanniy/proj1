@@ -17,15 +17,16 @@ export interface User {
 }
 
 export interface UserDetails {
-  first_name: string;
-  last_name: string;
-  date_of_birth: string;
-  city: string;
-  street: string;
-  postal_code: number;
-  tax_id_number: number;
-  region: string;
+  first_name?: string | undefined;
+  last_name?: string | undefined;
+  date_of_birth?: string | undefined;
+  city?: string | undefined;
+  street?: string | undefined;
+  postal_code?: number | undefined;
+  tax_id_number?: number | undefined;
+  region?: string | undefined;
   send_type?: number | undefined;
+  avatar?: string | undefined;
 }
 
 export interface IdRequest {

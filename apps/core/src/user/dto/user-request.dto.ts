@@ -16,43 +16,48 @@ import { CreateRequest, UpdateContactsRequest, UpdateRequest, UserContacts } fro
 
 export class UserDetails {
   @IsString()
-  @IsNotEmpty()
-  first_name: string;
+  @IsOptional()
+  first_name?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @Length(2, 50)
-  last_name: string;
+  last_name?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @Length(2, 50)
-  city: string;
+  city?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @Length(2, 50)
-  street: string;
+  street?: string;
 
   @IsString()
-  @IsNotEmpty()
-  region: string;
+  @IsOptional()
+  region?: string;
 
   @IsString()
-  @IsNotEmpty()
-  date_of_birth: string;
+  @IsOptional()
+  date_of_birth?: string;
 
   @IsNumber()
   @IsOptional()
-  postal_code: number;
+  postal_code?: number;
 
   @IsNumber()
-  @IsNotEmpty()
-  tax_id_number: number;
+  @IsOptional()
+  tax_id_number?: number;
 
   @IsEnum(SendType)
+  @IsOptional()
   @Type(() => Number)
   send_type?: SendType;
+
+  @IsString()
+  @IsOptional()
+  avatar?: string;
 }
 
 export class CreateRequestDto implements CreateRequest {

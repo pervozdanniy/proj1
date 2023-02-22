@@ -29,6 +29,8 @@
     "proto:generate": "node_modules/.bin/protoc --plugin=node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_opt=nestJs=true --ts_proto_opt=addGrpcMetadata=false --ts_proto_opt=snakeToCamel=false --ts_proto_opt=addNestjsRestParameter=true --ts_proto_out=./common/grpc/interfaces --proto_path=./common/grpc/_proto ./common/grpc/_proto/*.proto"
   },
   "dependencies": {
+    "@aws-sdk/client-kms": "^3.272.0",
+    "@aws-sdk/client-s3": "^3.272.0",
     "@aws-sdk/client-sqs": "^3.224.0",
     "@grpc/grpc-js": "^1.7.3",
     "@grpc/proto-loader": "^0.7.3",
@@ -53,14 +55,12 @@
     "@types/bull": "^4.10.0",
     "@types/cron": "^2.0.0",
     "@types/uid-safe": "^2.1.2",
-    "aws-sdk": "^2.1269.0",
     "bcrypt": "^5.1.0",
     "bull": "^4.10.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "ioredis": "^5.2.4",
     "jsonwebtoken": "^8.5.1",
-    "nest-aws-sdk": "^3.0.0",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

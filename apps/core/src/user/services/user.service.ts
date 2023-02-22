@@ -101,7 +101,7 @@ export class UserService {
       if (currentDetails) {
         await this.userDetailsRepository.update({ user_id: id }, details);
       } else {
-        await this.userDetailsRepository.save(this.userDetailsRepository.create({ user_id: id, ...details }));
+        await this.userDetailsRepository.insert(this.userDetailsRepository.create({ user_id: id, ...details }));
       }
     }
 

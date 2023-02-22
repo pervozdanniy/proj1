@@ -14,12 +14,18 @@ export interface ConfigInterface {
     database: string;
   };
   aws: {
-    accessKeyId: string;
-    secretAccessKey: string;
     region: string;
-  };
-  kms: {
-    key: string;
+    credentials: {
+      accessKeyId: string;
+      secretAccessKey: string;
+    };
+    kms: {
+      key: string;
+    };
+    s3: {
+      url: string;
+      bucket: string;
+    };
   };
   redis: Addr;
   grpcServices: {
@@ -92,13 +98,20 @@ export default (): ConfigInterface => ({
     database: process.env.POSTGRES_DB,
   },
   aws: {
-    accessKeyId: process.env.ACCESS_KEY_ID,
-    secretAccessKey: process.env.SECRET_ACCESS_KEY,
-    region: process.env.REGION,
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+    kms: {
+      key: process.env.KMS_KEY,
+    },
+    s3: {
+      bucket: process.env.AWS_S3_BUCKET || 'test-bucket',
+      url: process.env.AWS_S3_URL,
+    },
   },
-  kms: {
-    key: process.env.KMS_KEY,
-  },
+
   redis: {
     host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT, 10),

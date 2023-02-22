@@ -3,21 +3,26 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   ParseIntPipe,
   Patch,
   Put,
+  UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionAuth, JwtSessionUser } from '../../auth';
-import { PublicUserDto, PublicUserWithContactsDto } from '../../utils/public-user.dto';
-import { UserService } from '../user.service';
+import { JwtSessionAuth, JwtSessionUser } from '../auth';
+import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.dto';
+import { UserService } from './services/user.service';
 
 @ApiTags('User')
 @Controller({
@@ -57,10 +62,24 @@ export class UserController {
     description: 'The user updated successfully.',
     type: PublicUserDto,
   })
+  @ApiConsumes('multipart/form-data')
   @JwtSessionAuth()
   @Put()
-  async update(@JwtSessionUser() { id }: User, @Body() payload: UpdateUserDto): Promise<PublicUserDto> {
-    const request = { ...payload, id };
+  @UseInterceptors(FileInterceptor('avatar'))
+  async update(
+    @JwtSessionUser() { id }: User,
+    @Body() payload: UpdateUserDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          // new FileTypeValidator({ fileType: 'image/*' }),
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+        ],
+      }),
+    )
+    avatar: Express.Multer.File,
+  ): Promise<PublicUserDto> {
+    const request = { ...payload, id, avatar };
     const user = await this.userService.update(request);
 
     return plainToInstance(PublicUserDto, user);

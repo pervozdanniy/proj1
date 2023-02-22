@@ -14,13 +14,10 @@ import { ConfigInterface } from '~common/config/configuration';
 export class AwsSqsProducerService {
   private sqsClient: SQSClient;
 
-  constructor(aws: ConfigInterface['aws']) {
+  constructor(config: ConfigInterface['aws']) {
     this.sqsClient = new SQSClient({
-      region: aws.region,
-      credentials: {
-        accessKeyId: aws.accessKeyId,
-        secretAccessKey: aws.secretAccessKey,
-      },
+      region: config.region,
+      credentials: config.credentials,
     });
   }
 
