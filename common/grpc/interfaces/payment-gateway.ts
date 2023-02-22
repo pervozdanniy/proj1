@@ -56,7 +56,7 @@ export interface DepositDataResponse {
 export interface TransactionResponse {
   transactions: Transaction[];
   hasMore: boolean;
-  last_id: number;
+  last_id?: number | undefined;
 }
 
 export interface Transaction {

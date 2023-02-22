@@ -1,15 +1,15 @@
 import { NotificationService } from '@/notification/services/notification.service';
 import { ContributionEntity } from '@/sdk/payment-gateway/entities/prime_trust/contribution.entity';
 import { DepositParamsEntity } from '@/sdk/payment-gateway/entities/prime_trust/deposit-params.entity';
+import { TransfersEntity } from '@/sdk/payment-gateway/entities/prime_trust/transfers.entity';
 import { WithdrawalParamsEntity } from '@/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from '@/sdk/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { UserDetailsEntity } from '@/user/entities/user-details.entity';
+import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { SearchTransactionRequest, TransactionResponse } from '~common/grpc/interfaces/payment-gateway';
-import { UserEntity } from '../../../../../user/entities/user.entity';
-import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 
 @Injectable()
 export class PrimeTransactionsManager {
@@ -94,19 +94,18 @@ export class PrimeTransactionsManager {
       ])
       .orderBy('t.created_at', 'DESC');
 
-    let transactions = await queryBuilder.limit(limit + 1).getRawMany();
-    let last_id = 0;
-    const hasMore = transactions.length > limit;
-    transactions = transactions.slice(0, limit);
-    if (transactions.length > 0) {
-      const { id } = transactions.at(-1);
-      last_id = id;
+    const transactions = await queryBuilder.limit(limit).getRawMany();
+
+    if (transactions.length === 0) {
+      return { transactions, hasMore: false };
     }
 
+    const { id: last_id } = transactions.at(-1);
+
     return {
-      transactions,
-      hasMore,
       last_id,
+      transactions,
+      hasMore: last_id > 1,
     };
   }
 }
