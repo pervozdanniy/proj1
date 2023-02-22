@@ -7,25 +7,30 @@ import sentryInit from '~common/sentry/init';
 import { CoreModule } from './core.module';
 
 async function bootstrap() {
-  const context = await NestFactory.createApplicationContext(CoreModule);
+  const context = await NestFactory.create(CoreModule);
   const config = context.get(ConfigService<ConfigInterface>);
 
   sentryInit();
 
-  const app = await NestFactory.createMicroservice<GrpcOptions>(CoreModule, {
+  const app = context.connectMicroservice<GrpcOptions>({
     transport: Transport.GRPC,
     options: {
       url: '0.0.0.0:5000',
-      package: 'skopa.core',
+      package: ['skopa.core', 'grpc.health.v1'],
       loader: {
         keepCase: true,
         longs: String,
         defaults: true,
         oneofs: true,
       },
-      protoPath: join(config.get('basePath'), 'common/grpc/_proto/core.proto'),
+      protoPath: [
+        join(config.get('basePath'), 'common/grpc/_proto/core.proto'),
+        join(config.get('basePath'), 'common/grpc/_proto/health.proto'),
+      ],
     },
   });
+
+  await context.init();
 
   return app.listen();
 }

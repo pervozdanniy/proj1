@@ -29,7 +29,7 @@ export class ApiSocialsService implements OnModuleInit {
       contacts: [],
     };
 
-    let { user } = await firstValueFrom(this.userService.findByLogin({ login: email }));
+    let { user } = await firstValueFrom(this.userService.findByLogin({ email }));
     if (!user) {
       user = await firstValueFrom(this.userService.create(payload));
     } else {

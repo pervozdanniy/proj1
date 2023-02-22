@@ -98,6 +98,15 @@ export interface RegisterFinishRequest {
   contacts: string[];
 }
 
+export interface ResetPasswordStartRequest {
+  email?: string | undefined;
+  phone?: string | undefined;
+}
+
+export interface ResetPasswordFinishRequest {
+  password: string;
+}
+
 export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
 
 export interface AuthServiceClient {
@@ -112,6 +121,12 @@ export interface AuthServiceClient {
   registerVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
 
   registerFinish(request: RegisterFinishRequest, ...rest: any): Observable<User>;
+
+  resetPasswordStart(request: ResetPasswordStartRequest, ...rest: any): Observable<AuthData>;
+
+  resetPasswordVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
+
+  resetPasswordFinish(request: ResetPasswordFinishRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface AuthServiceController {
@@ -129,6 +144,21 @@ export interface AuthServiceController {
   ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
 
   registerFinish(request: RegisterFinishRequest, ...rest: any): Promise<User> | Observable<User> | User;
+
+  resetPasswordStart(
+    request: ResetPasswordStartRequest,
+    ...rest: any
+  ): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  resetPasswordVerify(
+    request: TwoFactorCode,
+    ...rest: any
+  ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
+
+  resetPasswordFinish(
+    request: ResetPasswordFinishRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function AuthServiceControllerMethods() {
@@ -140,6 +170,9 @@ export function AuthServiceControllerMethods() {
       "registerStart",
       "registerVerify",
       "registerFinish",
+      "resetPasswordStart",
+      "resetPasswordVerify",
+      "resetPasswordFinish",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
@@ -161,6 +194,8 @@ export interface ClientServiceClient {
   validate(request: SignedRequest, ...rest: any): Observable<AuthClient>;
 
   login(request: SignedRequest, ...rest: any): Observable<AuthData>;
+
+  register(request: SignedRequest, ...rest: any): Observable<User>;
 }
 
 export interface ClientServiceController {
@@ -169,11 +204,13 @@ export interface ClientServiceController {
   validate(request: SignedRequest, ...rest: any): Promise<AuthClient> | Observable<AuthClient> | AuthClient;
 
   login(request: SignedRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  register(request: SignedRequest, ...rest: any): Promise<User> | Observable<User> | User;
 }
 
 export function ClientServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["create", "validate", "login"];
+    const grpcMethods: string[] = ["create", "validate", "login", "register"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("ClientService", method)(constructor.prototype[method], method, descriptor);

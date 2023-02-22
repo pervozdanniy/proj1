@@ -3,12 +3,12 @@ import { plainToInstance } from 'class-transformer';
 import { SuccessResponse, User } from '~common/grpc/interfaces/common';
 import {
   CheckIfUniqueRequest,
-  LoginRequest,
   NullableUser,
   UserServiceController,
   UserServiceControllerMethods,
 } from '~common/grpc/interfaces/core';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
+import { FindRequestDto } from '../dto/find.request.dto';
 import { IdRequestDto } from '../dto/id-request.dto';
 import { CreateRequestDto, UpdateContactsRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
@@ -42,8 +42,9 @@ export class UserController implements UserServiceController {
     return plainToInstance(UserResponseDto, user);
   }
 
-  async findByLogin({ login }: LoginRequest): Promise<NullableUser> {
-    const user = await this.userService.findByLogin(login);
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async findByLogin(payload: FindRequestDto): Promise<NullableUser> {
+    const user = await this.userService.findByLogin(payload);
     if (user) {
       return { user: plainToInstance(UserResponseDto, user) };
     }

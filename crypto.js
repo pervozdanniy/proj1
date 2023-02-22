@@ -1,14 +1,14 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs');
+const path = require('node:path');
+
+const DIR = '.tmp/crypto';
+const PRIV_KEY = path.join(DIR, 'priv.pem');
 
 function register() {
   const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
-  console.log(
-    privateKey.export({ format: 'der', type: 'pkcs8' }).length,
-    publicKey.export({ format: 'der', type: 'spki' }).length,
-  );
-  // console.log('PIVATE KEY: ', privateKey.export({ format: 'der', type: 'pkcs8' }).toString('hex'));
-  fs.writeFileSync('priv.pem', privateKey.export({ format: 'pem', type: 'pkcs8' }).toString('utf8'));
+  fs.mkdirSync(DIR, { recursive: true });
+  fs.writeFileSync(PRIV_KEY, privateKey.export({ format: 'pem', type: 'pkcs8' }).toString('utf8'));
 
   console.log('PUBLIC KEY: ', publicKey.export({ format: 'der', type: 'spki' }).toString('hex'));
 }
@@ -23,7 +23,7 @@ function sign(data, priv) {
     });
   } else {
     privateKey = crypto.createPrivateKey({
-      key: fs.readFileSync('priv.pem', { encoding: 'utf8' }),
+      key: fs.readFileSync(PRIV_KEY, { encoding: 'utf8' }),
       format: 'pem',
       type: 'pkcs8',
     });
@@ -33,11 +33,6 @@ function sign(data, priv) {
 }
 
 function verify(key, data, signature) {
-  // const publicKey = crypto.createPublicKey({
-  //   key: Buffer.from(key, 'hex'),
-  //   format: 'der',
-  //   type: 'spki',
-  // });
   const publicKey = crypto.createPublicKey({
     key: Buffer.from(key, 'hex'),
     format: 'der',
@@ -72,7 +67,11 @@ function fromRaw(raw) {
   ]).toString('hex');
 }
 
-const actions = { register, sign, verify, fromRaw };
+function clean() {
+  fs.rmSync(PRIV_KEY);
+}
+
+const actions = { register, sign, verify, fromRaw, clean };
 
 const fn = actions[process.argv[2]];
 if (fn) {

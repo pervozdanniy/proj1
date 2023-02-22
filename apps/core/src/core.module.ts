@@ -8,6 +8,7 @@ import { AwsModule } from './aws/AwsModule';
 import { CountryModule } from './country/country.module';
 import dbConfig from './db/db.config';
 import migrations from './db/migrations-list';
+import { HealthModule } from './health/health.module';
 import { NotificationModule } from './notification/notification.module';
 import { CoreSdkModule } from './sdk/core-sdk.module';
 import { UserModule } from './user/user.module';
@@ -47,6 +48,7 @@ import { UserModule } from './user/user.module';
     CountryModule,
     NotificationModule,
     CoreSdkModule,
+    HealthModule,
   ],
 })
 export class CoreModule {}

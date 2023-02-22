@@ -73,6 +73,12 @@ export class Auth2FAService {
     return enabled;
   }
 
+  requireOne(settings: BaseSettingsDto, session: SessionProxy) {
+    const verify = this.generate([settings]);
+    require2FA(session, { verify, expiresAt: Date.now() + 15 * 60 * 60 * 1000 });
+    this.notify.send(verify, session.id);
+  }
+
   async getEnabled(userId: number) {
     const entities = await this.settingsRepo.find({ select: ['method'], where: { user_id: userId } });
 
