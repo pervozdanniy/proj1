@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-regex=^SKOPA-[0-9]+\:.+
+regex='^(SKOPA-[0-9]+|FIX)\:.+'
 message=$(cat $1)
 
 if [[ $message =~ $regex ]]
