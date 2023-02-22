@@ -97,7 +97,7 @@ message DepositDataResponse {
 message TransactionResponse {
   repeated Transaction transactions = 1;
   bool hasMore = 2;
-  optional uint32 last_id = 3;
+  optional uint32 lastId = 3;
 }
 
 message Transaction {

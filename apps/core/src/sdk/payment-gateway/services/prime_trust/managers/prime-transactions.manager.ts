@@ -100,12 +100,12 @@ export class PrimeTransactionsManager {
       return { transactions, hasMore: false };
     }
 
-    const { id: last_id } = transactions.at(-1);
+    const { id: lastId } = transactions.at(-1);
 
     return {
-      last_id,
+      lastId,
       transactions,
-      hasMore: last_id > 1,
+      hasMore: lastId > 1,
     };
   }
 }
