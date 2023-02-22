@@ -3,14 +3,17 @@ import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
   BankAccountParams,
+  CreateReferenceRequest,
   DepositParamRequest,
   MakeContributionRequest,
+  SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
   UserIdRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from './managers/prime-account.manager';
+import { PrimeAssetsManager } from './managers/prime-assets.manager';
 import { PrimeBalanceManager } from './managers/prime-balance.manager';
 import { PrimeBankAccountManager } from './managers/prime-bank-account.manager';
 import { PrimeDepositManager } from './managers/prime-deposit.manager';
@@ -37,6 +40,8 @@ export class PrimeTrustService {
     private readonly primeBankAccountManager: PrimeBankAccountManager,
 
     private readonly primeTransactionsManager: PrimeTransactionsManager,
+
+    private readonly primeAssetsManager: PrimeAssetsManager,
   ) {}
 
   getToken() {
@@ -66,8 +71,8 @@ export class PrimeTrustService {
     return this.primeKycManager.cipCheck(id, resource_id);
   }
 
-  createReference(userDetails: UserEntity) {
-    return this.primeDepositManager.createReference(userDetails);
+  createReference(request: CreateReferenceRequest) {
+    return this.primeDepositManager.createReference(request);
   }
 
   async updateAccountBalance(id: string) {
@@ -137,12 +142,8 @@ export class PrimeTrustService {
     return this.primeDepositManager.addDepositParams(request);
   }
 
-  getTransferById(request: UserIdRequest) {
-    return this.primeFundsTransferManager.getTransferById(request);
-  }
-
-  getTransactions(id: number) {
-    return this.primeTransactionsManager.getTransactions(id);
+  getTransactions(request: SearchTransactionRequest) {
+    return this.primeTransactionsManager.getTransactions(request);
   }
 
   getDepositById(request: UserIdRequest) {
@@ -155,5 +156,9 @@ export class PrimeTrustService {
 
   getWithdrawalById(request: UserIdRequest) {
     return this.primeWithdrawalManager.getWithdrawalById(request);
+  }
+
+  createWallet(depositParams: CreateReferenceRequest) {
+    return this.primeAssetsManager.createWallet(depositParams);
   }
 }

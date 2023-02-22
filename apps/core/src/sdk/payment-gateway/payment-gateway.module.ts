@@ -16,13 +16,18 @@ import { PrimeTrustAccountEntity } from './entities/prime_trust/prime-trust-acco
 import { PrimeTrustBalanceEntity } from './entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
-import { TransferFundsEntity } from './entities/prime_trust/transfer-funds.entity';
+import { TransfersEntity } from './entities/prime_trust/transfers.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
+import { ChilePaymentGateway } from './manager/countries/chile-payment.gateway';
+import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
-import { PaymentGatewayService } from './services/payment.gateway.service';
+import { KoyweService } from './services/koywe/koywe.service';
+import { PaymentGatewayWebhooksService } from './services/payment-gateway-webhooks.service';
+import { PaymentGatewayService } from './services/payment-gateway.service';
 import { PrimeAccountManager } from './services/prime_trust/managers/prime-account.manager';
+import { PrimeAssetsManager } from './services/prime_trust/managers/prime-assets.manager';
 import { PrimeBalanceManager } from './services/prime_trust/managers/prime-balance.manager';
 import { PrimeBankAccountManager } from './services/prime_trust/managers/prime-bank-account.manager';
 import { PrimeDepositManager } from './services/prime_trust/managers/prime-deposit.manager';
@@ -49,7 +54,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       NotificationEntity,
       ContributionEntity,
       CardResourceEntity,
-      TransferFundsEntity,
+      TransfersEntity,
       BankAccountEntity,
       DepositParamsEntity,
     ]),
@@ -60,6 +65,8 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PaymentGatewayService,
     PaymentGatewayManager,
     PrimeTrustService,
+    KoyweService,
+    PaymentGatewayWebhooksService,
     PrimeTokenManager,
     PrimeAccountManager,
     PrimeKycManager,
@@ -70,6 +77,9 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PrimeTrustHttpService,
     PrimeBankAccountManager,
     PrimeTransactionsManager,
+    PrimeAssetsManager,
+    USPaymentGateway,
+    ChilePaymentGateway,
   ],
   controllers: [PaymentGatewayController],
   exports: [PaymentGatewayManager],

@@ -1,7 +1,3 @@
-import { DepositParamsDto } from '@/api/payment-gateway/prime_trust/dtos/deposit-params.dto';
-import { ResourceDto } from '@/api/payment-gateway/prime_trust/dtos/resource.dto';
-import { CardResourceDto } from '@/sdk/payment-gateway/prime_trust/dtos/card-resource.dto';
-import { MakeContributionDto } from '@/sdk/payment-gateway/prime_trust/dtos/make-contribution.dto';
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
 import {
   Body,
@@ -16,6 +12,11 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
+import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
+import { CreateReferenceDto } from '../dtos/deposit/deposit-funds.dto';
+import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
+import { MakeContributionDto } from '../dtos/deposit/make-contribution.dto';
+import { ResourceDto } from '../dtos/deposit/resource.dto';
 
 @ApiTags('Prime Trust/Deposit Funds')
 @ApiBearerAuth()
@@ -43,8 +44,8 @@ export class SdkDepositController {
   })
   @JwtSessionAuth()
   @Post('/wire/reference')
-  async createReference(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.createReference({ id });
+  async createReference(@JwtSessionUser() { id }: User, @Body() payload: CreateReferenceDto) {
+    return this.paymentGatewayService.createReference({ id, ...payload });
   }
 
   @ApiOperation({ summary: 'Create Credit Card Resource.' })

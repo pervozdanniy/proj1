@@ -28,6 +28,7 @@ import { AddPhoneUniqueContraint1675781764778 } from './migrations/1675781764778
 import { MakeUserPhoneNullable1675855993341 } from './migrations/1675855993341-MakeUserPhoneNullable';
 import { AlterCardResourceTable1676270704886 } from './migrations/1676270704886-AlterCardResourceTable';
 import { AlterTransferFundsTable1676353129263 } from './migrations/1676353129263-AlterTransferFundsTable';
+import { AlterTransfersTable1676796180024 } from './migrations/1676796180024-AlterTransfersTable';
 import { SeedPaymentGateway1671466516817 } from './seeds/1671466516817-SeedPaymentGateway';
 
 export default [
@@ -62,4 +63,5 @@ export default [
   MakeUserPhoneNullable1675855993341,
   AlterCardResourceTable1676270704886,
   AlterTransferFundsTable1676353129263,
+  AlterTransfersTable1676796180024,
 ];

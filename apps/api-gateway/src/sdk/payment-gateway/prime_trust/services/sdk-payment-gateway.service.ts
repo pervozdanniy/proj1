@@ -1,4 +1,3 @@
-import { PaymentGatewaysListDto } from '@/sdk/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
@@ -7,9 +6,11 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   BankAccountParams,
+  CreateReferenceRequest,
   DepositParamRequest,
   MakeContributionRequest,
   PaymentGatewayServiceClient,
+  SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
   UploadDocumentRequest,
@@ -26,10 +27,6 @@ export class SdkPaymentGatewayService implements OnModuleInit {
 
   onModuleInit() {
     this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');
-  }
-
-  list(query: PaymentGatewaysListDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.list(query));
   }
 
   updateAccount(data: AccountIdRequest) {
@@ -76,7 +73,7 @@ export class SdkPaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getBalance(data));
   }
 
-  async createReference(data: UserIdRequest) {
+  async createReference(data: CreateReferenceRequest) {
     const response = await lastValueFrom(this.paymentGatewayServiceClient.createReference(data));
 
     return { data: JSON.parse(response.data) };
@@ -143,11 +140,7 @@ export class SdkPaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getWithdrawalById(data));
   }
 
-  getTransactions(data: UserIdRequest) {
+  getTransactions(data: SearchTransactionRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getTransactions(data));
-  }
-
-  getTransferById(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getTransferById(data));
   }
 }

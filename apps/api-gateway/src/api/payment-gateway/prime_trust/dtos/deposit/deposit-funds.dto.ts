@@ -2,6 +2,18 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 
+export class CreateReferenceDto {
+  @ApiProperty({ example: '1000' })
+  @IsString()
+  @IsNotEmpty()
+  amount: string;
+
+  @ApiProperty({ example: 'USD' })
+  @IsString()
+  @IsNotEmpty()
+  currency_type: string;
+}
+
 export class AttributesData {
   @ApiProperty({ example: '1000' })
   @IsString()

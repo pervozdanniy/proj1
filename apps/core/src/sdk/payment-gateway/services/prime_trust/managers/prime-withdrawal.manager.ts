@@ -4,7 +4,6 @@ import { PrimeTrustAccountEntity } from '@/sdk/payment-gateway/entities/prime_tr
 import { PrimeTrustBalanceEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { WithdrawalParamsEntity } from '@/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
-import { WithdrawalEntity } from '@/sdk/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/sdk/payment-gateway/request/prime-trust-http.service';
 import { PrimeBankAccountManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
@@ -17,6 +16,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
 import {
+  JsonData,
   TransferMethodRequest,
   UserIdRequest,
   WithdrawalDataResponse,
@@ -25,6 +25,7 @@ import {
   WithdrawalsDataResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 
 @Injectable()
 export class PrimeWithdrawalManager {
@@ -48,8 +49,8 @@ export class PrimeWithdrawalManager {
     @InjectRepository(PrimeTrustBalanceEntity)
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
 
-    @InjectRepository(WithdrawalEntity)
-    private readonly withdrawalEntityRepository: Repository<WithdrawalEntity>,
+    @InjectRepository(TransfersEntity)
+    private readonly withdrawalEntityRepository: Repository<TransfersEntity>,
 
     @InjectRepository(WithdrawalParamsEntity)
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
@@ -135,7 +136,7 @@ export class PrimeWithdrawalManager {
     }
   }
 
-  async makeWithdrawal(request: TransferMethodRequest) {
+  async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     const { id, funds_transfer_method_id, amount } = request;
     const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
     const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({
@@ -149,9 +150,11 @@ export class PrimeWithdrawalManager {
         user_id: id,
         amount,
         uuid: withdrawalResponse.id,
-        params_id: withdrawalParams.id,
         status: withdrawalResponse.attributes['status'],
         currency_type: withdrawalResponse.attributes['currency-type'],
+        param_type: 'withdrawal_param',
+        param_id: withdrawalParams.id,
+        type: 'withdrawal',
       }),
     );
 

@@ -2,35 +2,27 @@ import { NotificationService } from '@/notification/services/notification.servic
 import { PrimeTrustAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
-import { TransferFundsEntity } from '@/sdk/payment-gateway/entities/prime_trust/transfer-funds.entity';
 import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/sdk/payment-gateway/request/prime-trust-http.service';
 import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
 import { PrimeBankAccountManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
 import { SendFundsResponse, USDtoAssetResponse } from '@/sdk/payment-gateway/types/response';
-import { UserDetailsEntity } from '@/user/entities/user-details.entity';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import {
-  TransferFundsRequest,
-  TransferFundsResponse,
-  TransferResponse,
-  UserIdRequest,
-} from '~common/grpc/interfaces/payment-gateway';
+import { TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 
 @Injectable()
 export class PrimeFundsTransferManager {
-  private readonly logger = new Logger(PrimeFundsTransferManager.name);
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
-
-  private readonly asset_id: string = 'ecca8bab-dcb2-419a-973e-aebc39ff4f03';
+  private readonly asset_id: string;
   constructor(
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
@@ -50,10 +42,12 @@ export class PrimeFundsTransferManager {
     @InjectRepository(PrimeTrustBalanceEntity)
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
 
-    @InjectRepository(TransferFundsEntity)
-    private readonly transferFundsEntityRepository: Repository<TransferFundsEntity>,
+    @InjectRepository(TransfersEntity)
+    private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
+    const { id } = config.get('asset');
+    this.asset_id = id;
     this.prime_trust_url = prime_trust_url;
     this.app_domain = domain;
   }
@@ -85,10 +79,8 @@ export class PrimeFundsTransferManager {
       });
 
       return {
-        base_amount: quote.data.data.attributes['base-amount'],
-        fee_amount: quote.data.data.attributes['fee-amount'],
-        total_amount: quote.data.data.attributes['total-amount'],
         unit_count: quote.data.data.attributes['unit-count'],
+        fee_amount: quote.data.data.attributes['fee-amount'],
       };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
@@ -174,28 +166,26 @@ export class PrimeFundsTransferManager {
   }
 
   async transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
-    const { sender_id, receiver_id, amount } = request;
+    const { sender_id, receiver_id, amount, currency_type } = request;
 
     const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: sender_id });
     const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: receiver_id });
 
-    const { base_amount, fee_amount, total_amount, unit_count } = await this.convertUSDtoAsset(fromAccountId, amount);
+    const { unit_count, fee_amount } = await this.convertUSDtoAsset(fromAccountId, amount);
 
-    const { uuid, status, created_at } = await this.sendFunds(fromAccountId, toAccountId, unit_count);
+    const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count);
 
     await this.convertAssetToUSD(toAccountId, amount);
     const payload = {
-      sender_id,
-      receiver_id,
+      fee: fee_amount,
       uuid,
-      currency_type: 'USD',
+      type: 'transfer',
+      user_id: sender_id,
+      receiver_id,
+      currency_type,
       status,
       amount,
       created_at,
-      base_amount,
-      fee_amount,
-      total_amount,
-      unit_count,
     };
 
     await this.transferFundsEntityRepository.save(this.transferFundsEntityRepository.create(payload));
@@ -233,33 +223,5 @@ export class PrimeFundsTransferManager {
     };
 
     this.notificationService.createAsync(notificationPayload);
-  }
-
-  async getTransferById(request: UserIdRequest): Promise<TransferResponse> {
-    const { id, resource_id } = request;
-    const transferParams = await this.transferFundsEntityRepository
-      .createQueryBuilder('t')
-      .leftJoinAndSelect(UserDetailsEntity, 's', 's.user_id = t.sender_id')
-      .leftJoinAndSelect(UserDetailsEntity, 'r', 'r.user_id = t.receiver_id')
-      .where('t.id = :resource_id', { resource_id })
-      .where('(t.sender_id = :id OR t.receiver_id = :id)', { id })
-      .select([
-        `r.first_name as receiver_first_name`,
-        `r.last_name as receiver_last_name`,
-        `s.first_name as sender_first_name`,
-        `s.last_name as sender_last_name`,
-        `CONCAT(r.first_name, ' ', r.last_name) as "to"`,
-        `CONCAT(s.first_name, ' ', s.last_name) as "from"`,
-        `t.amount as amount`,
-        `t.currency_type as currency_type`,
-        `t.status as status`,
-        `t.created_at as created_at`,
-      ])
-      .getRawOne();
-    if (!transferParams) {
-      throw new GrpcException(Status.NOT_FOUND, 'Transfer not found!', 404);
-    }
-
-    return transferParams;
   }
 }

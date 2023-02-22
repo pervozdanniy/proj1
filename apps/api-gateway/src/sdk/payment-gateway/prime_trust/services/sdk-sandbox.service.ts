@@ -1,13 +1,13 @@
-import { DepositFundsDto } from '@/sdk/payment-gateway/prime_trust/dtos/deposit-funds.dto';
-import { SettleFundsDto } from '@/sdk/payment-gateway/prime_trust/dtos/settle-funds.dto';
-import { SettleWithdrawDto } from '@/sdk/payment-gateway/prime_trust/dtos/settle-withdraw.dto';
-import { VerifyOwnerDto } from '@/sdk/payment-gateway/prime_trust/dtos/verify-owner.dto';
-import { WebhookUrlDto } from '@/sdk/payment-gateway/prime_trust/dtos/webhook-url.dto';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { lastValueFrom } from 'rxjs';
+import { DepositFundsDto } from '../dtos/deposit/deposit-funds.dto';
+import { SettleFundsDto } from '../dtos/deposit/settle-funds.dto';
+import { VerifyOwnerDto } from '../dtos/deposit/verify-owner.dto';
+import { WebhookUrlDto } from '../dtos/main/webhook-url.dto';
+import { SettleWithdrawDto } from '../dtos/withdrawal/settle-withdraw.dto';
 
 @Injectable()
 export class SdkSandboxService {

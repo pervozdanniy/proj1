@@ -1,9 +1,27 @@
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { IdRequest, SuccessResponse } from "./common";
+import { SuccessResponse } from "./common";
+import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
+
+export interface CreateReferenceRequest {
+  id: number;
+  amount: string;
+  currency_type: string;
+}
+
+export interface SearchTransactionRequest {
+  user_id: number;
+  search_after: number;
+  limit: number;
+  search_term?: string | undefined;
+}
+
+export interface WalletResponse {
+  wallet_address: string;
+}
 
 export interface WithdrawalDataResponse {
   id: number;
@@ -33,21 +51,20 @@ export interface DepositDataResponse {
   uuid: string;
   amount: string;
   currency_type: string;
-  contributor_email: string;
-  contributor_name: string;
-  funds_transfer_type: string;
-  deposit_param_id?: number | undefined;
-  card_resource_id?: number | undefined;
 }
 
 export interface TransactionResponse {
-  data: Transaction[];
+  transactions: Transaction[];
+  has_more: boolean;
+  last_id?: number | undefined;
 }
 
 export interface Transaction {
   id: number;
   title: string;
-  url: string;
+  amount: string;
+  fee: string;
+  status: string;
   created_at: string;
 }
 
@@ -118,6 +135,7 @@ export interface TransferFundsRequest {
   sender_id: number;
   receiver_id: number;
   amount: string;
+  currency_type: string;
 }
 
 export interface TransferFundsResponse {
@@ -125,7 +143,6 @@ export interface TransferFundsResponse {
 }
 
 export interface TransferFunds {
-  uuid: string;
   amount: string;
   currency_type: string;
   status: string;
@@ -171,20 +188,6 @@ export interface Withdrawal {
   bank_account_name: string;
 }
 
-export interface PaymentGatewayRequest {
-  name: string;
-}
-
-export interface PaymentGatewayListQuery {
-  limit: number;
-  offset: number;
-}
-
-export interface PaymentGatewayListResponse {
-  items: PaymentGateway[];
-  count: number;
-}
-
 export interface PaymentGateway {
   id: number;
   alias: string;
@@ -212,7 +215,7 @@ export interface BalanceResponse {
   currency_type: string;
 }
 
-export interface PrimeTrustData {
+export interface JsonData {
   data: string;
 }
 
@@ -253,9 +256,7 @@ export interface Token_Data {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface PaymentGatewayServiceClient {
-  list(request: PaymentGatewayListQuery, ...rest: any): Observable<PaymentGatewayListResponse>;
-
-  getToken(request: IdRequest, ...rest: any): Observable<PG_Token>;
+  getToken(request: Empty, ...rest: any): Observable<PG_Token>;
 
   createAccount(request: UserIdRequest, ...rest: any): Observable<AccountResponse>;
 
@@ -273,56 +274,55 @@ export interface PaymentGatewayServiceClient {
 
   cipCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  createReference(request: UserIdRequest, ...rest: any): Observable<PrimeTrustData>;
-
   getBalance(request: UserIdRequest, ...rest: any): Observable<BalanceResponse>;
 
-  getTransferById(request: UserIdRequest, ...rest: any): Observable<TransferResponse>;
-
-  getDepositById(request: UserIdRequest, ...rest: any): Observable<DepositDataResponse>;
-
-  getWithdrawalById(request: UserIdRequest, ...rest: any): Observable<WithdrawalDataResponse>;
-
-  getTransactions(request: UserIdRequest, ...rest: any): Observable<TransactionResponse>;
-
-  getWithdrawalParams(request: UserIdRequest, ...rest: any): Observable<WithdrawalsDataResponse>;
-
-  getDepositParams(request: UserIdRequest, ...rest: any): Observable<DepositParamsResponse>;
-
   updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   getBankAccounts(request: UserIdRequest, ...rest: any): Observable<BankAccountsResponse>;
 
   addBankAccountParams(request: BankAccountParams, ...rest: any): Observable<BankAccountParams>;
 
-  addWithdrawalParams(request: WithdrawalParams, ...rest: any): Observable<WithdrawalResponse>;
+  getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
 
-  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<PrimeTrustData>;
+  /** deposit funds */
 
-  updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+  createReference(request: CreateReferenceRequest, ...rest: any): Observable<JsonData>;
+
+  addDepositParams(request: DepositParamRequest, ...rest: any): Observable<DepositResponse>;
+
+  getDepositById(request: UserIdRequest, ...rest: any): Observable<DepositDataResponse>;
+
+  getDepositParams(request: UserIdRequest, ...rest: any): Observable<DepositParamsResponse>;
 
   createCreditCardResource(request: UserIdRequest, ...rest: any): Observable<CreditCardResourceResponse>;
 
   verifyCreditCard(request: VerifyCreditCardRequest, ...rest: any): Observable<SuccessResponse>;
 
-  getCreditCards(request: UserIdRequest, ...rest: any): Observable<CreditCardsResponse>;
-
-  transferFunds(request: TransferFundsRequest, ...rest: any): Observable<TransferFundsResponse>;
+  updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   makeContribution(request: MakeContributionRequest, ...rest: any): Observable<ContributionResponse>;
 
-  addDepositParams(request: DepositParamRequest, ...rest: any): Observable<DepositResponse>;
+  getCreditCards(request: UserIdRequest, ...rest: any): Observable<CreditCardsResponse>;
+
+  /** transfer funds */
+
+  transferFunds(request: TransferFundsRequest, ...rest: any): Observable<TransferFundsResponse>;
+
+  /** withdrawal */
+
+  getWithdrawalById(request: UserIdRequest, ...rest: any): Observable<WithdrawalDataResponse>;
+
+  getWithdrawalParams(request: UserIdRequest, ...rest: any): Observable<WithdrawalsDataResponse>;
+
+  addWithdrawalParams(request: WithdrawalParams, ...rest: any): Observable<WithdrawalResponse>;
+
+  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<JsonData>;
+
+  updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
-  list(
-    request: PaymentGatewayListQuery,
-    ...rest: any
-  ): Promise<PaymentGatewayListResponse> | Observable<PaymentGatewayListResponse> | PaymentGatewayListResponse;
-
-  getToken(request: IdRequest, ...rest: any): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
+  getToken(request: Empty, ...rest: any): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
 
   createAccount(
     request: UserIdRequest,
@@ -364,52 +364,12 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  createReference(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
-
   getBalance(
     request: UserIdRequest,
     ...rest: any
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 
-  getTransferById(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<TransferResponse> | Observable<TransferResponse> | TransferResponse;
-
-  getDepositById(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<DepositDataResponse> | Observable<DepositDataResponse> | DepositDataResponse;
-
-  getWithdrawalById(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<WithdrawalDataResponse> | Observable<WithdrawalDataResponse> | WithdrawalDataResponse;
-
-  getTransactions(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
-
-  getWithdrawalParams(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<WithdrawalsDataResponse> | Observable<WithdrawalsDataResponse> | WithdrawalsDataResponse;
-
-  getDepositParams(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<DepositParamsResponse> | Observable<DepositParamsResponse> | DepositParamsResponse;
-
   updateBalance(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateContribution(
     request: AccountIdRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
@@ -424,20 +384,29 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<BankAccountParams> | Observable<BankAccountParams> | BankAccountParams;
 
-  addWithdrawalParams(
-    request: WithdrawalParams,
+  getTransactions(
+    request: SearchTransactionRequest,
     ...rest: any
-  ): Promise<WithdrawalResponse> | Observable<WithdrawalResponse> | WithdrawalResponse;
+  ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
 
-  makeWithdrawal(
-    request: TransferMethodRequest,
-    ...rest: any
-  ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
+  /** deposit funds */
 
-  updateWithdraw(
-    request: AccountIdRequest,
+  createReference(request: CreateReferenceRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
+
+  addDepositParams(
+    request: DepositParamRequest,
     ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+  ): Promise<DepositResponse> | Observable<DepositResponse> | DepositResponse;
+
+  getDepositById(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<DepositDataResponse> | Observable<DepositDataResponse> | DepositDataResponse;
+
+  getDepositParams(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<DepositParamsResponse> | Observable<DepositParamsResponse> | DepositParamsResponse;
 
   createCreditCardResource(
     request: UserIdRequest,
@@ -449,31 +418,56 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  getCreditCards(
-    request: UserIdRequest,
+  updateContribution(
+    request: AccountIdRequest,
     ...rest: any
-  ): Promise<CreditCardsResponse> | Observable<CreditCardsResponse> | CreditCardsResponse;
-
-  transferFunds(
-    request: TransferFundsRequest,
-    ...rest: any
-  ): Promise<TransferFundsResponse> | Observable<TransferFundsResponse> | TransferFundsResponse;
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   makeContribution(
     request: MakeContributionRequest,
     ...rest: any
   ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
 
-  addDepositParams(
-    request: DepositParamRequest,
+  getCreditCards(
+    request: UserIdRequest,
     ...rest: any
-  ): Promise<DepositResponse> | Observable<DepositResponse> | DepositResponse;
+  ): Promise<CreditCardsResponse> | Observable<CreditCardsResponse> | CreditCardsResponse;
+
+  /** transfer funds */
+
+  transferFunds(
+    request: TransferFundsRequest,
+    ...rest: any
+  ): Promise<TransferFundsResponse> | Observable<TransferFundsResponse> | TransferFundsResponse;
+
+  /** withdrawal */
+
+  getWithdrawalById(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<WithdrawalDataResponse> | Observable<WithdrawalDataResponse> | WithdrawalDataResponse;
+
+  getWithdrawalParams(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<WithdrawalsDataResponse> | Observable<WithdrawalsDataResponse> | WithdrawalsDataResponse;
+
+  addWithdrawalParams(
+    request: WithdrawalParams,
+    ...rest: any
+  ): Promise<WithdrawalResponse> | Observable<WithdrawalResponse> | WithdrawalResponse;
+
+  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
+
+  updateWithdraw(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "list",
       "getToken",
       "createAccount",
       "getAccount",
@@ -483,27 +477,26 @@ export function PaymentGatewayServiceControllerMethods() {
       "uploadDocument",
       "documentCheck",
       "cipCheck",
-      "createReference",
       "getBalance",
-      "getTransferById",
-      "getDepositById",
-      "getWithdrawalById",
-      "getTransactions",
-      "getWithdrawalParams",
-      "getDepositParams",
       "updateBalance",
-      "updateContribution",
       "getBankAccounts",
       "addBankAccountParams",
+      "getTransactions",
+      "createReference",
+      "addDepositParams",
+      "getDepositById",
+      "getDepositParams",
+      "createCreditCardResource",
+      "verifyCreditCard",
+      "updateContribution",
+      "makeContribution",
+      "getCreditCards",
+      "transferFunds",
+      "getWithdrawalById",
+      "getWithdrawalParams",
       "addWithdrawalParams",
       "makeWithdrawal",
       "updateWithdraw",
-      "createCreditCardResource",
-      "verifyCreditCard",
-      "getCreditCards",
-      "transferFunds",
-      "makeContribution",
-      "addDepositParams",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

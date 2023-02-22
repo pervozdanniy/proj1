@@ -37,6 +37,7 @@ export interface ConfigInterface {
   app: {
     domain: string;
     prime_trust_url: string;
+    koywe_url: string;
   };
 
   queues: {
@@ -54,6 +55,11 @@ export interface ConfigInterface {
     password: string;
   };
 
+  koywe: {
+    client_id: string;
+    secret: string;
+  };
+
   sendgrid: {
     email: string;
     key: string;
@@ -68,6 +74,10 @@ export interface ConfigInterface {
   };
   ipqualityscore: {
     api_key: string;
+  };
+  asset: {
+    id: string;
+    type: string;
   };
 }
 
@@ -119,6 +129,7 @@ export default (): ConfigInterface => ({
   app: {
     domain: process.env.APP_DOMAIN,
     prime_trust_url: process.env.PRIME_TRUST_URL,
+    koywe_url: process.env.KOYWE_URL,
   },
   queues: {
     user_registration: {
@@ -148,5 +159,13 @@ export default (): ConfigInterface => ({
   },
   ipqualityscore: {
     api_key: process.env.IPQUALITYSCORE_KEY,
+  },
+  koywe: {
+    client_id: process.env.KOYWE_ID,
+    secret: process.env.KOYWE_SECRET,
+  },
+  asset: {
+    id: process.env.ASSET_ID,
+    type: process.env.ASSET_TYPE,
   },
 });

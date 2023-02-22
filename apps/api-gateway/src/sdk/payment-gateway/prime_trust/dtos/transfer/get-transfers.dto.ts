@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, Min } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
-export class PaymentGatewaysListDto {
+export class GetTransfersDto {
   @ApiProperty({ description: 'The number of records.', required: false, default: 20, minimum: 0 })
   @IsNumber()
   @Min(0)
@@ -10,13 +10,22 @@ export class PaymentGatewaysListDto {
   readonly limit: number = 20;
 
   @ApiProperty({
-    description: 'Skip the number of records from the results.',
+    description: 'Last id.',
     required: false,
-    default: 0,
-    minimum: 0,
+    default: 1,
+    minimum: 1,
   })
   @IsNumber()
   @Min(0)
   @Type(() => Number)
-  readonly offset: number = 0;
+  readonly searchAfter: number = 0;
+
+  @ApiProperty({
+    description: 'Search item',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @Type(() => String)
+  searchTerm?: string;
 }

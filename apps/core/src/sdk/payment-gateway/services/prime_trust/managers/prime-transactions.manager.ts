@@ -1,14 +1,15 @@
 import { NotificationService } from '@/notification/services/notification.service';
 import { ContributionEntity } from '@/sdk/payment-gateway/entities/prime_trust/contribution.entity';
 import { DepositParamsEntity } from '@/sdk/payment-gateway/entities/prime_trust/deposit-params.entity';
-import { TransferFundsEntity } from '@/sdk/payment-gateway/entities/prime_trust/transfer-funds.entity';
+import { TransfersEntity } from '@/sdk/payment-gateway/entities/prime_trust/transfers.entity';
 import { WithdrawalParamsEntity } from '@/sdk/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from '@/sdk/payment-gateway/entities/prime_trust/withdrawal.entity';
 import { UserDetailsEntity } from '@/user/entities/user-details.entity';
+import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { TransactionResponse } from '~common/grpc/interfaces/payment-gateway';
+import { Brackets, Repository } from 'typeorm';
+import { SearchTransactionRequest, TransactionResponse } from '~common/grpc/interfaces/payment-gateway';
 
 @Injectable()
 export class PrimeTransactionsManager {
@@ -21,8 +22,8 @@ export class PrimeTransactionsManager {
     @InjectRepository(DepositParamsEntity)
     private readonly depositParamsEntityRepository: Repository<DepositParamsEntity>,
 
-    @InjectRepository(TransferFundsEntity)
-    private readonly transferFundsEntityRepository: Repository<TransferFundsEntity>,
+    @InjectRepository(TransfersEntity)
+    private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
 
     @InjectRepository(WithdrawalEntity)
     private readonly withdrawalEntityRepository: Repository<WithdrawalEntity>,
@@ -31,45 +32,80 @@ export class PrimeTransactionsManager {
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
   ) {}
 
-  async getTransactions(id: number): Promise<TransactionResponse> {
-    const transfers = await this.transferFundsEntityRepository
+  async getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {
+    const { user_id, search_after, search_term, limit } = request;
+
+    const queryBuilder = this.transferFundsEntityRepository
       .createQueryBuilder('t')
-      .leftJoinAndSelect(UserDetailsEntity, 's', 's.user_id = t.sender_id')
+      .leftJoinAndSelect(UserDetailsEntity, 's', 's.user_id = t.user_id')
       .leftJoinAndSelect(UserDetailsEntity, 'r', 'r.user_id = t.receiver_id')
-      .where('t.sender_id = :id', { id })
-      .orWhere('t.receiver_id = :id', { id })
+      .leftJoinAndSelect(UserEntity, 'sender_details', 'sender_details.id = t.user_id')
+      .leftJoinAndSelect(UserEntity, 'receiver_details', 'receiver_details.id = t.receiver_id');
+
+    if (search_after) {
+      queryBuilder.where('t.id < :search_after', { search_after });
+    }
+
+    queryBuilder.andWhere(
+      new Brackets((qb) => {
+        qb.where('t.user_id = :user_id', { user_id }).orWhere('t.receiver_id = :user_id', { user_id });
+      }),
+    );
+
+    if (search_term) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('sender_details.email ILIKE :search_term', {
+            search_term: `%${search_term}%`,
+          })
+            .orWhere('receiver_details.email ILIKE :search_term', {
+              search_term: `%${search_term}%`,
+            })
+            .orWhere('sender_details.phone ILIKE :search_term', {
+              search_term: `%${search_term}%`,
+            })
+            .orWhere('receiver_details.phone ILIKE :search_term', {
+              search_term: `%${search_term}%`,
+            })
+            .orWhere('s.first_name ILIKE :search_term', {
+              search_term: `%${search_term}%`,
+            })
+            .orWhere('s.last_name ILIKE :search_term', {
+              search_term: `%${search_term}%`,
+            })
+            .orWhere('r.first_name ILIKE :search_term', {
+              search_term: `%${search_term}%`,
+            })
+            .orWhere('r.last_name ILIKE :search_term', {
+              search_term: `%${search_term}%`,
+            });
+        }),
+      );
+    }
+
+    queryBuilder
       .select([
+        't.*',
         `CASE
-          WHEN t.sender_id = ${id} THEN 'to ' || r.first_name || ' ' || r.last_name
-          ELSE 'from ' || s.first_name || ' ' || s.last_name
-        END as title`,
-        `'/prime_trust/transfer/' as url`,
-        `t.id as id`,
-        `t.created_at as created_at`,
+        WHEN t.type = 'transfer' AND t.user_id = ${user_id} THEN 'to ' || r.first_name || ' ' || r.last_name
+        WHEN t.type = 'transfer' THEN 'from ' || s.first_name || ' ' || s.last_name
+        ELSE t.type
+      END as title`,
       ])
-      .getRawMany();
+      .orderBy('t.created_at', 'DESC');
 
-    const deposits = await this.contributionEntityRepository
-      .createQueryBuilder('c')
-      .where('c.user_id = :id', { id })
-      .select([`c.id as id`, `'deposit' as title`, `'/prime_trust/deposit/' as url`, `c.created_at as created_at`])
-      .getRawMany();
+    const transactions = await queryBuilder.limit(limit).getRawMany();
 
-    const withdrawals = await this.withdrawalEntityRepository
-      .createQueryBuilder('w')
-      .where('w.user_id = :id', { id })
-      .select([
-        `w.id as id`,
-        `'withdrawal' as title`,
-        `'/prime_trust/withdrawal/' as url`,
-        `w.created_at as created_at`,
-      ])
-      .getRawMany();
-    const fullData = [...transfers, ...deposits, ...withdrawals];
-    fullData.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    if (transactions.length === 0) {
+      return { transactions, has_more: false };
+    }
+
+    const { id: last_id } = transactions.at(-1);
 
     return {
-      data: fullData,
+      last_id,
+      transactions,
+      has_more: last_id > 1,
     };
   }
 }

@@ -3,7 +3,7 @@ import { BankAccountEntity } from './bank-account.entity';
 import { ContributionEntity } from './contribution.entity';
 import { PrimeTrustAccountEntity } from './prime-trust-account.entity';
 import { PrimeTrustKycDocumentEntity } from './prime-trust-kyc-document.entity';
-import { TransferFundsEntity } from './transfer-funds.entity';
+import { TransfersEntity } from './transfers.entity';
 import { WithdrawalParamsEntity } from './withdrawal-params.entity';
 
 @Entity('prime_trust_contacts')
@@ -52,8 +52,8 @@ export class PrimeTrustContactEntity {
   @OneToMany(() => WithdrawalParamsEntity, (params) => params.contact)
   withdrawalParams?: WithdrawalParamsEntity[];
 
-  @OneToMany(() => TransferFundsEntity, (params) => params.contact)
-  transferFunds?: TransferFundsEntity[];
+  @OneToMany(() => TransfersEntity, (params) => params.contact)
+  transferFunds?: TransfersEntity[];
 
   @OneToMany(() => ContributionEntity, (params) => params.contact)
   contributions?: ContributionEntity[];

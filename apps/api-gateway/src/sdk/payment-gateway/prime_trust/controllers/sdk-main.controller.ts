@@ -1,7 +1,4 @@
 import { TransferFundsResponseDTO } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
-import { BankParamsDto } from '@/sdk/payment-gateway/prime_trust/dtos/bank-params.dto';
-import { PaymentGatewaysListDto } from '@/sdk/payment-gateway/prime_trust/dtos/payment-gateways-list.dto';
-import { SendDocumentDto } from '@/sdk/payment-gateway/prime_trust/dtos/send-document.dto';
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
 import { webhookData } from '@/sdk/payment-gateway/prime_trust/webhooks/data';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -23,6 +20,9 @@ import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
+import { BankParamsDto } from '../dtos/main/bank-params.dto';
+import { SendDocumentDto } from '../dtos/main/send-document.dto';
+import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Prime Trust')
 @ApiBearerAuth()
@@ -34,14 +34,6 @@ import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 export class SdkMainController {
   private readonly logger = new Logger(SdkMainController.name);
   constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: SdkPaymentGatewayService) {}
-
-  @ApiOperation({ summary: 'Get list of payment gateways' })
-  @ApiResponse({ status: HttpStatus.OK })
-  @HttpCode(HttpStatus.OK)
-  @Get()
-  async list(@Query() query: PaymentGatewaysListDto) {
-    return this.paymentGatewayService.list(query);
-  }
 
   @ApiOperation({ summary: 'Get Token.' })
   @ApiResponse({
@@ -183,7 +175,7 @@ export class SdkMainController {
   })
   @JwtSessionAuth()
   @Get('/transactions')
-  async getTransactions(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getTransactions({ id });
+  async getTransactions(@JwtSessionUser() { id }: User, @Query() query: GetTransfersDto) {
+    return this.paymentGatewayService.getTransactions({ user_id: id, ...query });
   }
 }
