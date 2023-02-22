@@ -16,7 +16,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
 import {
-  PrimeTrustData,
+  JsonData,
   TransferMethodRequest,
   UserIdRequest,
   WithdrawalDataResponse,
@@ -136,7 +136,7 @@ export class PrimeWithdrawalManager {
     }
   }
 
-  async makeWithdrawal(request: TransferMethodRequest): Promise<PrimeTrustData> {
+  async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     const { id, funds_transfer_method_id, amount } = request;
     const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
     const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({

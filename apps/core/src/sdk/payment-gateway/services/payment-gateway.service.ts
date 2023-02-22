@@ -130,18 +130,15 @@ export class PaymentGatewayService {
     return this.primeTrustService.addWithdrawalParams(request);
   }
 
+  async getBankAccounts(request: UserIdRequest) {
+    return this.primeTrustService.getBankAccounts(request.id);
+  }
+
   async addBankAccountParams(request: BankAccountParams) {
     const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
 
     return paymentGateway.addBankAccountParams(request);
-  }
-
-  async getBankAccounts(request: UserIdRequest) {
-    const userDetails = await this.userService.getUserInfo(request.id);
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
-
-    return paymentGateway.getBankAccounts(request.id);
   }
 
   async createReference(request: CreateReferenceRequest) {

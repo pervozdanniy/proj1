@@ -1,11 +1,14 @@
-import { CreateReferenceRequest } from '~common/grpc/interfaces/payment-gateway';
+import {
+  BankAccountParams,
+  CreateReferenceRequest,
+  JsonData,
+  TransferMethodRequest,
+} from '~common/grpc/interfaces/payment-gateway';
 
 export interface PaymentGatewayInterface {
-  makeWithdrawal(request: any): any;
+  makeWithdrawal(request: TransferMethodRequest): Promise<JsonData>;
 
-  addBankAccountParams: (request: any) => any;
+  addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams>;
 
-  getBankAccounts: (request: any) => any;
-
-  createReference: (request: any, depositParams?: CreateReferenceRequest) => any;
+  createReference(request: CreateReferenceRequest): Promise<JsonData>;
 }

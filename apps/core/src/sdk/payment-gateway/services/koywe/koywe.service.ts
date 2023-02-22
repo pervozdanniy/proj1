@@ -4,9 +4,10 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
+import process from 'process';
 import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
-import { CreateReferenceRequest, PrimeTrustData } from '~common/grpc/interfaces/payment-gateway';
+import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { UserService } from '../../../../user/services/user.service';
 
@@ -42,7 +43,7 @@ export class KoyweService {
     return { token: result.data.token };
   }
 
-  async createReference(depositParams: CreateReferenceRequest, wallet_address: string): Promise<PrimeTrustData> {
+  async createReference(depositParams: CreateReferenceRequest, wallet_address: string): Promise<JsonData> {
     const { amount, currency_type, id } = depositParams;
     const userDetails = await this.userService.getUserInfo(id);
     await this.getToken(userDetails.email);
@@ -58,6 +59,10 @@ export class KoyweService {
       bank: parts[3],
       email: parts[4],
     };
+
+    if (process.env.NODE_ENV === 'dev') {
+      data['wallet_address'] = wallet_address;
+    }
 
     return { data: JSON.stringify([data]) };
   }

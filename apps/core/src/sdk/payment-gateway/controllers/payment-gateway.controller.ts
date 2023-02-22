@@ -15,11 +15,11 @@ import {
   DepositParamsResponse,
   DepositResponse,
   DocumentResponse,
+  JsonData,
   MakeContributionRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PG_Token,
-  PrimeTrustData,
   SearchTransactionRequest,
   TransactionResponse,
   TransferFundsRequest,
@@ -72,7 +72,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.webhooksService.cipCheck(request);
   }
 
-  createReference(request: CreateReferenceRequest): Promise<PrimeTrustData> {
+  createReference(request: CreateReferenceRequest): Promise<JsonData> {
     return this.paymentGatewayService.createReference(request);
   }
 
@@ -84,7 +84,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.getBalance(request);
   }
 
-  makeWithdrawal(request: TransferMethodRequest): Promise<PrimeTrustData> {
+  makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     return this.paymentGatewayService.makeWithdrawal(request);
   }
 

@@ -215,7 +215,7 @@ export interface BalanceResponse {
   currency_type: string;
 }
 
-export interface PrimeTrustData {
+export interface JsonData {
   data: string;
 }
 
@@ -286,7 +286,7 @@ export interface PaymentGatewayServiceClient {
 
   /** deposit funds */
 
-  createReference(request: CreateReferenceRequest, ...rest: any): Observable<PrimeTrustData>;
+  createReference(request: CreateReferenceRequest, ...rest: any): Observable<JsonData>;
 
   addDepositParams(request: DepositParamRequest, ...rest: any): Observable<DepositResponse>;
 
@@ -316,7 +316,7 @@ export interface PaymentGatewayServiceClient {
 
   addWithdrawalParams(request: WithdrawalParams, ...rest: any): Observable<WithdrawalResponse>;
 
-  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<PrimeTrustData>;
+  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<JsonData>;
 
   updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 }
@@ -391,10 +391,7 @@ export interface PaymentGatewayServiceController {
 
   /** deposit funds */
 
-  createReference(
-    request: CreateReferenceRequest,
-    ...rest: any
-  ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
+  createReference(request: CreateReferenceRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
 
   addDepositParams(
     request: DepositParamRequest,
@@ -460,10 +457,7 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<WithdrawalResponse> | Observable<WithdrawalResponse> | WithdrawalResponse;
 
-  makeWithdrawal(
-    request: TransferMethodRequest,
-    ...rest: any
-  ): Promise<PrimeTrustData> | Observable<PrimeTrustData> | PrimeTrustData;
+  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
 
   updateWithdraw(
     request: AccountIdRequest,

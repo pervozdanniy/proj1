@@ -22,7 +22,7 @@ service PaymentGatewayService {
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
   //deposit funds
-  rpc CreateReference (CreateReferenceRequest) returns (PrimeTrustData);
+  rpc CreateReference (CreateReferenceRequest) returns (JsonData);
   rpc AddDepositParams (DepositParamRequest) returns (DepositResponse);
   rpc GetDepositById (UserIdRequest) returns (DepositDataResponse);
   rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
@@ -40,7 +40,7 @@ service PaymentGatewayService {
   rpc GetWithdrawalById (UserIdRequest) returns (WithdrawalDataResponse);
   rpc GetWithdrawalParams (UserIdRequest) returns (WithdrawalsDataResponse);
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalResponse);
-  rpc MakeWithdrawal (TransferMethodRequest) returns (PrimeTrustData);
+  rpc MakeWithdrawal (TransferMethodRequest) returns (JsonData);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
 
 }
@@ -263,7 +263,7 @@ message BalanceResponse{
   string currency_type = 2;
 }
 
-message PrimeTrustData {
+message JsonData {
   string data = 1;
 }
 

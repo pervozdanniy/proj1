@@ -30,8 +30,8 @@ import {
   DepositParamRequest,
   DepositParamsResponse,
   DepositResponse,
+  JsonData,
   MakeContributionRequest,
-  PrimeTrustData,
   UserIdRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -80,7 +80,7 @@ export class PrimeDepositManager {
     this.app_domain = domain;
   }
 
-  async createReference(request: CreateReferenceRequest): Promise<PrimeTrustData> {
+  async createReference(request: CreateReferenceRequest): Promise<JsonData> {
     let refInfo = await this.getReferenceInfo(request.id);
     if (refInfo.data.length == 0) {
       refInfo = await this.createFundsReference(request.id);
