@@ -98,6 +98,7 @@ export class PrimeAssetsManager {
         },
       },
     };
+
     try {
       const walletResponse = await this.httpService.request({
         method: 'post',
