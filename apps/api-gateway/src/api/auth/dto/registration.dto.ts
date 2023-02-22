@@ -22,7 +22,7 @@ export class RegistrationStartRequestDto {
 
   @ApiProperty({ example: '+37495017680' })
   @IsNotEmpty()
-  @IsPhoneNumber()
+  // @IsPhoneNumber()
   phone: string;
 
   @ApiProperty({ example: '12345678' })
