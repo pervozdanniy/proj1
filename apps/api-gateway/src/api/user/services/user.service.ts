@@ -3,6 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import crypto from 'node:crypto';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
+import { User } from '~common/grpc/interfaces/common';
 import { UpdateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
 import { UpdateUserDto, UserContactsDto } from '../dtos/update-user.dto';
 import { S3Service } from './s3.service';
@@ -17,8 +18,18 @@ export class UserService implements OnModuleInit {
     this.userService = this.core.getService('UserService');
   }
 
-  getById(id: number) {
-    return firstValueFrom(this.userService.getById({ id }));
+  private withUrl(user: User): User {
+    if (user.details?.avatar) {
+      user.details.avatar = this.s3.getUrl(user.details.avatar);
+    }
+
+    return user;
+  }
+
+  async getById(id: number) {
+    const user = await firstValueFrom(this.userService.getById({ id }));
+
+    return this.withUrl(user);
   }
 
   async update({ avatar, ...request }: UpdateUserDto) {
@@ -28,11 +39,14 @@ export class UserService implements OnModuleInit {
       await this.s3.upload(key, avatar);
       payload.details = { ...payload.details, avatar: key };
     }
+    const user = await firstValueFrom(this.userService.update(payload));
 
-    return firstValueFrom(this.userService.update(payload));
+    return this.withUrl(user);
   }
 
-  updateContacts(id: number, contacts: UserContactsDto) {
-    return firstValueFrom(this.userService.updateContacts({ user_id: id, contacts }));
+  async updateContacts(id: number, contacts: UserContactsDto) {
+    const user = await firstValueFrom(this.userService.updateContacts({ user_id: id, contacts }));
+
+    return this.withUrl(user);
   }
 }

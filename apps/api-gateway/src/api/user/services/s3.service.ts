@@ -2,10 +2,12 @@ import {
   CreateBucketCommand,
   HeadBucketCommand,
   HeadBucketRequest,
+  PutBucketPolicyCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
+import { ConfigInterface } from '~common/config/configuration';
 
 export type UploadedFile = Express.Multer.File;
 
@@ -13,7 +15,16 @@ export type UploadedFile = Express.Multer.File;
 export class S3Service {
   #created = false;
 
-  constructor(private readonly s3: S3Client, private readonly bucket: string) {}
+  private readonly bucket: string;
+  private readonly baseUrl: string;
+  private readonly s3: S3Client;
+
+  constructor(config: ConfigInterface['aws']) {
+    const { region, credentials, s3 } = config;
+    this.s3 = new S3Client({ region, credentials, endpoint: s3.url, forcePathStyle: true });
+    this.bucket = config.s3.bucket;
+    this.baseUrl = config.s3.publicUrl;
+  }
 
   private async ensureBucket() {
     if (this.#created) {
@@ -22,14 +33,31 @@ export class S3Service {
 
     const params: HeadBucketRequest = { Bucket: this.bucket };
 
+    const createBucket = async () => {
+      const policy = {
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Sid: 'AddPerm',
+            Effect: 'Allow',
+            Principal: '*',
+            Action: ['s3:GetObject'],
+            Resource: [`arn:aws:s3:::${this.bucket}/*`],
+          },
+        ],
+      };
+      await this.s3.send(new CreateBucketCommand({ Bucket: this.bucket }));
+      await this.s3.send(new PutBucketPolicyCommand({ Bucket: this.bucket, Policy: JSON.stringify(policy) }));
+    };
+
     return this.s3
       .send(new HeadBucketCommand(params))
-      .catch(() => this.s3.send(new CreateBucketCommand(params)))
+      .catch(() => createBucket())
       .then(() => (this.#created = true));
   }
 
   private buildKey(key: string) {
-    return `uploads/user/${key}`;
+    return `uploads/${key}`;
   }
 
   async upload(key: string, file: UploadedFile) {
@@ -42,5 +70,9 @@ export class S3Service {
     });
 
     return this.s3.send(command);
+  }
+
+  getUrl(key: string) {
+    return `${this.baseUrl}/${this.bucket}/${this.buildKey(key)}`;
   }
 }

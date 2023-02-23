@@ -25,6 +25,7 @@ export interface ConfigInterface {
     s3: {
       url: string;
       bucket: string;
+      publicUrl: string;
     };
   };
   redis: Addr;
@@ -109,6 +110,7 @@ export default (): ConfigInterface => ({
     s3: {
       bucket: process.env.AWS_S3_BUCKET || 'test-bucket',
       url: process.env.AWS_S3_URL,
+      publicUrl: process.env.AWS_S3_PUBLIC_URL,
     },
   },
 

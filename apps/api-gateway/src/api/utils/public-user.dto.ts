@@ -1,6 +1,39 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
+import { SendType } from '~common/constants/user';
 import { User, UserDetails } from '~common/grpc/interfaces/common';
+
+export class UserDetailsDto implements UserDetails {
+  @ApiPropertyOptional({ example: 'first_name' })
+  first_name?: string;
+
+  @ApiPropertyOptional({ example: 'last_name' })
+  last_name?: string;
+
+  @ApiPropertyOptional({ example: 'Las Vegas' })
+  city?: string;
+
+  @ApiPropertyOptional({ example: 'NV' })
+  region?: string;
+
+  @ApiPropertyOptional({ format: 'date', example: '1995-09-09' })
+  date_of_birth?: string;
+
+  @ApiPropertyOptional({ example: '123 MK Road' })
+  street?: string;
+
+  @ApiPropertyOptional({ example: 89145 })
+  postal_code?: number;
+
+  @ApiPropertyOptional({ example: 123123123 })
+  tax_id_number?: number;
+
+  @ApiPropertyOptional({ enum: Object.values(SendType) })
+  send_type?: SendType;
+
+  @ApiPropertyOptional({ format: 'uri' })
+  avatar?: string;
+}
 
 export class PublicUserDto implements User {
   @ApiProperty()
@@ -22,12 +55,13 @@ export class PublicUserDto implements User {
   updated_at: string;
 
   @ApiProperty()
-  phone?: string;
+  phone: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   email_verified_at?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ type: UserDetailsDto })
+  @Type(() => UserDetailsDto)
   details?: UserDetails;
 
   @Exclude()

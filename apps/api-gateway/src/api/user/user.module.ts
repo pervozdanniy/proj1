@@ -1,4 +1,3 @@
-import { S3Client } from '@aws-sdk/client-s3';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientsModule } from '@nestjs/microservices';
@@ -18,10 +17,7 @@ import { UserController } from './user.controller';
     {
       provide: S3Service,
       useFactory(config: ConfigService<ConfigInterface>) {
-        const { region, credentials, s3 } = config.get('aws', { infer: true });
-        const client = new S3Client({ region, credentials, endpoint: s3.url, forcePathStyle: true });
-
-        return new S3Service(client, s3.bucket);
+        return new S3Service(config.get('aws', { infer: true }));
       },
       inject: [ConfigService],
     },
