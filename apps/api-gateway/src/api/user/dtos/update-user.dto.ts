@@ -15,11 +15,13 @@ import { SendType } from '~common/constants/user';
 import { UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 
 export class UserContactsDto {
+  @ApiPropertyOptional({ type: String, isArray: true })
   @IsOptional()
   @IsArray()
   @IsPhoneNumber(undefined, { each: true })
   new: string[];
 
+  @ApiPropertyOptional({ type: String, isArray: true })
   @IsOptional()
   @IsArray()
   @IsPhoneNumber(undefined, { each: true })
@@ -80,29 +82,32 @@ export class UserDetails {
 export class UpdateUserDto implements UpdateRequest {
   id: number;
 
-  @ApiPropertyOptional({ example: 'gevorg' })
+  @ApiPropertyOptional({ type: 'file', format: 'binary' })
+  avatar: Express.Multer.File;
+
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   @Length(2, 200)
   username?: string;
 
-  @ApiPropertyOptional({ required: true, example: '+37495017680' })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   phone?: string;
 
-  @ApiPropertyOptional({ example: 1 })
+  @ApiPropertyOptional()
   @IsNumber()
   @IsOptional()
   country_id?: number;
 
-  @ApiProperty({ type: UserDetails })
+  @ApiPropertyOptional({ type: UserDetails })
   @ValidateNested()
   @IsOptional()
   @Type(() => UserDetails)
   details?: UserDetails;
 
-  @ApiProperty({ type: UserContactsDto })
+  @ApiPropertyOptional({ type: UserContactsDto })
   @ValidateNested()
   @IsOptional()
   @Type(() => UserContactsDto)

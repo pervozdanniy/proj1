@@ -41,7 +41,7 @@ export class UserContactService {
     });
   }
 
-  async detouch(userId: number) {
+  async detach(userId: number) {
     await this.userContactRepository.delete({ user_id: userId });
     await this.userContactRepository.delete({ contact_id: userId });
   }
