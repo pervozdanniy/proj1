@@ -18,7 +18,7 @@ export class GetTransfersDto {
   @IsNumber()
   @Min(0)
   @Type(() => Number)
-  readonly searchAfter: number = 0;
+  readonly search_after: number = 0;
 
   @ApiProperty({
     description: 'Search item',
@@ -27,5 +27,5 @@ export class GetTransfersDto {
   @IsOptional()
   @IsString()
   @Type(() => String)
-  searchTerm?: string;
+  search_term?: string;
 }
