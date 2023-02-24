@@ -16,4 +16,4 @@ COPY common /usr/src/common/
 ENV TEST "15022023"
 EXPOSE 3000
 
-ENTRYPOINT [ "node_modules/.bin/nest" ]
+ENTRYPOINT [ "npm", "run", "start" ]
