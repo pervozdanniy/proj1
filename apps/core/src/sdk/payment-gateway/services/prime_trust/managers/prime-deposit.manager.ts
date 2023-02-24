@@ -5,6 +5,7 @@ import { DepositParamsEntity } from '@/sdk/payment-gateway/entities/prime_trust/
 import { PrimeTrustAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { TransfersEntity } from '@/sdk/payment-gateway/entities/prime_trust/transfers.entity';
 import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/sdk/payment-gateway/request/prime-trust-http.service';
 import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
@@ -38,7 +39,6 @@ import {
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 
 @Injectable()
