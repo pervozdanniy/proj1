@@ -13,3 +13,9 @@ export type USDtoAssetResponse = {
   fee_amount: string;
   unit_count: string;
 };
+
+export type AssetToUSDResponse = {
+  total_amount: string;
+  fee_amount: string;
+  unit_count: string;
+};

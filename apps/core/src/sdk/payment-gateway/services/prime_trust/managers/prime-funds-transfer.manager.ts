@@ -7,7 +7,7 @@ import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/pri
 import { PrimeTrustHttpService } from '@/sdk/payment-gateway/request/prime-trust-http.service';
 import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
 import { PrimeBankAccountManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-bank-account.manager';
-import { SendFundsResponse, USDtoAssetResponse } from '@/sdk/payment-gateway/types/response';
+import { AssetToUSDResponse, SendFundsResponse, USDtoAssetResponse } from '@/sdk/payment-gateway/types/response';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
@@ -100,7 +100,7 @@ export class PrimeFundsTransferManager {
     }
   }
 
-  async convertAssetToUSD(account_id: string, amount: string) {
+  async convertAssetToUSD(account_id: string, amount: string): Promise<AssetToUSDResponse> {
     const formData = {
       data: {
         type: 'quotes',
