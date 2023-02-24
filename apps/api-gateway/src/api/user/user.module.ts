@@ -1,15 +1,27 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ClientsModule } from '@nestjs/microservices';
+import { ConfigInterface } from '~common/config/configuration';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { JwtSessionMiddleware } from '~common/http-session';
 import { AuthModule } from '../auth';
-import { UserController } from './controllers/user.controller';
-import { UserService } from './user.service';
+import { S3Service } from './services/s3.service';
+import { UserService } from './services/user.service';
+import { UserController } from './user.controller';
 
 @Module({
   imports: [ClientsModule.registerAsync([asyncClientOptions('core')]), AuthModule],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [
+    UserService,
+    {
+      provide: S3Service,
+      useFactory(config: ConfigService<ConfigInterface>) {
+        return new S3Service(config.get('aws', { infer: true }));
+      },
+      inject: [ConfigService],
+    },
+  ],
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

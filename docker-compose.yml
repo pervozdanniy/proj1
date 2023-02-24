@@ -124,6 +124,20 @@ services:
       - backend
     ports:
       - ${DB_LOCAL_PORT}:5432
+  
+  minio:
+    image: 'minio/minio:latest'
+    ports:
+      - '${MINIO_LOCAL_PORT:-9000}:9000'
+      - '${MINIO_CONSOLE_LOCAL_PORT:-9090}:9090'
+    environment:
+      MINIO_ROOT_USER: '${AWS_ACCESS_KEY_ID:-root}'
+      MINIO_ROOT_PASSWORD: '${AWS_SECRET_ACCESS_KEY:-password}'
+    volumes:
+      - 'minio:/data/minio'
+    command: minio server /data/minio --console-address ":9090"
+    networks:
+      - backend
 
 networks:
   backend:
@@ -131,3 +145,5 @@ networks:
 volumes:
   pg-data:
   redis-data:
+  minio:
+    driver: local

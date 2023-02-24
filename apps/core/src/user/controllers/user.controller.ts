@@ -63,7 +63,7 @@ export class UserController implements UserServiceController {
   async delete({ id }: IdRequestDto) {
     const success = await this.userService.delete(id);
     this.contactService
-      .detouch(id)
+      .detach(id)
       .catch((error) => this.logger.error('Delete user: contacts syncronyzation failed', error));
 
     return { success };
