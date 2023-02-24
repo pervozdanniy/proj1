@@ -62,10 +62,14 @@ export class PrimeBalanceManager {
     try {
       const cacheResponse = await this.httpService.request({
         method: 'get',
-        url: `${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-cash-totals`,
+        url: `${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-asset-totals`,
       });
+      const attributes = cacheResponse.data.included[0].attributes;
 
-      return cacheResponse.data.included[0].attributes;
+      return {
+        settled: attributes['settled'],
+        'currency-type': 'ETH',
+      };
     } catch (e) {
       this.logger.error(e.response.data);
 
@@ -83,11 +87,7 @@ export class PrimeBalanceManager {
     const currentBalance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id } });
     const balancePayload = {
       settled: cacheData.settled,
-      disbursable: cacheData.disbursable,
-      pending_transfer: cacheData['pending-transfer'],
       currency_type: cacheData['currency-type'],
-      contingent_hold: cacheData['contingent-hold'],
-      non_contingent_hold: cacheData['non-contingent-hold'],
     };
 
     if (!currentBalance) {

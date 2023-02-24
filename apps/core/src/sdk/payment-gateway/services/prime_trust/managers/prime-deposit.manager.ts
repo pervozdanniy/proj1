@@ -13,9 +13,11 @@ import { PrimeKycManager } from '@/sdk/payment-gateway/services/prime_trust/mana
 import { PrimeTokenManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-token.manager';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import Redis from 'ioredis';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { DepositTypes } from '~common/enum/document-types.enum';
@@ -37,6 +39,7 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
+import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 
 @Injectable()
 export class PrimeDepositManager {
@@ -57,6 +60,8 @@ export class PrimeDepositManager {
 
     private readonly primeBalanceManager: PrimeBalanceManager,
 
+    private readonly primeFundsTransferManager: PrimeFundsTransferManager,
+
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
 
@@ -74,6 +79,7 @@ export class PrimeDepositManager {
 
     @InjectRepository(CardResourceEntity)
     private readonly cardResourceEntityRepository: Repository<CardResourceEntity>,
+    @InjectRedis() private readonly redis: Redis,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -94,6 +100,7 @@ export class PrimeDepositManager {
         }
       }
     }
+    if (process.env.NODE_ENV === 'dev') newData.push({ 'contact-funds-transfer-references': refInfo.data[0].id });
 
     return { data: JSON.stringify(newData) };
   }
@@ -201,18 +208,19 @@ export class PrimeDepositManager {
   }
 
   async updateContribution(request: AccountIdRequest) {
-    const { resource_id, id } = request;
+    const { resource_id, id: account_id } = request;
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
       .select(['u.id as user_id'])
-      .where('a.uuid = :id', { id })
+      .where('a.uuid = :account_id', { account_id })
       .getRawOne();
 
     const { user_id } = accountData;
 
     const contributionResponse = await this.getContributionInfo(resource_id);
     const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
+    await this.primeFundsTransferManager.convertUSDtoAsset(account_id, contributionResponse['amount']);
     if (existedDeposit) {
       await this.depositEntityRepository.update({ uuid: resource_id }, { status: contributionResponse['status'] });
     } else {

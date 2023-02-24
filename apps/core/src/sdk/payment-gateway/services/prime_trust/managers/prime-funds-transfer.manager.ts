@@ -53,6 +53,7 @@ export class PrimeFundsTransferManager {
   }
 
   async convertUSDtoAsset(account_id: string, amount: string): Promise<USDtoAssetResponse> {
+    console.log('ok');
     const formData = {
       data: {
         type: 'quotes',
