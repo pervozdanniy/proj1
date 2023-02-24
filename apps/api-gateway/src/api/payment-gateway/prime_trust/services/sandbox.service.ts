@@ -36,7 +36,7 @@ export class SandboxService {
 
       return withdrawResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -60,7 +60,7 @@ export class SandboxService {
 
       return verifyResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -94,7 +94,7 @@ export class SandboxService {
 
       return transferRefResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -129,7 +129,7 @@ export class SandboxService {
 
       return contributionResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -165,7 +165,7 @@ export class SandboxService {
 
       return { success: true };
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -186,7 +186,7 @@ export class SandboxService {
 
       return cardResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -199,14 +199,14 @@ export class SandboxService {
       };
 
       const accountResponse = await lastValueFrom(
-        this.httpService.get(`https://sandbox.primetrust.com/v2/accounts/${account_id}/sandbox/open`, {
+        this.httpService.post(`https://sandbox.primetrust.com/v2/accounts/${account_id}/sandbox/open`, null, {
           headers: headersRequest,
         }),
       );
 
       return accountResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -230,7 +230,7 @@ export class SandboxService {
 
       return cardResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -263,7 +263,7 @@ export class SandboxService {
 
       return cardResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 }

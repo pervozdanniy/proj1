@@ -226,8 +226,6 @@ export class PrimeKycManager {
 
       return result.data;
     } catch (e) {
-      this.logger.error(e.response.data);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
@@ -382,8 +380,6 @@ export class PrimeKycManager {
 
       return cipResponse.data.data.attributes;
     } catch (e) {
-      this.logger.error(e.response.data);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 

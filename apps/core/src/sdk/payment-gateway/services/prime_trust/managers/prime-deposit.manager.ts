@@ -46,6 +46,7 @@ export class PrimeDepositManager {
   private readonly logger = new Logger(PrimeDepositManager.name);
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
+  private readonly fee_percentage: number = 2;
   constructor(
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
@@ -100,7 +101,7 @@ export class PrimeDepositManager {
         }
       }
     }
-    if (process.env.NODE_ENV === 'dev') newData.push({ 'contact-funds-transfer-references': refInfo.data[0].id });
+    newData.push({ 'contact-funds-transfer-references': refInfo.data[0].id });
 
     return { data: JSON.stringify(newData) };
   }
@@ -115,8 +116,6 @@ export class PrimeDepositManager {
 
       return transferRefResponse.data;
     } catch (e) {
-      this.logger.error(e.response.data);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
@@ -195,8 +194,6 @@ export class PrimeDepositManager {
 
       return fundsResponse.data.data.id;
     } catch (e) {
-      this.logger.error(e.response.data);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
@@ -220,15 +217,24 @@ export class PrimeDepositManager {
 
     const contributionResponse = await this.getContributionInfo(resource_id);
     const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
-    await this.primeFundsTransferManager.convertUSDtoAsset(account_id, contributionResponse['amount']);
+
+    const amount = (
+      parseFloat(contributionResponse['amount']) -
+      parseFloat(contributionResponse['amount']) * this.fee_percentage * 0.01
+    ).toString();
+
+    await this.primeFundsTransferManager.convertUSDtoAsset(account_id, amount, false);
     if (existedDeposit) {
-      await this.depositEntityRepository.update({ uuid: resource_id }, { status: contributionResponse['status'] });
+      await this.depositEntityRepository.update(
+        { uuid: resource_id },
+        { status: contributionResponse['status'], amount: amount },
+      );
     } else {
       const contributionPayload = {
         user_id,
         uuid: resource_id,
         currency_type: contributionResponse['currency-type'],
-        amount: contributionResponse['amount'],
+        amount,
         status: contributionResponse['status'],
         param_type: contributionResponse['payment-type'],
         type: 'deposit',
@@ -256,8 +262,6 @@ export class PrimeDepositManager {
 
       return contributionResponse.data.data.attributes;
     } catch (e) {
-      this.logger.error(e.response.data);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
@@ -399,6 +403,7 @@ export class PrimeDepositManager {
           'contact-id': contact_id,
           'funds-transfer-method-id': funds_transfer_method_id,
           'account-id': account_id,
+          'currency-type': 'USD',
         },
       },
     };

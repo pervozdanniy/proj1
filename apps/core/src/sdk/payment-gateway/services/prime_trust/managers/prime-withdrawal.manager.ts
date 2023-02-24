@@ -26,12 +26,14 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
+import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 
 @Injectable()
 export class PrimeWithdrawalManager {
   private readonly logger = new Logger(PrimeWithdrawalManager.name);
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
+
   constructor(
     private config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
@@ -39,6 +41,8 @@ export class PrimeWithdrawalManager {
     private readonly notificationService: NotificationService,
 
     private readonly primeBankAccountManager: PrimeBankAccountManager,
+
+    private readonly primeFundsTransferManager: PrimeFundsTransferManager,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -124,8 +128,6 @@ export class PrimeWithdrawalManager {
 
       return fundsResponse.data.data.id;
     } catch (e) {
-      this.logger.error(e.response.data);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
@@ -138,22 +140,24 @@ export class PrimeWithdrawalManager {
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     const { id, funds_transfer_method_id, amount } = request;
+
     const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
     const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({
       uuid: funds_transfer_method_id,
     });
 
-    const withdrawalResponse = await this.sendWithdrawalRequest(request, account.uuid);
+    const { funds, fee } = await this.sendWithdrawalRequest(request, account.uuid);
 
     await this.withdrawalEntityRepository.save(
       this.withdrawalEntityRepository.create({
         user_id: id,
         amount,
-        uuid: withdrawalResponse.id,
-        status: withdrawalResponse.attributes['status'],
-        currency_type: withdrawalResponse.attributes['currency-type'],
+        uuid: funds.id,
+        status: funds.attributes['status'],
+        currency_type: funds.attributes['currency-type'],
         param_type: 'withdrawal_param',
         param_id: withdrawalParams.id,
+        fee,
         type: 'withdrawal',
       }),
     );
@@ -162,23 +166,25 @@ export class PrimeWithdrawalManager {
       user_id: id,
       title: 'User Disbursements',
       type: 'disbursements',
-      description: `Your disbursements status for ${amount} ${withdrawalResponse.attributes['currency-type']} ${withdrawalResponse.attributes['status']}`,
+      description: `Your disbursements status for ${amount} ${funds.attributes['currency-type']} ${funds.attributes['status']}`,
     };
 
     this.notificationService.createAsync(notificationPayload);
 
-    return { data: JSON.stringify(withdrawalResponse) };
+    return { data: JSON.stringify(funds) };
   }
 
   async sendWithdrawalRequest(request, account_id) {
     const { amount, funds_transfer_method_id } = request;
+    const { total_amount, fee_amount } = await this.primeFundsTransferManager.convertAssetToUSD(account_id, amount);
+
     const formData = {
       data: {
         type: 'disbursements',
         attributes: {
           'account-id': account_id,
           'funds-transfer-method-id': funds_transfer_method_id,
-          amount: amount,
+          amount: total_amount,
         },
       },
     };
@@ -190,10 +196,8 @@ export class PrimeWithdrawalManager {
         data: formData,
       });
 
-      return fundsResponse.data.data;
+      return { funds: fundsResponse.data.data, fee: fee_amount };
     } catch (e) {
-      this.logger.error(e.response.data);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
@@ -210,7 +214,11 @@ export class PrimeWithdrawalManager {
       .leftJoinAndSelect(UserEntity, 'u', 'w.user_id = u.id')
       .select(['u.id as user_id'])
       .where('w.uuid = :id', { id })
+      .andWhere('w.type = :type', { type: 'withdrawal' })
       .getRawOne();
+    if (!withdrawData) {
+      return { success: false };
+    }
 
     const { user_id } = withdrawData;
 
@@ -243,8 +251,6 @@ export class PrimeWithdrawalManager {
 
       return withDrawResponse.data.data.attributes;
     } catch (e) {
-      this.logger.error(e.response.data);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 

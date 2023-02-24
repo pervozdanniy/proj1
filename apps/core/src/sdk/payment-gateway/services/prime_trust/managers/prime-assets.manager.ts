@@ -110,8 +110,6 @@ export class PrimeAssetsManager {
         wallet_address: walletResponse.data.data.attributes['wallet-address'],
       };
     } catch (e) {
-      this.logger.error(e.response.data);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 

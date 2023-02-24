@@ -71,8 +71,6 @@ export class PrimeBalanceManager {
         'currency-type': 'ETH',
       };
     } catch (e) {
-      this.logger.error(e.response.data);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 

@@ -2,6 +2,7 @@ import { NotificationService } from '@/notification/services/notification.servic
 import { PrimeTrustAccountEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from '@/sdk/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { TransfersEntity } from '@/sdk/payment-gateway/entities/prime_trust/transfers.entity';
 import { PrimeTrustException } from '@/sdk/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/sdk/payment-gateway/request/prime-trust-http.service';
 import { PrimeBalanceManager } from '@/sdk/payment-gateway/services/prime_trust/managers/prime-balance.manager';
@@ -16,7 +17,6 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 
 @Injectable()
 export class PrimeFundsTransferManager {
@@ -52,8 +52,7 @@ export class PrimeFundsTransferManager {
     this.app_domain = domain;
   }
 
-  async convertUSDtoAsset(account_id: string, amount: string): Promise<USDtoAssetResponse> {
-    console.log('ok');
+  async convertUSDtoAsset(account_id: string, amount: string, cancel?: boolean): Promise<USDtoAssetResponse> {
     const formData = {
       data: {
         type: 'quotes',
@@ -73,16 +72,23 @@ export class PrimeFundsTransferManager {
         data: formData,
       });
 
-      const quote = await this.httpService.request({
-        method: 'post',
-        url: `${this.prime_trust_url}/v2/quotes/${quoteResponse.data.data.id}/execute`,
-        data: null,
-      });
+      if (cancel) {
+        return {
+          unit_count: quoteResponse.data.data.attributes['unit-count'],
+          fee_amount: quoteResponse.data.data.attributes['fee-amount'],
+        };
+      } else {
+        const quote = await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/quotes/${quoteResponse.data.data.id}/execute`,
+          data: null,
+        });
 
-      return {
-        unit_count: quote.data.data.attributes['unit-count'],
-        fee_amount: quote.data.data.attributes['fee-amount'],
-      };
+        return {
+          unit_count: quote.data.data.attributes['unit-count'],
+          fee_amount: quote.data.data.attributes['fee-amount'],
+        };
+      }
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
@@ -94,7 +100,7 @@ export class PrimeFundsTransferManager {
     }
   }
 
-  async convertAssetToUSD(account_id: string, amount: string): Promise<void> {
+  async convertAssetToUSD(account_id: string, amount: string) {
     const formData = {
       data: {
         type: 'quotes',
@@ -113,11 +119,17 @@ export class PrimeFundsTransferManager {
         data: formData,
       });
 
-      await this.httpService.request({
+      const executeResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/quotes/${quoteResponse.data.data.id}/execute`,
         data: null,
       });
+
+      return {
+        total_amount: executeResponse.data.data.attributes['total-amount'],
+        unit_count: executeResponse.data.data.attributes['unit-count'],
+        fee_amount: executeResponse.data.data.attributes['fee-amount'],
+      };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
@@ -172,11 +184,10 @@ export class PrimeFundsTransferManager {
     const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: sender_id });
     const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: receiver_id });
 
-    const { unit_count, fee_amount } = await this.convertUSDtoAsset(fromAccountId, amount);
+    const { unit_count, fee_amount } = await this.convertUSDtoAsset(fromAccountId, amount, true);
 
     const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count);
 
-    await this.convertAssetToUSD(toAccountId, amount);
     const payload = {
       fee: fee_amount,
       uuid,

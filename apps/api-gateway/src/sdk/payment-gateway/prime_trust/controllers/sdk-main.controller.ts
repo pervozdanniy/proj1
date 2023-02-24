@@ -88,10 +88,6 @@ export class SdkMainController {
       data: { changes },
     } = payload;
 
-    const paramsToCheck = ['amount', 'payment-details', 'status'];
-
-    const allParamsExist = paramsToCheck.every((param) => changes.includes(param));
-
     const sendData = {
       id: payload['account-id'],
       resource_id: payload['resource_id'],
@@ -107,8 +103,12 @@ export class SdkMainController {
     if (resource_type === 'cip_checks' && action === 'update') {
       return this.paymentGatewayService.cipCheck(sendData);
     }
-    if (resource_type === 'contributions' && action === 'update' && allParamsExist) {
-      return this.paymentGatewayService.updateContribution(sendData);
+    if (resource_type === 'contributions' && action === 'update') {
+      const paramsToCheck = ['amount', 'payment-details', 'status'];
+      const allParamsExist = paramsToCheck.every((param) => changes.includes(param));
+      if (allParamsExist) {
+        return this.paymentGatewayService.updateContribution(sendData);
+      }
     }
     if (resource_type === 'funds_transfers' && action === 'update') {
       return this.paymentGatewayService.updateBalance(sendData);
