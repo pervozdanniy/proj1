@@ -105,8 +105,6 @@ export class MainController {
       payment_gateway: 'prime_trust',
     };
 
-    // mark the resource ID as processed
-
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
     }
