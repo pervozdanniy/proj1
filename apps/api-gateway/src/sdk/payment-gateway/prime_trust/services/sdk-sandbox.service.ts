@@ -33,7 +33,7 @@ export class SdkSandboxService {
 
       return withdrawResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -57,7 +57,7 @@ export class SdkSandboxService {
 
       return verifyResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -91,7 +91,7 @@ export class SdkSandboxService {
 
       return transferRefResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -126,7 +126,7 @@ export class SdkSandboxService {
 
       return contributionResponse.data;
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 
@@ -162,7 +162,7 @@ export class SdkSandboxService {
 
       return { success: true };
     } catch (e) {
-      throw new Error(e.response.data);
+      return e.response.data.errors;
     }
   }
 }

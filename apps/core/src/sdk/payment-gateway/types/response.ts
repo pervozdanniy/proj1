@@ -1,11 +1,6 @@
 export type BalanceAttributes = {
   settled: string;
-  blockchain: string;
-  disbursable: string;
-  'pending-transfer': string;
   'currency-type': string;
-  'contingent-hold': string;
-  'non-contingent-hold': string;
 };
 
 export type SendFundsResponse = {
@@ -15,6 +10,12 @@ export type SendFundsResponse = {
 };
 
 export type USDtoAssetResponse = {
+  fee_amount: string;
+  unit_count: string;
+};
+
+export type AssetToUSDResponse = {
+  total_amount: string;
   fee_amount: string;
   unit_count: string;
 };

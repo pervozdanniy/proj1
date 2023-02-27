@@ -8,8 +8,8 @@ export const webhookData: string[] = [
   'aml-checks',
   'account-cash-transfers',
   'contacts',
-  'contingent-holds',
-  'disbursement-authorizations',
+  'contingent_holds',
+  'disbursement_authorizations',
   'funds-transfers',
   'asset-transfers',
 ];

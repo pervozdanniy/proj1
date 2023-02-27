@@ -8,12 +8,12 @@ import { VerifyOwnerDto } from '../dtos/deposit/verify-owner.dto';
 import { WebhookUrlDto } from '../dtos/main/webhook-url.dto';
 import { SettleWithdrawDto } from '../dtos/withdrawal/settle-withdraw.dto';
 
-@ApiTags('Prime Trust/Sandbox')
+@ApiTags('SDK/Prime Trust/Sandbox')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
-  path: 'sandbox',
+  path: 'sdk/sandbox',
 })
 export class SdkSandboxGatewayController {
   constructor(private sandboxService: SdkSandboxService) {}

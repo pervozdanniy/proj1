@@ -24,12 +24,12 @@ import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
-@ApiTags('Prime Trust')
+@ApiTags('SDK/Prime Trust')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
-  path: 'prime_trust',
+  path: 'sdk/prime_trust',
 })
 export class SdkMainController {
   private readonly logger = new Logger(SdkMainController.name);
@@ -82,7 +82,12 @@ export class SdkMainController {
   }
   @Post('/account/webhook')
   async webhook(@Body() payload: any) {
-    const { resource_type, action } = payload;
+    const {
+      resource_type,
+      action,
+      data: { changes },
+    } = payload;
+
     const sendData = {
       id: payload['account-id'],
       resource_id: payload['resource_id'],
@@ -99,7 +104,11 @@ export class SdkMainController {
       return this.paymentGatewayService.cipCheck(sendData);
     }
     if (resource_type === 'contributions' && action === 'update') {
-      return this.paymentGatewayService.updateContribution(sendData);
+      const paramsToCheck = ['amount', 'payment-details', 'status'];
+      const allParamsExist = paramsToCheck.every((param) => changes.includes(param));
+      if (allParamsExist) {
+        return this.paymentGatewayService.updateContribution(sendData);
+      }
     }
     if (resource_type === 'funds_transfers' && action === 'update') {
       return this.paymentGatewayService.updateBalance(sendData);

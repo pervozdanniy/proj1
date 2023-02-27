@@ -5,12 +5,12 @@ import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 import { TransferFundsDto } from '../dtos/transfer/transfer-funds.dto';
 
-@ApiTags('Prime Trust/Transfer Funds')
+@ApiTags('SDK/Prime Trust/Transfer Funds')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
-  path: 'transfer',
+  path: 'sdk/transfer',
 })
 export class SdkTransferController {
   constructor(private paymentGatewayService: SdkPaymentGatewayService) {}

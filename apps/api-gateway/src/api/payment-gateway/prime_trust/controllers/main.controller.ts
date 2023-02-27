@@ -93,14 +93,17 @@ export class MainController {
 
   @Post('/account/webhook')
   async webhook(@Body() payload: any) {
-    const { resource_type, action } = payload;
+    const {
+      resource_type,
+      action,
+      data: { changes },
+    } = payload;
+
     const sendData = {
       id: payload['account-id'],
       resource_id: payload['resource_id'],
       payment_gateway: 'prime_trust',
     };
-
-    this.logger.log(payload);
 
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
@@ -112,6 +115,13 @@ export class MainController {
       return this.paymentGatewayService.cipCheck(sendData);
     }
     if (resource_type === 'contributions' && action === 'update') {
+      const paramsToCheck = ['amount', 'payment-details', 'status'];
+
+      const allParamsExist = paramsToCheck.every((param) => changes.includes(param));
+      if (allParamsExist) {
+        return this.paymentGatewayService.updateContribution(sendData);
+      }
+
       return this.paymentGatewayService.updateContribution(sendData);
     }
     if (resource_type === 'funds_transfers' && action === 'update') {
