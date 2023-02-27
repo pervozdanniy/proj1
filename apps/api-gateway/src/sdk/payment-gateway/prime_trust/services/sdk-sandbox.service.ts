@@ -148,7 +148,7 @@ export class SdkSandboxService {
 
     try {
       const webhooks = await lastValueFrom(
-        this.httpService.get(`https://sandbox.primetrust.com/v2/webhook-configs`, {
+        this.httpService.get<{ data: Array<{ id: string }> }>(`https://sandbox.primetrust.com/v2/webhook-configs`, {
           headers: headersRequest,
         }),
       );
