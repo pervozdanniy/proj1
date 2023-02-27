@@ -16,12 +16,12 @@ import { ResourceDto } from '../dtos/deposit/resource.dto';
 import { WithdrawalMakeDto } from '../dtos/withdrawal/withdrawal-make.dto';
 import { WithdrawalParamsDto } from '../dtos/withdrawal/withdrawal-params.dto';
 
-@ApiTags('Prime Trust/Withdrawal Funds')
+@ApiTags('SDK/Prime Trust/Withdrawal Funds')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
-  path: 'withdrawal',
+  path: 'sdk/withdrawal',
 })
 export class SdkWithdrawalController {
   constructor(private paymentGatewayService: SdkPaymentGatewayService) {}

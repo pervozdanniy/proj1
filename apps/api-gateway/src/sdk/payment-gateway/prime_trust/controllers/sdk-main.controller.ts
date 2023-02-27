@@ -24,12 +24,12 @@ import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
-@ApiTags('Prime Trust')
+@ApiTags('SDK/Prime Trust')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
-  path: 'prime_trust',
+  path: 'sdk/prime_trust',
 })
 export class SdkMainController {
   private readonly logger = new Logger(SdkMainController.name);

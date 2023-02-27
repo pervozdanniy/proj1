@@ -18,12 +18,12 @@ import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
 import { MakeContributionDto } from '../dtos/deposit/make-contribution.dto';
 import { ResourceDto } from '../dtos/deposit/resource.dto';
 
-@ApiTags('Prime Trust/Deposit Funds')
+@ApiTags('SDK/Prime Trust/Deposit Funds')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
-  path: 'deposit',
+  path: 'sdk/deposit',
 })
 export class SdkDepositController {
   constructor(private paymentGatewayService: SdkPaymentGatewayService) {}
