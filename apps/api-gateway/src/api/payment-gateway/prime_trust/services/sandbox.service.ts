@@ -305,19 +305,11 @@ export class SandboxService {
 
       cardResponse.data.included.map(async (inc: { type: string; id: string; attributes: { status: string } }) => {
         if (inc.type === 'asset-transfers' && inc.attributes.status === 'pending') {
-          try {
-            await lastValueFrom(
-              this.httpService.post(
-                `https://sandbox.primetrust.com/v2/asset-transfers/${inc.id}/sandbox/settle`,
-                null,
-                {
-                  headers: headersRequest,
-                },
-              ),
-            );
-          } catch (e) {
-            console.log(e);
-          }
+          await lastValueFrom(
+            this.httpService.post(`https://sandbox.primetrust.com/v2/asset-transfers/${inc.id}/sandbox/settle`, null, {
+              headers: headersRequest,
+            }),
+          );
         }
       });
 

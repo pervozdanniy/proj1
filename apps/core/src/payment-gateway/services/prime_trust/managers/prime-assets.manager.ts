@@ -14,8 +14,10 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountIdRequest, CreateReferenceRequest, WalletResponse } from '~common/grpc/interfaces/payment-gateway';
 import { createDate } from '~common/helpers';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { NotificationService } from '../../../../notification/services/notification.service';
 import { UserEntity } from '../../../../user/entities/user.entity';
 import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
+import { PrimeBalanceManager } from './prime-balance.manager';
 
 @Injectable()
 export class PrimeAssetsManager {
@@ -29,6 +31,10 @@ export class PrimeAssetsManager {
     private readonly httpService: PrimeTrustHttpService,
 
     private readonly axiosService: HttpService,
+
+    private readonly notificationService: NotificationService,
+
+    private readonly primeBalanceManager: PrimeBalanceManager,
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
 
@@ -142,6 +148,17 @@ export class PrimeAssetsManager {
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(assetPayload));
     }
+    await this.primeBalanceManager.updateAccountBalance(account_id);
+
+    const notificationPayload = {
+      user_id,
+      title: 'User Contributions',
+      type: 'contributions',
+      description: `Your contribution status for ${amount} USD ${assetResponse['status']}`,
+    };
+    this.notificationService.createAsync(notificationPayload);
+
+    return { success: true };
 
     return { success: true };
   }
