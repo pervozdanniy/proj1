@@ -13,7 +13,7 @@ export const sessionProxyFactory = <T extends Record<PropertyKey, unknown>>(
   const host = new SessionHost(store, id, data);
 
   return new Proxy(host, {
-    get(target, p) {
+    get(_target, p) {
       if (Reflect.has(host, p)) {
         const own = Reflect.get(host, p);
         if (typeof own === 'function') {
@@ -25,17 +25,17 @@ export const sessionProxyFactory = <T extends Record<PropertyKey, unknown>>(
 
       return host.get(p);
     },
-    set(target, p, value) {
+    set(_target, p, value) {
       host.set(p, value);
 
       return true;
     },
-    deleteProperty(target, p) {
+    deleteProperty(_target, p) {
       host.delete(p);
 
       return true;
     },
-    has(target, p) {
+    has(_target, p) {
       return host.has(p);
     },
   }) as SessionHost<T> & T;

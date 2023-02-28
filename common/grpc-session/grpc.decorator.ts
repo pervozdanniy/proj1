@@ -20,7 +20,7 @@ export const GrpcSession = createParamDecorator((prop: string | undefined, ctx: 
 
 export const GrpcSessionUser = () => GrpcSession('user');
 
-export const GrpcSessionId = createParamDecorator((prop: never, ctx: ExecutionContext) => {
+export const GrpcSessionId = createParamDecorator((_prop: never, ctx: ExecutionContext) => {
   const metadata = ctx.switchToRpc().getContext<Metadata>();
   const [sessionId] = metadata.get('sessionId');
 

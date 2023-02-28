@@ -37,7 +37,7 @@ export class GrpcException extends RpcException {
     const body: any = HttpException.createBody(exception.getResponse(), exception.message, exception.getStatus());
 
     return new GrpcException(
-      httpToGrpc[exception.getStatus()],
+      httpToGrpc[exception.getStatus() as HttpStatus],
       Array.isArray(body.message) ? body.message.join('; ') : body.message,
     );
   }

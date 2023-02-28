@@ -10,7 +10,7 @@ import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 @Injectable()
 export class UserCheckService {
   private readonly api_key: string;
-  constructor(private readonly httpService: HttpService, private config: ConfigService<ConfigInterface>) {
+  constructor(private readonly httpService: HttpService, config: ConfigService<ConfigInterface>) {
     const { api_key } = config.get('ipqualityscore');
     this.api_key = api_key;
   }

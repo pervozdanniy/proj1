@@ -95,6 +95,10 @@ export interface AccountResponse {
   status: string;
 }
 
+export interface PaymentMethodsResponse {
+  methods: string[];
+}
+
 export interface DocumentResponse {
   document_id: string;
 }
@@ -258,6 +262,8 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface PaymentGatewayServiceClient {
   getToken(request: Empty, ...rest: any): Observable<PG_Token>;
 
+  getAvailablePaymentMethods(request: UserIdRequest, ...rest: any): Observable<PaymentMethodsResponse>;
+
   createAccount(request: UserIdRequest, ...rest: any): Observable<AccountResponse>;
 
   getAccount(request: UserIdRequest, ...rest: any): Observable<AccountResponse>;
@@ -323,6 +329,11 @@ export interface PaymentGatewayServiceClient {
 
 export interface PaymentGatewayServiceController {
   getToken(request: Empty, ...rest: any): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
+
+  getAvailablePaymentMethods(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<PaymentMethodsResponse> | Observable<PaymentMethodsResponse> | PaymentMethodsResponse;
 
   createAccount(
     request: UserIdRequest,
@@ -469,6 +480,7 @@ export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "getToken",
+      "getAvailablePaymentMethods",
       "createAccount",
       "getAccount",
       "getContact",

@@ -14,7 +14,7 @@ export class UserContactService {
 
   async update(user: UserEntity, contacts?: { new?: string[]; removed?: string[] }) {
     let addSql: string | undefined;
-    const addParams = [];
+    const addParams: Array<string | number> = [];
     if (contacts.new?.length) {
       let cte = 'VALUES ';
       let index = 0;
