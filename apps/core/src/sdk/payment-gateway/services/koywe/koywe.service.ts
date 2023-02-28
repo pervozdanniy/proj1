@@ -7,9 +7,10 @@ import Redis from 'ioredis';
 import process from 'process';
 import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
-import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
+import { BanksInfoResponse, CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { UserService } from '../../../../user/services/user.service';
+import { Country } from './enum/country';
 
 @Injectable()
 export class KoyweService {
@@ -43,7 +44,11 @@ export class KoyweService {
     return { token: result.data.token };
   }
 
-  async createReference(depositParams: CreateReferenceRequest, wallet_address: string): Promise<JsonData> {
+  async createReference(
+    depositParams: CreateReferenceRequest,
+    wallet_address: string,
+    asset_transfer_method_id: string,
+  ): Promise<JsonData> {
     const { amount, currency_type, id } = depositParams;
     const userDetails = await this.userService.getUserInfo(id);
     await this.getToken(userDetails.email);
@@ -61,6 +66,7 @@ export class KoyweService {
     };
 
     if (process.env.NODE_ENV === 'dev') {
+      data['asset_transfer_method_id'] = asset_transfer_method_id;
       data['wallet_address'] = wallet_address;
     }
 
@@ -106,5 +112,22 @@ export class KoyweService {
     } catch (e) {
       throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
     }
+  }
+
+  async getBanksInfo(country: string, email: string): Promise<BanksInfoResponse> {
+    const token = await this.getToken(email);
+    const code = Country[country];
+
+    const headersRequest = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    const result = await lastValueFrom(
+      this.httpService.get(`${this.koywe_url}/bank-info/${code}`, { headers: headersRequest }),
+    );
+
+    return {
+      data: result.data,
+    };
   }
 }

@@ -6,6 +6,17 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
+export interface BanksInfoResponse {
+  data: BankInfo[];
+}
+
+export interface BankInfo {
+  bankCode: string;
+  name: string;
+  institutionName: string;
+  transferCode: string;
+}
+
 export interface CreateReferenceRequest {
   id: number;
   amount: string;
@@ -21,6 +32,7 @@ export interface SearchTransactionRequest {
 
 export interface WalletResponse {
   wallet_address: string;
+  asset_transfer_method_id: string;
 }
 
 export interface WithdrawalDataResponse {
@@ -278,11 +290,15 @@ export interface PaymentGatewayServiceClient {
 
   updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
+  getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
+
+  /** banks */
+
   getBankAccounts(request: UserIdRequest, ...rest: any): Observable<BankAccountsResponse>;
 
-  addBankAccountParams(request: BankAccountParams, ...rest: any): Observable<BankAccountParams>;
+  getBanksInfo(request: UserIdRequest, ...rest: any): Observable<BanksInfoResponse>;
 
-  getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
+  addBankAccountParams(request: BankAccountParams, ...rest: any): Observable<BankAccountParams>;
 
   /** deposit funds */
 
@@ -374,20 +390,27 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
+  getTransactions(
+    request: SearchTransactionRequest,
+    ...rest: any
+  ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
+
+  /** banks */
+
   getBankAccounts(
     request: UserIdRequest,
     ...rest: any
   ): Promise<BankAccountsResponse> | Observable<BankAccountsResponse> | BankAccountsResponse;
 
+  getBanksInfo(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<BanksInfoResponse> | Observable<BanksInfoResponse> | BanksInfoResponse;
+
   addBankAccountParams(
     request: BankAccountParams,
     ...rest: any
   ): Promise<BankAccountParams> | Observable<BankAccountParams> | BankAccountParams;
-
-  getTransactions(
-    request: SearchTransactionRequest,
-    ...rest: any
-  ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
 
   /** deposit funds */
 
@@ -479,9 +502,10 @@ export function PaymentGatewayServiceControllerMethods() {
       "cipCheck",
       "getBalance",
       "updateBalance",
-      "getBankAccounts",
-      "addBankAccountParams",
       "getTransactions",
+      "getBankAccounts",
+      "getBanksInfo",
+      "addBankAccountParams",
       "createReference",
       "addDepositParams",
       "getDepositById",

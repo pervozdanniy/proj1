@@ -17,9 +17,12 @@ service PaymentGatewayService {
   rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc GetBalance (UserIdRequest) returns (BalanceResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
-  rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
-  rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
+
+  //banks
+  rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
+  rpc GetBanksInfo (UserIdRequest) returns (BanksInfoResponse);
+  rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
 
   //deposit funds
   rpc CreateReference (CreateReferenceRequest) returns (JsonData);
@@ -45,6 +48,17 @@ service PaymentGatewayService {
 
 }
 
+message BanksInfoResponse{
+  repeated BankInfo data = 1;
+}
+
+message BankInfo {
+    string bankCode = 1;
+    string name = 2;
+    string institutionName = 3;
+    string transferCode = 4;
+}
+
 message CreateReferenceRequest {
   uint32 id = 1;
   string amount = 2;
@@ -60,7 +74,8 @@ message SearchTransactionRequest {
 }
 
 message WalletResponse {
-  string wallet_address = 3;
+  string wallet_address = 1;
+  string asset_transfer_method_id = 2;
 }
 
 

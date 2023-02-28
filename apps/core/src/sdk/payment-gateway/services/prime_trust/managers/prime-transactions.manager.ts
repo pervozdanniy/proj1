@@ -24,12 +24,6 @@ export class PrimeTransactionsManager {
 
     @InjectRepository(TransfersEntity)
     private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
-
-    @InjectRepository(WithdrawalEntity)
-    private readonly withdrawalEntityRepository: Repository<WithdrawalEntity>,
-
-    @InjectRepository(WithdrawalParamsEntity)
-    private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
   ) {}
 
   async getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {

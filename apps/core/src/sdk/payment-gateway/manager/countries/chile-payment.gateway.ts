@@ -22,9 +22,9 @@ export class ChilePaymentGateway implements PaymentGatewayInterface {
   }
 
   async createReference(request: CreateReferenceRequest): Promise<JsonData> {
-    const { wallet_address } = await this.primeTrustService.createWallet(request);
+    const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
 
-    return this.koyweService.createReference(request, wallet_address);
+    return this.koyweService.createReference(request, wallet_address, asset_transfer_method_id);
   }
   makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     return this.primeTrustService.makeWithdrawal(request);

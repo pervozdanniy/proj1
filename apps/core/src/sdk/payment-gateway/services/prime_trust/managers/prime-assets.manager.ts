@@ -14,6 +14,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { CreateReferenceRequest, WalletResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 
 @Injectable()
 export class PrimeAssetsManager {
@@ -35,6 +36,8 @@ export class PrimeAssetsManager {
     private readonly primeTrustContactEntityRepository: Repository<PrimeTrustContactEntity>,
     @InjectRepository(PrimeTrustBalanceEntity)
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
+    @InjectRepository(TransfersEntity)
+    private readonly transfersEntityRepository: Repository<TransfersEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     const { id, type } = config.get('asset');
@@ -60,7 +63,7 @@ export class PrimeAssetsManager {
       .getRawOne();
 
     const { account_id, contact_id } = prime_trust_params;
-    const walletPayload = await this.createAssetTransferMethod(account_id, contact_id, amount, currency_type);
+    const walletPayload = await this.createAssetTransferMethod(id, account_id, contact_id, amount, currency_type);
 
     return walletPayload;
   }
@@ -76,6 +79,7 @@ export class PrimeAssetsManager {
   }
 
   async createAssetTransferMethod(
+    id: number,
     account_id: string,
     contact_id: string,
     amount: string,
@@ -106,8 +110,20 @@ export class PrimeAssetsManager {
         data: formData,
       });
 
+      await this.transfersEntityRepository.save(
+        this.transfersEntityRepository.create({
+          user_id: id,
+          param_type: 'asset',
+          amount,
+          uuid: walletResponse.data.data.id,
+          currency_type,
+          status: 'pending',
+        }),
+      );
+
       return {
         wallet_address: walletResponse.data.data.attributes['wallet-address'],
+        asset_transfer_method_id: walletResponse.data.data.id,
       };
     } catch (e) {
       if (e instanceof PrimeTrustException) {

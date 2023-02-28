@@ -134,6 +134,12 @@ export class PaymentGatewayService {
     return this.primeTrustService.getBankAccounts(request.id);
   }
 
+  async getBanksInfo(request: UserIdRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+
+    return this.koyweService.getBanksInfo(userDetails.country.code, userDetails.email);
+  }
+
   async addBankAccountParams(request: BankAccountParams) {
     const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);

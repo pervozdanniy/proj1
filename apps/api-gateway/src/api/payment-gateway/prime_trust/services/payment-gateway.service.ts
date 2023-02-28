@@ -147,4 +147,8 @@ export class PaymentGatewayService implements OnModuleInit {
   getDepositParams(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getDepositParams(data));
   }
+
+  getBanksInfo(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getBanksInfo(data));
+  }
 }

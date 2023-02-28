@@ -93,6 +93,7 @@ export class MainController {
 
   @Post('/account/webhook')
   async webhook(@Body() payload: any) {
+    this.logger.log(payload);
     const {
       resource_type,
       action,
@@ -184,6 +185,18 @@ export class MainController {
   async getBankAccounts(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBankAccounts({ id });
   }
+
+  @ApiOperation({ summary: 'Get Bank Accounts.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: BankAccountResponseDTO,
+  })
+  @JwtSessionAuth()
+  @Get('/banks/latin_america')
+  async getBanksInfo(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getBanksInfo({ id });
+  }
+
   @ApiOperation({ summary: 'Add Bank Account params.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
