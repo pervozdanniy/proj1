@@ -11,7 +11,6 @@ import { ConfigInterface } from '~common/config/configuration';
 import { BanksInfoResponse, CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { ReferenceData } from '../../types/koywe';
-import { Country } from './enum/country';
 
 @Injectable()
 export class KoyweService {
@@ -50,9 +49,22 @@ export class KoyweService {
     wallet_address: string,
     asset_transfer_method_id: string,
   ): Promise<JsonData> {
-    const { amount, currency_type, id } = depositParams;
+    const { amount: beforeConvertAmount, id } = depositParams;
     const userDetails = await this.userService.getUserInfo(id);
     await this.getToken(userDetails.email);
+    const countryInfo = await lastValueFrom(
+      this.httpService.get(`https://restcountries.com/v3.1/alpha/${userDetails.country.code}`),
+    );
+    const currencies = countryInfo.data[0].currencies;
+    const currencyKeys = Object.keys(currencies);
+    const currency_type = currencyKeys[0];
+
+    const convertData = await lastValueFrom(
+      this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${currency_type}`),
+    );
+    const convertedAmount = parseFloat(beforeConvertAmount) * parseFloat(convertData.data[currency_type]);
+
+    const amount = String(convertedAmount.toFixed(2));
 
     const { quoteId } = await this.createQuote(amount, currency_type);
     const order = await this.createOrder(quoteId, userDetails.email, wallet_address);
@@ -64,6 +76,8 @@ export class KoyweService {
       tax_id: parts[2],
       bank: parts[3],
       email: parts[4],
+      amount,
+      currency_type,
     };
 
     if (process.env.NODE_ENV === 'dev') {
@@ -116,8 +130,15 @@ export class KoyweService {
   }
 
   async getBanksInfo(country: string, email: string): Promise<BanksInfoResponse> {
+    if (country === 'US') {
+      return {
+        data: [],
+      };
+    }
     const token = await this.getToken(email);
-    const code = Country[country as keyof typeof Country];
+    const codeResponse = await lastValueFrom(this.httpService.get(`https://restcountries.com/v3.1/alpha/${country}`));
+
+    const code = codeResponse.data[0].cca3;
 
     const headersRequest = {
       Authorization: `Bearer ${token}`,

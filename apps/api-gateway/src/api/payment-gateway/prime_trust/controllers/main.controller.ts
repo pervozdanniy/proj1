@@ -192,13 +192,13 @@ export class MainController {
     return this.paymentGatewayService.getBankAccounts({ id });
   }
 
-  @ApiOperation({ summary: 'Get Banks information from Latin America.' })
+  @ApiOperation({ summary: 'Get Banks information from user country.' })
   @ApiResponse({
     status: HttpStatus.OK,
     type: BankAccountResponseDTO,
   })
   @JwtSessionAuth()
-  @Get('/banks/latin_america')
+  @Get('available/banks')
   async getBanksInfo(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBanksInfo({ id });
   }

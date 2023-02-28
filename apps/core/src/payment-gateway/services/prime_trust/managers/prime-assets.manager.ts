@@ -50,13 +50,8 @@ export class PrimeAssetsManager {
   }
 
   async createWallet(depositParams: CreateReferenceRequest): Promise<WalletResponse> {
-    let { amount, currency_type } = depositParams;
-    const { id } = depositParams;
+    const { id, currency_type, amount } = depositParams;
 
-    if (currency_type === 'CLP') {
-      amount = (parseFloat(amount) * 0.0012).toString();
-      currency_type = 'USD';
-    }
     const prime_trust_params = await this.primeAccountRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect(PrimeTrustContactEntity, 'c', 'a.user_id = c.user_id')
