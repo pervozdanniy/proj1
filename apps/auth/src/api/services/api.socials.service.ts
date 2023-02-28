@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { UserStatusEnum } from '~common/constants/user';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { SocialsAuthRequest } from '~common/grpc/interfaces/auth';
-import { UserServiceClient } from '~common/grpc/interfaces/core';
+import { CreateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
 import { SessionProxy } from '~common/session';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { AuthApiService } from './api.service';
@@ -21,7 +21,7 @@ export class ApiSocialsService implements OnModuleInit {
 
   async loginSocials(request: SocialsAuthRequest, session: SessionProxy) {
     const { email, username, source } = request;
-    const payload = {
+    const payload: CreateRequest = {
       email,
       username,
       source,

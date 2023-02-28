@@ -10,7 +10,7 @@ import dbConfig from './db/db.config';
 import migrations from './db/migrations-list';
 import { HealthModule } from './health/health.module';
 import { NotificationModule } from './notification/notification.module';
-import { CoreSdkModule } from './sdk/core-sdk.module';
+import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -47,7 +47,7 @@ import { UserModule } from './user/user.module';
     AwsModule,
     CountryModule,
     NotificationModule,
-    CoreSdkModule,
+    PaymentGatewayModule,
     HealthModule,
   ],
 })

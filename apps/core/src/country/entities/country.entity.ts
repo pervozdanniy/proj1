@@ -1,4 +1,4 @@
-import { PaymentGatewayEntity } from '@/sdk/payment-gateway/entities/payment-gateway.entity';
+import { PaymentGatewayEntity } from '@/payment-gateway/entities/payment-gateway.entity';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 

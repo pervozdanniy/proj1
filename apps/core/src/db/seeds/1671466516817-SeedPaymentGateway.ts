@@ -1,5 +1,5 @@
 import { CountryEntity } from '@/country/entities/country.entity';
-import { PaymentGatewayEntity } from '@/sdk/payment-gateway/entities/payment-gateway.entity';
+import { PaymentGatewayEntity } from '@/payment-gateway/entities/payment-gateway.entity';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class SeedPaymentGateway1671466516817 implements MigrationInterface {

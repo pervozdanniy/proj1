@@ -28,7 +28,7 @@ export class AwsSqsProducerService {
     return this.sqsClient.send(command);
   }
 
-  sendMessage(QueueUrl: string, MessageBody): Promise<SendMessageCommandOutput> {
+  sendMessage(QueueUrl: string, MessageBody: string): Promise<SendMessageCommandOutput> {
     const command = new SendMessageCommand({
       MessageBody,
       QueueUrl,

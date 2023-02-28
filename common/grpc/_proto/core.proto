@@ -38,8 +38,9 @@ message UpdateRequest {
   optional uint32 country_id = 3;
   optional string phone = 4;
   optional string password = 5;
-  optional common.UserDetails details = 6;
-  optional UserContacts contacts = 7;
+  optional string status = 6;
+  optional common.UserDetails details = 7;
+  optional UserContacts contacts = 8;
 }
 
 message CreateRequest {
@@ -49,8 +50,9 @@ message CreateRequest {
   optional string phone = 4;
   optional uint32 country_id = 5;
   optional string source = 6;
-  optional common.UserDetails details = 7;
-  repeated string contacts = 8;
+  optional string status = 7;
+  optional common.UserDetails details = 8;
+  repeated string contacts = 9;
 }
 
 message FindByLoginRequest {

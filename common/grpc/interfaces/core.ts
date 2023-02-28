@@ -20,6 +20,7 @@ export interface UpdateRequest {
   country_id?: number | undefined;
   phone?: string | undefined;
   password?: string | undefined;
+  status?: string | undefined;
   details?: UserDetails | undefined;
   contacts?: UserContacts | undefined;
 }
@@ -31,6 +32,7 @@ export interface CreateRequest {
   phone?: string | undefined;
   country_id?: number | undefined;
   source?: string | undefined;
+  status?: string | undefined;
   details?: UserDetails | undefined;
   contacts: string[];
 }
