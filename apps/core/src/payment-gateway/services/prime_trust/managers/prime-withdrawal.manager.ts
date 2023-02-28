@@ -15,6 +15,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
 import {
+  AccountIdRequest,
   JsonData,
   TransferMethodRequest,
   UserIdRequest,
@@ -25,6 +26,7 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
+import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 
 @Injectable()
@@ -40,6 +42,8 @@ export class PrimeWithdrawalManager {
     private readonly primeBankAccountManager: PrimeBankAccountManager,
 
     private readonly primeFundsTransferManager: PrimeFundsTransferManager,
+
+    private readonly primeBalanceManager: PrimeBalanceManager,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -201,12 +205,13 @@ export class PrimeWithdrawalManager {
     }
   }
 
-  async updateWithdraw(id: string) {
+  async updateWithdraw(request: AccountIdRequest) {
+    const { resource_id, id: account_id } = request;
     const withdrawData = await this.withdrawalEntityRepository
       .createQueryBuilder('w')
       .leftJoinAndSelect(UserEntity, 'u', 'w.user_id = u.id')
       .select(['u.id as user_id'])
-      .where('w.uuid = :id', { id })
+      .where('w.uuid = :id', { resource_id })
       .andWhere('w.type = :type', { type: 'withdrawal' })
       .getRawOne();
     if (!withdrawData) {
@@ -215,14 +220,17 @@ export class PrimeWithdrawalManager {
 
     const { user_id } = withdrawData;
 
-    const withdrawResponse = await this.getWithdrawInfo(id);
+    const withdrawResponse = await this.getWithdrawInfo(resource_id);
 
     await this.withdrawalEntityRepository.update(
-      { uuid: id },
+      { uuid: resource_id },
       {
         status: withdrawResponse['status'],
       },
     );
+
+    await this.primeBalanceManager.updateAccountBalance(account_id);
+
     const notificationPayload = {
       user_id,
       title: 'User Disbursements',

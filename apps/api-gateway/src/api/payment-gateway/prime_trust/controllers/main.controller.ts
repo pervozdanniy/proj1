@@ -122,14 +122,20 @@ export class MainController {
       if (allParamsExist) {
         return this.paymentGatewayService.updateContribution(sendData);
       }
-
-      return this.paymentGatewayService.updateContribution(sendData);
     }
     if (resource_type === 'funds_transfers' && action === 'update') {
       return this.paymentGatewayService.updateBalance(sendData);
     }
     if (resource_type === 'disbursements' && action === 'update') {
       return this.paymentGatewayService.updateWithdraw(sendData);
+    }
+    if (resource_type === 'asset_transfers' && action === 'update') {
+      const paramsToCheck = ['status', 'unit-count', 'from-wallet-address'];
+
+      const allParamsExist = paramsToCheck.every((param) => changes.includes(param));
+      if (allParamsExist) {
+        return this.paymentGatewayService.updateAssetDeposit(sendData);
+      }
     }
 
     const match = webhookData.find((e) => e === resource_type);
@@ -186,7 +192,7 @@ export class MainController {
     return this.paymentGatewayService.getBankAccounts({ id });
   }
 
-  @ApiOperation({ summary: 'Get Bank Accounts.' })
+  @ApiOperation({ summary: 'Get Banks information from Latin America.' })
   @ApiResponse({
     status: HttpStatus.OK,
     type: BankAccountResponseDTO,

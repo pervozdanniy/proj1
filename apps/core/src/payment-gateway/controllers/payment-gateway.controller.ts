@@ -42,6 +42,9 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  updateAssetDeposit(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.webhooksService.updateAssetDeposit(request);
+  }
   constructor(
     private paymentGatewayService: PaymentGatewayService,
     private webhooksService: PaymentGatewayWebhooksService,

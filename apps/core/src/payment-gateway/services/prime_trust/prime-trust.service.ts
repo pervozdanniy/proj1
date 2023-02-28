@@ -91,8 +91,8 @@ export class PrimeTrustService {
     return this.primeWithdrawalManager.makeWithdrawal(request);
   }
 
-  updateWithdraw(resource_id: string) {
-    return this.primeWithdrawalManager.updateWithdraw(resource_id);
+  updateWithdraw(request: AccountIdRequest) {
+    return this.primeWithdrawalManager.updateWithdraw(request);
   }
 
   updateContribution(request: AccountIdRequest) {
@@ -160,5 +160,9 @@ export class PrimeTrustService {
 
   createWallet(depositParams: CreateReferenceRequest) {
     return this.primeAssetsManager.createWallet(depositParams);
+  }
+
+  updateAssetDeposit(request: AccountIdRequest) {
+    return this.primeAssetsManager.updateAssetDeposit(request);
   }
 }

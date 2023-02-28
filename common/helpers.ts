@@ -20,3 +20,13 @@ export const createBullQueue = (name: string, type: NotificationType): BullModul
   },
   inject: [ConfigService],
 });
+
+export const createDate = () => {
+  const date = new Date();
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  const formattedDate = `${day}-${month}-${year}`;
+
+  return formattedDate;
+};

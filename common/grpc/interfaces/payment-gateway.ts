@@ -282,19 +282,11 @@ export interface PaymentGatewayServiceClient {
 
   getContact(request: UserIdRequest, ...rest: any): Observable<ContactResponse>;
 
-  updateAccount(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
   createContact(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   uploadDocument(request: UploadDocumentRequest, ...rest: any): Observable<DocumentResponse>;
 
-  documentCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  cipCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
   getBalance(request: UserIdRequest, ...rest: any): Observable<BalanceResponse>;
-
-  updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
 
@@ -320,8 +312,6 @@ export interface PaymentGatewayServiceClient {
 
   verifyCreditCard(request: VerifyCreditCardRequest, ...rest: any): Observable<SuccessResponse>;
 
-  updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
   makeContribution(request: MakeContributionRequest, ...rest: any): Observable<ContributionResponse>;
 
   getCreditCards(request: UserIdRequest, ...rest: any): Observable<CreditCardsResponse>;
@@ -340,7 +330,21 @@ export interface PaymentGatewayServiceClient {
 
   makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<JsonData>;
 
+  /** webhooks */
+
+  documentCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  cipCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  updateAccount(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
   updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  updateAssetDeposit(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -366,11 +370,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<ContactResponse> | Observable<ContactResponse> | ContactResponse;
 
-  updateAccount(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
   createContact(
     request: UserIdRequest,
     ...rest: any
@@ -381,25 +380,10 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<DocumentResponse> | Observable<DocumentResponse> | DocumentResponse;
 
-  documentCheck(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  cipCheck(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
   getBalance(
     request: UserIdRequest,
     ...rest: any
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
-
-  updateBalance(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   getTransactions(
     request: SearchTransactionRequest,
@@ -452,11 +436,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  updateContribution(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
   makeContribution(
     request: MakeContributionRequest,
     ...rest: any
@@ -493,7 +472,39 @@ export interface PaymentGatewayServiceController {
 
   makeWithdrawal(request: TransferMethodRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
 
+  /** webhooks */
+
+  documentCheck(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  cipCheck(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  updateAccount(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  updateBalance(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  updateContribution(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
   updateWithdraw(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  updateAssetDeposit(
     request: AccountIdRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
@@ -507,13 +518,9 @@ export function PaymentGatewayServiceControllerMethods() {
       "createAccount",
       "getAccount",
       "getContact",
-      "updateAccount",
       "createContact",
       "uploadDocument",
-      "documentCheck",
-      "cipCheck",
       "getBalance",
-      "updateBalance",
       "getTransactions",
       "getBankAccounts",
       "getBanksInfo",
@@ -524,7 +531,6 @@ export function PaymentGatewayServiceControllerMethods() {
       "getDepositParams",
       "createCreditCardResource",
       "verifyCreditCard",
-      "updateContribution",
       "makeContribution",
       "getCreditCards",
       "transferFunds",
@@ -532,7 +538,13 @@ export function PaymentGatewayServiceControllerMethods() {
       "getWithdrawalParams",
       "addWithdrawalParams",
       "makeWithdrawal",
+      "documentCheck",
+      "cipCheck",
+      "updateAccount",
+      "updateBalance",
+      "updateContribution",
       "updateWithdraw",
+      "updateAssetDeposit",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

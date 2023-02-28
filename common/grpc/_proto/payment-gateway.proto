@@ -11,13 +11,10 @@ service PaymentGatewayService {
   rpc CreateAccount (UserIdRequest) returns (AccountResponse);
   rpc GetAccount (UserIdRequest) returns (AccountResponse);
   rpc GetContact (UserIdRequest) returns (ContactResponse);
-  rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
-  rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
-  rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc GetBalance (UserIdRequest) returns (BalanceResponse);
-  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
+
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
   //banks
@@ -32,7 +29,6 @@ service PaymentGatewayService {
   rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
   rpc CreateCreditCardResource (UserIdRequest) returns (CreditCardResourceResponse);
   rpc VerifyCreditCard (VerifyCreditCardRequest) returns (common.SuccessResponse);
-  rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
   rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
   rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
 
@@ -45,8 +41,17 @@ service PaymentGatewayService {
   rpc GetWithdrawalParams (UserIdRequest) returns (WithdrawalsDataResponse);
   rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalResponse);
   rpc MakeWithdrawal (TransferMethodRequest) returns (JsonData);
-  rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
 
+
+
+  //webhooks
+  rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
+  rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
+  rpc updateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
 }
 
 message BanksInfoResponse{

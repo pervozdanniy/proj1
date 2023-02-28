@@ -189,7 +189,7 @@ export class PrimeDepositManager {
     }
   }
 
-  async updateContribution(request: AccountIdRequest) {
+  async updateContribution(request: AccountIdRequest): Promise<SuccessResponse> {
     const { resource_id, id: account_id } = request;
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
@@ -226,6 +226,8 @@ export class PrimeDepositManager {
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
     }
+
+    await this.primeBalanceManager.updateAccountBalance(account_id);
 
     const notificationPayload = {
       user_id,
