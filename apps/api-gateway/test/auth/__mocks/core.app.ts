@@ -10,7 +10,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
 import { CountryService } from '~svc/core/src/country/services/country.service';
 import { PaymentGatewayController } from '~svc/core/src/payment-gateway/controllers/payment-gateway.controller';
-import { UserController } from '~svc/core/src/user/controllers/user.controller';
+import { UserFacadeController } from '~svc/core/src/user-facade/user-facade.controller';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 import { UserContactService } from '~svc/core/src/user/services/user-contact.service';
@@ -67,7 +67,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
         useFactory: countryRepoMockFactory,
       },
     ],
-    controllers: [UserController, PaymentGatewayController],
+    controllers: [UserFacadeController, PaymentGatewayController],
   }).compile();
 
   return moduleFixture.createNestMicroservice({

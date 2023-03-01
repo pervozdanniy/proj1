@@ -58,12 +58,12 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.getToken();
   }
 
-  createAccount(request: UserIdRequest): Promise<AccountResponse> {
-    return this.paymentGatewayService.createAccount(request);
+  createAccount({ id }: UserIdRequest): Promise<AccountResponse> {
+    return this.paymentGatewayService.createAccount(id);
   }
 
-  createContact(request: UserIdRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.createContact(request);
+  createContact({ id }: UserIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.createContact(id);
   }
 
   uploadDocument(request: UploadDocumentRequest): Promise<DocumentResponse> {
@@ -89,8 +89,8 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.webhooksService.updateBalance(request);
   }
 
-  getBalance(request: UserIdRequest): Promise<BalanceResponse> {
-    return this.paymentGatewayService.getBalance(request);
+  getBalance({ id }: UserIdRequest): Promise<BalanceResponse> {
+    return this.paymentGatewayService.getBalance(id);
   }
 
   makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
@@ -109,16 +109,16 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.addWithdrawalParams(request);
   }
 
-  getWithdrawalParams(request: UserIdRequest): Promise<WithdrawalsDataResponse> {
-    return this.paymentGatewayService.getWithdrawalParams(request);
+  getWithdrawalParams({ id }: UserIdRequest): Promise<WithdrawalsDataResponse> {
+    return this.paymentGatewayService.getWithdrawalParams(id);
   }
 
   verifyCreditCard(request: VerifyCreditCardRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.verifyCreditCard(request);
   }
 
-  getCreditCards(request: UserIdRequest): Promise<CreditCardsResponse> {
-    return this.paymentGatewayService.getCreditCards(request);
+  getCreditCards({ id }: UserIdRequest): Promise<CreditCardsResponse> {
+    return this.paymentGatewayService.getCreditCards(id);
   }
 
   transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
@@ -154,15 +154,15 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {
     return this.paymentGatewayService.getTransactions(request);
   }
-  getAccount(request: UserIdRequest): Promise<AccountResponse> {
-    return this.paymentGatewayService.getAccount(request);
+  getAccount({ id }: UserIdRequest): Promise<AccountResponse> {
+    return this.paymentGatewayService.getAccount(id);
   }
 
-  getContact(request: UserIdRequest): Promise<ContactResponse> {
-    return this.paymentGatewayService.getContact(request);
+  getContact({ id }: UserIdRequest): Promise<ContactResponse> {
+    return this.paymentGatewayService.getContact(id);
   }
-  createCreditCardResource(request: UserIdRequest): Promise<CreditCardResourceResponse> {
-    return this.paymentGatewayService.createCreditCardResource(request);
+  createCreditCardResource({ id }: UserIdRequest): Promise<CreditCardResourceResponse> {
+    return this.paymentGatewayService.createCreditCardResource(id);
   }
 
   getDepositParams(request: UserIdRequest): Promise<DepositParamsResponse> {

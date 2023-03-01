@@ -33,7 +33,6 @@ import { SendDocumentDto } from '../dtos/main/send-document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Prime Trust')
-@ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
@@ -48,6 +47,7 @@ export class MainController {
     status: HttpStatus.OK,
   })
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Post('/token')
   async getToken() {
@@ -63,6 +63,7 @@ export class MainController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Post('/account')
   async createAccount(@JwtSessionUser() { id }: User) {
@@ -74,6 +75,7 @@ export class MainController {
     status: HttpStatus.CREATED,
     type: AccountResponseDTO,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('/account')
   async getAccount(@JwtSessionUser() { id }: User) {
@@ -85,6 +87,7 @@ export class MainController {
     status: HttpStatus.CREATED,
     type: ContactResponseDTO,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('/contact')
   async getContact(@JwtSessionUser() { id }: User) {
@@ -162,9 +165,14 @@ export class MainController {
     description: 'The file successfully uploaded.',
     type: DocumentResponseDTO,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @UseInterceptors(FileInterceptor('file'))
-  async uploadDocument(@JwtSessionUser() { id }: User, @UploadedFile() file: any, @Body() payload: SendDocumentDto) {
+  async uploadDocument(
+    @JwtSessionUser() { id }: User,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() payload: SendDocumentDto,
+  ) {
     const { label } = payload;
 
     return this.paymentGatewayService.uploadDocument({ file, label, userId: { id } });
@@ -175,6 +183,7 @@ export class MainController {
     status: HttpStatus.CREATED,
     type: BalanceResponseDTO,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('/balance')
   async getBalance(@JwtSessionUser() { id }: User) {
@@ -186,6 +195,7 @@ export class MainController {
     status: HttpStatus.OK,
     type: BankAccountResponseDTO,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('/bank/account')
   async getBankAccounts(@JwtSessionUser() { id }: User) {
@@ -208,6 +218,7 @@ export class MainController {
     status: HttpStatus.CREATED,
     type: BankAccountParamsDTO,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Post('/bank/account')
   async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
@@ -219,6 +230,7 @@ export class MainController {
     status: HttpStatus.CREATED,
     type: TransferFundsResponseDTO,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('/transactions')
   async getTransactions(@JwtSessionUser() { id }: User, @Query() query: GetTransfersDto) {

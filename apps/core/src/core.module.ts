@@ -11,6 +11,7 @@ import migrations from './db/migrations-list';
 import { HealthModule } from './health/health.module';
 import { NotificationModule } from './notification/notification.module';
 import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
+import { UserFacadeModule } from './user-facade/user-facade.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -49,6 +50,7 @@ import { UserModule } from './user/user.module';
     NotificationModule,
     PaymentGatewayModule,
     HealthModule,
+    UserFacadeModule,
   ],
 })
 export class CoreModule {}
