@@ -154,8 +154,6 @@ export class PrimeAssetsManager {
     this.notificationService.createAsync(notificationPayload);
 
     return { success: true };
-
-    return { success: true };
   }
 
   async getAssetResponse(resource_id: string) {
