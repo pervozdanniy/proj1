@@ -82,6 +82,6 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     ChilePaymentGateway,
   ],
   controllers: [PaymentGatewayController],
-  exports: [PaymentGatewayManager],
+  exports: [PaymentGatewayService],
 })
 export class PaymentGatewayModule {}

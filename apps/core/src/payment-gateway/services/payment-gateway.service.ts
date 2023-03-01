@@ -43,15 +43,14 @@ export class PaymentGatewayService {
     return { methods: await paymentGateway.getAvailablePaymentMethods() };
   }
 
-  async createAccount(payload: UserIdRequest): Promise<AccountResponse> {
-    const { id } = payload;
+  async createAccount(id: number): Promise<AccountResponse> {
     const userDetails = await this.userService.getUserInfo(id);
 
     return this.primeTrustService.createAccount(userDetails);
   }
 
-  async createContact(payload: UserIdRequest): Promise<SuccessResponse> {
-    const userDetails = await this.userService.getUserInfo(payload.id);
+  async createContact(id: number): Promise<SuccessResponse> {
+    const userDetails = await this.userService.getUserInfo(id);
 
     return this.primeTrustService.createContact(userDetails);
   }
@@ -67,16 +66,16 @@ export class PaymentGatewayService {
     return this.primeTrustService.uploadDocument(userDetails, file, label);
   }
 
-  async getBalance(request: UserIdRequest) {
-    return this.primeTrustService.getBalance(request.id);
+  async getBalance(id: number) {
+    return this.primeTrustService.getBalance(id);
   }
 
-  async getWithdrawalParams(request: UserIdRequest) {
-    return this.primeTrustService.getWithdrawalParams(request.id);
+  async getWithdrawalParams(id: number) {
+    return this.primeTrustService.getWithdrawalParams(id);
   }
 
-  async createCreditCardResource(request: UserIdRequest) {
-    return this.primeTrustService.createCreditCardResource(request.id);
+  async createCreditCardResource(id: number) {
+    return this.primeTrustService.createCreditCardResource(id);
   }
 
   async verifyCreditCard(request: VerifyCreditCardRequest) {
@@ -85,20 +84,20 @@ export class PaymentGatewayService {
     return this.primeTrustService.verifyCreditCard(resource_id);
   }
 
-  async getCreditCards(request: UserIdRequest) {
-    return this.primeTrustService.getCreditCards(request.id);
+  async getCreditCards(id: number) {
+    return this.primeTrustService.getCreditCards(id);
   }
 
   async transferFunds(request: TransferFundsRequest) {
     return this.primeTrustService.transferFunds(request);
   }
 
-  async getAccount(request: UserIdRequest) {
-    return this.primeTrustService.getAccount(request.id);
+  async getAccount(id: number) {
+    return this.primeTrustService.getAccount(id);
   }
 
-  async getContact(request: UserIdRequest) {
-    return this.primeTrustService.getContact(request.id);
+  async getContact(id: number) {
+    return this.primeTrustService.getContact(id);
   }
 
   async getDepositById(request: UserIdRequest) {

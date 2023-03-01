@@ -1,28 +1,24 @@
-import { Logger, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { SuccessResponse, User } from '~common/grpc/interfaces/common';
-import {
-  CheckIfUniqueRequest,
-  NullableUser,
-  UserServiceController,
-  UserServiceControllerMethods,
-} from '~common/grpc/interfaces/core';
-import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { FindRequestDto } from '../dto/find.request.dto';
-import { IdRequestDto } from '../dto/id-request.dto';
-import { CreateRequestDto, UpdateContactsRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
-import { UserResponseDto } from '../dto/user-response.dto';
-import { UserContactService } from '../services/user-contact.service';
-import { UserService } from '../services/user.service';
+import { CheckIfUniqueRequest, NullableUser } from '~common/grpc/interfaces/core';
+import { PaymentGatewayService } from '../payment-gateway/services/payment-gateway.service';
+import { FindRequestDto } from '../user/dto/find.request.dto';
+import { CreateRequestDto, UpdateContactsRequestDto, UpdateRequestDto } from '../user/dto/user-request.dto';
+import { UserResponseDto } from '../user/dto/user-response.dto';
+import { UserContactService } from '../user/services/user-contact.service';
+import { UserService } from '../user/services/user.service';
 
-@RpcController()
-@UserServiceControllerMethods()
-export class UserController implements UserServiceController {
-  private readonly logger = new Logger(UserController.name);
+@Injectable()
+export class UserFacadeService {
+  private readonly logger = new Logger(UserFacadeService.name);
 
-  constructor(private readonly userService: UserService, private readonly contactService: UserContactService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly contactService: UserContactService,
+    private readonly payment: PaymentGatewayService,
+  ) {}
 
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async updateContacts(payload: UpdateContactsRequestDto): Promise<User> {
     const user = await this.userService.get(payload.user_id);
     await this.contactService.update(user, payload.contacts);
@@ -32,17 +28,17 @@ export class UserController implements UserServiceController {
     return plainToInstance(UserResponseDto, updated);
   }
 
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async create({ contacts, ...payload }: CreateRequestDto): Promise<User> {
     const user = await this.userService.create(payload);
     this.contactService
       .update(user, { new: contacts })
       .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
 
+    await this.payment.createAccount(user.id);
+
     return plainToInstance(UserResponseDto, user);
   }
 
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async findByLogin(payload: FindRequestDto): Promise<NullableUser> {
     const user = await this.userService.findByLogin(payload);
     if (user) {
@@ -52,15 +48,13 @@ export class UserController implements UserServiceController {
     return {};
   }
 
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async getById({ id }: IdRequestDto): Promise<User> {
+  async getById(id: number): Promise<User> {
     const user = await this.userService.get(id);
 
     return plainToInstance(UserResponseDto, user);
   }
 
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async delete({ id }: IdRequestDto) {
+  async delete(id: number) {
     const success = await this.userService.delete(id);
     this.contactService
       .detach(id)
@@ -69,7 +63,6 @@ export class UserController implements UserServiceController {
     return { success };
   }
 
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async update({ contacts, ...payload }: UpdateRequestDto): Promise<User> {
     const user = await this.userService.update(payload);
     if (contacts) {

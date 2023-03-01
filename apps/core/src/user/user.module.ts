@@ -7,7 +7,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from '~common/config/configuration';
-import { UserController } from './controllers/user.controller';
 import { UserContactEntity } from './entities/user-contact.entity';
 import { UserDetailsEntity } from './entities/user-details.entity';
 import { UserEntity } from './entities/user.entity';
@@ -23,7 +22,6 @@ import { UserService } from './services/user.service';
   ],
   providers: [UserService, UserContactService, UserCheckService],
 
-  controllers: [UserController],
-  exports: [UserService],
+  exports: [UserService, UserContactService],
 })
 export class UserModule {}
