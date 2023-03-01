@@ -18,7 +18,6 @@ import {
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
-import { KoyweService } from './koywe/koywe.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
 @Injectable()
@@ -29,7 +28,6 @@ export class PaymentGatewayService {
     private paymentGatewayManager: PaymentGatewayManager,
 
     private primeTrustService: PrimeTrustService,
-    private koyweService: KoyweService,
   ) {}
 
   async getToken(): Promise<PG_Token> {
@@ -42,7 +40,7 @@ export class PaymentGatewayService {
     const userDetails = await this.userService.getUserInfo(id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
 
-    return { methods: await paymentGateway.getAvailablePaymentMethods() };
+    return { methods: paymentGateway.getAvailablePaymentMethods() };
   }
 
   async createAccount(id: number): Promise<AccountResponse> {
@@ -126,17 +124,23 @@ export class PaymentGatewayService {
   }
 
   async addWithdrawalParams(request: WithdrawalParams) {
-    return this.primeTrustService.addWithdrawalParams(request);
+    const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+
+    return paymentGateway.setWithdrawalParams(request);
   }
 
   async getBankAccounts(request: UserIdRequest) {
-    return this.primeTrustService.getBankAccounts(request.id);
+    const userDetails = await this.userService.getUserInfo(request.id);
+
+    return this.primeTrustService.getBankAccounts(request.id, userDetails.country.code);
   }
 
   async getBanksInfo(request: UserIdRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
+    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
 
-    return this.koyweService.getBanksInfo(userDetails.country.code, userDetails.email);
+    return paymentGateway.getAvailableBanks(userDetails.country.code);
   }
 
   async addBankAccountParams(request: BankAccountParams) {
@@ -145,7 +149,7 @@ export class PaymentGatewayService {
     request.country = userDetails.country.code;
     request.email = userDetails.email;
 
-    return paymentGateway.addBankAccountParams(request);
+    return paymentGateway.addBank(request);
   }
 
   async createReference(request: CreateReferenceRequest) {

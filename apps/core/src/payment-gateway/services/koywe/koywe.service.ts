@@ -14,8 +14,8 @@ export class KoyweService {
     return this.koyweDepositManager.createReference(request, wallet_address, asset_transfer_method_id);
   }
 
-  getBanksInfo(code: string, email: string) {
-    return this.koyweBankAccountManager.getBanksInfo(code, email);
+  getBanksInfo(code: string) {
+    return this.koyweBankAccountManager.getBanksInfo(code);
   }
 
   addBankAccountParams(request: BankAccountParams) {

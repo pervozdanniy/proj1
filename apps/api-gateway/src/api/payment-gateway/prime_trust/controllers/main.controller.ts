@@ -207,6 +207,7 @@ export class MainController {
     status: HttpStatus.OK,
     type: BankAccountResponseDTO,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('available/banks')
   async getBanksInfo(@JwtSessionUser() { id }: User) {

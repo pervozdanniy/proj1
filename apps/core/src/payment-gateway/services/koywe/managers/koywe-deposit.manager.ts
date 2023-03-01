@@ -97,7 +97,7 @@ export class KoyweDepositManager {
         destinationAddress: wallet_address,
         quoteId,
         email,
-        metadata: 'in esse',
+        metadata: 'Deposit funds',
       };
       const headersRequest = {
         Authorization: `Bearer ${token}`,

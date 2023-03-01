@@ -123,8 +123,8 @@ export class PrimeTrustService {
     return this.primeBankAccountManager.addBankAccountParams(request);
   }
 
-  getBankAccounts(id: number) {
-    return this.primeBankAccountManager.getBankAccounts(id);
+  getBankAccounts(id: number, country: string) {
+    return this.primeBankAccountManager.getBankAccounts(id, country);
   }
 
   makeContribution(request: MakeContributionRequest) {
@@ -164,5 +164,9 @@ export class PrimeTrustService {
 
   updateAssetDeposit(request: AccountIdRequest) {
     return this.primeAssetsManager.updateAssetDeposit(request);
+  }
+
+  getBanksInfo(country: string) {
+    return this.primeBankAccountManager.getBanksInfo(country);
   }
 }

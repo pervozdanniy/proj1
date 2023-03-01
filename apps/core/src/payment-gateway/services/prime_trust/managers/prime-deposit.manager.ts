@@ -444,7 +444,7 @@ export class PrimeDepositManager {
 
   async addDepositParams(request: DepositParamRequest): Promise<DepositResponse> {
     const { id, bank_account_id, funds_transfer_type } = request;
-    await this.checkBankExists(id, bank_account_id);
+    await this.checkBankExists(bank_account_id);
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
     const transferMethod = await this.depositParamsEntityRepository.findOneBy({
       user_id: id,
@@ -469,10 +469,9 @@ export class PrimeDepositManager {
     return { transfer_method_id: transferMethodId };
   }
 
-  async checkBankExists(user_id: number, bank_id: number) {
-    const banks = await this.primeBankAccountManager.getBankAccounts(user_id);
-    const data = banks.data.filter((b) => b.id === bank_id);
-    if (data.length === 0) {
+  async checkBankExists(bank_id: number) {
+    const bank = await this.primeBankAccountManager.getBankAccountById(bank_id);
+    if (bank) {
       throw new GrpcException(Status.ABORTED, 'Bank account does`nt exist!', 400);
     }
   }

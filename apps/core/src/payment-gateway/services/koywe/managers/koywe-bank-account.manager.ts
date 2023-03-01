@@ -27,24 +27,17 @@ export class KoyweBankAccountManager {
     this.koywe_url = koywe_url;
   }
 
-  async getBanksInfo(country: string, email: string): Promise<BanksInfoResponse> {
+  async getBanksInfo(country: string): Promise<BanksInfoResponse> {
     if (country === 'US') {
       return {
         data: [],
       };
     }
-    const { token } = await this.koyweTokenManager.getToken(email);
     const codeResponse = await lastValueFrom(this.httpService.get(`https://restcountries.com/v3.1/alpha/${country}`));
 
     const code = codeResponse.data[0].cca3;
 
-    const headersRequest = {
-      Authorization: `Bearer ${token}`,
-    };
-
-    const result = await lastValueFrom(
-      this.httpService.get(`${this.koywe_url}/bank-info/${code}`, { headers: headersRequest }),
-    );
+    const result = await lastValueFrom(this.httpService.get(`${this.koywe_url}/bank-info/${code}`));
 
     return {
       data: result.data,
@@ -80,6 +73,7 @@ export class KoyweBankAccountManager {
         this.bankAccountEntityRepository.create({
           user_id: id,
           bank_code,
+          country,
           bank_account_name,
           bank_account_number,
           account_uuid: bankResponse.data._id,
