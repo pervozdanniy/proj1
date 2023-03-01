@@ -14,6 +14,9 @@ export class PrimeBankAccountManager {
   ) {}
   async addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
     const { id, bank_account_name, bank_account_number, routing_number } = request;
+    if (!routing_number) {
+      throw new GrpcException(Status.INVALID_ARGUMENT, 'Please fill routing number!', 400);
+    }
     const bankAccount = await this.bankAccountEntityRepository.findOne({ where: { bank_account_number, user_id: id } });
     if (bankAccount) {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Bank already exist!', 400);

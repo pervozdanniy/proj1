@@ -19,6 +19,6 @@ export class BankParamsDto {
 
   @ApiProperty({ example: '021000021' })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   routing_number: string;
 }

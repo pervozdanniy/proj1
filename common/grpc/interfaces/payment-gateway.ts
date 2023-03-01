@@ -140,7 +140,10 @@ export interface BankAccountParams {
   id: number;
   bank_account_name: string;
   bank_account_number: string;
-  routing_number: string;
+  routing_number?: string | undefined;
+  bank_code?: string | undefined;
+  country?: string | undefined;
+  email?: string | undefined;
 }
 
 export interface BankAccountsResponse {

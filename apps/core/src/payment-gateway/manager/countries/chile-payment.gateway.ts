@@ -24,7 +24,7 @@ export class ChilePaymentGateway implements PaymentGatewayInterface {
   }
 
   addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
-    return this.primeTrustService.addBankAccountParams(request);
+    return this.koyweService.addBankAccountParams(request);
   }
 
   async createReference(request: CreateReferenceRequest): Promise<JsonData> {

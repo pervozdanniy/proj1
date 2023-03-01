@@ -143,6 +143,8 @@ export class PaymentGatewayService {
   async addBankAccountParams(request: BankAccountParams) {
     const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    request.country = userDetails.country.code;
+    request.email = userDetails.email;
 
     return paymentGateway.addBankAccountParams(request);
   }
