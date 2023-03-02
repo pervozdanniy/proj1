@@ -1,12 +1,12 @@
 import { UserService } from '@/user/services/user.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import {
   BankAccountParams,
   CreateReferenceRequest,
   TransferMethodRequest,
   UserIdRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { PaymentGatewayManager } from '../manager/payment-gateway.manager';
+import { hasBank, hasWireTransfer, hasWithdrawal, PaymentGatewayManager } from '../manager/payment-gateway.manager';
 
 @Injectable()
 export class MainService {
@@ -18,36 +18,51 @@ export class MainService {
 
   async getAvailablePaymentMethods(id: number) {
     const userDetails = await this.userService.getUserInfo(id);
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
 
     return { methods: paymentGateway.getAvailablePaymentMethods() };
   }
 
   async getBanksInfo(request: UserIdRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    if (hasBank(paymentGateway)) {
+      return paymentGateway.getAvailableBanks(userDetails.country.code);
+    }
 
-    return paymentGateway.getAvailableBanks(userDetails.country.code);
+    throw new UnauthorizedException('This operation is not allowed in your country');
   }
 
   async addBankAccountParams(request: BankAccountParams) {
     const userDetails = await this.userService.getUserInfo(request.id);
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
 
-    return paymentGateway.addBank(request);
+    if (hasBank(paymentGateway)) {
+      return paymentGateway.addBank(request);
+    }
+
+    throw new UnauthorizedException('This operation is not allowed in your country');
   }
 
   async createReference(request: CreateReferenceRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
 
-    return paymentGateway.createReference(request);
+    if (hasWireTransfer(paymentGateway)) {
+      return paymentGateway.createReference(request);
+    }
+
+    throw new UnauthorizedException('This operation is not allowed in your country');
   }
 
   async makeWithdrawal(request: TransferMethodRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
-    const paymentGateway = await this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
 
-    return paymentGateway.makeWithdrawal(request);
+    if (hasWithdrawal(paymentGateway)) {
+      return paymentGateway.makeWithdrawal(request);
+    }
+
+    throw new UnauthorizedException('This operation is not allowed in your country');
   }
 }

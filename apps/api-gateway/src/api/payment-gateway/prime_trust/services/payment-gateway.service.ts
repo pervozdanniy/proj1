@@ -142,4 +142,8 @@ export class PaymentGatewayService implements OnModuleInit {
   updateAssetDeposit(data: AccountIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.updateAssetDeposit(data));
   }
+
+  getAvailablePaymentMethods(id: number) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getAvailablePaymentMethods({ id }));
+  }
 }
