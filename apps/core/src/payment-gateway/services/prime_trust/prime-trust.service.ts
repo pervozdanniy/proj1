@@ -1,7 +1,8 @@
 import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import {
-  AccountIdRequest, AssetWithdrawalRequest,
+  AccountIdRequest,
+  AssetWithdrawalRequest,
   BankAccountParams,
   CreateReferenceRequest,
   DepositParamRequest,

@@ -49,6 +49,7 @@ export class ChilePaymentGateway
   async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     const { id, amount } = request;
     const wallet = await this.koyweService.makeWithdrawal(request);
+
     return await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
   }
 }

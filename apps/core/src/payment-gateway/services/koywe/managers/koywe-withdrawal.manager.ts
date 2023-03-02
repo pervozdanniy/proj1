@@ -30,7 +30,6 @@ export class KoyweWithdrawalManager {
   ) {
     const { koywe_url } = config.get('app');
     this.koywe_url = koywe_url;
-    console.log(this.koywe_url);
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<string> {

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {IsEnum, IsNotEmpty, IsNumber, IsString, Min} from 'class-validator';
-import {WithdrawalTypes} from "~common/enum/document-types.enum";
-import {Type} from "class-transformer";
+import { Type } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import { WithdrawalTypes } from '~common/enum/document-types.enum';
 
 export class WithdrawalMakeDto {
   @ApiProperty({ example: 1 })
