@@ -1,5 +1,5 @@
 import { Metadata } from '@grpc/grpc-js';
-import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { TwoFactorMethod } from '~common/constants/auth';
@@ -31,18 +31,34 @@ export class TwoFactorService implements OnModuleInit {
     return firstValueFrom(this.authClient.require({}, metadata));
   }
 
-  enable(settings: TwoFactorEnableRequestDto, sessionId: string) {
+  async enable(settings: TwoFactorEnableRequestDto, sessionId: string) {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 
-    return firstValueFrom(this.authClient.enable({ settings }, metadata));
+    const { required, error } = await firstValueFrom(this.authClient.enable({ settings }, metadata));
+    if (error) {
+      throw new ConflictException(error);
+    }
+
+    throw new HttpException(
+      { message: 'Verification required', methods: required.methods },
+      HttpStatus.PRECONDITION_REQUIRED,
+    );
   }
 
-  disable(methods: TwoFactorMethod[] | undefined, sessionId: string) {
+  async disable(methods: TwoFactorMethod[] | undefined, sessionId: string) {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 
-    return firstValueFrom(this.authClient.disable({ methods }, metadata));
+    const { required, error } = await firstValueFrom(this.authClient.disable({ methods }, metadata));
+    if (error) {
+      throw new ConflictException(error);
+    }
+
+    throw new HttpException(
+      { message: 'Verification required', methods: required.methods },
+      HttpStatus.PRECONDITION_REQUIRED,
+    );
   }
 
   verify({ codes }: TwoFactorVerifyRequestDto, sessionId: string) {

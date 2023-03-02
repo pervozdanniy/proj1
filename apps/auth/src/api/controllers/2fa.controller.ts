@@ -60,10 +60,14 @@ export class TwoFactorController implements TwoFactorServiceController {
   async enable(
     @Payload() { settings }: EnableRequestDto,
     @GrpcSession() session: SessionProxy,
-  ): Promise<SuccessResponse> {
-    await this.auth2FA.enable(settings, session);
+  ): Promise<TwoFactorRequireResponse> {
+    try {
+      const methods = await this.auth2FA.enable(settings, session);
 
-    return { success: true };
+      return { required: { methods } };
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 
   @GrpcSessionAuth()
@@ -71,10 +75,14 @@ export class TwoFactorController implements TwoFactorServiceController {
   async disable(
     @Payload() { methods }: DisableRequestDto,
     @GrpcSession() session: SessionProxy,
-  ): Promise<SuccessResponse> {
-    await this.auth2FA.disable(methods, session);
+  ): Promise<TwoFactorRequireResponse> {
+    try {
+      const enabled = await this.auth2FA.disable(methods, session);
 
-    return { success: true };
+      return { required: { methods: enabled } };
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })

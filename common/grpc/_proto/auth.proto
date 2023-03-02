@@ -40,9 +40,9 @@ service ClientService {
 service TwoFactorService {
   rpc List (google.protobuf.Empty) returns (TwoFactorEnabledMethodsResponse);
 
-  rpc Enable (TwoFactorEnableRequest) returns (common.SuccessResponse);
+  rpc Enable (TwoFactorEnableRequest) returns (TwoFactorRequireResponse);
 
-  rpc Disable (TwoFactorDisableRequest) returns (common.SuccessResponse);
+  rpc Disable (TwoFactorDisableRequest) returns (TwoFactorRequireResponse);
 
   rpc Verify (TwoFactorVerificationRequest) returns (TwoFactorVerificationResponse);
 

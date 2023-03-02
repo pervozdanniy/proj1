@@ -37,15 +37,15 @@ export class Auth2FAService {
     if (!isPreRegistered(session)) {
       throw new ConflictException('Registration process was not stated');
     }
-    const codes = this.generate([
+    const constraints = this.generate([
       { method: TwoFactorMethod.Sms, destination: session.register.phone },
       { method: TwoFactorMethod.Email, destination: session.register.email },
     ]);
     require2FA(session, {
-      verify: codes,
+      verify: constraints,
       expiresAt: Date.now() + 15 * 60 * 60 * 1000,
     });
-    this.notify.send(codes, session.id);
+    this.notify.send(constraints, session.id);
 
     return [TwoFactorMethod.Email, TwoFactorMethod.Sms];
   }
@@ -53,12 +53,12 @@ export class Auth2FAService {
   async requireIfEnabled(session: SessionProxy) {
     const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
     if (enabled.length) {
-      const codes = this.generate(enabled);
+      const contstraints = this.generate(enabled);
       require2FA(session, {
-        verify: codes,
+        verify: contstraints,
         expiresAt: Date.now() + 15 * 60 * 60 * 1000,
       });
-      this.notify.send(codes, session.id);
+      this.notify.send(contstraints, session.id);
     }
 
     return enabled.map((s) => s.method);
@@ -97,7 +97,10 @@ export class Auth2FAService {
       add: { method: settings.method, destination: settings.destination, code: this.generateCode() },
       expiresAt: Date.now() + 15 * 60 * 60 * 1000,
     });
-    this.notify.send([...codes, twoFactor.add], session.id);
+    const constraints = [...codes, twoFactor.add];
+    this.notify.send(constraints, session.id);
+
+    return constraints.map((c) => c.method);
   }
 
   async disable(methods: TwoFactorMethod[], session: SessionProxy) {
@@ -105,14 +108,16 @@ export class Auth2FAService {
     if (enabled.length === 0) {
       throw new ConflictException('No 2FA methods are enabled');
     }
-    const codes = this.generate(enabled);
+    const constraints = this.generate(enabled);
     require2FA(session, {
-      verify: codes,
+      verify: constraints,
       remove: methods.length ? methods : enabled.map((s) => s.method),
       expiresAt: Date.now() + 15 * 60 * 60 * 1000,
     });
 
-    this.notify.send(codes, session.id);
+    this.notify.send(constraints, session.id);
+
+    return constraints.map((c) => c.method);
   }
 
   async resend(method: TwoFactorMethod, session: SessionProxy) {

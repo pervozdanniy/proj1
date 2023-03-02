@@ -228,9 +228,9 @@ export const CLIENT_SERVICE_NAME = "ClientService";
 export interface TwoFactorServiceClient {
   list(request: Empty, ...rest: any): Observable<TwoFactorEnabledMethodsResponse>;
 
-  enable(request: TwoFactorEnableRequest, ...rest: any): Observable<SuccessResponse>;
+  enable(request: TwoFactorEnableRequest, ...rest: any): Observable<TwoFactorRequireResponse>;
 
-  disable(request: TwoFactorDisableRequest, ...rest: any): Observable<SuccessResponse>;
+  disable(request: TwoFactorDisableRequest, ...rest: any): Observable<TwoFactorRequireResponse>;
 
   verify(request: TwoFactorVerificationRequest, ...rest: any): Observable<TwoFactorVerificationResponse>;
 
@@ -253,12 +253,12 @@ export interface TwoFactorServiceController {
   enable(
     request: TwoFactorEnableRequest,
     ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+  ): Promise<TwoFactorRequireResponse> | Observable<TwoFactorRequireResponse> | TwoFactorRequireResponse;
 
   disable(
     request: TwoFactorDisableRequest,
     ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+  ): Promise<TwoFactorRequireResponse> | Observable<TwoFactorRequireResponse> | TwoFactorRequireResponse;
 
   verify(
     request: TwoFactorVerificationRequest,
