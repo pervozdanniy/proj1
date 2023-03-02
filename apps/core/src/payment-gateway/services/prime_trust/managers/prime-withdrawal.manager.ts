@@ -1,7 +1,7 @@
 import { NotificationService } from '@/notification/services/notification.service';
-import { BankAccountEntity } from '@/payment-gateway/entities/prime_trust/bank-account.entity';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
+import { TransfersEntity } from '@/payment-gateway/entities/prime_trust/transfers.entity';
 import { WithdrawalParamsEntity } from '@/payment-gateway/entities/prime_trust/withdrawal-params.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
@@ -18,14 +18,10 @@ import {
   AccountIdRequest,
   JsonData,
   TransferMethodRequest,
-  UserIdRequest,
-  WithdrawalDataResponse,
   WithdrawalParams,
   WithdrawalResponse,
-  WithdrawalsDataResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '../../../entities/prime_trust/transfers.entity';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 
@@ -36,24 +32,16 @@ export class PrimeWithdrawalManager {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-
     private readonly notificationService: NotificationService,
-
     private readonly primeBankAccountManager: PrimeBankAccountManager,
-
     private readonly primeFundsTransferManager: PrimeFundsTransferManager,
-
     private readonly primeBalanceManager: PrimeBalanceManager,
-
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
-
     @InjectRepository(PrimeTrustContactEntity)
     private readonly primeTrustContactEntityRepository: Repository<PrimeTrustContactEntity>,
-
     @InjectRepository(TransfersEntity)
     private readonly withdrawalEntityRepository: Repository<TransfersEntity>,
-
     @InjectRepository(WithdrawalParamsEntity)
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
   ) {
@@ -136,14 +124,18 @@ export class PrimeWithdrawalManager {
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
-    const { id, funds_transfer_method_id, amount } = request;
-
+    const { id, bank_account_id, funds_transfer_type, amount } = request;
+    const { transfer_method_id: funds_transfer_method_id } = await this.addWithdrawalParams({
+      id,
+      bank_account_id,
+      funds_transfer_type,
+    });
     const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
     const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({
       uuid: funds_transfer_method_id,
     });
 
-    const { funds, fee } = await this.sendWithdrawalRequest(request, account.uuid);
+    const { funds, fee } = await this.sendWithdrawalRequest(request, account.uuid, funds_transfer_method_id);
 
     await this.withdrawalEntityRepository.save(
       this.withdrawalEntityRepository.create({
@@ -171,8 +163,8 @@ export class PrimeWithdrawalManager {
     return { data: JSON.stringify(funds) };
   }
 
-  async sendWithdrawalRequest(request: TransferMethodRequest, account_id: string) {
-    const { amount, funds_transfer_method_id } = request;
+  async sendWithdrawalRequest(request: TransferMethodRequest, account_id: string, funds_transfer_method_id: string) {
+    const { amount } = request;
     const { total_amount, fee_amount } = await this.primeFundsTransferManager.convertAssetToUSD(account_id, amount);
 
     const formData = {
@@ -211,7 +203,7 @@ export class PrimeWithdrawalManager {
       .createQueryBuilder('w')
       .leftJoinAndSelect(UserEntity, 'u', 'w.user_id = u.id')
       .select(['u.id as user_id'])
-      .where('w.uuid = :id', { resource_id })
+      .where('w.uuid = :id', { id: resource_id })
       .andWhere('w.type = :type', { type: 'withdrawal' })
       .getRawOne();
     if (!withdrawData) {
@@ -262,42 +254,10 @@ export class PrimeWithdrawalManager {
     }
   }
 
-  async getWithdrawalParams(id: number): Promise<WithdrawalsDataResponse> {
-    const params = await this.withdrawalParamsEntityRepository
-      .createQueryBuilder('w')
-      .leftJoinAndSelect(BankAccountEntity, 'b', 'b.id = w.bank_account_id')
-      .where('w.user_id = :id', { id })
-      .select([
-        'w.id as id',
-        'w.uuid as transfer_method_id',
-        'b.bank_account_number as bank_account_number',
-        'b.routing_number as routing_number',
-        'w.funds_transfer_type as funds_transfer_type',
-        'b.bank_account_name as bank_account_name',
-      ])
-      .getRawMany();
-
-    return { data: params };
-  }
-
   async checkBankExists(bank_id: number) {
     const bank = await this.primeBankAccountManager.getBankAccountById(bank_id);
     if (!bank) {
       throw new GrpcException(Status.ABORTED, 'Bank account does`nt exist!', 400);
     }
-  }
-
-  async getWithdrawalById(request: UserIdRequest): Promise<WithdrawalDataResponse> {
-    const { id, resource_id } = request;
-    const withdrawal = await this.withdrawalEntityRepository
-      .createQueryBuilder('w')
-      .select('*')
-      .where('w.id = :resource_id AND w.user_id=:id', { resource_id, id })
-      .getRawOne();
-    if (!withdrawal) {
-      throw new GrpcException(Status.NOT_FOUND, 'Withdrawal not found!', 404);
-    }
-
-    return withdrawal;
   }
 }

@@ -3,6 +3,7 @@ import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { PrimeKycManager } from '@/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
+import { AccountType, ContactType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -14,7 +15,6 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { AccountType, ContactType } from '../../../types/prime-trust';
 
 @Injectable()
 export class PrimeAccountManager {

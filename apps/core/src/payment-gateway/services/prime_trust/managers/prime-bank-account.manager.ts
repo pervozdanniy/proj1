@@ -1,4 +1,5 @@
 import { BankAccountEntity } from '@/payment-gateway/entities/prime_trust/bank-account.entity';
+import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,11 +11,13 @@ import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 export class PrimeBankAccountManager {
   private logger = new Logger(PrimeBankAccountManager.name);
   constructor(
+    private userService: UserService,
     @InjectRepository(BankAccountEntity)
     private readonly bankAccountEntityRepository: Repository<BankAccountEntity>,
   ) {}
   async addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
-    const { id, bank_account_name, bank_account_number, routing_number, country } = request;
+    const { id, bank_account_name, bank_account_number, routing_number } = request;
+    const userDetails = await this.userService.getUserInfo(id);
     if (!routing_number) {
       throw new GrpcException(Status.INVALID_ARGUMENT, 'Please fill routing number!', 400);
     }
@@ -26,7 +29,7 @@ export class PrimeBankAccountManager {
     const account = await this.bankAccountEntityRepository.save(
       this.bankAccountEntityRepository.create({
         user_id: id,
-        country,
+        country: userDetails.country.code,
         bank_account_name,
         bank_account_number,
         routing_number,

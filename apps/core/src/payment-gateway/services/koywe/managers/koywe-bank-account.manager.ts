@@ -1,3 +1,4 @@
+import { BankAccountEntity } from '@/payment-gateway/entities/prime_trust/bank-account.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
@@ -8,13 +9,14 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { BankAccountParams, BanksInfoResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { BankAccountEntity } from '../../../entities/prime_trust/bank-account.entity';
+import { UserService } from '../../../../user/services/user.service';
 import { KoyweTokenManager } from './koywe-token.manager';
 
 @Injectable()
 export class KoyweBankAccountManager {
   private readonly koywe_url: string;
   constructor(
+    private userService: UserService,
     private readonly koyweTokenManager: KoyweTokenManager,
     private readonly httpService: HttpService,
 
@@ -45,7 +47,12 @@ export class KoyweBankAccountManager {
   }
 
   async addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
-    const { country, bank_code, bank_account_number, email, id, bank_account_name } = request;
+    const { bank_code, bank_account_number, id, bank_account_name } = request;
+    const userDetails = await this.userService.getUserInfo(id);
+    const {
+      country: { code: country },
+      email,
+    } = userDetails;
     const countryInfo = await lastValueFrom(this.httpService.get(`https://restcountries.com/v3.1/alpha/${country}`));
 
     const code = countryInfo.data[0].cca3;
@@ -73,7 +80,7 @@ export class KoyweBankAccountManager {
         this.bankAccountEntityRepository.create({
           user_id: id,
           bank_code,
-          country,
+          country: userDetails.country.code,
           bank_account_name,
           bank_account_number,
           account_uuid: bankResponse.data._id,

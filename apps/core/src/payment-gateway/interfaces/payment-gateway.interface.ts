@@ -11,8 +11,6 @@ import {
   JsonData,
   MakeContributionRequest,
   TransferMethodRequest,
-  WithdrawalParams,
-  WithdrawalResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 
 export type PaymentMethods = 'bank-transfer' | 'credit-card';
@@ -47,6 +45,4 @@ export interface BankDepositInterface {
 
 export interface WithdrawalInterface {
   makeWithdrawal(request: TransferMethodRequest): Promise<JsonData>;
-
-  setWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse>;
 }

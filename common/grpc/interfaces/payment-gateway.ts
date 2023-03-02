@@ -35,16 +35,6 @@ export interface WalletResponse {
   asset_transfer_method_id: string;
 }
 
-export interface WithdrawalDataResponse {
-  id: number;
-  params_id: number;
-  uuid: string;
-  amount: string;
-  currency_type: string;
-  status: string;
-  created_at: string;
-}
-
 export interface DepositParamsResponse {
   data: DepositParam[];
 }
@@ -100,6 +90,12 @@ export interface ContactResponse {
   cip_cleared: boolean;
 }
 
+export interface AssetWithdrawalRequest {
+  id: number;
+  amount: string;
+  wallet: string;
+}
+
 export interface AccountResponse {
   uuid: string;
   name: string;
@@ -142,8 +138,6 @@ export interface BankAccountParams {
   bank_account_number: string;
   routing_number?: string | undefined;
   bank_code?: string | undefined;
-  country?: string | undefined;
-  email?: string | undefined;
 }
 
 export interface BankAccountsResponse {
@@ -194,10 +188,6 @@ export interface CreditCardResourceResponse {
   resource_token: string;
 }
 
-export interface WithdrawalsDataResponse {
-  data: Withdrawal[];
-}
-
 export interface Withdrawal {
   id: number;
   transfer_method_id: string;
@@ -215,7 +205,8 @@ export interface PaymentGateway {
 
 export interface TransferMethodRequest {
   id: number;
-  funds_transfer_method_id: string;
+  bank_account_id: number;
+  funds_transfer_type: string;
   amount: string;
 }
 
@@ -324,12 +315,6 @@ export interface PaymentGatewayServiceClient {
   transferFunds(request: TransferFundsRequest, ...rest: any): Observable<TransferFundsResponse>;
 
   /** withdrawal */
-
-  getWithdrawalById(request: UserIdRequest, ...rest: any): Observable<WithdrawalDataResponse>;
-
-  getWithdrawalParams(request: UserIdRequest, ...rest: any): Observable<WithdrawalsDataResponse>;
-
-  addWithdrawalParams(request: WithdrawalParams, ...rest: any): Observable<WithdrawalResponse>;
 
   makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<JsonData>;
 
@@ -458,21 +443,6 @@ export interface PaymentGatewayServiceController {
 
   /** withdrawal */
 
-  getWithdrawalById(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<WithdrawalDataResponse> | Observable<WithdrawalDataResponse> | WithdrawalDataResponse;
-
-  getWithdrawalParams(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<WithdrawalsDataResponse> | Observable<WithdrawalsDataResponse> | WithdrawalsDataResponse;
-
-  addWithdrawalParams(
-    request: WithdrawalParams,
-    ...rest: any
-  ): Promise<WithdrawalResponse> | Observable<WithdrawalResponse> | WithdrawalResponse;
-
   makeWithdrawal(request: TransferMethodRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
 
   /** webhooks */
@@ -537,9 +507,6 @@ export function PaymentGatewayServiceControllerMethods() {
       "makeContribution",
       "getCreditCards",
       "transferFunds",
-      "getWithdrawalById",
-      "getWithdrawalParams",
-      "addWithdrawalParams",
       "makeWithdrawal",
       "documentCheck",
       "cipCheck",

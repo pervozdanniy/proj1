@@ -1,13 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { BankAccountParams, CreateReferenceRequest } from '~common/grpc/interfaces/payment-gateway';
+import {
+  BankAccountParams,
+  CreateReferenceRequest,
+  TransferMethodRequest,
+} from '~common/grpc/interfaces/payment-gateway';
 import { KoyweBankAccountManager } from './managers/koywe-bank-account.manager';
 import { KoyweDepositManager } from './managers/koywe-deposit.manager';
+import { KoyweWithdrawalManager } from './managers/koywe-withdrawal.manager';
 
 @Injectable()
 export class KoyweService {
   constructor(
     private readonly koyweDepositManager: KoyweDepositManager,
     private readonly koyweBankAccountManager: KoyweBankAccountManager,
+    private readonly koyweWithdrawalManager: KoyweWithdrawalManager,
   ) {}
 
   createReference(request: CreateReferenceRequest, wallet_address: string, asset_transfer_method_id: string) {
@@ -20,5 +26,9 @@ export class KoyweService {
 
   addBankAccountParams(request: BankAccountParams) {
     return this.koyweBankAccountManager.addBankAccountParams(request);
+  }
+
+  makeWithdrawal(request: TransferMethodRequest) {
+    return this.koyweWithdrawalManager.makeWithdrawal(request);
   }
 }

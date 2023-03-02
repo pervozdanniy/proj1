@@ -27,6 +27,8 @@ import { KoyweService } from './services/koywe/koywe.service';
 import { KoyweBankAccountManager } from './services/koywe/managers/koywe-bank-account.manager';
 import { KoyweDepositManager } from './services/koywe/managers/koywe-deposit.manager';
 import { KoyweTokenManager } from './services/koywe/managers/koywe-token.manager';
+import { KoyweWithdrawalManager } from './services/koywe/managers/koywe-withdrawal.manager';
+import { MainService } from './services/main.service';
 import { PaymentGatewayWebhooksService } from './services/payment-gateway-webhooks.service';
 import { PaymentGatewayService } from './services/payment-gateway.service';
 import { PrimeAccountManager } from './services/prime_trust/managers/prime-account.manager';
@@ -66,12 +68,14 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
   ],
   providers: [
     PaymentGatewayService,
+    MainService,
     PaymentGatewayManager,
     PrimeTrustService,
     KoyweService,
     KoyweDepositManager,
     KoyweBankAccountManager,
     KoyweTokenManager,
+    KoyweWithdrawalManager,
     PaymentGatewayWebhooksService,
     PrimeTokenManager,
     PrimeAccountManager,

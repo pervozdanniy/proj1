@@ -4,6 +4,7 @@ import { TransfersEntity } from '@/payment-gateway/entities/prime_trust/transfer
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { PrimeBalanceManager } from '@/payment-gateway/services/prime_trust/managers/prime-balance.manager';
+import { AssetToUSDResponse, SendFundsResponse, USDtoAssetResponse } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
@@ -13,7 +14,6 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { AssetToUSDResponse, SendFundsResponse, USDtoAssetResponse } from '../../../types/prime-trust';
 
 @Injectable()
 export class PrimeFundsTransferManager {

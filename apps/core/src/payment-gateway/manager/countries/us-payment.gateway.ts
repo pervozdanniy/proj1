@@ -12,8 +12,6 @@ import {
   JsonData,
   MakeContributionRequest,
   TransferMethodRequest,
-  WithdrawalParams,
-  WithdrawalResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import {
   BankDepositInterface,
@@ -65,10 +63,6 @@ export class USPaymentGateway
     return this.primeTrustService.addDepositParams(request);
   }
 
-  setWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
-    return this.primeTrustService.addWithdrawalParams(request);
-  }
-
   verifyCreditCard(resource_id: string): Promise<SuccessResponse> {
     return this.primeTrustService.verifyCreditCard(resource_id);
   }
@@ -84,9 +78,6 @@ export class USPaymentGateway
     return this.primeTrustService.createReference(request);
   }
 
-  addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
-    return this.primeTrustService.addWithdrawalParams(request);
-  }
   makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     return this.primeTrustService.makeWithdrawal(request);
   }

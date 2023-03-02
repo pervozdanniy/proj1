@@ -1,12 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   BankAccountParams,
   BanksInfoResponse,
   CreateReferenceRequest,
   JsonData,
   TransferMethodRequest,
-  WithdrawalParams,
-  WithdrawalResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import {
   BankInterface,
@@ -22,7 +20,6 @@ import { PrimeTrustService } from '../../services/prime_trust/prime-trust.servic
 export class ChilePaymentGateway
   implements PaymentGatewayInterface, BankInterface, WireDepositInterface, WithdrawalInterface
 {
-  private readonly logger = new Logger(ChilePaymentGateway.name);
   private primeTrustService: PrimeTrustService;
   private koyweService: KoyweService;
 
@@ -49,16 +46,9 @@ export class ChilePaymentGateway
     return this.koyweService.createReference(request, wallet_address, asset_transfer_method_id);
   }
 
-  setWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
-    this.logger.log(request);
-
-    //to be continued ...
-    return undefined;
-  }
-  makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
-    this.logger.log(request);
-
-    //to be continued ...
-    return undefined;
+  async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
+    const { id, amount } = request;
+    const wallet = await this.koyweService.makeWithdrawal(request);
+    return await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
   }
 }

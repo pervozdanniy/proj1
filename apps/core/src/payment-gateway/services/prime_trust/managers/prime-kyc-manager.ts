@@ -4,6 +4,13 @@ import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustKycDocumentEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
+import {
+  CipCheckType,
+  ContactType,
+  DocumentCheckType,
+  DocumentDataType,
+  FileType,
+} from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -16,7 +23,6 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountIdRequest, ContactResponse, DocumentResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { CipCheckType, ContactType, DocumentCheckType, DocumentDataType, FileType } from '../../../types/prime-trust';
 
 @Injectable()
 export class PrimeKycManager {

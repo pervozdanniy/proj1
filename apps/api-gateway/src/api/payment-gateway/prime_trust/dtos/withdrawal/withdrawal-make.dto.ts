@@ -1,11 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import { WithdrawalTypes } from '~common/enum/document-types.enum';
 
 export class WithdrawalMakeDto {
-  @ApiProperty()
-  @IsString()
+  @ApiProperty({ example: 1 })
+  @Min(1)
+  @IsNumber()
   @IsNotEmpty()
-  funds_transfer_method_id: string;
+  bank_account_id: number;
+
+  @ApiProperty({ enum: Object.values(WithdrawalTypes) })
+  @IsEnum(WithdrawalTypes)
+  @Type(() => String)
+  readonly funds_transfer_type: WithdrawalTypes;
 
   @ApiProperty({ example: '500' })
   @IsString()
