@@ -18,6 +18,7 @@ import { UserService } from '~svc/core/src/user/services/user.service';
 import countryRepoMockFactory from '../../__mocks/country.repository';
 import userDetailRepoMockFactory from '../../__mocks/user-detail.repository';
 import userRepoMockFactory from '../../__mocks/user.repository';
+import {MainService} from "@/payment-gateway/services/main.service";
 
 export default async (config: ConfigService<ConfigInterface>) => {
   const moduleFixture = await Test.createTestingModule({
@@ -37,6 +38,12 @@ export default async (config: ConfigService<ConfigInterface>) => {
       },
       {
         provide: PaymentGatewayService,
+        useValue: {
+          createUser: jest.fn().mockResolvedValue(false),
+        },
+      },
+      {
+        provide: MainService,
         useValue: {
           createUser: jest.fn().mockResolvedValue(false),
         },
