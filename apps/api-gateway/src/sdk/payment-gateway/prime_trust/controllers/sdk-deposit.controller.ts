@@ -15,7 +15,7 @@ import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
 import { CreateReferenceDto } from '../dtos/deposit/deposit-funds.dto';
 import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
-import { MakeContributionDto } from '../dtos/deposit/make-contribution.dto';
+import { MakeDepositDto } from '../dtos/deposit/make-deposit.dto';
 import { ResourceDto } from '../dtos/deposit/resource.dto';
 
 @ApiTags('SDK/Prime Trust/Deposit Funds')
@@ -104,7 +104,7 @@ export class SdkDepositController {
   })
   @JwtSessionAuth()
   @Post('/contribution')
-  async makeDeposit(@JwtSessionUser() { id }: User, @Body() payload: MakeContributionDto) {
+  async makeDeposit(@JwtSessionUser() { id }: User, @Body() payload: MakeDepositDto) {
     return this.paymentGatewayService.makeDeposit({ id, ...payload });
   }
 }
