@@ -1,16 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import {
   BankAccountParams,
+  BanksInfoResponse,
   CreateReferenceRequest,
   JsonData,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { PaymentGatewayInterface, PaymentMethods } from '../../interfaces/payment-gateway.interface';
+import {
+  BankInterface,
+  PaymentGatewayInterface,
+  PaymentMethods,
+  WireDepositInterface,
+  WithdrawalInterface,
+} from '../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../services/koywe/koywe.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
-export class ChilePaymentGateway implements PaymentGatewayInterface {
+export class ChilePaymentGateway
+  implements PaymentGatewayInterface, BankInterface, WireDepositInterface, WithdrawalInterface
+{
   private primeTrustService: PrimeTrustService;
   private koyweService: KoyweService;
 
@@ -23,16 +32,24 @@ export class ChilePaymentGateway implements PaymentGatewayInterface {
     return ['bank-transfer'];
   }
 
-  addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
-    return this.primeTrustService.addBankAccountParams(request);
+  addBank(request: BankAccountParams): Promise<BankAccountParams> {
+    return this.koyweService.addBankAccountParams(request);
+  }
+
+  getAvailableBanks(country: string): Promise<BanksInfoResponse> {
+    return this.koyweService.getBanksInfo(country);
   }
 
   async createReference(request: CreateReferenceRequest): Promise<JsonData> {
-    const { wallet_address } = await this.primeTrustService.createWallet(request);
+    const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
 
-    return this.koyweService.createReference(request, wallet_address);
+    return this.koyweService.createReference(request, wallet_address, asset_transfer_method_id);
   }
-  makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
-    return this.primeTrustService.makeWithdrawal(request);
+
+  async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
+    const { id, amount } = request;
+    const wallet = await this.koyweService.makeWithdrawal(request);
+
+    return await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
   }
 }

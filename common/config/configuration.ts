@@ -85,6 +85,7 @@ export interface ConfigInterface {
   asset: {
     id: string;
     type: string;
+    short: string;
   };
 }
 
@@ -182,5 +183,6 @@ export default (): ConfigInterface => ({
   asset: {
     id: process.env.ASSET_ID,
     type: process.env.ASSET_TYPE,
+    short: process.env.ASSET_SHORT,
   },
 });

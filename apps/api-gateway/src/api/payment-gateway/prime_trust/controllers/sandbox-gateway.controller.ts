@@ -6,9 +6,10 @@ import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
 import { DepositFundsDto } from '../dtos/deposit/deposit-funds.dto';
 import { SettleFundsDto } from '../dtos/deposit/settle-funds.dto';
 import { VerifyOwnerDto } from '../dtos/deposit/verify-owner.dto';
-import { AccountIdDto } from '../dtos/main/account-id.dto';
-import { DocumentIdDto } from '../dtos/main/document-id.dto';
-import { WebhookUrlDto } from '../dtos/main/webhook-url.dto';
+import { AccountIdDto } from '../dtos/sandbox/account-id.dto';
+import { AddAssetDto } from '../dtos/sandbox/add-asset.dto';
+import { DocumentIdDto } from '../dtos/sandbox/document-id.dto';
+import { WebhookUrlDto } from '../dtos/sandbox/webhook-url.dto';
 import { SettleWithdrawDto } from '../dtos/withdrawal/settle-withdraw.dto';
 
 @ApiTags('Prime Trust/Sandbox')
@@ -104,5 +105,25 @@ export class SandboxGatewayController {
   @Post('/card/verification/number')
   async getCardDescriptor(@Body() payload: CardResourceDto) {
     return this.sandboxService.getCardDescriptor(payload);
+  }
+
+  @ApiOperation({ summary: 'Add assets to account (for testing Ethereum)' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/assets/add')
+  async addAssets(@Body() payload: AddAssetDto) {
+    return this.sandboxService.addAssets(payload);
+  }
+
+  @ApiOperation({ summary: 'Add assets to account (for testing Ethereum)' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/assets/settle/withdrawal')
+  async settleAssetsWithdraw(@Body() payload: SettleWithdrawDto) {
+    return this.sandboxService.settleAssetsWithdraw(payload);
   }
 }

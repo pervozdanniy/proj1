@@ -3,13 +3,15 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { lastValueFrom } from 'rxjs';
+import { createDate } from '~common/helpers';
 import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
 import { DepositFundsDto } from '../dtos/deposit/deposit-funds.dto';
 import { SettleFundsDto } from '../dtos/deposit/settle-funds.dto';
 import { VerifyOwnerDto } from '../dtos/deposit/verify-owner.dto';
-import { AccountIdDto } from '../dtos/main/account-id.dto';
-import { DocumentIdDto } from '../dtos/main/document-id.dto';
-import { WebhookUrlDto } from '../dtos/main/webhook-url.dto';
+import { AccountIdDto } from '../dtos/sandbox/account-id.dto';
+import { AddAssetDto } from '../dtos/sandbox/add-asset.dto';
+import { DocumentIdDto } from '../dtos/sandbox/document-id.dto';
+import { WebhookUrlDto } from '../dtos/sandbox/webhook-url.dto';
 import { SettleWithdrawDto } from '../dtos/withdrawal/settle-withdraw.dto';
 
 @Injectable()
@@ -262,6 +264,80 @@ export class SandboxService {
       );
 
       return cardResponse.data;
+    } catch (e) {
+      return e.response.data.errors;
+    }
+  }
+
+  async addAssets(payload: AddAssetDto) {
+    const token = await this.redis.get('prime_token');
+    const { account_id, asset_transfer_method_id, contact_id, unit_count } = payload;
+    const formData = {
+      data: {
+        type: 'asset-contributions',
+        attributes: {
+          'unit-count': unit_count,
+          'asset-id': 'ecca8bab-dcb2-419a-973e-aebc39ff4f03',
+          'contact-id': contact_id,
+          'account-id': account_id,
+          'asset-transfer-method-id': asset_transfer_method_id,
+          'acquisition-on': createDate(),
+          'cost-basis': '4000',
+          'currency-type': 'USD',
+        },
+      },
+    };
+
+    try {
+      const headersRequest = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const cardResponse = await lastValueFrom(
+        this.httpService.post(
+          `https://sandbox.primetrust.com/v2/asset-contributions?include=asset-transfer-method,asset-transfer`,
+          formData,
+          {
+            headers: headersRequest,
+          },
+        ),
+      );
+
+      cardResponse.data.included.map(async (inc: { type: string; id: string; attributes: { status: string } }) => {
+        if (inc.type === 'asset-transfers' && inc.attributes.status === 'pending') {
+          await lastValueFrom(
+            this.httpService.post(`https://sandbox.primetrust.com/v2/asset-transfers/${inc.id}/sandbox/settle`, null, {
+              headers: headersRequest,
+            }),
+          );
+        }
+      });
+
+      return cardResponse.data;
+    } catch (e) {
+      return e.response.data.errors;
+    }
+  }
+
+  async settleAssetsWithdraw(payload: SettleWithdrawDto) {
+    const token = await this.redis.get('prime_token');
+    const { funds_transfer_id } = payload;
+    try {
+      const headersRequest = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const withdrawResponse = await lastValueFrom(
+        this.httpService.post(
+          `https://sandbox.primetrust.com/v2/asset-transfers/${funds_transfer_id}/sandbox/settle`,
+          null,
+          {
+            headers: headersRequest,
+          },
+        ),
+      );
+
+      return withdrawResponse.data;
     } catch (e) {
       return e.response.data.errors;
     }

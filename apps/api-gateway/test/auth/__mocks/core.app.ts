@@ -1,3 +1,4 @@
+import { MainService } from '@/payment-gateway/services/main.service';
 import { PaymentGatewayWebhooksService } from '@/payment-gateway/services/payment-gateway-webhooks.service';
 import { PaymentGatewayService } from '@/payment-gateway/services/payment-gateway.service';
 import { UserCheckService } from '@/user/services/user-check.service';
@@ -37,6 +38,12 @@ export default async (config: ConfigService<ConfigInterface>) => {
       },
       {
         provide: PaymentGatewayService,
+        useValue: {
+          createUser: jest.fn().mockResolvedValue(false),
+        },
+      },
+      {
+        provide: MainService,
         useValue: {
           createUser: jest.fn().mockResolvedValue(false),
         },

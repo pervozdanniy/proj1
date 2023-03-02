@@ -11,16 +11,16 @@ service PaymentGatewayService {
   rpc CreateAccount (UserIdRequest) returns (AccountResponse);
   rpc GetAccount (UserIdRequest) returns (AccountResponse);
   rpc GetContact (UserIdRequest) returns (ContactResponse);
-  rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
-  rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
-  rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc GetBalance (UserIdRequest) returns (BalanceResponse);
-  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
-  rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
-  rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
+
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
+
+  //banks
+  rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
+  rpc GetBanksInfo (UserIdRequest) returns (BanksInfoResponse);
+  rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
 
   //deposit funds
   rpc CreateReference (CreateReferenceRequest) returns (JsonData);
@@ -29,7 +29,6 @@ service PaymentGatewayService {
   rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
   rpc CreateCreditCardResource (UserIdRequest) returns (CreditCardResourceResponse);
   rpc VerifyCreditCard (VerifyCreditCardRequest) returns (common.SuccessResponse);
-  rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
   rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
   rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
 
@@ -38,12 +37,29 @@ service PaymentGatewayService {
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
 
   //withdrawal
-  rpc GetWithdrawalById (UserIdRequest) returns (WithdrawalDataResponse);
-  rpc GetWithdrawalParams (UserIdRequest) returns (WithdrawalsDataResponse);
-  rpc AddWithdrawalParams (WithdrawalParams) returns (WithdrawalResponse);
   rpc MakeWithdrawal (TransferMethodRequest) returns (JsonData);
-  rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
 
+
+
+  //webhooks
+  rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
+  rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
+  rpc updateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
+}
+
+message BanksInfoResponse{
+  repeated BankInfo data = 1;
+}
+
+message BankInfo {
+    string bankCode = 1;
+    string name = 2;
+    string institutionName = 3;
+    string transferCode = 4;
 }
 
 message CreateReferenceRequest {
@@ -61,18 +77,8 @@ message SearchTransactionRequest {
 }
 
 message WalletResponse {
-  string wallet_address = 3;
-}
-
-
-message WithdrawalDataResponse {
-  uint32 id = 1;
-  uint32 params_id = 2;
-  string uuid = 3;
-  string amount = 4;
-  string currency_type = 5;
-  string status = 6;
-  string created_at = 7;
+  string wallet_address = 1;
+  string asset_transfer_method_id = 2;
 }
 
 message DepositParamsResponse{
@@ -132,6 +138,12 @@ message ContactResponse {
 
 }
 
+message AssetWithdrawalRequest {
+  uint32 id = 1;
+  string amount = 2;
+  string wallet = 3;
+}
+
 message AccountResponse {
   string uuid = 1;
   string name = 2;
@@ -175,7 +187,8 @@ message BankAccountParams{
   uint32 id = 1;
   string bank_account_name = 2;
   string bank_account_number = 3;
-  string routing_number = 4;
+  optional string routing_number = 4;
+  optional string bank_code = 5;
 }
 
 message BankAccountsResponse {
@@ -227,10 +240,6 @@ message CreditCardResourceResponse {
   string resource_token = 2;
 }
 
-message WithdrawalsDataResponse{
-  repeated Withdrawal data = 1;
-}
-
 message Withdrawal {
   uint32 id = 1;
   string transfer_method_id = 2;
@@ -249,8 +258,9 @@ message PaymentGateway {
 
 message TransferMethodRequest {
   uint32 id = 1;
-  string funds_transfer_method_id = 2;
-  string amount = 3;
+  uint32 bank_account_id = 2;
+  string funds_transfer_type = 3;
+  string amount = 4;
 }
 
 message WithdrawalResponse{

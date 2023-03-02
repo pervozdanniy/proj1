@@ -3,6 +3,7 @@ import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { PrimeKycManager } from '@/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
+import { AccountType, ContactType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -102,7 +103,7 @@ export class PrimeAccountManager {
         method: 'get',
         url: `${this.prime_trust_url}/v2/contacts`,
       });
-      const contactData = contactResponse.data.data.filter((contact) => {
+      const contactData = contactResponse.data.data.filter((contact: ContactType) => {
         return contact.attributes['account-id'] === account.uuid;
       });
 
@@ -141,16 +142,16 @@ export class PrimeAccountManager {
     });
   }
 
-  async saveAccount(accountData, user_id: number): Promise<PrimeTrustAccountEntity> {
+  async saveAccount(accountData: AccountType, user_id: number): Promise<PrimeTrustAccountEntity> {
     try {
-      const accountPayload = {
+      const accountPayload: PrimeTrustAccountEntity = {
         user_id,
         uuid: accountData.id,
         name: accountData.attributes.name,
         number: accountData.attributes.number,
         contributions_frozen: accountData.attributes['contributions-frozen'],
         disbursements_frozen: accountData.attributes['disbursements-frozen'],
-        statements: accountData.attributes['contributions-frozen'],
+        statements: accountData.attributes['statements'],
         solid_freeze: accountData.attributes['solid-freeze'],
         offline_cold_storage: accountData.attributes['offline-cold-storage'],
         status: accountData.attributes.status,

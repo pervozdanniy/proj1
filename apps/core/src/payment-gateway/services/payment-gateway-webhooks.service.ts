@@ -6,31 +6,33 @@ import { PrimeTrustService } from './prime_trust/prime-trust.service';
 export class PaymentGatewayWebhooksService {
   constructor(private primeTrustService: PrimeTrustService) {}
 
-  async updateAccount(request: AccountIdRequest) {
+  updateAccount(request: AccountIdRequest) {
     return this.primeTrustService.updateAccount(request.id);
   }
 
-  async documentCheck(request: AccountIdRequest) {
+  documentCheck(request: AccountIdRequest) {
     return this.primeTrustService.documentCheck(request);
   }
 
-  async cipCheck(request: AccountIdRequest) {
+  cipCheck(request: AccountIdRequest) {
     const { id, resource_id } = request;
 
     return this.primeTrustService.cipCheck(id, resource_id);
   }
 
-  async updateBalance(request: AccountIdRequest) {
+  updateBalance(request: AccountIdRequest) {
     return this.primeTrustService.updateAccountBalance(request.id);
   }
 
-  async updateWithdraw(request: AccountIdRequest) {
-    const { resource_id } = request;
-
-    return this.primeTrustService.updateWithdraw(resource_id);
+  updateWithdraw(request: AccountIdRequest) {
+    return this.primeTrustService.updateWithdraw(request);
   }
 
-  async updateContribution(request: AccountIdRequest) {
+  updateContribution(request: AccountIdRequest) {
     return this.primeTrustService.updateContribution(request);
+  }
+
+  updateAssetDeposit(request: AccountIdRequest) {
+    return this.primeTrustService.updateAssetDeposit(request);
   }
 }

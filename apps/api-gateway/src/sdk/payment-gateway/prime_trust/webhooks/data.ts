@@ -10,6 +10,6 @@ export const webhookData: string[] = [
   'contacts',
   'contingent_holds',
   'disbursement_authorizations',
-  'funds-transfers',
-  'asset-transfers',
+  'funds_transfers',
+  'asset_transfers',
 ];

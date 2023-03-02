@@ -16,7 +16,6 @@ import {
   UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
-  WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 
 @Injectable()
@@ -79,18 +78,10 @@ export class PaymentGatewayService implements OnModuleInit {
     return { data: JSON.parse(response.data) };
   }
 
-  addWithdrawalParams(data: WithdrawalParams) {
-    return lastValueFrom(this.paymentGatewayServiceClient.addWithdrawalParams(data));
-  }
-
   async makeWithdrawal(data: TransferMethodRequest) {
     const response = await lastValueFrom(this.paymentGatewayServiceClient.makeWithdrawal(data));
 
     return { data: JSON.parse(response.data) };
-  }
-
-  getWithdrawalParams(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getWithdrawalParams(data));
   }
 
   createCreditCardResource(data: UserIdRequest) {
@@ -136,15 +127,19 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getDepositById(data));
   }
 
-  getWithdrawalById(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getWithdrawalById(data));
-  }
-
   getTransactions(data: SearchTransactionRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getTransactions(data));
   }
 
   getDepositParams(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getDepositParams(data));
+  }
+
+  getBanksInfo(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getBanksInfo(data));
+  }
+
+  updateAssetDeposit(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateAssetDeposit(data));
   }
 }

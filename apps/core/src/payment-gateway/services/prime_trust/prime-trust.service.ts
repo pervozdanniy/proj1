@@ -2,6 +2,7 @@ import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
+  AssetWithdrawalRequest,
   BankAccountParams,
   CreateReferenceRequest,
   DepositParamRequest,
@@ -10,7 +11,6 @@ import {
   TransferFundsRequest,
   TransferMethodRequest,
   UserIdRequest,
-  WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from './managers/prime-account.manager';
 import { PrimeAssetsManager } from './managers/prime-assets.manager';
@@ -83,24 +83,16 @@ export class PrimeTrustService {
     return this.primeBalanceManager.getAccountBalance(id);
   }
 
-  addWithdrawalParams(request: WithdrawalParams) {
-    return this.primeWithdrawalManager.addWithdrawalParams(request);
-  }
-
   makeWithdrawal(request: TransferMethodRequest) {
     return this.primeWithdrawalManager.makeWithdrawal(request);
   }
 
-  updateWithdraw(resource_id: string) {
-    return this.primeWithdrawalManager.updateWithdraw(resource_id);
+  updateWithdraw(request: AccountIdRequest) {
+    return this.primeWithdrawalManager.updateWithdraw(request);
   }
 
   updateContribution(request: AccountIdRequest) {
     return this.primeDepositManager.updateContribution(request);
-  }
-
-  getWithdrawalParams(id: number) {
-    return this.primeWithdrawalManager.getWithdrawalParams(id);
   }
 
   createCreditCardResource(id: number) {
@@ -123,8 +115,8 @@ export class PrimeTrustService {
     return this.primeBankAccountManager.addBankAccountParams(request);
   }
 
-  getBankAccounts(id: number) {
-    return this.primeBankAccountManager.getBankAccounts(id);
+  getBankAccounts(id: number, country: string) {
+    return this.primeBankAccountManager.getBankAccounts(id, country);
   }
 
   makeContribution(request: MakeContributionRequest) {
@@ -154,11 +146,19 @@ export class PrimeTrustService {
     return this.primeDepositManager.getDepositParams(id);
   }
 
-  getWithdrawalById(request: UserIdRequest) {
-    return this.primeWithdrawalManager.getWithdrawalById(request);
-  }
-
   createWallet(depositParams: CreateReferenceRequest) {
     return this.primeAssetsManager.createWallet(depositParams);
+  }
+
+  updateAssetDeposit(request: AccountIdRequest) {
+    return this.primeAssetsManager.updateAssetDeposit(request);
+  }
+
+  getBanksInfo(country: string) {
+    return this.primeBankAccountManager.getBanksInfo(country);
+  }
+
+  async makeAssetWithdrawal(request: AssetWithdrawalRequest) {
+    return this.primeAssetsManager.makeAssetWithdrawal(request);
   }
 }

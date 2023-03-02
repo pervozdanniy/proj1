@@ -4,6 +4,13 @@ import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustKycDocumentEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
+import {
+  CipCheckType,
+  ContactType,
+  DocumentCheckType,
+  DocumentDataType,
+  FileType,
+} from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -96,22 +103,22 @@ export class PrimeKycManager {
     }
   }
 
-  collectContactData(contactData) {
+  collectContactData(contactData: ContactType) {
     return {
-      uuid: contactData.data.id,
-      first_name: contactData.data.attributes['first-name'],
-      last_name: contactData.data.attributes['last-name'],
-      middle_name: contactData.data.attributes['middle-name'],
-      identity_fingerprint: contactData.data.attributes['identity-fingerprint'],
-      proof_of_address_documents_verified: contactData.data.attributes['proof-of-address-documents-verified'],
-      identity_documents_verified: contactData.data.attributes['identity-documents-verified'],
-      aml_cleared: contactData.data.attributes['aml-cleared'],
-      cip_cleared: contactData.data.attributes['cip-cleared'],
-      identity_confirmed: contactData.data.attributes['identity-confirmed'],
+      uuid: contactData.id,
+      first_name: contactData.attributes['first-name'],
+      last_name: contactData.attributes['last-name'],
+      middle_name: contactData.attributes['middle-name'],
+      identity_fingerprint: contactData.attributes['identity-fingerprint'],
+      proof_of_address_documents_verified: contactData.attributes['proof-of-address-documents-verified'],
+      identity_documents_verified: contactData.attributes['identity-documents-verified'],
+      aml_cleared: contactData.attributes['aml-cleared'],
+      cip_cleared: contactData.attributes['cip-cleared'],
+      identity_confirmed: contactData.attributes['identity-confirmed'],
     };
   }
 
-  async saveContact(contactData, user_id) {
+  async saveContact(contactData: any, user_id: number) {
     const data = this.collectContactData(contactData);
     await this.primeTrustContactEntityRepository.save(
       this.primeTrustContactEntityRepository.create({
@@ -142,7 +149,7 @@ export class PrimeKycManager {
     return this.saveDocument(documentResponse.data, account.contact.user_id, documentCheckResponse.data);
   }
 
-  async kycDocumentCheck(document_uuid, contact_uuid, label, country_code) {
+  async kycDocumentCheck(document_uuid: string, contact_uuid: string, label: string, country_code: string) {
     const formData = {
       data: {
         type: 'kyc-document-checks',
@@ -179,7 +186,7 @@ export class PrimeKycManager {
         // });
 
         // approve cip for development
-        contactData.data.included.map(async (inc) => {
+        contactData.data.included.map(async (inc: CipCheckType) => {
           if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
             await this.httpService.request({
               method: 'post',
@@ -204,7 +211,7 @@ export class PrimeKycManager {
     }
   }
 
-  async sendDocument(file, label, contact_uuid) {
+  async sendDocument(file: FileType, label: string, contact_uuid: string) {
     const bodyFormData = new FormData();
     bodyFormData.append('contact-id', contact_uuid);
     bodyFormData.append('label', label);
@@ -233,7 +240,7 @@ export class PrimeKycManager {
     }
   }
 
-  async saveDocument(documentData, user_id, documentCheckResponse) {
+  async saveDocument(documentData: DocumentDataType, user_id: number, documentCheckResponse: DocumentCheckType) {
     try {
       await this.primeTrustKycDocumentEntityRepository.save(
         this.primeTrustKycDocumentEntityRepository.create({
@@ -304,7 +311,7 @@ export class PrimeKycManager {
         url: `${this.prime_trust_url}/v2/contacts`,
       });
 
-      const cData = contactResponse.data.data.find((c) => {
+      const cData = contactResponse.data.data.find((c: ContactType) => {
         return c.id === contact_id;
       });
 
@@ -314,7 +321,7 @@ export class PrimeKycManager {
         where: { uuid: contactData.data.id },
       });
 
-      const data = this.collectContactData(contactData);
+      const data = this.collectContactData(contactData.data);
       await this.primeTrustContactEntityRepository.save({
         ...contact,
         ...data,

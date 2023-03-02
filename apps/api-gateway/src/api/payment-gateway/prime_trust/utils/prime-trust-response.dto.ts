@@ -15,9 +15,6 @@ import {
   DocumentResponse,
   TransferFunds,
   TransferFundsResponse,
-  Withdrawal,
-  WithdrawalResponse,
-  WithdrawalsDataResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 
 export class ContactResponseDTO implements ContactResponse {
@@ -156,28 +153,4 @@ export class TransferFundsResponseDTO implements TransferFundsResponse {
   @ApiProperty({ type: TransferFundsDTO, isArray: true })
   @Type(() => TransferFundsDTO)
   data: TransferFundsDTO | undefined;
-}
-
-export class WithdrawalDTO implements Withdrawal {
-  @ApiProperty()
-  id: number;
-  @ApiProperty()
-  bank_account_name: string;
-  @ApiProperty()
-  bank_account_number: string;
-  @ApiProperty()
-  funds_transfer_type: string;
-  @ApiProperty()
-  routing_number: string;
-  @ApiProperty()
-  transfer_method_id: string;
-}
-
-export class WithdrawalsDataResponseDTO implements WithdrawalsDataResponse {
-  data: WithdrawalDTO[];
-}
-
-export class WithdrawalResponseDTO implements WithdrawalResponse {
-  @ApiProperty()
-  transfer_method_id: string;
 }

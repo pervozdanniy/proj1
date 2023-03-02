@@ -6,6 +6,17 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
+export interface BanksInfoResponse {
+  data: BankInfo[];
+}
+
+export interface BankInfo {
+  bankCode: string;
+  name: string;
+  institutionName: string;
+  transferCode: string;
+}
+
 export interface CreateReferenceRequest {
   id: number;
   amount: string;
@@ -21,16 +32,7 @@ export interface SearchTransactionRequest {
 
 export interface WalletResponse {
   wallet_address: string;
-}
-
-export interface WithdrawalDataResponse {
-  id: number;
-  params_id: number;
-  uuid: string;
-  amount: string;
-  currency_type: string;
-  status: string;
-  created_at: string;
+  asset_transfer_method_id: string;
 }
 
 export interface DepositParamsResponse {
@@ -88,6 +90,12 @@ export interface ContactResponse {
   cip_cleared: boolean;
 }
 
+export interface AssetWithdrawalRequest {
+  id: number;
+  amount: string;
+  wallet: string;
+}
+
 export interface AccountResponse {
   uuid: string;
   name: string;
@@ -128,7 +136,8 @@ export interface BankAccountParams {
   id: number;
   bank_account_name: string;
   bank_account_number: string;
-  routing_number: string;
+  routing_number?: string | undefined;
+  bank_code?: string | undefined;
 }
 
 export interface BankAccountsResponse {
@@ -179,10 +188,6 @@ export interface CreditCardResourceResponse {
   resource_token: string;
 }
 
-export interface WithdrawalsDataResponse {
-  data: Withdrawal[];
-}
-
 export interface Withdrawal {
   id: number;
   transfer_method_id: string;
@@ -200,7 +205,8 @@ export interface PaymentGateway {
 
 export interface TransferMethodRequest {
   id: number;
-  funds_transfer_method_id: string;
+  bank_account_id: number;
+  funds_transfer_type: string;
   amount: string;
 }
 
@@ -270,25 +276,21 @@ export interface PaymentGatewayServiceClient {
 
   getContact(request: UserIdRequest, ...rest: any): Observable<ContactResponse>;
 
-  updateAccount(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
   createContact(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   uploadDocument(request: UploadDocumentRequest, ...rest: any): Observable<DocumentResponse>;
 
-  documentCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  cipCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
   getBalance(request: UserIdRequest, ...rest: any): Observable<BalanceResponse>;
 
-  updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+  getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
+
+  /** banks */
 
   getBankAccounts(request: UserIdRequest, ...rest: any): Observable<BankAccountsResponse>;
 
-  addBankAccountParams(request: BankAccountParams, ...rest: any): Observable<BankAccountParams>;
+  getBanksInfo(request: UserIdRequest, ...rest: any): Observable<BanksInfoResponse>;
 
-  getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
+  addBankAccountParams(request: BankAccountParams, ...rest: any): Observable<BankAccountParams>;
 
   /** deposit funds */
 
@@ -304,8 +306,6 @@ export interface PaymentGatewayServiceClient {
 
   verifyCreditCard(request: VerifyCreditCardRequest, ...rest: any): Observable<SuccessResponse>;
 
-  updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
   makeContribution(request: MakeContributionRequest, ...rest: any): Observable<ContributionResponse>;
 
   getCreditCards(request: UserIdRequest, ...rest: any): Observable<CreditCardsResponse>;
@@ -316,15 +316,23 @@ export interface PaymentGatewayServiceClient {
 
   /** withdrawal */
 
-  getWithdrawalById(request: UserIdRequest, ...rest: any): Observable<WithdrawalDataResponse>;
-
-  getWithdrawalParams(request: UserIdRequest, ...rest: any): Observable<WithdrawalsDataResponse>;
-
-  addWithdrawalParams(request: WithdrawalParams, ...rest: any): Observable<WithdrawalResponse>;
-
   makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<JsonData>;
 
+  /** webhooks */
+
+  documentCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  cipCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  updateAccount(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
   updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  updateAssetDeposit(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -350,11 +358,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<ContactResponse> | Observable<ContactResponse> | ContactResponse;
 
-  updateAccount(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
   createContact(
     request: UserIdRequest,
     ...rest: any
@@ -365,40 +368,32 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<DocumentResponse> | Observable<DocumentResponse> | DocumentResponse;
 
-  documentCheck(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  cipCheck(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
   getBalance(
     request: UserIdRequest,
     ...rest: any
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 
-  updateBalance(
-    request: AccountIdRequest,
+  getTransactions(
+    request: SearchTransactionRequest,
     ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+  ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
+
+  /** banks */
 
   getBankAccounts(
     request: UserIdRequest,
     ...rest: any
   ): Promise<BankAccountsResponse> | Observable<BankAccountsResponse> | BankAccountsResponse;
 
+  getBanksInfo(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<BanksInfoResponse> | Observable<BanksInfoResponse> | BanksInfoResponse;
+
   addBankAccountParams(
     request: BankAccountParams,
     ...rest: any
   ): Promise<BankAccountParams> | Observable<BankAccountParams> | BankAccountParams;
-
-  getTransactions(
-    request: SearchTransactionRequest,
-    ...rest: any
-  ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
 
   /** deposit funds */
 
@@ -429,11 +424,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  updateContribution(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
   makeContribution(
     request: MakeContributionRequest,
     ...rest: any
@@ -453,24 +443,41 @@ export interface PaymentGatewayServiceController {
 
   /** withdrawal */
 
-  getWithdrawalById(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<WithdrawalDataResponse> | Observable<WithdrawalDataResponse> | WithdrawalDataResponse;
-
-  getWithdrawalParams(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<WithdrawalsDataResponse> | Observable<WithdrawalsDataResponse> | WithdrawalsDataResponse;
-
-  addWithdrawalParams(
-    request: WithdrawalParams,
-    ...rest: any
-  ): Promise<WithdrawalResponse> | Observable<WithdrawalResponse> | WithdrawalResponse;
-
   makeWithdrawal(request: TransferMethodRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
 
+  /** webhooks */
+
+  documentCheck(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  cipCheck(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  updateAccount(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  updateBalance(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  updateContribution(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
   updateWithdraw(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  updateAssetDeposit(
     request: AccountIdRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
@@ -484,31 +491,30 @@ export function PaymentGatewayServiceControllerMethods() {
       "createAccount",
       "getAccount",
       "getContact",
-      "updateAccount",
       "createContact",
       "uploadDocument",
-      "documentCheck",
-      "cipCheck",
       "getBalance",
-      "updateBalance",
-      "getBankAccounts",
-      "addBankAccountParams",
       "getTransactions",
+      "getBankAccounts",
+      "getBanksInfo",
+      "addBankAccountParams",
       "createReference",
       "addDepositParams",
       "getDepositById",
       "getDepositParams",
       "createCreditCardResource",
       "verifyCreditCard",
-      "updateContribution",
       "makeContribution",
       "getCreditCards",
       "transferFunds",
-      "getWithdrawalById",
-      "getWithdrawalParams",
-      "addWithdrawalParams",
       "makeWithdrawal",
+      "documentCheck",
+      "cipCheck",
+      "updateAccount",
+      "updateBalance",
+      "updateContribution",
       "updateWithdraw",
+      "updateAssetDeposit",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

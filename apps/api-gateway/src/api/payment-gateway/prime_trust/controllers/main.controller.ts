@@ -96,6 +96,7 @@ export class MainController {
 
   @Post('/account/webhook')
   async webhook(@Body() payload: any) {
+    this.logger.log(payload);
     const {
       resource_type,
       action,
@@ -124,14 +125,20 @@ export class MainController {
       if (allParamsExist) {
         return this.paymentGatewayService.updateContribution(sendData);
       }
-
-      return this.paymentGatewayService.updateContribution(sendData);
     }
     if (resource_type === 'funds_transfers' && action === 'update') {
       return this.paymentGatewayService.updateBalance(sendData);
     }
     if (resource_type === 'disbursements' && action === 'update') {
       return this.paymentGatewayService.updateWithdraw(sendData);
+    }
+    if (resource_type === 'asset_transfers' && action === 'update') {
+      const paramsToCheck = ['status', 'unit-count', 'from-wallet-address'];
+
+      const allParamsExist = paramsToCheck.every((param) => changes.includes(param));
+      if (allParamsExist) {
+        return this.paymentGatewayService.updateAssetDeposit(sendData);
+      }
     }
 
     const match = webhookData.find((e) => e === resource_type);
@@ -194,6 +201,19 @@ export class MainController {
   async getBankAccounts(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBankAccounts({ id });
   }
+
+  @ApiOperation({ summary: 'Get Banks information from user country.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: BankAccountResponseDTO,
+  })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Get('available/banks')
+  async getBanksInfo(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getBanksInfo({ id });
+  }
+
   @ApiOperation({ summary: 'Add Bank Account params.' })
   @ApiResponse({
     status: HttpStatus.CREATED,

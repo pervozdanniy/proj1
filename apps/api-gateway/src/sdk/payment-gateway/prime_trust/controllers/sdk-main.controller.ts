@@ -1,4 +1,7 @@
-import { TransferFundsResponseDTO } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
+import {
+  BankAccountResponseDTO,
+  TransferFundsResponseDTO,
+} from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
 import { webhookData } from '@/sdk/payment-gateway/prime_trust/webhooks/data';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -116,6 +119,14 @@ export class SdkMainController {
     if (resource_type === 'disbursements' && action === 'update') {
       return this.paymentGatewayService.updateWithdraw(sendData);
     }
+    if (resource_type === 'asset_transfers' && action === 'update') {
+      const paramsToCheck = ['status', 'unit-count', 'from-wallet-address'];
+
+      const allParamsExist = paramsToCheck.every((param) => changes.includes(param));
+      if (allParamsExist) {
+        return this.paymentGatewayService.updateAssetDeposit(sendData);
+      }
+    }
 
     const match = webhookData.find((e) => e === resource_type);
     if (!match) {
@@ -166,6 +177,17 @@ export class SdkMainController {
   @Get('/bank/account')
   async getBankAccounts(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBankAccounts({ id });
+  }
+
+  @ApiOperation({ summary: 'Get Banks information from Latin America.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: BankAccountResponseDTO,
+  })
+  @JwtSessionAuth()
+  @Get('/banks/latin_america')
+  async getBanksInfo(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getBanksInfo({ id });
   }
   @ApiOperation({ summary: 'Add Bank Account params.' })
   @ApiResponse({
