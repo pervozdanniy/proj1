@@ -104,7 +104,7 @@ export class SdkDepositController {
   })
   @JwtSessionAuth()
   @Post('/contribution')
-  async makeContribution(@JwtSessionUser() { id }: User, @Body() payload: MakeContributionDto) {
-    return this.paymentGatewayService.makeContribution({ id, ...payload });
+  async makeDeposit(@JwtSessionUser() { id }: User, @Body() payload: MakeContributionDto) {
+    return this.paymentGatewayService.makeDeposit({ id, ...payload });
   }
 }

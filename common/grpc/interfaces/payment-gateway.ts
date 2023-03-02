@@ -121,7 +121,7 @@ export interface DepositResponse {
   transfer_method_id: string;
 }
 
-export interface MakeContributionRequest {
+export interface MakeDepositRequest {
   id: number;
   funds_transfer_method_id: string;
   amount: string;
@@ -306,7 +306,7 @@ export interface PaymentGatewayServiceClient {
 
   verifyCreditCard(request: VerifyCreditCardRequest, ...rest: any): Observable<SuccessResponse>;
 
-  makeContribution(request: MakeContributionRequest, ...rest: any): Observable<ContributionResponse>;
+  makeDeposit(request: MakeDepositRequest, ...rest: any): Observable<ContributionResponse>;
 
   getCreditCards(request: UserIdRequest, ...rest: any): Observable<CreditCardsResponse>;
 
@@ -424,8 +424,8 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  makeContribution(
-    request: MakeContributionRequest,
+  makeDeposit(
+    request: MakeDepositRequest,
     ...rest: any
   ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
 
@@ -504,7 +504,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "getDepositParams",
       "createCreditCardResource",
       "verifyCreditCard",
-      "makeContribution",
+      "makeDeposit",
       "getCreditCards",
       "transferFunds",
       "makeWithdrawal",

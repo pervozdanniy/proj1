@@ -10,7 +10,7 @@ import {
   DepositParamRequest,
   DepositResponse,
   JsonData,
-  MakeContributionRequest,
+  MakeDepositRequest,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import {
@@ -55,8 +55,8 @@ export class USPaymentGateway
     return this.primeTrustService.getCreditCards(id);
   }
 
-  makeDeposit(request: MakeContributionRequest): Promise<ContributionResponse> {
-    return this.primeTrustService.makeContribution(request);
+  makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
+    return this.primeTrustService.makeDeposit(request);
   }
 
   setDepositParams(request: DepositParamRequest): Promise<DepositResponse> {

@@ -29,17 +29,14 @@ service PaymentGatewayService {
   rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
   rpc CreateCreditCardResource (UserIdRequest) returns (CreditCardResourceResponse);
   rpc VerifyCreditCard (VerifyCreditCardRequest) returns (common.SuccessResponse);
-  rpc MakeContribution (MakeContributionRequest) returns (ContributionResponse);
+  rpc MakeDeposit (MakeDepositRequest) returns (ContributionResponse);
   rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
-
 
   //transfer funds
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
 
   //withdrawal
   rpc MakeWithdrawal (TransferMethodRequest) returns (JsonData);
-
-
 
   //webhooks
   rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
@@ -171,7 +168,7 @@ message DepositResponse{
 }
 
 
-message MakeContributionRequest {
+message MakeDepositRequest {
   uint32 id = 1;
   string funds_transfer_method_id = 2;
   string amount = 3;

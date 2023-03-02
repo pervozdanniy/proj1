@@ -27,7 +27,7 @@ import {
   DepositParamsResponse,
   DepositResponse,
   JsonData,
-  MakeContributionRequest,
+  MakeDepositRequest,
   UserIdRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -371,7 +371,7 @@ export class PrimeDepositManager {
     return { data: cards };
   }
 
-  async makeContribution(request: MakeContributionRequest): Promise<ContributionResponse> {
+  async makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
     const { id, funds_transfer_method_id, amount, cvv } = request;
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')

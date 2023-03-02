@@ -17,7 +17,7 @@ import {
   DepositResponse,
   DocumentResponse,
   JsonData,
-  MakeContributionRequest,
+  MakeDepositRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PaymentMethodsResponse,
@@ -127,8 +127,8 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.mainService.getBanksInfo(request);
   }
 
-  makeContribution(request: MakeContributionRequest): Promise<ContributionResponse> {
-    return this.paymentGatewayService.makeContribution(request);
+  makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
+    return this.paymentGatewayService.makeDeposit(request);
   }
 
   addDepositParams(request: DepositParamRequest): Promise<DepositResponse> {
