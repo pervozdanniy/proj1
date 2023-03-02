@@ -1,4 +1,5 @@
 import { BankAccountEntity } from '@/payment-gateway/entities/prime_trust/bank-account.entity';
+import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
@@ -9,7 +10,6 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { BankAccountParams, BanksInfoResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { UserService } from '../../../../user/services/user.service';
 import { KoyweTokenManager } from './koywe-token.manager';
 
 @Injectable()

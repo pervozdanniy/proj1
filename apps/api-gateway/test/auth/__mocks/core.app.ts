@@ -1,3 +1,4 @@
+import { MainService } from '@/payment-gateway/services/main.service';
 import { PaymentGatewayWebhooksService } from '@/payment-gateway/services/payment-gateway-webhooks.service';
 import { PaymentGatewayService } from '@/payment-gateway/services/payment-gateway.service';
 import { UserCheckService } from '@/user/services/user-check.service';
@@ -18,7 +19,6 @@ import { UserService } from '~svc/core/src/user/services/user.service';
 import countryRepoMockFactory from '../../__mocks/country.repository';
 import userDetailRepoMockFactory from '../../__mocks/user-detail.repository';
 import userRepoMockFactory from '../../__mocks/user.repository';
-import {MainService} from "@/payment-gateway/services/main.service";
 
 export default async (config: ConfigService<ConfigInterface>) => {
   const moduleFixture = await Test.createTestingModule({
