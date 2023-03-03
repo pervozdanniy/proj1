@@ -3,7 +3,6 @@ import {
   TransferFundsResponseDTO,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
-import { webhookData } from '@/sdk/payment-gateway/prime_trust/webhooks/data';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
   Body,
@@ -12,7 +11,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Logger,
   Post,
   Query,
   UploadedFile,
@@ -35,7 +33,6 @@ import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
   path: 'sdk/prime_trust',
 })
 export class SdkMainController {
-  private readonly logger = new Logger(SdkMainController.name);
   constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: SdkPaymentGatewayService) {}
 
   @ApiOperation({ summary: 'Get Token.' })
@@ -83,66 +80,18 @@ export class SdkMainController {
   async getContact(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getContact({ id });
   }
-  @Post('/account/webhook')
-  async webhook(@Body() payload: any) {
-    const {
-      resource_type,
-      action,
-      data: { changes },
-    } = payload;
 
-    const sendData = {
-      id: payload['account-id'],
-      resource_id: payload['resource_id'],
-      payment_gateway: 'prime_trust',
-    };
+  //not necessary yet
 
-    if (resource_type === 'accounts' && action === 'update') {
-      return this.paymentGatewayService.updateAccount(sendData);
-    }
-    if (resource_type === 'kyc_document_checks' && action === 'update') {
-      return this.paymentGatewayService.documentCheck(sendData);
-    }
-    if (resource_type === 'cip_checks' && action === 'update') {
-      return this.paymentGatewayService.cipCheck(sendData);
-    }
-    if (resource_type === 'contributions' && action === 'update') {
-      const paramsToCheck = ['amount', 'payment-details', 'status'];
-      const allParamsExist = paramsToCheck.every((param) => changes.includes(param));
-      if (allParamsExist) {
-        return this.paymentGatewayService.updateContribution(sendData);
-      }
-    }
-    if (resource_type === 'funds_transfers' && action === 'update') {
-      return this.paymentGatewayService.updateBalance(sendData);
-    }
-    if (resource_type === 'disbursements' && action === 'update') {
-      return this.paymentGatewayService.updateWithdraw(sendData);
-    }
-    if (resource_type === 'asset_transfers' && action === 'update') {
-      const paramsToCheck = ['status', 'unit-count', 'from-wallet-address'];
-
-      const allParamsExist = paramsToCheck.every((param) => changes.includes(param));
-      if (allParamsExist) {
-        return this.paymentGatewayService.updateAssetDeposit(sendData);
-      }
-    }
-
-    const match = webhookData.find((e) => e === resource_type);
-    if (!match) {
-      this.logger.error(`Webhook ${resource_type} not found!`);
-    }
-  }
-
-  @ApiOperation({ summary: 'Add New Contact.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/contact')
-  async createContact(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.createContact({ id });
-  }
+  // @ApiOperation({ summary: 'Add New Contact.' })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  // })
+  // @JwtSessionAuth()
+  // @Post('/contact')
+  // async createContact(@JwtSessionUser() { id }: User) {
+  //   return this.paymentGatewayService.createContact({ id });
+  // }
 
   @Post('kyc/upload-document')
   @ApiConsumes('multipart/form-data')

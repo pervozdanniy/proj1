@@ -134,7 +134,7 @@ export class PrimeAccountManager {
           type: 'webhook-configs',
           attributes: {
             'contact-email': userDetails.email,
-            url: `${this.app_domain}/prime_trust/account/webhook`,
+            url: `${this.app_domain}/webhook/prime_trust`,
             'account-id': account_id,
           },
         },

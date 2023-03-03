@@ -10,6 +10,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { HttpSessionModule, JwtSessionMiddleware } from '~common/http-session';
+import { SdkWebhooksController } from './controllers/sdk-webhooks.controller';
 
 @Module({
   imports: [HttpModule, HttpSessionModule, ClientsModule.registerAsync([asyncClientOptions('core')])],
@@ -19,6 +20,7 @@ import { HttpSessionModule, JwtSessionMiddleware } from '~common/http-session';
     SdkTransferController,
     SdkWithdrawalController,
     SdkSandboxGatewayController,
+    SdkWebhooksController,
   ],
   providers: [SdkPaymentGatewayService, SdkSandboxService],
 })
