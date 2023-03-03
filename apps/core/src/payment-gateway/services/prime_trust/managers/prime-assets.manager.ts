@@ -264,8 +264,6 @@ export class PrimeAssetsManager {
 
         throw new GrpcException(code, detail);
       } else {
-        console.log(e);
-
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
     }

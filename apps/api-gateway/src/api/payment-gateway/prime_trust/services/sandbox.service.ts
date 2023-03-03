@@ -272,7 +272,6 @@ export class SandboxService {
 
   async addAssets(payload: AddAssetDto) {
     const token = await this.redis.get('prime_token');
-    console.log(process.env.ASSET_ID);
     const { account_id, asset_transfer_method_id, contact_id, unit_count } = payload;
     const formData = {
       data: {
@@ -284,7 +283,7 @@ export class SandboxService {
           'account-id': account_id,
           'asset-transfer-method-id': asset_transfer_method_id,
           'acquisition-on': createDate(),
-          'cost-basis': '4000',
+          'cost-basis': unit_count,
           'currency-type': 'USD',
         },
       },
