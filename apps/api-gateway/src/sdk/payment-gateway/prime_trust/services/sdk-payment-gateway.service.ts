@@ -8,7 +8,7 @@ import {
   BankAccountParams,
   CreateReferenceRequest,
   DepositParamRequest,
-  MakeContributionRequest,
+  MakeDepositRequest,
   PaymentGatewayServiceClient,
   SearchTransactionRequest,
   TransferFundsRequest,
@@ -108,8 +108,8 @@ export class SdkPaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getBankAccounts(data));
   }
 
-  makeContribution(data: MakeContributionRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.makeContribution(data));
+  makeDeposit(data: MakeDepositRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.makeDeposit(data));
   }
 
   getAccount(data: UserIdRequest) {

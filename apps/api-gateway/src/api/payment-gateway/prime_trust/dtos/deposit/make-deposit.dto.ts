@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class MakeContributionDto {
+export class MakeDepositDto {
   @ApiProperty({ example: '1000' })
   @IsString()
   @IsNotEmpty()

@@ -5,7 +5,7 @@ import {
   AccountResponse,
   DepositParamRequest,
   DocumentResponse,
-  MakeContributionRequest,
+  MakeDepositRequest,
   PG_Token,
   SearchTransactionRequest,
   TransferFundsRequest,
@@ -97,8 +97,8 @@ export class PaymentGatewayService {
     return this.primeTrustService.addDepositParams(request);
   }
 
-  async makeContribution(request: MakeContributionRequest) {
-    return this.primeTrustService.makeContribution(request);
+  async makeDeposit(request: MakeDepositRequest) {
+    return this.primeTrustService.makeDeposit(request);
   }
 
   async getBankAccounts(request: UserIdRequest) {

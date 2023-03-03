@@ -133,8 +133,10 @@ export class PrimeAssetsManager {
       this.axiosService.get(`https://min-api.cryptocompare.com/data/price?fsym=${this.asset}&tsyms=USD`),
     );
     const convertedAmount = parseFloat(convertData.data['USD']) * parseFloat(assetResponse['unit-count']);
-
+    let type;
+    convertedAmount < 0 ? (type = 'withdrawal') : (type = 'deposit');
     const amount = String(convertedAmount.toFixed(2));
+
     if (existedDeposit) {
       await this.depositEntityRepository.update({ uuid: resource_id }, { status: assetResponse['status'] });
     } else {
@@ -144,8 +146,8 @@ export class PrimeAssetsManager {
         currency_type: 'USD',
         amount,
         status: assetResponse['status'],
-        param_type: 'asset',
-        type: 'deposit',
+        param_type: 'assets_transfer',
+        type,
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(assetPayload));
     }
@@ -237,17 +239,22 @@ export class PrimeAssetsManager {
           },
         },
       };
-
       const makeWithdrawalResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/asset-disbursements?include=asset-transfer-method,asset-transfer`,
         data: makeWithdrawalData,
       });
 
+      let asset_transfer_id: string;
+      makeWithdrawalResponse.data.included.map(async (t: { type: string; id: string }) => {
+        if (t.type === 'asset-transfers') {
+          asset_transfer_id = t.id;
+        }
+      });
+
       const getAssetInfo = await this.httpService.request({
-        method: 'post',
-        url: `${this.prime_trust_url}/v2/asset-transfers/${makeWithdrawalResponse.data.data['asset-transfer'].data.id}?include=disbursement-authorization`,
-        data: makeWithdrawalData,
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/asset-transfers/${asset_transfer_id}?include=disbursement-authorization`,
       });
 
       return { data: JSON.stringify(getAssetInfo.data.data) };

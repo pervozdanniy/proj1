@@ -2,6 +2,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
+import * as process from 'process';
 import { lastValueFrom } from 'rxjs';
 import { createDate } from '~common/helpers';
 import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
@@ -141,7 +142,7 @@ export class SandboxService {
       data: {
         type: 'webhook-configs',
         attributes: {
-          url: `${payload.url}/prime_trust/account/webhook`,
+          url: `${payload.url}/webhook/prime_trust`,
           enabled: true,
         },
       },
@@ -277,12 +278,12 @@ export class SandboxService {
         type: 'asset-contributions',
         attributes: {
           'unit-count': unit_count,
-          'asset-id': 'ecca8bab-dcb2-419a-973e-aebc39ff4f03',
+          'asset-id': process.env.ASSET_ID,
           'contact-id': contact_id,
           'account-id': account_id,
           'asset-transfer-method-id': asset_transfer_method_id,
           'acquisition-on': createDate(),
-          'cost-basis': '4000',
+          'cost-basis': unit_count,
           'currency-type': 'USD',
         },
       },

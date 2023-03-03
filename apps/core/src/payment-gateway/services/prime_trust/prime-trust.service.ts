@@ -6,7 +6,7 @@ import {
   BankAccountParams,
   CreateReferenceRequest,
   DepositParamRequest,
-  MakeContributionRequest,
+  MakeDepositRequest,
   SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
@@ -119,8 +119,8 @@ export class PrimeTrustService {
     return this.primeBankAccountManager.getBankAccounts(id, country);
   }
 
-  makeContribution(request: MakeContributionRequest) {
-    return this.primeDepositManager.makeContribution(request);
+  makeDeposit(request: MakeDepositRequest) {
+    return this.primeDepositManager.makeDeposit(request);
   }
 
   getAccount(id: number) {

@@ -9,7 +9,7 @@ import {
   DepositParamRequest,
   DepositResponse,
   JsonData,
-  MakeContributionRequest,
+  MakeDepositRequest,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 
@@ -38,7 +38,7 @@ export interface CreditCardInterface {
 }
 
 export interface BankDepositInterface {
-  makeDeposit(request: MakeContributionRequest): Promise<ContributionResponse>;
+  makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse>;
 
   setDepositParams(request: DepositParamRequest): Promise<DepositResponse>;
 }

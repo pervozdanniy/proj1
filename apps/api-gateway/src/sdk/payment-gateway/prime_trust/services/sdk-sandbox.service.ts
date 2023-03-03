@@ -136,7 +136,7 @@ export class SdkSandboxService {
       data: {
         type: 'webhook-configs',
         attributes: {
-          url: `${payload.url}/prime_trust/account/webhook`,
+          url: `${payload.url}/webhook/prime_trust`,
           enabled: true,
         },
       },

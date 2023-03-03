@@ -22,7 +22,7 @@ import { User } from '~common/grpc/interfaces/common';
 import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
 import { CreateReferenceDto } from '../dtos/deposit/deposit-funds.dto';
 import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
-import { MakeContributionDto } from '../dtos/deposit/make-contribution.dto';
+import { MakeDepositDto } from '../dtos/deposit/make-deposit.dto';
 import { ResourceDto } from '../dtos/deposit/resource.dto';
 
 @ApiTags('Prime Trust/Deposit Funds')
@@ -105,9 +105,9 @@ export class DepositController {
     type: ContributionResponseDTO,
   })
   @JwtSessionAuth()
-  @Post('/contribution')
-  async makeContribution(@JwtSessionUser() { id }: User, @Body() payload: MakeContributionDto) {
-    return this.paymentGatewayService.makeContribution({ id, ...payload });
+  @Post('/make')
+  async makeDeposit(@JwtSessionUser() { id }: User, @Body() payload: MakeDepositDto) {
+    return this.paymentGatewayService.makeDeposit({ id, ...payload });
   }
 
   @ApiOperation({ summary: 'Get Deposit by id.' })
