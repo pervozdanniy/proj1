@@ -237,4 +237,13 @@ export class MainController {
   async getTransactions(@JwtSessionUser() { id }: User, @Query() query: GetTransfersDto) {
     return this.paymentGatewayService.getTransactions({ user_id: id, ...query });
   }
+
+  @ApiOperation({ summary: 'Get available payment methods for current user.' })
+  @ApiResponse({ type: [String] })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Get('/available-methods')
+  async getAvailablePaymentMethods(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getAvailablePaymentMethods(id);
+  }
 }
