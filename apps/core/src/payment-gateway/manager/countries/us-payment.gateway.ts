@@ -16,7 +16,7 @@ import {
 import {
   BankDepositInterface,
   BankInterface,
-  CreditCardDepositInterface,
+  CreditCardInterface,
   PaymentGatewayInterface,
   PaymentMethods,
   WireDepositInterface,
@@ -30,7 +30,7 @@ export class USPaymentGateway
     PaymentGatewayInterface,
     BankInterface,
     WireDepositInterface,
-    CreditCardDepositInterface,
+    CreditCardInterface,
     BankDepositInterface,
     WithdrawalInterface
 {

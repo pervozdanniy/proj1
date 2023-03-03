@@ -16,7 +16,7 @@ import {
 export type PaymentMethods = 'bank-transfer' | 'credit-card';
 
 export interface PaymentGatewayInterface {
-  getAvailablePaymentMethods(): PaymentMethods[] | Promise<PaymentMethods[]>;
+  getAvailablePaymentMethods(): PaymentMethods[];
 }
 
 export interface BankInterface {
@@ -29,7 +29,7 @@ export interface WireDepositInterface {
   createReference(request: CreateReferenceRequest): Promise<JsonData>;
 }
 
-export interface CreditCardDepositInterface {
+export interface CreditCardInterface {
   verifyCreditCard(resource_id: string): Promise<SuccessResponse>;
 
   getCreditCards(id: number): Promise<CreditCardsResponse>;
