@@ -105,7 +105,7 @@ export class DepositController {
     type: ContributionResponseDTO,
   })
   @JwtSessionAuth()
-  @Post('/contribution')
+  @Post('/make')
   async makeDeposit(@JwtSessionUser() { id }: User, @Body() payload: MakeDepositDto) {
     return this.paymentGatewayService.makeDeposit({ id, ...payload });
   }
