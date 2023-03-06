@@ -11,7 +11,6 @@ import {
   CreateReferenceRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
-  DepositDataResponse,
   DepositParamRequest,
   DepositParamsResponse,
   DepositResponse,
@@ -131,10 +130,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   addDepositParams(request: DepositParamRequest): Promise<DepositResponse> {
     return this.paymentGatewayService.addDepositParams(request);
-  }
-
-  getDepositById(request: UserIdRequest): Promise<DepositDataResponse> {
-    return this.paymentGatewayService.getDepositById(request);
   }
   getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {
     return this.paymentGatewayService.getTransactions(request);

@@ -81,10 +81,6 @@ export class PaymentGatewayService {
   async getContact(id: number) {
     return this.primeTrustService.getContact(id);
   }
-
-  async getDepositById(request: UserIdRequest) {
-    return this.primeTrustService.getDepositById(request);
-  }
   async getTransactions(request: SearchTransactionRequest) {
     return this.primeTrustService.getTransactions(request);
   }

@@ -305,8 +305,6 @@ export interface PaymentGatewayServiceClient {
 
   addDepositParams(request: DepositParamRequest, ...rest: any): Observable<DepositResponse>;
 
-  getDepositById(request: UserIdRequest, ...rest: any): Observable<DepositDataResponse>;
-
   getDepositParams(request: UserIdRequest, ...rest: any): Observable<DepositParamsResponse>;
 
   createCreditCardResource(request: UserIdRequest, ...rest: any): Observable<CreditCardResourceResponse>;
@@ -413,11 +411,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<DepositResponse> | Observable<DepositResponse> | DepositResponse;
 
-  getDepositById(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<DepositDataResponse> | Observable<DepositDataResponse> | DepositDataResponse;
-
   getDepositParams(
     request: UserIdRequest,
     ...rest: any
@@ -514,7 +507,6 @@ export function PaymentGatewayServiceControllerMethods() {
       "addBankAccountParams",
       "createReference",
       "addDepositParams",
-      "getDepositById",
       "getDepositParams",
       "createCreditCardResource",
       "verifyCreditCard",
