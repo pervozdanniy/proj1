@@ -1,6 +1,6 @@
+import { KoyweWebhookType } from '@/sdk/payment-gateway/prime_trust/webhooks/data';
 import { Body, ClassSerializerInterceptor, Controller, Logger, Post, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { KoyweWebhookType } from '../../../../api/payment-gateway/prime_trust/webhooks/data';
 import { SdkPaymentGatewayService } from '../services/sdk-payment-gateway.service';
 import { PrimeTrustWebhookType, webhookData } from '../webhooks/data';
 
