@@ -32,6 +32,7 @@ export class KoyweTokenManager {
     const result = await lastValueFrom(this.httpService.post(`${this.koywe_url}/auth`, data));
     if (result.data) {
       this.redis.set('koywe_token', result.data.token);
+      this.redis.set('koywe_client_id', this.client_id);
     }
 
     return { token: result.data.token };
@@ -45,6 +46,7 @@ export class KoyweTokenManager {
     const result = await lastValueFrom(this.httpService.post(`${this.koywe_url}/auth`, data));
     if (result.data) {
       this.redis.set('koywe_token', result.data.token);
+      this.redis.set('koywe_client_id', this.client_id);
     }
 
     return { token: result.data.token };

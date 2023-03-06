@@ -38,4 +38,14 @@ export class KoyweMainManager {
       throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
     }
   }
+
+  async getPaymentMethodId(currency_type: string): Promise<string> {
+    const clientId = await this.redis.get('koywe_client_id');
+    const paymentMethodResponse = await lastValueFrom(
+      this.httpService.get(`${this.koywe_url}/payment-providers?symbol=${currency_type}&clientId=${clientId}`),
+    );
+
+    //temporary solution,must be changed
+    return paymentMethodResponse.data[0]._id;
+  }
 }
