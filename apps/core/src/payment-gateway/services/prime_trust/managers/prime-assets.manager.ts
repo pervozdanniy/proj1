@@ -1,7 +1,7 @@
 import { NotificationService } from '@/notification/services/notification.service';
+import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
-import { TransfersEntity } from '@/payment-gateway/entities/prime_trust/transfers.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { UserEntity } from '@/user/entities/user.entity';
@@ -134,7 +134,7 @@ export class PrimeAssetsManager {
     );
     const convertedAmount = parseFloat(convertData.data['USD']) * parseFloat(assetResponse['unit-count']);
     let type;
-    convertedAmount < 0 ? (type = 'withdrawal') : (type = 'deposit');
+    convertedAmount < 0 ? (type = 'pre_withdrawal') : (type = 'deposit');
     const amount = String(convertedAmount.toFixed(2));
 
     if (existedDeposit) {

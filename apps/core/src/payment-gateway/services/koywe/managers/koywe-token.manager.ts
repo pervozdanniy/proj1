@@ -36,4 +36,17 @@ export class KoyweTokenManager {
 
     return { token: result.data.token };
   }
+
+  async getCommonToken(): Promise<{ token: string }> {
+    const data = {
+      clientId: this.client_id,
+      secret: this.secret,
+    };
+    const result = await lastValueFrom(this.httpService.post(`${this.koywe_url}/auth`, data));
+    if (result.data) {
+      this.redis.set('koywe_token', result.data.token);
+    }
+
+    return { token: result.data.token };
+  }
 }

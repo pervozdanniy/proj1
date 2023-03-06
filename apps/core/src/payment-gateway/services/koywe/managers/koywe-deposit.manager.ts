@@ -1,16 +1,20 @@
-import { ReferenceData } from '@/payment-gateway/types/koywe';
+import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
+import { KoyweCreateOrder, KoyweQuote, ReferenceData } from '@/payment-gateway/types/koywe';
 import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import Redis from 'ioredis';
 import process from 'process';
 import { lastValueFrom } from 'rxjs';
+import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { KoyweMainManager } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
 
 @Injectable()
@@ -19,6 +23,9 @@ export class KoyweDepositManager {
   constructor(
     private readonly httpService: HttpService,
     private readonly koyweTokenManager: KoyweTokenManager,
+    private readonly koyweMainManager: KoyweMainManager,
+    @InjectRepository(TransfersEntity)
+    private readonly depositEntityRepository: Repository<TransfersEntity>,
 
     private userService: UserService,
     config: ConfigService<ConfigInterface>,
@@ -46,13 +53,27 @@ export class KoyweDepositManager {
     const convertData = await lastValueFrom(
       this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${currency_type}`),
     );
+
     const convertedAmount = parseFloat(beforeConvertAmount) * parseFloat(convertData.data[currency_type]);
 
     const amount = String(convertedAmount.toFixed(2));
 
     const { quoteId } = await this.createQuote(amount, currency_type);
-    const order = await this.createOrder(quoteId, userDetails.email, wallet_address);
-    const parts = order.providedAddress.split('\n');
+    const { orderId, providedAddress } = await this.createOrder(quoteId, userDetails.email, wallet_address);
+    const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
+    const fee = String(networkFee + koyweFee);
+    await this.depositEntityRepository.save(
+      this.depositEntityRepository.create({
+        user_id: id,
+        uuid: orderId,
+        type: 'pre_deposit',
+        amount,
+        currency_type,
+        status: status.toLowerCase(),
+        fee,
+      }),
+    );
+    const parts = providedAddress.split('\n');
 
     const data: ReferenceData = {
       name: parts[0],
@@ -72,7 +93,7 @@ export class KoyweDepositManager {
     return { data: JSON.stringify([data]) };
   }
 
-  async createQuote(amount: string, currency_type: string) {
+  async createQuote(amount: string, currency_type: string): Promise<KoyweQuote> {
     try {
       const formData = {
         symbolIn: currency_type,
@@ -90,7 +111,7 @@ export class KoyweDepositManager {
     }
   }
 
-  async createOrder(quoteId: string, email: string, wallet_address: string) {
+  async createOrder(quoteId: string, email: string, wallet_address: string): Promise<KoyweCreateOrder> {
     try {
       const token = await this.redis.get('koywe_token');
       const formData = {

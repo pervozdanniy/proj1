@@ -17,6 +17,7 @@ import {
   DepositResponse,
   DocumentResponse,
   JsonData,
+  KoyweWebhookRequest,
   MakeDepositRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
@@ -39,9 +40,6 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
-  updateAssetDeposit(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.webhooksService.updateAssetDeposit(request);
-  }
   constructor(
     private mainService: MainService,
     private paymentGatewayService: PaymentGatewayService,
@@ -154,5 +152,12 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   getDepositParams(request: UserIdRequest): Promise<DepositParamsResponse> {
     return this.paymentGatewayService.getDepositParams(request);
+  }
+
+  koyweWebhooksHandler(request: KoyweWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.koyweWebhooksHandler(request);
+  }
+  updateAssetDeposit(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.webhooksService.updateAssetDeposit(request);
   }
 }

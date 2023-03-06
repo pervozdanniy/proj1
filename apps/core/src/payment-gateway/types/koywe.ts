@@ -9,3 +9,19 @@ export type ReferenceData = {
   amount: string;
   currency_type: string;
 };
+
+export type KoyweCreateOrder = {
+  providedAddress: string;
+  orderId: string;
+};
+
+export type KoyweOrderInfo = {
+  koyweFee: number;
+  networkFee: number;
+  orderId: string;
+  status: string;
+};
+
+export type KoyweQuote = {
+  quoteId: string;
+};

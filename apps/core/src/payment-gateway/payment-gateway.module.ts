@@ -7,6 +7,7 @@ import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
+import { TransfersEntity } from './entities/main/transfers.entity';
 import { PaymentGatewayEntity } from './entities/payment-gateway.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
@@ -16,7 +17,6 @@ import { PrimeTrustAccountEntity } from './entities/prime_trust/prime-trust-acco
 import { PrimeTrustBalanceEntity } from './entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
-import { TransfersEntity } from './entities/prime_trust/transfers.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
 import { ChilePaymentGateway } from './manager/countries/chile-payment.gateway';
@@ -26,7 +26,9 @@ import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { KoyweService } from './services/koywe/koywe.service';
 import { KoyweBankAccountManager } from './services/koywe/managers/koywe-bank-account.manager';
 import { KoyweDepositManager } from './services/koywe/managers/koywe-deposit.manager';
+import { KoyweMainManager } from './services/koywe/managers/koywe-main.manager';
 import { KoyweTokenManager } from './services/koywe/managers/koywe-token.manager';
+import { KoyweWebhookManager } from './services/koywe/managers/koywe-webhook.manager';
 import { KoyweWithdrawalManager } from './services/koywe/managers/koywe-withdrawal.manager';
 import { MainService } from './services/main.service';
 import { PaymentGatewayWebhooksService } from './services/payment-gateway-webhooks.service';
@@ -76,6 +78,8 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     KoyweBankAccountManager,
     KoyweTokenManager,
     KoyweWithdrawalManager,
+    KoyweWebhookManager,
+    KoyweMainManager,
     PaymentGatewayWebhooksService,
     PrimeTokenManager,
     PrimeAccountManager,

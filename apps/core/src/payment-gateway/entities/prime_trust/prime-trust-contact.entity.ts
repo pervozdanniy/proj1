@@ -3,7 +3,7 @@ import { BankAccountEntity } from './bank-account.entity';
 import { ContributionEntity } from './contribution.entity';
 import { PrimeTrustAccountEntity } from './prime-trust-account.entity';
 import { PrimeTrustKycDocumentEntity } from './prime-trust-kyc-document.entity';
-import { TransfersEntity } from './transfers.entity';
+import { TransfersEntity } from '../main/transfers.entity';
 import { WithdrawalParamsEntity } from './withdrawal-params.entity';
 
 @Entity('prime_trust_contacts')

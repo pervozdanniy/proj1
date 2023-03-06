@@ -1,7 +1,8 @@
 import { Body, ClassSerializerInterceptor, Controller, Logger, Post, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { KoyweWebhookType } from '../../../../api/payment-gateway/prime_trust/webhooks/data';
 import { SdkPaymentGatewayService } from '../services/sdk-payment-gateway.service';
-import { webhookData } from '../webhooks/data';
+import { PrimeTrustWebhookType, webhookData } from '../webhooks/data';
 
 @ApiTags('SDK/Webhooks')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -13,7 +14,7 @@ export class SdkWebhooksController {
   private readonly logger = new Logger(SdkWebhooksController.name);
   constructor(private paymentGatewayService: SdkPaymentGatewayService) {}
   @Post('/prime_trust')
-  async webhook(@Body() payload: any) {
+  async webhook(@Body() payload: PrimeTrustWebhookType) {
     this.logger.log(payload);
     const {
       resource_type,
@@ -63,5 +64,12 @@ export class SdkWebhooksController {
     if (!match) {
       this.logger.error(`Webhook ${resource_type} not found!`);
     }
+  }
+
+  @Post('/koywe')
+  async koyweHandler(@Body() payload: KoyweWebhookType) {
+    this.logger.log(payload);
+
+    return this.paymentGatewayService.koyweWebhooksHandler(payload);
   }
 }

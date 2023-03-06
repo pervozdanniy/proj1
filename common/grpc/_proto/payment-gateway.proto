@@ -45,7 +45,16 @@ service PaymentGatewayService {
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
-  rpc updateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
+  rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
+}
+
+
+message KoyweWebhookRequest {
+    string eventName = 1;
+    string orderId = 2;
+    string timeStamp = 3;
+    string signature = 4;
 }
 
 message BanksInfoResponse{

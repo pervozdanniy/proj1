@@ -1,7 +1,7 @@
+import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { BankAccountEntity } from '@/payment-gateway/entities/prime_trust/bank-account.entity';
-import { Status } from '@grpc/grpc-js/build/src/constants';
-// import { HttpService } from '@nestjs/axios';
 import { UserService } from '@/user/services/user.service';
+import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
@@ -13,6 +13,8 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { KoyweCreateOrder, KoyweQuote } from '../../../types/koywe';
+import { KoyweMainManager } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
 
 @Injectable()
@@ -20,10 +22,15 @@ export class KoyweWithdrawalManager {
   private readonly koywe_url: string;
   constructor(
     private readonly koyweTokenManager: KoyweTokenManager,
+
+    private readonly koyweMainManager: KoyweMainManager,
     private readonly httpService: HttpService,
     private userService: UserService,
     @InjectRepository(BankAccountEntity)
     private readonly bankAccountEntityRepository: Repository<BankAccountEntity>,
+
+    @InjectRepository(TransfersEntity)
+    private readonly withdrawalEntityRepository: Repository<TransfersEntity>,
     @InjectRedis() private readonly redis: Redis,
 
     config: ConfigService<ConfigInterface>,
@@ -59,12 +66,25 @@ export class KoyweWithdrawalManager {
 
     const amount = String(convertedAmount.toFixed(2));
     const { quoteId } = await this.createQuote(amount, currency_type);
-    const order = await this.createOrder(quoteId, userDetails.email, bank.account_uuid);
+    const { orderId, providedAddress } = await this.createOrder(quoteId, userDetails.email, bank.account_uuid);
+    const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
+    const fee = String(networkFee + koyweFee);
+    await this.withdrawalEntityRepository.save(
+      this.withdrawalEntityRepository.create({
+        user_id: id,
+        uuid: orderId,
+        type: 'withdrawal',
+        amount,
+        currency_type: 'USD',
+        status: status.toLowerCase(),
+        fee,
+      }),
+    );
 
-    return order.providedAddress;
+    return providedAddress;
   }
 
-  async createQuote(amount: string, currency_type: string) {
+  async createQuote(amount: string, currency_type: string): Promise<KoyweQuote> {
     try {
       const formData = {
         symbolIn: 'USDC',
@@ -82,7 +102,7 @@ export class KoyweWithdrawalManager {
     }
   }
 
-  async createOrder(quoteId: string, email: string, bank_id: string) {
+  async createOrder(quoteId: string, email: string, bank_id: string): Promise<KoyweCreateOrder> {
     try {
       const token = await this.redis.get('koywe_token');
       const formData = {
