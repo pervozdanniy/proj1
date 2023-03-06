@@ -9,14 +9,12 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { join } from 'path';
 import { ConfigInterface } from '~common/config/configuration';
 import { CountryService } from '~svc/core/src/country/country.service';
-import { CountryEntity } from '~svc/core/src/country/entities/country.entity';
 import { PaymentGatewayController } from '~svc/core/src/payment-gateway/controllers/payment-gateway.controller';
 import { UserFacadeController } from '~svc/core/src/user-facade/user-facade.controller';
 import { UserDetailsEntity } from '~svc/core/src/user/entities/user-details.entity';
 import { UserEntity } from '~svc/core/src/user/entities/user.entity';
 import { UserContactService } from '~svc/core/src/user/services/user-contact.service';
 import { UserService } from '~svc/core/src/user/services/user.service';
-import countryRepoMockFactory from '../../__mocks/country.repository';
 import userRepoMockFactory from '../../__mocks/user.repository';
 
 export default async (config: ConfigService<ConfigInterface>) => {
@@ -67,10 +65,6 @@ export default async (config: ConfigService<ConfigInterface>) => {
       {
         provide: getRepositoryToken(UserDetailsEntity),
         useValue: {},
-      },
-      {
-        provide: getRepositoryToken(CountryEntity),
-        useFactory: countryRepoMockFactory,
       },
     ],
     controllers: [UserFacadeController, PaymentGatewayController],
