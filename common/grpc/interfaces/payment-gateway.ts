@@ -6,6 +6,13 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
+export interface KoyweWebhookRequest {
+  eventName: string;
+  orderId: string;
+  timeStamp: string;
+  signature: string;
+}
+
 export interface BanksInfoResponse {
   data: BankInfo[];
 }
@@ -298,8 +305,6 @@ export interface PaymentGatewayServiceClient {
 
   addDepositParams(request: DepositParamRequest, ...rest: any): Observable<DepositResponse>;
 
-  getDepositById(request: UserIdRequest, ...rest: any): Observable<DepositDataResponse>;
-
   getDepositParams(request: UserIdRequest, ...rest: any): Observable<DepositParamsResponse>;
 
   createCreditCardResource(request: UserIdRequest, ...rest: any): Observable<CreditCardResourceResponse>;
@@ -333,6 +338,8 @@ export interface PaymentGatewayServiceClient {
   updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   updateAssetDeposit(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  koyweWebhooksHandler(request: KoyweWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -403,11 +410,6 @@ export interface PaymentGatewayServiceController {
     request: DepositParamRequest,
     ...rest: any
   ): Promise<DepositResponse> | Observable<DepositResponse> | DepositResponse;
-
-  getDepositById(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<DepositDataResponse> | Observable<DepositDataResponse> | DepositDataResponse;
 
   getDepositParams(
     request: UserIdRequest,
@@ -481,6 +483,11 @@ export interface PaymentGatewayServiceController {
     request: AccountIdRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  koyweWebhooksHandler(
+    request: KoyweWebhookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -500,7 +507,6 @@ export function PaymentGatewayServiceControllerMethods() {
       "addBankAccountParams",
       "createReference",
       "addDepositParams",
-      "getDepositById",
       "getDepositParams",
       "createCreditCardResource",
       "verifyCreditCard",
@@ -515,6 +521,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "updateContribution",
       "updateWithdraw",
       "updateAssetDeposit",
+      "koyweWebhooksHandler",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

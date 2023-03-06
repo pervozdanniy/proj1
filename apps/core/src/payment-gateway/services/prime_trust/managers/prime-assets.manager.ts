@@ -1,7 +1,7 @@
 import { NotificationService } from '@/notification/services/notification.service';
+import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
-import { TransfersEntity } from '@/payment-gateway/entities/prime_trust/transfers.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { UserEntity } from '@/user/entities/user.entity';
@@ -134,7 +134,7 @@ export class PrimeAssetsManager {
     );
     const convertedAmount = parseFloat(convertData.data['USD']) * parseFloat(assetResponse['unit-count']);
     let type;
-    convertedAmount < 0 ? (type = 'withdrawal') : (type = 'deposit');
+    convertedAmount < 0 ? (type = 'pre_withdrawal') : (type = 'deposit');
     const amount = String(convertedAmount.toFixed(2));
 
     if (existedDeposit) {
@@ -256,8 +256,16 @@ export class PrimeAssetsManager {
         method: 'get',
         url: `${this.prime_trust_url}/v2/asset-transfers/${asset_transfer_id}?include=disbursement-authorization`,
       });
+      const assetData = getAssetInfo.data.data;
 
-      return { data: JSON.stringify(getAssetInfo.data.data) };
+      const response = {
+        id: assetData.id,
+        type: assetData.type,
+        attributes: assetData.attributes,
+        disbursement_authorization: assetData.relationships['disbursement-authorization'],
+      };
+
+      return { data: JSON.stringify(response) };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();

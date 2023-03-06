@@ -1,10 +1,10 @@
 import { NotificationService } from '@/notification/services/notification.service';
+import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { BankAccountEntity } from '@/payment-gateway/entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from '@/payment-gateway/entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from '@/payment-gateway/entities/prime_trust/deposit-params.entity';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
-import { TransfersEntity } from '@/payment-gateway/entities/prime_trust/transfers.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { UserEntity } from '@/user/entities/user.entity';
@@ -22,13 +22,11 @@ import {
   CreateReferenceRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
-  DepositDataResponse,
   DepositParamRequest,
   DepositParamsResponse,
   DepositResponse,
   JsonData,
   MakeDepositRequest,
-  UserIdRequest,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
@@ -474,20 +472,6 @@ export class PrimeDepositManager {
     if (bank) {
       throw new GrpcException(Status.ABORTED, 'Bank account does`nt exist!', 400);
     }
-  }
-
-  async getDepositById(request: UserIdRequest): Promise<DepositDataResponse> {
-    const { id, resource_id } = request;
-    const deposit = await this.depositEntityRepository
-      .createQueryBuilder('c')
-      .select('*')
-      .where('c.id = :resource_id AND c.user_id=:id AND type=:type', { resource_id, id, type: 'deposit' })
-      .getRawOne();
-    if (!deposit) {
-      throw new GrpcException(Status.NOT_FOUND, 'Deposit not found!', 404);
-    }
-
-    return deposit;
   }
 
   async getDepositParams(id: number): Promise<DepositParamsResponse> {

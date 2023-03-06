@@ -10,7 +10,6 @@ import {
   SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
-  UserIdRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from './managers/prime-account.manager';
 import { PrimeAssetsManager } from './managers/prime-assets.manager';
@@ -136,10 +135,6 @@ export class PrimeTrustService {
 
   getTransactions(request: SearchTransactionRequest) {
     return this.primeTransactionsManager.getTransactions(request);
-  }
-
-  getDepositById(request: UserIdRequest) {
-    return this.primeDepositManager.getDepositById(request);
   }
 
   getDepositParams(id: number) {

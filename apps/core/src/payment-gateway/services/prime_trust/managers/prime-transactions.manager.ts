@@ -1,4 +1,4 @@
-import { TransfersEntity } from '@/payment-gateway/entities/prime_trust/transfers.entity';
+import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { UserDetailsEntity } from '@/user/entities/user-details.entity';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
