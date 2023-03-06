@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { BankAccountParams, BanksInfoResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { countriesData, CountryData } from '../../../country/data';
 import { KoyweTokenManager } from './koywe-token.manager';
 
 @Injectable()
@@ -35,9 +36,8 @@ export class KoyweBankAccountManager {
         data: [],
       };
     }
-    const codeResponse = await lastValueFrom(this.httpService.get(`https://restcountries.com/v3.1/alpha/${country}`));
-
-    const code = codeResponse.data[0].cca3;
+    const countries: CountryData = countriesData;
+    const { code } = countries[country];
 
     const result = await lastValueFrom(this.httpService.get(`${this.koywe_url}/bank-info/${code}`));
 
@@ -53,12 +53,8 @@ export class KoyweBankAccountManager {
       country: { code: country },
       email,
     } = userDetails;
-    const countryInfo = await lastValueFrom(this.httpService.get(`https://restcountries.com/v3.1/alpha/${country}`));
-
-    const code = countryInfo.data[0].cca3;
-    const currencies = countryInfo.data[0].currencies;
-    const currencyKeys = Object.keys(currencies);
-    const currency_type = currencyKeys[0];
+    const countries: CountryData = countriesData;
+    const { code, currency_type } = countries[country];
 
     const formData = {
       accountNumber: bank_account_number,

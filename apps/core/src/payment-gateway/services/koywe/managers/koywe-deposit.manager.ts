@@ -8,12 +8,12 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import Redis from 'ioredis';
-import process from 'process';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { countriesData, CountryData } from '../../../country/data';
 import { KoyweMainManager } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
 
@@ -43,12 +43,8 @@ export class KoyweDepositManager {
     const { amount: beforeConvertAmount, id } = depositParams;
     const userDetails = await this.userService.getUserInfo(id);
     await this.koyweTokenManager.getToken(userDetails.email);
-    const countryInfo = await lastValueFrom(
-      this.httpService.get(`https://restcountries.com/v3.1/alpha/${userDetails.country.code}`),
-    );
-    const currencies = countryInfo.data[0].currencies;
-    const currencyKeys = Object.keys(currencies);
-    const currency_type = currencyKeys[0];
+    const countries: CountryData = countriesData;
+    const { currency_type } = countries[userDetails.country.code];
 
     const convertData = await lastValueFrom(
       this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${currency_type}`),
@@ -85,10 +81,8 @@ export class KoyweDepositManager {
       currency_type,
     };
 
-    if (process.env.NODE_ENV === 'dev') {
-      data.asset_transfer_method_id = asset_transfer_method_id;
-      data.wallet_address = wallet_address;
-    }
+    data.asset_transfer_method_id = asset_transfer_method_id;
+    data.wallet_address = wallet_address;
 
     return { data: JSON.stringify([data]) };
   }

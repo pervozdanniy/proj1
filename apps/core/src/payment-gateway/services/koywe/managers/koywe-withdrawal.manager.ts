@@ -13,6 +13,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { countriesData, CountryData } from '../../../country/data';
 import { KoyweCreateOrder, KoyweQuote } from '../../../types/koywe';
 import { KoyweMainManager } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
@@ -52,12 +53,8 @@ export class KoyweWithdrawalManager {
     }
     await this.koyweTokenManager.getToken(email);
 
-    const countryInfo = await lastValueFrom(
-      this.httpService.get(`https://restcountries.com/v3.1/alpha/${userDetails.country.code}`),
-    );
-    const currencies = countryInfo.data[0].currencies;
-    const currencyKeys = Object.keys(currencies);
-    const currency_type = currencyKeys[0];
+    const countries: CountryData = countriesData;
+    const { currency_type } = countries[country];
 
     const convertData = await lastValueFrom(
       this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=USDC`),

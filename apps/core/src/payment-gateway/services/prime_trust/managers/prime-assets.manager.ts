@@ -256,8 +256,16 @@ export class PrimeAssetsManager {
         method: 'get',
         url: `${this.prime_trust_url}/v2/asset-transfers/${asset_transfer_id}?include=disbursement-authorization`,
       });
+      const assetData = getAssetInfo.data.data;
 
-      return { data: JSON.stringify(getAssetInfo.data.data) };
+      const response = {
+        id: assetData.id,
+        type: assetData.type,
+        attributes: assetData.attributes,
+        disbursement_authorization: assetData.relationships['disbursement-authorization'],
+      };
+
+      return { data: JSON.stringify(response) };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
