@@ -469,7 +469,8 @@ export class PrimeDepositManager {
 
   async checkBankExists(bank_id: number) {
     const bank = await this.primeBankAccountManager.getBankAccountById(bank_id);
-    if (bank) {
+
+    if (!bank) {
       throw new GrpcException(Status.ABORTED, 'Bank account does`nt exist!', 400);
     }
   }
