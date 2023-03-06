@@ -70,7 +70,7 @@ export class SdkPaymentGatewayService implements OnModuleInit {
   }
 
   getBalance(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getBalance(data));
+    return lastValueFrom(this.paymentGatewayServiceClient.getBalance({ user_id: data.id, currencies: [] }));
   }
 
   async createReference(data: CreateReferenceRequest) {

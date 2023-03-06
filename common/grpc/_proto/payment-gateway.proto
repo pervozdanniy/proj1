@@ -13,7 +13,7 @@ service PaymentGatewayService {
   rpc GetContact (UserIdRequest) returns (ContactResponse);
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
-  rpc GetBalance (UserIdRequest) returns (BalanceResponse);
+  rpc GetBalance (BalanceRequest) returns (BalanceResponse);
 
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
@@ -255,7 +255,7 @@ message Withdrawal {
 }
 
 message PaymentGateway {
-  uint32 id =1;
+  uint32 id = 1;
   string alias = 2;
   string name = 3;
 }
@@ -278,9 +278,20 @@ message WithdrawalParams{
   string funds_transfer_type = 3;
 }
 
-message BalanceResponse{
+message BalanceRequest {
+  uint32 user_id = 1;
+  repeated string currencies = 2;
+}
+
+message Conversion {
+  string currency = 1;
+  string amount = 2;
+}
+
+message BalanceResponse {
   string settled = 1;
   string currency_type = 2;
+  repeated Conversion conversions = 3;
 }
 
 message JsonData {

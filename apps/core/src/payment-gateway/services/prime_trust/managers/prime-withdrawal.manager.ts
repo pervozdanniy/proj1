@@ -1,5 +1,4 @@
 import { NotificationService } from '@/notification/services/notification.service';
-import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { WithdrawalParamsEntity } from '@/payment-gateway/entities/prime_trust/withdrawal-params.entity';
@@ -22,6 +21,7 @@ import {
   WithdrawalResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 

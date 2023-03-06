@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsISO31661Alpha2, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class RegisterRequestDto {
   @ApiProperty()
@@ -9,8 +9,8 @@ export class RegisterRequestDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsInt()
-  countryId: number;
+  @IsISO31661Alpha2()
+  countryCode: string;
 
   @ApiPropertyOptional()
   @IsOptional()

@@ -32,7 +32,7 @@ import { AlterTransfersTable1676796180024 } from './migrations/1676796180024-Alt
 import { AddAvatarToUserDetails1677061588614 } from './migrations/1677061588614-AddAvatarToUserDetails';
 import { AlterBalanceTable1677138110571 } from './migrations/1677138110571-AlterBalanceTable';
 import { AlterBankAccountTable1677664281088 } from './migrations/1677664281088-AlterBankAccountTable';
-import { SeedPaymentGateway1671466516817 } from './seeds/1671466516817-SeedPaymentGateway';
+import { RemoveCountryEntity1678111485298 } from './migrations/1678111485298-RemoveCountryEntity';
 
 export default [
   createUserTable1669901299726,
@@ -41,7 +41,6 @@ export default [
   AlterUsersTable1671025295745,
   CreatePrimeTrustTable1671090646320,
   createUserDetailsTable1671438132874,
-  SeedPaymentGateway1671466516817,
   CreatePrimeTrustAccount1671467664497,
   FixTypesAndRelations1671733995143,
   CreateKYCTables1671868325708,
@@ -70,4 +69,5 @@ export default [
   AlterBalanceTable1677138110571,
   AddAvatarToUserDetails1677061588614,
   AlterBankAccountTable1677664281088,
+  RemoveCountryEntity1678111485298,
 ];

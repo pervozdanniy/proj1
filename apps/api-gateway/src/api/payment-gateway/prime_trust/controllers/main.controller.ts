@@ -26,6 +26,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
+import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
@@ -132,8 +133,8 @@ export class MainController {
   @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('/balance')
-  async getBalance(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getBalance({ id });
+  async getBalance(@Query() query: BalanceRequestDto, @JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getBalance(id, query.currencies);
   }
 
   @ApiOperation({ summary: 'Get Bank Accounts.' })

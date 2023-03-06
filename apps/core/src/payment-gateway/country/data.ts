@@ -1,4 +1,4 @@
-export const countriesData = {
+export const countriesData: CountryData = {
   US: { code: 'USA', currency_type: 'USD' },
   CL: { code: 'CHL', currency_type: 'CLP' },
   MX: { code: 'MEX', currency_type: 'MXN' },

@@ -1,5 +1,4 @@
 import { CountryModule } from '@/country/country.module';
-import { CountryEntity } from '@/country/entities/country.entity';
 import dbConfig from '@/db/db.config';
 import { UserCheckService } from '@/user/services/user-check.service';
 import { HttpModule } from '@nestjs/axios';
@@ -18,7 +17,7 @@ import { UserService } from './services/user.service';
     ConfigModule.forRoot({ load: [configuration, dbConfig], isGlobal: true }),
     HttpModule,
     CountryModule,
-    TypeOrmModule.forFeature([UserEntity, UserContactEntity, CountryEntity, UserDetailsEntity]),
+    TypeOrmModule.forFeature([UserEntity, UserContactEntity, UserDetailsEntity]),
   ],
   providers: [UserService, UserContactService, UserCheckService],
 

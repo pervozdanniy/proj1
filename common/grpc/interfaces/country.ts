@@ -1,35 +1,28 @@
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
+import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
-export interface CountryListQuery {
-  limit: number;
-  offset: number;
-}
-
 export interface CountryListResponse {
   items: Country[];
-  count: number;
 }
 
 export interface Country {
-  id: number;
   code: string;
   name: string;
-  payment_gateway_id: number;
 }
 
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface CountryServiceClient {
-  list(request: CountryListQuery, ...rest: any): Observable<CountryListResponse>;
+  list(request: Empty, ...rest: any): Observable<CountryListResponse>;
 }
 
 export interface CountryServiceController {
   list(
-    request: CountryListQuery,
+    request: Empty,
     ...rest: any
   ): Promise<CountryListResponse> | Observable<CountryListResponse> | CountryListResponse;
 }

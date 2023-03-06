@@ -1,11 +1,8 @@
-import { CountryEntity } from '@/country/entities/country.entity';
-import { CountryService } from '@/country/services/country.service';
 import { UserCheckService } from '@/user/services/user-check.service';
-import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { CountryService } from '~svc/core/src/country/country.service';
 import { FindRequestDto } from '../dto/find.request.dto';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserDetailsEntity } from '../entities/user-details.entity';
@@ -16,10 +13,6 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-
-    @InjectRepository(CountryEntity)
-    private countryEntityRepository: Repository<CountryEntity>,
-
     @InjectRepository(UserDetailsEntity)
     private userDetailsRepository: Repository<UserDetailsEntity>,
     private userCheckService: UserCheckService,
@@ -31,15 +24,15 @@ export class UserService {
   }
 
   async create({ details, ...userData }: Omit<CreateRequestDto, 'contacts'>): Promise<UserEntity> {
-    const { country_id, source, phone, email } = userData;
+    const { country_code, source, phone, email } = userData;
     await this.userCheckService.checkUserData(phone, email);
 
     if (!source) {
-      const country = await this.countryEntityRepository.findOneBy({ id: country_id });
-      if (!country) {
-        throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
-      }
-      if (country.code === 'US' && details) {
+      // const country = await this.countryEntityRepository.findOneBy({ id: country_id });
+      // if (!country) {
+      //   throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
+      // }
+      if (country_code === 'US' && details) {
         this.countryService.checkUSA(details);
       }
     }
@@ -83,13 +76,13 @@ export class UserService {
 
   async update(request: Omit<UpdateRequestDto, 'contacts'>) {
     const { details, id, ...payload } = request;
-    if (payload.country_id) {
-      const country = await this.countryEntityRepository.findOneBy({ id: payload.country_id });
-      if (!country) {
-        throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
-      }
+    if (payload.country_code) {
+      // const country = await this.countryEntityRepository.findOneBy({ id: payload.co });
+      // if (!country) {
+      //   throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
+      // }
 
-      if (country.code === 'US' && details) {
+      if (payload.country_code === 'US' && details) {
         this.countryService.checkUSA(details);
       }
     }

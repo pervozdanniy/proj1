@@ -10,59 +10,55 @@ import { hasBank, hasWireTransfer, hasWithdrawal, PaymentGatewayManager } from '
 
 @Injectable()
 export class MainService {
-  constructor(
-    private userService: UserService,
-
-    private paymentGatewayManager: PaymentGatewayManager,
-  ) {}
+  constructor(private userService: UserService, private paymentGatewayManager: PaymentGatewayManager) {}
 
   async getAvailablePaymentMethods(id: number) {
     const userDetails = await this.userService.getUserInfo(id);
-    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
 
     return { methods: paymentGateway.getAvailablePaymentMethods() };
   }
 
   async getBanksInfo(request: UserIdRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
-    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
     if (hasBank(paymentGateway)) {
-      return paymentGateway.getAvailableBanks(userDetails.country.code);
+      return paymentGateway.getAvailableBanks(userDetails.country_code);
     }
 
-    throw new UnauthorizedException('This operation is not allowed in your country');
+    throw new UnauthorizedException('This operation is not permitted in your country');
   }
 
   async addBankAccountParams(request: BankAccountParams) {
     const userDetails = await this.userService.getUserInfo(request.id);
-    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
 
     if (hasBank(paymentGateway)) {
       return paymentGateway.addBank(request);
     }
 
-    throw new UnauthorizedException('This operation is not allowed in your country');
+    throw new UnauthorizedException('This operation is not permitted in your country');
   }
 
   async createReference(request: CreateReferenceRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
-    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
 
     if (hasWireTransfer(paymentGateway)) {
       return paymentGateway.createReference(request);
     }
 
-    throw new UnauthorizedException('This operation is not allowed in your country');
+    throw new UnauthorizedException('This operation is not permitted in your country');
   }
 
   async makeWithdrawal(request: TransferMethodRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
-    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country.code);
+    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
 
     if (hasWithdrawal(paymentGateway)) {
       return paymentGateway.makeWithdrawal(request);
     }
 
-    throw new UnauthorizedException('This operation is not allowed in your country');
+    throw new UnauthorizedException('This operation is not permitted in your country');
   }
 }

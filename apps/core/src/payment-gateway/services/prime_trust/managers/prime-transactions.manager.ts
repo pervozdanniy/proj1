@@ -1,10 +1,10 @@
-import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { UserDetailsEntity } from '@/user/entities/user-details.entity';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { SearchTransactionRequest, TransactionResponse } from '~common/grpc/interfaces/payment-gateway';
+import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 
 @Injectable()
 export class PrimeTransactionsManager {

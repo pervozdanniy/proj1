@@ -2,24 +2,18 @@ syntax = "proto3";
 
 package skopa.core;
 
-service CountryService {
-  rpc List(CountryListQuery) returns (CountryListResponse);
-}
+import "google/protobuf/empty.proto";
 
-message CountryListQuery {
-  uint32 limit = 1;
-  uint32 offset = 2;
+service CountryService {
+  rpc List(google.protobuf.Empty) returns (CountryListResponse);
 }
 
 message CountryListResponse {
   repeated Country items = 1;
-  uint32 count = 2;
 }
 
 message Country {
-  uint32 id =1;
-  string code = 2;
-  string name = 3;
-  uint32 payment_gateway_id = 4;
+  string code = 1;
+  string name = 2;
 }
 

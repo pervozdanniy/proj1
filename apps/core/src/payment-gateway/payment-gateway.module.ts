@@ -7,8 +7,6 @@ import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
-import { TransfersEntity } from './entities/main/transfers.entity';
-import { PaymentGatewayEntity } from './entities/payment-gateway.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
 import { ContributionEntity } from './entities/prime_trust/contribution.entity';
@@ -19,10 +17,12 @@ import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-cont
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
+import { TransfersEntity } from './entities/transfers.entity';
 import { ChilePaymentGateway } from './manager/countries/chile-payment.gateway';
 import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
+import { CurrencyService } from './services/currency.service';
 import { KoyweService } from './services/koywe/koywe.service';
 import { KoyweBankAccountManager } from './services/koywe/managers/koywe-bank-account.manager';
 import { KoyweDepositManager } from './services/koywe/managers/koywe-deposit.manager';
@@ -51,7 +51,6 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     UserModule,
     NotificationModule,
     TypeOrmModule.forFeature([
-      PaymentGatewayEntity,
       PrimeTrustAccountEntity,
       PrimeTrustContactEntity,
       PrimeTrustKycDocumentEntity,
@@ -94,8 +93,9 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PrimeAssetsManager,
     USPaymentGateway,
     ChilePaymentGateway,
+    CurrencyService,
   ],
   controllers: [PaymentGatewayController],
-  exports: [PaymentGatewayService],
+  exports: [PaymentGatewayService, CurrencyService],
 })
 export class PaymentGatewayModule {}

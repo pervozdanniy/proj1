@@ -1,10 +1,10 @@
 import { NotificationService } from '@/notification/services/notification.service';
-import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { KoyweWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
+import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { KoyweMainManager } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
 
