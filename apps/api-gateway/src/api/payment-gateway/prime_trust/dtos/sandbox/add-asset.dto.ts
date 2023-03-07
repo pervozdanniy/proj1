@@ -5,7 +5,7 @@ export class AddAssetDto {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  unit_count: string;
+  unit_count: number;
 
   @ApiProperty()
   @IsString()

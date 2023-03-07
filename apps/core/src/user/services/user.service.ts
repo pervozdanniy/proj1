@@ -28,10 +28,6 @@ export class UserService {
     await this.userCheckService.checkUserData(phone, email);
 
     if (!source) {
-      // const country = await this.countryEntityRepository.findOneBy({ id: country_id });
-      // if (!country) {
-      //   throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
-      // }
       if (country_code === 'US' && details) {
         this.countryService.checkUSA(details);
       }
@@ -77,11 +73,6 @@ export class UserService {
   async update(request: Omit<UpdateRequestDto, 'contacts'>) {
     const { details, id, ...payload } = request;
     if (payload.country_code) {
-      // const country = await this.countryEntityRepository.findOneBy({ id: payload.co });
-      // if (!country) {
-      //   throw new GrpcException(Status.NOT_FOUND, 'Country not found!', 400);
-      // }
-
       if (payload.country_code === 'US' && details) {
         this.countryService.checkUSA(details);
       }
