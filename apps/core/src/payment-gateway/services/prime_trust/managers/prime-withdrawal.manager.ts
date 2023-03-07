@@ -135,15 +135,19 @@ export class PrimeWithdrawalManager {
       uuid: funds_transfer_method_id,
     });
 
-    const { funds, fee } = await this.sendWithdrawalRequest(request, account.uuid, funds_transfer_method_id);
+    const { funds: fundsResponse, fee } = await this.sendWithdrawalRequest(
+      request,
+      account.uuid,
+      funds_transfer_method_id,
+    );
 
     await this.withdrawalEntityRepository.save(
       this.withdrawalEntityRepository.create({
         user_id: id,
         amount,
-        uuid: funds.id,
-        status: funds.attributes['status'],
-        currency_type: funds.attributes['currency-type'],
+        uuid: fundsResponse.id,
+        status: fundsResponse.attributes['status'],
+        currency_type: fundsResponse.attributes['currency-type'],
         param_type: 'withdrawal_param',
         param_id: withdrawalParams.id,
         fee,
@@ -155,12 +159,19 @@ export class PrimeWithdrawalManager {
       user_id: id,
       title: 'User Disbursements',
       type: 'disbursements',
-      description: `Your disbursements status for ${amount} ${funds.attributes['currency-type']} ${funds.attributes['status']}`,
+      description: `Your disbursements status for ${amount} ${fundsResponse.attributes['currency-type']} ${fundsResponse.attributes['status']}`,
     };
 
     this.notificationService.createAsync(notificationPayload);
 
-    return { data: JSON.stringify(funds) };
+    const response = {
+      id: fundsResponse.relationships['funds-transfer'].data.id,
+      type: fundsResponse.relationships['funds-transfer'].data.type,
+      attributes: fundsResponse.attributes,
+      disbursement_authorization: fundsResponse.relationships['disbursement-authorization'],
+    };
+
+    return { data: JSON.stringify(response) };
   }
 
   async sendWithdrawalRequest(request: TransferMethodRequest, account_id: string, funds_transfer_method_id: string) {
