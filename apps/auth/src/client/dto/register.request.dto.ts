@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { IsISO31661Alpha2, IsNotEmpty, IsString } from 'class-validator';
 
 export class SignedRegisterRequest {
   @IsNotEmpty()
@@ -6,8 +6,8 @@ export class SignedRegisterRequest {
   login: string;
 
   @IsNotEmpty()
-  @IsInt()
-  countryId: number;
+  @IsISO31661Alpha2()
+  countryCode: string;
 }
 
 export class UnsignedRegisterRequest extends SignedRegisterRequest {

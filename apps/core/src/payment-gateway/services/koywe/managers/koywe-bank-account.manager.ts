@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { BankAccountParams, BanksInfoResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { countriesData, CountryData } from '../../../country/data';
+import { countriesData } from '../../../country/data';
 import { KoyweTokenManager } from './koywe-token.manager';
 
 @Injectable()
@@ -36,8 +36,7 @@ export class KoyweBankAccountManager {
         data: [],
       };
     }
-    const countries: CountryData = countriesData;
-    const { code } = countries[country];
+    const { code } = countriesData[country];
 
     const result = await lastValueFrom(this.httpService.get(`${this.koywe_url}/bank-info/${code}`));
 
@@ -48,13 +47,8 @@ export class KoyweBankAccountManager {
 
   async addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
     const { bank_code, bank_account_number, id, bank_account_name } = request;
-    const userDetails = await this.userService.getUserInfo(id);
-    const {
-      country: { code: country },
-      email,
-    } = userDetails;
-    const countries: CountryData = countriesData;
-    const { code, currency_type } = countries[country];
+    const { country_code, email } = await this.userService.getUserInfo(id);
+    const { code, currency_type } = countriesData[country_code];
 
     const formData = {
       accountNumber: bank_account_number,
@@ -76,7 +70,7 @@ export class KoyweBankAccountManager {
         this.bankAccountEntityRepository.create({
           user_id: id,
           bank_code,
-          country: userDetails.country.code,
+          country: country_code,
           bank_account_name,
           bank_account_number,
           account_uuid: bankResponse.data._id,

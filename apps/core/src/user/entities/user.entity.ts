@@ -3,17 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   Index,
-  JoinColumn,
   JoinTable,
   ManyToMany,
-  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserSourceEnum } from '~common/constants/user';
-import { CountryEntity } from '../../country/entities/country.entity';
 import { NotificationEntity } from '../../notification/entities/notification.entity';
 import { UserDetailsEntity } from './user-details.entity';
 
@@ -28,8 +25,8 @@ export class UserEntity {
   @Column('varchar', { unique: true })
   email: string;
 
-  @Column('integer', { nullable: true })
-  country_id?: number;
+  @Column('char', { length: 2 })
+  country_code: string;
 
   @Index()
   @Column('varchar', { nullable: true })
@@ -52,10 +49,6 @@ export class UserEntity {
 
   @Column('varchar', { length: 50, default: UserSourceEnum.Api })
   source: UserSourceEnum;
-
-  @ManyToOne(() => CountryEntity, (country) => country.users, { createForeignKeyConstraints: false })
-  @JoinColumn({ name: 'country_id' })
-  country?: CountryEntity;
 
   @OneToOne(() => UserDetailsEntity, (details) => details.user)
   details?: UserDetailsEntity;

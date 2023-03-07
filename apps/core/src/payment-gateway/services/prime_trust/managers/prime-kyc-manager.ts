@@ -66,10 +66,10 @@ export class PrimeKycManager {
           name: `${userDetails.details.first_name} ${userDetails.details.last_name}`,
           email: `${userDetails.email}`,
           'tax-id-number': `${userDetails.details.tax_id_number}`,
-          'tax-country': `${userDetails.country.code}`,
+          'tax-country': `${userDetails.country_code}`,
           'date-of-birth': `${userDetails.details.date_of_birth}`,
           'primary-phone-number': {
-            country: `${userDetails.country.code}`,
+            country: `${userDetails.country_code}`,
             number: `${userDetails.phone}`,
             sms: true,
           },
@@ -78,7 +78,7 @@ export class PrimeKycManager {
             'postal-code': `${userDetails.details.postal_code}`,
             city: `${userDetails.details.city}`,
             region: `${userDetails.details.region}`,
-            country: `${userDetails.country.code}`,
+            country: `${userDetails.country_code}`,
           },
         },
       },
@@ -131,7 +131,7 @@ export class PrimeKycManager {
   }
 
   async uploadDocument(userDetails: UserEntity, file: any, label: string): Promise<DocumentResponse> {
-    const country_code = userDetails.country.code;
+    const country_code = userDetails.country_code;
     const account = await this.primeAccountRepository.findOne({
       where: { user_id: userDetails.id },
       relations: ['contact'],

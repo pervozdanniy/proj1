@@ -3,14 +3,15 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEmail,
+  IsISO31661Alpha2,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
   Length,
   ValidateNested,
 } from 'class-validator';
+import { RegisterFinishRequest } from '~common/grpc/interfaces/auth';
 import { UserDetails } from '../../user/dtos/update-user.dto';
 import { TwoFactorVerificationDto } from './2fa.request.dto';
 
@@ -34,17 +35,17 @@ export class RegistrationStartRequestDto {
 
 export class RegistrationVerifyRequestDto extends TwoFactorVerificationDto {}
 
-export class RegistrationFinishRequestDto {
+export class RegistrationFinishRequestDto implements RegisterFinishRequest {
   @ApiProperty({ example: 'test_user' })
   @IsString()
   @IsNotEmpty()
   @Length(2, 200)
   username: string;
 
-  @ApiProperty({ example: 1 })
-  @IsNumber()
+  @ApiProperty({ example: 'US' })
+  @IsISO31661Alpha2()
   @IsNotEmpty()
-  country_id: number;
+  country_code: string;
 
   @ApiPropertyOptional({ type: UserDetails })
   @ValidateNested()

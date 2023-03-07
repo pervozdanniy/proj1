@@ -47,7 +47,7 @@ describe('SDK Auth client (signed)', () => {
   });
 
   it('registers user for auth client', async () => {
-    const payload = { login: 'mock_user_1', countryId: 1 };
+    const payload = { login: 'mock_user_1', countryCode: 'US' };
     const sign = crypto.sign(null, Buffer.from(JSON.stringify(payload)), privateKey).toString('hex');
     await request(app.getHttpServer())
       .post('/sdk/clients/register')
@@ -63,18 +63,18 @@ describe('SDK Auth client (signed)', () => {
   });
 
   it('fails to register with malformed payload', async () => {
-    const payload = { login: 'mock_user_2', countryId: 1 };
+    const payload = { login: 'mock_user_2', countryCode: 'US' };
     const sign = crypto.sign(null, Buffer.from(JSON.stringify(payload)), privateKey).toString('hex');
     await request(app.getHttpServer())
       .post('/sdk/clients/register')
       .set('signature', sign)
       .set('api-key', apiKey)
-      .send({ login: 'mock_user_2+', countryId: 1 })
+      .send({ login: 'mock_user_2+', countryCode: 'US' })
       .expect(401);
   });
 
   it('does not asccept unsigned input', async () => {
-    const payload = { login: 'mock_user_2', countryId: 1 };
+    const payload = { login: 'mock_user_2', countryCode: 'US' };
     await request(app.getHttpServer()).post('/sdk/clients/register').set('api-key', apiKey).send(payload).expect(400);
   });
 

@@ -142,7 +142,7 @@ message RegisterStartRequest {
 
 message RegisterFinishRequest {
   string username = 1;
-  uint32 country_id = 5;
+  string country_code = 5;
   optional common.UserDetails details = 7;
   repeated string contacts = 8;
 }

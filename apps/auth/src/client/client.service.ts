@@ -93,7 +93,7 @@ export class ClientService {
       email: request.login,
       username: request.login,
       password: request.password ?? null,
-      country_id: request.countryId,
+      country_code: request.countryCode,
       contacts: [],
       source: client.name,
     };

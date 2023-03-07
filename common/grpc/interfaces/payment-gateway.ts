@@ -227,9 +227,20 @@ export interface WithdrawalParams {
   funds_transfer_type: string;
 }
 
+export interface BalanceRequest {
+  user_id: number;
+  currencies: string[];
+}
+
+export interface Conversion {
+  currency: string;
+  amount: string;
+}
+
 export interface BalanceResponse {
   settled: string;
   currency_type: string;
+  conversions: Conversion[];
 }
 
 export interface JsonData {
@@ -287,7 +298,7 @@ export interface PaymentGatewayServiceClient {
 
   uploadDocument(request: UploadDocumentRequest, ...rest: any): Observable<DocumentResponse>;
 
-  getBalance(request: UserIdRequest, ...rest: any): Observable<BalanceResponse>;
+  getBalance(request: BalanceRequest, ...rest: any): Observable<BalanceResponse>;
 
   getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
 
@@ -376,7 +387,7 @@ export interface PaymentGatewayServiceController {
   ): Promise<DocumentResponse> | Observable<DocumentResponse> | DocumentResponse;
 
   getBalance(
-    request: UserIdRequest,
+    request: BalanceRequest,
     ...rest: any
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 

@@ -1,4 +1,3 @@
-import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { BankAccountEntity } from '@/payment-gateway/entities/prime_trust/bank-account.entity';
 import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
@@ -13,6 +12,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData, CountryData } from '../../../country/data';
 import { KoyweCreateOrder, KoyweQuote } from '../../../types/koywe';
 import { KoyweMainManager } from './koywe-main.manager';
@@ -42,19 +42,19 @@ export class KoyweWithdrawalManager {
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<string> {
     const { id, bank_account_id, amount: beforeConvertAmount } = request;
-    const userDetails = await this.userService.getUserInfo(id);
-    const {
-      country: { code: country },
-      email,
-    } = userDetails;
-    const bank = await this.bankAccountEntityRepository.findOneBy({ user_id: id, id: bank_account_id, country });
+    const { country_code, email } = await this.userService.getUserInfo(id);
+    const bank = await this.bankAccountEntityRepository.findOneBy({
+      user_id: id,
+      id: bank_account_id,
+      country: country_code,
+    });
     if (!bank) {
       throw new GrpcException(Status.INVALID_ARGUMENT, 'Bank doesnt exist!', 400);
     }
     await this.koyweTokenManager.getToken(email);
 
     const countries: CountryData = countriesData;
-    const { currency_type } = countries[country];
+    const { currency_type } = countries[country_code];
 
     const convertData = await lastValueFrom(
       this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=USDC`),
@@ -63,7 +63,7 @@ export class KoyweWithdrawalManager {
 
     const amount = String(convertedAmount.toFixed(2));
     const { quoteId } = await this.createQuote(amount, currency_type);
-    const { orderId, providedAddress } = await this.createOrder(quoteId, userDetails.email, bank.account_uuid);
+    const { orderId, providedAddress } = await this.createOrder(quoteId, email, bank.account_uuid);
     const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
     const fee = String(networkFee + koyweFee);
     await this.withdrawalEntityRepository.save(

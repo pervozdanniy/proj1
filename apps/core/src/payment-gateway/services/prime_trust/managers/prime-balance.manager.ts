@@ -13,7 +13,6 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { BalanceResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 
 @Injectable()
@@ -107,7 +106,7 @@ export class PrimeBalanceManager {
     return { success: true };
   }
 
-  async getAccountBalance(id: number): Promise<BalanceResponse> {
+  async getAccountBalance(id: number) {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: id } });
     if (!account) {
       throw new GrpcException(Status.NOT_FOUND, `Account for this user not exist!`, 400);

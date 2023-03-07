@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
+  IsISO31661Alpha2,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -97,9 +98,9 @@ export class UpdateUserDto implements UpdateRequest {
   phone?: string;
 
   @ApiPropertyOptional()
-  @IsNumber()
+  @IsISO31661Alpha2()
   @IsOptional()
-  country_id?: number;
+  country_code?: string;
 
   @ApiPropertyOptional({ type: UserDetails })
   @ValidateNested()

@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
-import { TransfersEntity } from '../main/transfers.entity';
+import { TransfersEntity } from '../transfers.entity';
 import { BankAccountEntity } from './bank-account.entity';
 import { ContributionEntity } from './contribution.entity';
 import { PrimeTrustAccountEntity } from './prime-trust-account.entity';

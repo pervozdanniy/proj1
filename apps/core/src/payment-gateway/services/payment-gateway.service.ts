@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountResponse,
+  BalanceRequest,
+  BalanceResponse,
   DepositParamRequest,
   DocumentResponse,
   MakeDepositRequest,
@@ -13,14 +15,15 @@ import {
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+import { CurrencyService } from './currency.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
 @Injectable()
 export class PaymentGatewayService {
   constructor(
     private userService: UserService,
-
     private primeTrustService: PrimeTrustService,
+    private readonly currencyService: CurrencyService,
   ) {}
 
   async getToken(): Promise<PG_Token> {
@@ -52,8 +55,24 @@ export class PaymentGatewayService {
     return this.primeTrustService.uploadDocument(userDetails, file, label);
   }
 
-  async getBalance(id: number) {
-    return this.primeTrustService.getBalance(id);
+  async getBalance({ user_id, currencies }: BalanceRequest): Promise<BalanceResponse> {
+    const balance = await this.primeTrustService.getBalance(user_id);
+    const resp: BalanceResponse = { ...balance, conversions: [] };
+
+    if (currencies.length) {
+      const conversions = await this.currencyService.convert(
+        parseFloat(balance.settled),
+        balance.currency_type,
+        ...currencies,
+      );
+      for (const curr in conversions) {
+        if (Object.prototype.hasOwnProperty.call(conversions, curr)) {
+          resp.conversions.push({ currency: curr, amount: conversions[curr].toFixed(2) });
+        }
+      }
+    }
+
+    return resp;
   }
 
   async createCreditCardResource(id: number) {
@@ -100,6 +119,6 @@ export class PaymentGatewayService {
   async getBankAccounts(request: UserIdRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
 
-    return this.primeTrustService.getBankAccounts(request.id, userDetails.country.code);
+    return this.primeTrustService.getBankAccounts(request.id, userDetails.country_code);
   }
 }
