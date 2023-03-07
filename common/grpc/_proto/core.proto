@@ -35,7 +35,7 @@ message UserContacts {
 message UpdateRequest {
   uint32 id = 1;
   optional string username = 2;
-  optional uint32 country_id = 3;
+  optional string country_code = 3;
   optional string phone = 4;
   optional string password = 5;
   optional string status = 6;
@@ -48,7 +48,7 @@ message CreateRequest {
   string email = 2;
   optional string password = 3;
   optional string phone = 4;
-  optional uint32 country_id = 5;
+  optional string country_code = 5;
   optional string source = 6;
   optional string status = 7;
   optional common.UserDetails details = 8;

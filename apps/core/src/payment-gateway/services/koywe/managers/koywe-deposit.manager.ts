@@ -1,4 +1,3 @@
-import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { KoyweCreateOrder, KoyweQuote, ReferenceData } from '@/payment-gateway/types/koywe';
 import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
@@ -13,7 +12,8 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { countriesData, CountryData } from '../../../country/data';
+import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import { countriesData } from '../../../country/data';
 import { KoyweMainManager } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
 
@@ -43,8 +43,7 @@ export class KoyweDepositManager {
     const { amount: beforeConvertAmount, id } = depositParams;
     const userDetails = await this.userService.getUserInfo(id);
     await this.koyweTokenManager.getToken(userDetails.email);
-    const countries: CountryData = countriesData;
-    const { currency_type } = countries[userDetails.country.code];
+    const { currency_type } = countriesData[userDetails.country_code];
 
     const convertData = await lastValueFrom(
       this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${currency_type}`),

@@ -3,6 +3,7 @@ import {
   IsArray,
   IsEnum,
   IsInt,
+  IsISO31661Alpha2,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -77,12 +78,12 @@ export class CreateRequestDto implements CreateRequest {
   @IsPhoneNumber()
   phone?: string;
 
-  @IsOptional()
-  @IsNumber()
-  country_id?: number;
+  @IsNotEmpty()
+  @IsISO31661Alpha2()
+  country_code: string;
 
   @IsOptional()
-  source: UserSourceEnum;
+  source?: UserSourceEnum;
 
   @ValidateNested()
   @Type(() => UserDetails)
@@ -116,7 +117,7 @@ export class UpdateRequestDto implements UpdateRequest {
 
   @IsOptional()
   @IsInt()
-  country_id?: number;
+  country_code?: string;
 
   @IsOptional()
   @IsPhoneNumber()

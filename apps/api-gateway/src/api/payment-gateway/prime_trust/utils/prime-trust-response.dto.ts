@@ -8,6 +8,7 @@ import {
   BankAccountsResponse,
   ContactResponse,
   ContributionResponse,
+  Conversion,
   CreditCard,
   CreditCardResourceResponse,
   CreditCardsResponse,
@@ -62,11 +63,24 @@ export class DocumentResponseDTO implements DocumentResponse {
   document_id: string;
 }
 
+class ConversionDto implements Conversion {
+  @ApiProperty()
+  currency: string;
+
+  @ApiProperty()
+  amount: string;
+}
+
 export class BalanceResponseDTO implements BalanceResponse {
   @ApiProperty()
   currency_type: string;
+
   @ApiProperty()
   settled: string;
+
+  @ApiProperty({ type: ConversionDto })
+  @Type(() => ConversionDto)
+  conversions: Conversion[];
 }
 
 export class BankAccountParamsDTO implements BankAccountParams {

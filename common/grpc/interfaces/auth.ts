@@ -93,7 +93,7 @@ export interface RegisterStartRequest {
 
 export interface RegisterFinishRequest {
   username: string;
-  country_id: number;
+  country_code: string;
   details?: UserDetails | undefined;
   contacts: string[];
 }

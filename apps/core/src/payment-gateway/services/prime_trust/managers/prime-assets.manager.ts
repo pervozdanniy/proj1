@@ -1,5 +1,4 @@
 import { NotificationService } from '@/notification/services/notification.service';
-import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
@@ -23,6 +22,7 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { createDate } from '~common/helpers';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { PrimeBalanceManager } from './prime-balance.manager';
 
 @Injectable()

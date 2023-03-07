@@ -17,7 +17,7 @@ export interface UserContacts {
 export interface UpdateRequest {
   id: number;
   username?: string | undefined;
-  country_id?: number | undefined;
+  country_code?: string | undefined;
   phone?: string | undefined;
   password?: string | undefined;
   status?: string | undefined;
@@ -30,7 +30,7 @@ export interface CreateRequest {
   email: string;
   password?: string | undefined;
   phone?: string | undefined;
-  country_id?: number | undefined;
+  country_code?: string | undefined;
   source?: string | undefined;
   status?: string | undefined;
   details?: UserDetails | undefined;

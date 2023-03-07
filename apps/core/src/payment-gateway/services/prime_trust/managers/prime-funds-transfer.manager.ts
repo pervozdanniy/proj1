@@ -1,5 +1,4 @@
 import { NotificationService } from '@/notification/services/notification.service';
-import { TransfersEntity } from '@/payment-gateway/entities/main/transfers.entity';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
@@ -14,6 +13,7 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 
 @Injectable()
 export class PrimeFundsTransferManager {

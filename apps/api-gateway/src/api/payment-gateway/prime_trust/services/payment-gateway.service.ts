@@ -69,8 +69,8 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.updateContribution(data));
   }
 
-  getBalance(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getBalance(data));
+  getBalance(id: number, currencies?: string[]) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getBalance({ user_id: id, currencies: currencies ?? [] }));
   }
 
   async createReference(data: CreateReferenceRequest) {

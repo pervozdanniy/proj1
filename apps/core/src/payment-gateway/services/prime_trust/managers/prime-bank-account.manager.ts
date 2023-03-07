@@ -29,7 +29,7 @@ export class PrimeBankAccountManager {
     const account = await this.bankAccountEntityRepository.save(
       this.bankAccountEntityRepository.create({
         user_id: id,
-        country: userDetails.country.code,
+        country: userDetails.country_code,
         bank_account_name,
         bank_account_number,
         routing_number,

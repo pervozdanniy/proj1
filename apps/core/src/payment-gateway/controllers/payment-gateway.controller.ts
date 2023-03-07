@@ -2,6 +2,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   AccountResponse,
+  BalanceRequest,
   BalanceResponse,
   BankAccountParams,
   BankAccountsResponse,
@@ -84,8 +85,8 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.webhooksService.updateBalance(request);
   }
 
-  getBalance({ id }: UserIdRequest): Promise<BalanceResponse> {
-    return this.paymentGatewayService.getBalance(id);
+  getBalance(request: BalanceRequest): Promise<BalanceResponse> {
+    return this.paymentGatewayService.getBalance(request);
   }
 
   makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
