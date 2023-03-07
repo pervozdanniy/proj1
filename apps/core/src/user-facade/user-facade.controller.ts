@@ -14,13 +14,18 @@ import { CreateRequestDto, UpdateContactsRequestDto, UpdateRequestDto } from '..
 import { UserResponseDto } from '../user/dto/user-response.dto';
 import { UserContactService } from '../user/services/user-contact.service';
 import { UserService } from '../user/services/user.service';
+import { UserFacadeService } from './user-facade.service';
 
 @RpcController()
 @UserServiceControllerMethods()
 export class UserFacadeController implements UserServiceController {
   private readonly logger = new Logger(UserFacadeController.name);
 
-  constructor(private readonly userService: UserService, private readonly contactService: UserContactService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly contactService: UserContactService,
+    private readonly userFacadeService: UserFacadeService,
+  ) {}
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async updateContacts(payload: UpdateContactsRequestDto): Promise<User> {
@@ -34,12 +39,7 @@ export class UserFacadeController implements UserServiceController {
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async create({ contacts, ...payload }: CreateRequestDto): Promise<User> {
-    const user = await this.userService.create(payload);
-    this.contactService
-      .update(user, { new: contacts })
-      .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
-
-    return plainToInstance(UserResponseDto, user);
+    return await this.userFacadeService.create({ contacts, ...payload });
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
