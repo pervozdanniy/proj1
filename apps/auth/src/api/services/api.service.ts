@@ -97,7 +97,7 @@ export class AuthApiService {
     return { ...agreement, content };
   }
 
-  async approveAgreement(request: ApproveAgreementRequest, session: SessionProxy) {
+  async approveAgreement(request: ApproveAgreementRequest, session: SessionProxy): Promise<SuccessResponse> {
     const { id } = request;
     if (!isPreAgreement(session)) {
       throw new ConflictException('Registration process was not stated');
