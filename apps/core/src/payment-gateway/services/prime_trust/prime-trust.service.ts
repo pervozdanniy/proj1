@@ -2,6 +2,7 @@ import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
+  AgreementRequest,
   AssetWithdrawalRequest,
   BankAccountParams,
   CreateReferenceRequest,
@@ -155,5 +156,9 @@ export class PrimeTrustService {
 
   async makeAssetWithdrawal(request: AssetWithdrawalRequest) {
     return this.primeAssetsManager.makeAssetWithdrawal(request);
+  }
+
+  createAgreement(request: AgreementRequest) {
+    return this.primeAccountManager.createAgreement(request);
   }
 }

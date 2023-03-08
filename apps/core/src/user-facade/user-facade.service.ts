@@ -32,9 +32,13 @@ export class UserFacadeService {
     this.contactService
       .update(user, { new: contacts })
       .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
-    // await this.payment.createAccount(user.id);
 
-    return plainToInstance(UserResponseDto, user);
+    /** we can uncomment this part after when registration will be done in mobile because in
+     prime trust we cant delete accounts,it is difficult for testing **/
+
+    //  await this.payment.createAccount(user.id);
+
+    return plainToInstance(UserResponseDto, { ...user });
   }
 
   async findByLogin(payload: FindRequestDto): Promise<NullableUser> {

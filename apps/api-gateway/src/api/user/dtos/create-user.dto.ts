@@ -4,6 +4,7 @@ import {
   IsArray,
   IsEmail,
   IsEnum,
+  IsISO31661Alpha2,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -92,10 +93,10 @@ export class CreateUserDTO implements CreateRequest {
   @Length(8, 200)
   password: string;
 
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  @IsNotEmpty()
-  country_id: number;
+  @ApiPropertyOptional()
+  @IsISO31661Alpha2()
+  @IsOptional()
+  country_code?: string;
 
   @Exclude()
   source?: string;

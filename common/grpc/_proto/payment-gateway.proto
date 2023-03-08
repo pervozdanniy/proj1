@@ -6,6 +6,9 @@ package skopa.core;
 
 service PaymentGatewayService {
 
+  rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
+
+
   rpc GetToken (google.protobuf.Empty) returns (PG_Token);
   rpc GetAvailablePaymentMethods (UserIdRequest) returns (PaymentMethodsResponse);
   rpc CreateAccount (UserIdRequest) returns (AccountResponse);
@@ -46,6 +49,16 @@ service PaymentGatewayService {
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
+}
+
+message AgreementRequest {
+  string email = 1;
+  optional string password = 2;
+  optional string phone = 3;
+  optional string country_code = 4;
+  optional string source = 5;
+  optional string status = 6;
+  optional common.UserDetails details = 7;
 }
 
 

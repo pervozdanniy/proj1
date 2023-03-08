@@ -1,10 +1,20 @@
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { SuccessResponse } from "./common";
+import { SuccessResponse, UserAgreement, UserDetails } from "./common";
 import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
+
+export interface AgreementRequest {
+  email: string;
+  password?: string | undefined;
+  phone?: string | undefined;
+  country_code?: string | undefined;
+  source?: string | undefined;
+  status?: string | undefined;
+  details?: UserDetails | undefined;
+}
 
 export interface KoyweWebhookRequest {
   eventName: string;
@@ -284,6 +294,8 @@ export interface Token_Data {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface PaymentGatewayServiceClient {
+  createAgreement(request: AgreementRequest, ...rest: any): Observable<UserAgreement>;
+
   getToken(request: Empty, ...rest: any): Observable<PG_Token>;
 
   getAvailablePaymentMethods(request: UserIdRequest, ...rest: any): Observable<PaymentMethodsResponse>;
@@ -354,6 +366,11 @@ export interface PaymentGatewayServiceClient {
 }
 
 export interface PaymentGatewayServiceController {
+  createAgreement(
+    request: AgreementRequest,
+    ...rest: any
+  ): Promise<UserAgreement> | Observable<UserAgreement> | UserAgreement;
+
   getToken(request: Empty, ...rest: any): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
 
   getAvailablePaymentMethods(
@@ -504,6 +521,7 @@ export interface PaymentGatewayServiceController {
 export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
+      "createAgreement",
       "getToken",
       "getAvailablePaymentMethods",
       "createAccount",

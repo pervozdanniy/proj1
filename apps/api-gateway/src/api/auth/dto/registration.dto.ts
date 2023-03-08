@@ -11,7 +11,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { RegisterFinishRequest } from '~common/grpc/interfaces/auth';
+import { ApproveAgreementRequest, CreateAgreementRequest, RegisterFinishRequest } from '~common/grpc/interfaces/auth';
 import { UserDetails } from '../../user/dtos/update-user.dto';
 import { TwoFactorVerificationDto } from './2fa.request.dto';
 
@@ -35,13 +35,7 @@ export class RegistrationStartRequestDto {
 
 export class RegistrationVerifyRequestDto extends TwoFactorVerificationDto {}
 
-export class RegistrationFinishRequestDto implements RegisterFinishRequest {
-  @ApiProperty({ example: 'test_user' })
-  @IsString()
-  @IsNotEmpty()
-  @Length(2, 200)
-  username: string;
-
+export class CreateAgreementRequestDto implements CreateAgreementRequest {
   @ApiProperty({ example: 'US' })
   @IsISO31661Alpha2()
   @IsNotEmpty()
@@ -52,6 +46,21 @@ export class RegistrationFinishRequestDto implements RegisterFinishRequest {
   @IsOptional()
   @Type(() => UserDetails)
   details?: UserDetails;
+}
+
+export class ChangeAgreementStatusDto implements ApproveAgreementRequest {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  id: string;
+}
+
+export class RegistrationFinishRequestDto implements RegisterFinishRequest {
+  @ApiProperty({ example: 'test_user' })
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 200)
+  username: string;
 
   @ApiPropertyOptional({ type: 'string', isArray: true })
   @IsOptional()

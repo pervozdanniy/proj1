@@ -6,6 +6,8 @@ import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthServiceClient } from '~common/grpc/interfaces/auth';
 import {
+  ChangeAgreementStatusDto,
+  CreateAgreementRequestDto,
   RegistrationFinishRequestDto,
   RegistrationStartRequestDto,
   RegistrationVerifyRequestDto,
@@ -48,5 +50,19 @@ export class RegistrationService implements OnModuleInit {
     metadata.set('sessionId', sessionId);
 
     return firstValueFrom(this.authClient.registerFinish(payload, metadata));
+  }
+
+  async createAgreement(payload: CreateAgreementRequestDto, sessionId: string) {
+    const metadata = new Metadata();
+    metadata.set('sessionId', sessionId);
+
+    return firstValueFrom(this.authClient.createAgreement(payload, metadata));
+  }
+
+  async approveAgreement(payload: ChangeAgreementStatusDto, sessionId: string) {
+    const metadata = new Metadata();
+    metadata.set('sessionId', sessionId);
+
+    return firstValueFrom(this.authClient.approveAgreement(payload, metadata));
   }
 }

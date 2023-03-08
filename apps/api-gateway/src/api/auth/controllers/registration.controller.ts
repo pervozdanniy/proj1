@@ -9,10 +9,16 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import {
+  AgreementResponseDTO,
+  SuccessResponseDTO,
+} from '../../payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { PublicUserDto } from '../../utils/public-user.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
 import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
 import {
+  ChangeAgreementStatusDto,
+  CreateAgreementRequestDto,
   RegistrationFinishRequestDto,
   RegistrationStartRequestDto,
   RegistrationVerifyRequestDto,
@@ -49,6 +55,24 @@ export class RegistrationController {
   @Post('verify')
   verify(@Body() payload: RegistrationVerifyRequestDto, @JwtSessionId() sessionId: string) {
     return this.registerService.verify(payload, sessionId);
+  }
+
+  @ApiOperation({ summary: 'Create agreement process' })
+  @ApiCreatedResponse({ type: AgreementResponseDTO })
+  @ApiBearerAuth()
+  @JwtSessionAuth({ allowUnauthorized: true, requirePreRegistration: true, require2FA: true })
+  @Post('create/agreement')
+  async createAgreement(@Body() payload: CreateAgreementRequestDto, @JwtSessionId() sessionId: string) {
+    return await this.registerService.createAgreement(payload, sessionId);
+  }
+
+  @ApiOperation({ summary: 'Approve or decline agreement' })
+  @ApiCreatedResponse({ type: SuccessResponseDTO })
+  @ApiBearerAuth()
+  @JwtSessionAuth({ allowUnauthorized: true, requirePreRegistration: true, require2FA: true })
+  @Post('approve/agreement')
+  async approveAgreement(@Body() payload: ChangeAgreementStatusDto, @JwtSessionId() sessionId: string) {
+    return await this.registerService.approveAgreement(payload, sessionId);
   }
 
   @ApiOperation({ summary: 'Finish registration process' })

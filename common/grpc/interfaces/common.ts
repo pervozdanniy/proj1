@@ -14,6 +14,13 @@ export interface User {
   source?: string | undefined;
   details?: UserDetails | undefined;
   contacts: User[];
+  agreement?: UserAgreement | undefined;
+}
+
+export interface UserAgreement {
+  id: string;
+  content: string;
+  status?: boolean | undefined;
 }
 
 export interface UserDetails {

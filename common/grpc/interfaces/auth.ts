@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { SuccessResponse, User, UserDetails } from "./common";
+import { SuccessResponse, User, UserAgreement, UserDetails } from "./common";
 import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.auth";
@@ -93,9 +93,16 @@ export interface RegisterStartRequest {
 
 export interface RegisterFinishRequest {
   username: string;
+  contacts: string[];
+}
+
+export interface CreateAgreementRequest {
   country_code: string;
   details?: UserDetails | undefined;
-  contacts: string[];
+}
+
+export interface ApproveAgreementRequest {
+  id: string;
 }
 
 export interface ResetPasswordStartRequest {
@@ -120,6 +127,10 @@ export interface AuthServiceClient {
 
   registerVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
 
+  createAgreement(request: CreateAgreementRequest, ...rest: any): Observable<UserAgreement>;
+
+  approveAgreement(request: ApproveAgreementRequest, ...rest: any): Observable<SuccessResponse>;
+
   registerFinish(request: RegisterFinishRequest, ...rest: any): Observable<User>;
 
   resetPasswordStart(request: ResetPasswordStartRequest, ...rest: any): Observable<AuthData>;
@@ -142,6 +153,16 @@ export interface AuthServiceController {
     request: TwoFactorCode,
     ...rest: any
   ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
+
+  createAgreement(
+    request: CreateAgreementRequest,
+    ...rest: any
+  ): Promise<UserAgreement> | Observable<UserAgreement> | UserAgreement;
+
+  approveAgreement(
+    request: ApproveAgreementRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   registerFinish(request: RegisterFinishRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
@@ -169,6 +190,8 @@ export function AuthServiceControllerMethods() {
       "loginSocials",
       "registerStart",
       "registerVerify",
+      "createAgreement",
+      "approveAgreement",
       "registerFinish",
       "resetPasswordStart",
       "resetPasswordVerify",
