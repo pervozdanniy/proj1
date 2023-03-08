@@ -52,12 +52,4 @@ export class UserService implements OnModuleInit {
 
     return this.withUrl(user);
   }
-
-  async create(data: CreateUserDTO): Promise<RegistrationResponseDto> {
-    data.password = await bcrypt.hash(data.password, 10);
-
-    const user = await firstValueFrom(this.userService.create(data));
-
-    return { providerRegistered: true, user };
-  }
 }

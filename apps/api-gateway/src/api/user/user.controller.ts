@@ -12,27 +12,16 @@ import {
   ParseFilePipe,
   ParseIntPipe,
   Patch,
-  Post,
   Put,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBearerAuth,
-  ApiConflictResponse,
-  ApiConsumes,
-  ApiNotFoundResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '../auth';
 import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.dto';
-import { CreateUserDTO } from './dtos/create-user.dto';
-import { RegistrationResponseDto } from './dtos/user.dto';
 import { UserService } from './services/user.service';
 
 @ApiTags('User')
@@ -111,17 +100,4 @@ export class UserController {
   }
 
   //test
-
-  @ApiOperation({ summary: 'Create user.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'The user created successfully.',
-    type: RegistrationResponseDto,
-  })
-  @ApiConflictResponse()
-  @HttpCode(HttpStatus.CREATED)
-  @Post()
-  createUser(@Body() payload: CreateUserDTO): Promise<RegistrationResponseDto> {
-    return this.userService.create(payload);
-  }
 }
