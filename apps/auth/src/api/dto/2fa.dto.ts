@@ -1,17 +1,5 @@
 import { Type } from 'class-transformer';
-import {
-  IsArray,
-  IsEmail,
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-  Max,
-  Min,
-  ValidateNested,
-} from 'class-validator';
+import { IsArray, IsEnum, IsInt, IsNotEmpty, Max, Min, ValidateNested } from 'class-validator';
 import {
   TwoFactorCode,
   TwoFactorDisableRequest,
@@ -25,36 +13,10 @@ export class BaseSettingsDto implements TwoFactorSettings {
   @IsNotEmpty()
   @IsEnum(TwoFactorMethod)
   method: TwoFactorMethod;
-
-  @IsOptional()
-  @IsString()
-  destination?: string;
-}
-
-export class EmailSettingsDto extends BaseSettingsDto {
-  @IsNotEmpty()
-  @IsEmail()
-  destination: string;
-}
-
-export class SmsSettingsDto extends BaseSettingsDto {
-  @IsNotEmpty()
-  @IsPhoneNumber()
-  destination: string;
 }
 
 export class EnableRequestDto implements TwoFactorEnableRequest {
   @IsNotEmpty()
-  @Type((opts) => opts.newObject, {
-    discriminator: {
-      property: 'method',
-      subTypes: [
-        { name: TwoFactorMethod.Email, value: EmailSettingsDto },
-        { name: TwoFactorMethod.Sms, value: SmsSettingsDto },
-      ],
-    },
-    keepDiscriminatorProperty: true,
-  })
   @ValidateNested()
   settings: BaseSettingsDto;
 }

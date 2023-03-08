@@ -50,7 +50,6 @@ export interface SocialsAuthRequest {
 
 export interface TwoFactorSettings {
   method: string;
-  destination?: string | undefined;
 }
 
 export interface TwoFactorEnableRequest {
