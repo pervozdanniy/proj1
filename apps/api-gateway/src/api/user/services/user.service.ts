@@ -1,14 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
 import { UpdateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
-import { CreateUserDTO } from '../dtos/create-user.dto';
 import { UpdateUserDto, UserContactsDto } from '../dtos/update-user.dto';
-import { RegistrationResponseDto } from '../dtos/user.dto';
 import { S3Service } from './s3.service';
 
 @Injectable()
