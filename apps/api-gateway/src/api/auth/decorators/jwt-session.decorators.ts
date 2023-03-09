@@ -31,7 +31,7 @@ const JwtSessionAuth = (options: SessionMetadataOptions = {}) => {
       ApiConflictResponse({ description: 'No verification methods are enabled' }),
     );
   }
-  if (options.requirePreRegistration) {
+  if (options.requireRegistration) {
     decorators.push(ApiConflictResponse({ description: "You haven't started registration process" }));
   }
   if (options.requirePasswordReset) {

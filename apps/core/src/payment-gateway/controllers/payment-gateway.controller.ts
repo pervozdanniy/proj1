@@ -1,7 +1,8 @@
-import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   AccountResponse,
+  AgreementRequest,
   BalanceRequest,
   BalanceResponse,
   BankAccountParams,
@@ -40,6 +41,9 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  createAgreement(request: AgreementRequest): Promise<UserAgreement> {
+    return this.paymentGatewayService.createAgreement(request);
+  }
   constructor(
     private mainService: MainService,
     private paymentGatewayService: PaymentGatewayService,

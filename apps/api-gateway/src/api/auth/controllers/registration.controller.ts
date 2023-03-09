@@ -9,10 +9,16 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import {
+  AgreementResponseDTO,
+  SuccessResponseDTO,
+} from '../../payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { PublicUserDto } from '../../utils/public-user.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
 import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
 import {
+  ChangeAgreementStatusDto,
+  CreateAgreementRequestDto,
   RegistrationFinishRequestDto,
   RegistrationStartRequestDto,
   RegistrationVerifyRequestDto,
@@ -44,17 +50,35 @@ export class RegistrationController {
     description: 'Current 2FA method succeeded, but 2FA is not completed yet',
   })
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
-  @JwtSessionAuth({ allowUnauthorized: true, allowUnverified: true, requirePreRegistration: true })
+  @JwtSessionAuth({ allowUnauthorized: true, allowUnverified: true, requireRegistration: true })
   @HttpCode(HttpStatus.OK)
   @Post('verify')
   verify(@Body() payload: RegistrationVerifyRequestDto, @JwtSessionId() sessionId: string) {
     return this.registerService.verify(payload, sessionId);
   }
 
+  @ApiOperation({ summary: 'Create agreement process' })
+  @ApiCreatedResponse({ type: AgreementResponseDTO })
+  @ApiBearerAuth()
+  @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true })
+  @Post('create/agreement')
+  async createAgreement(@Body() payload: CreateAgreementRequestDto, @JwtSessionId() sessionId: string) {
+    return await this.registerService.createAgreement(payload, sessionId);
+  }
+
+  @ApiOperation({ summary: 'Approve or decline agreement' })
+  @ApiCreatedResponse({ type: SuccessResponseDTO })
+  @ApiBearerAuth()
+  @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true })
+  @Post('approve/agreement')
+  async approveAgreement(@Body() payload: ChangeAgreementStatusDto, @JwtSessionId() sessionId: string) {
+    return await this.registerService.approveAgreement(payload, sessionId);
+  }
+
   @ApiOperation({ summary: 'Finish registration process' })
   @ApiCreatedResponse({ type: PublicUserDto })
   @ApiBearerAuth()
-  @JwtSessionAuth({ allowUnauthorized: true, requirePreRegistration: true, require2FA: true })
+  @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true })
   @Post('finish')
   async finish(@Body() payload: RegistrationFinishRequestDto, @JwtSessionId() sessionId: string) {
     const user = await this.registerService.finish(payload, sessionId);

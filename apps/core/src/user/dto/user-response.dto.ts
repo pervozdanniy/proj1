@@ -1,5 +1,5 @@
 import { Transform, Type } from 'class-transformer';
-import { User } from '~common/grpc/interfaces/common';
+import { User, UserAgreement } from '~common/grpc/interfaces/common';
 
 export class UserResponseDto implements User {
   id: number;
@@ -22,4 +22,6 @@ export class UserResponseDto implements User {
 
   @Type(() => UserResponseDto)
   contacts: User[];
+
+  agreement: UserAgreement;
 }

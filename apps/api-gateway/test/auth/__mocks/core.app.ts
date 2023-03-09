@@ -1,6 +1,7 @@
 import { MainService } from '@/payment-gateway/services/main.service';
 import { PaymentGatewayWebhooksService } from '@/payment-gateway/services/payment-gateway-webhooks.service';
 import { PaymentGatewayService } from '@/payment-gateway/services/payment-gateway.service';
+import { UserFacadeService } from '@/user-facade/user-facade.service';
 import { UserCheckService } from '@/user/services/user-check.service';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
@@ -22,6 +23,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
   const moduleFixture = await Test.createTestingModule({
     providers: [
       UserService,
+      UserFacadeService,
       {
         provide: CountryService,
         useFactory: jest.fn(() => ({

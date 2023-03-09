@@ -1,8 +1,9 @@
 import { UserService } from '@/user/services/user.service';
 import { Injectable } from '@nestjs/common';
-import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
   AccountResponse,
+  AgreementRequest,
   BalanceRequest,
   BalanceResponse,
   DepositParamRequest,
@@ -36,6 +37,10 @@ export class PaymentGatewayService {
     const userDetails = await this.userService.getUserInfo(id);
 
     return this.primeTrustService.createAccount(userDetails);
+  }
+
+  async createAgreement(request: AgreementRequest): Promise<UserAgreement> {
+    return this.primeTrustService.createAgreement(request);
   }
 
   async createContact(id: number): Promise<SuccessResponse> {

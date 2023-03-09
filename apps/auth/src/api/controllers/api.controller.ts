@@ -1,12 +1,14 @@
 import { status } from '@grpc/grpc-js';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
-import { PreRegisteredSessionInterface } from '~common/constants/auth';
+import { RegisteredSessionInterface } from '~common/constants/auth';
 import { GrpcSession, GrpcSessionAuth, SessionProxy } from '~common/grpc-session';
 import {
+  ApproveAgreementRequest,
   AuthData,
   AuthServiceController,
   AuthServiceControllerMethods,
+  CreateAgreementRequest,
   RegisterFinishRequest,
   RegisterStartRequest,
   ResetPasswordFinishRequest,
@@ -14,7 +16,7 @@ import {
   TwoFactorCode,
   TwoFactorVerificationResponse,
 } from '~common/grpc/interfaces/auth';
-import { SuccessResponse, User } from '~common/grpc/interfaces/common';
+import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
@@ -40,10 +42,24 @@ export class AuthApiController implements AuthServiceController {
     return this.authService.registerVerify(request, session);
   }
 
+  createAgreement(
+    @Payload() request: CreateAgreementRequest,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<UserAgreement> {
+    return this.authService.createAgreement(request, session);
+  }
+
+  approveAgreement(
+    @Payload() request: ApproveAgreementRequest,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<SuccessResponse> {
+    return this.authService.approveAgreement(request, session);
+  }
+
   @GrpcSessionAuth({ allowUnauthorized: true })
   registerFinish(
     @Payload() request: RegisterFinishRequest,
-    @GrpcSession() session: SessionProxy<PreRegisteredSessionInterface>,
+    @GrpcSession() session: SessionProxy<RegisteredSessionInterface>,
   ): Promise<User> {
     return this.authService.registerFinish(request, session);
   }

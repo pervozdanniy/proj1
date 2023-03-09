@@ -14,6 +14,13 @@ message User {
     optional string source = 10;
     optional UserDetails details = 11;
     repeated User contacts = 12;
+    optional UserAgreement agreement = 13;
+}
+
+message UserAgreement {
+    string id = 1;
+    string content = 2;
+    optional bool status = 3;
 }
 
 message UserDetails {

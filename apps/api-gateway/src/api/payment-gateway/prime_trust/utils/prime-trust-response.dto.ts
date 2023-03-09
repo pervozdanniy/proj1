@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
   AccountResponse,
   BalanceResponse,
@@ -42,6 +42,12 @@ export class ContactResponseDTO implements ContactResponse {
 
   @ApiProperty()
   uuid: string;
+}
+
+export class AgreementResponseDTO implements UserAgreement {
+  content: string;
+  id: string;
+  status: boolean | undefined;
 }
 
 export class AccountResponseDTO implements AccountResponse {

@@ -17,6 +17,10 @@ service AuthService {
 
   rpc RegisterVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
 
+  rpc CreateAgreement (CreateAgreementRequest) returns (common.UserAgreement);
+
+  rpc ApproveAgreement (ApproveAgreementRequest) returns (common.SuccessResponse);
+
   rpc RegisterFinish (RegisterFinishRequest) returns (common.User);
   
 
@@ -141,9 +145,16 @@ message RegisterStartRequest {
 
 message RegisterFinishRequest {
   string username = 1;
-  string country_code = 5;
-  optional common.UserDetails details = 7;
-  repeated string contacts = 8;
+  repeated string contacts = 2;
+}
+
+message CreateAgreementRequest {
+  string country_code = 1;
+  optional common.UserDetails details = 2;
+}
+
+message ApproveAgreementRequest {
+  string id = 1;
 }
 
 message ResetPasswordStartRequest {

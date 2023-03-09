@@ -5,7 +5,7 @@ import {
   confirm2FA,
   confirm2FAMethod,
   is2FA,
-  isPreRegistered,
+  isRegistered,
   require2FA,
   TwoFactorConstraint,
 } from '~common/constants/auth';
@@ -43,8 +43,8 @@ export class Auth2FAService {
   }
 
   async requireConfirmation(session: SessionProxy) {
-    if (!isPreRegistered(session)) {
-      throw new ConflictException('Registration process was not stated');
+    if (!isRegistered(session)) {
+      throw new ConflictException('Registration process was not started');
     }
     const constraints = this.generate([
       { method: TwoFactorMethod.Sms, destination: session.register.phone },

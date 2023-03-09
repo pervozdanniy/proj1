@@ -3,16 +3,25 @@ import { AuthService } from '@/auth/auth.service';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   finishRegistration,
+  isAgreement,
   isPasswordReset,
-  isPreRegistered,
+  isRegistered,
+  registerRequestAgreement,
   resetPassword,
   startRegistration,
   TwoFactorMethod,
 } from '~common/constants/auth';
 import { UserSourceEnum } from '~common/constants/user';
 import { SessionProxy } from '~common/grpc-session';
-import { AuthData, RegisterFinishRequest, RegisterStartRequest, TwoFactorCode } from '~common/grpc/interfaces/auth';
-import { SuccessResponse, User } from '~common/grpc/interfaces/common';
+import {
+  ApproveAgreementRequest,
+  AuthData,
+  CreateAgreementRequest,
+  RegisterFinishRequest,
+  RegisterStartRequest,
+  TwoFactorCode,
+} from '~common/grpc/interfaces/auth';
+import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 
 @Injectable()
@@ -64,18 +73,71 @@ export class AuthApiService {
   }
 
   async registerVerify(payload: TwoFactorCode, session: SessionProxy) {
-    if (!isPreRegistered(session)) {
-      throw new ConflictException('Registration process was not stated');
+    if (!isRegistered(session)) {
+      throw new ConflictException('Registration process was not started');
     }
 
     return this.auth2FA.verifyOne(payload, session);
   }
 
-  async registerFinish(payload: RegisterFinishRequest, session: SessionProxy) {
-    if (!isPreRegistered(session)) {
-      throw new ConflictException('Registration process was not stated');
+  async createAgreement(payload: CreateAgreementRequest, session: SessionProxy): Promise<UserAgreement> {
+    if (!isRegistered(session)) {
+      throw new ConflictException('Registration process was not started');
     }
-    const user = await this.auth.createUser({ ...payload, ...session.register, source: UserSourceEnum.Api });
+
+    const agreement = await this.auth.createAgreement({ ...payload, ...session.register });
+
+    registerRequestAgreement(session, { user_details: payload, agreement: { id: agreement.id, status: false } });
+
+    const content = agreement.content.replace(/\n|\t/g, '').replace(/\\"/g, '"');
+
+    return { ...agreement, content };
+  }
+
+  async approveAgreement(request: ApproveAgreementRequest, session: SessionProxy): Promise<SuccessResponse> {
+    const { id } = request;
+    if (!isRegistered(session)) {
+      throw new ConflictException('Registration process was not started');
+    }
+
+    if (!isAgreement(session)) {
+      throw new ConflictException('Agreement process was not started');
+    }
+    const {
+      agreement: { id: agreementId },
+    } = session.user_data;
+
+    if (id === agreementId) {
+      session.user_data.agreement.status = true;
+    } else {
+      throw new ConflictException('Unknown agreement id!');
+    }
+
+    return { success: true };
+  }
+
+  async registerFinish(payload: RegisterFinishRequest, session: SessionProxy) {
+    if (!isRegistered(session)) {
+      throw new ConflictException('Registration process was not started');
+    }
+
+    if (!isAgreement(session)) {
+      throw new ConflictException('Agreement process was not started');
+    }
+    const {
+      agreement: { status: agreementStatus },
+    } = session.user_data;
+
+    if (agreementStatus !== true) {
+      throw new ConflictException('Please approve agreement!');
+    }
+    const user = await this.auth.createUser({
+      ...payload,
+      ...session.register,
+      ...session.user_data.user_details,
+      source: UserSourceEnum.Api,
+    });
+    finishRegistration(session, user);
 
     await this.auth2FA.setEnabled([TwoFactorMethod.Email, TwoFactorMethod.Sms], finishRegistration(session, user));
 
@@ -107,7 +169,7 @@ export class AuthApiService {
 
   async resetPasswordVerify(payload: TwoFactorCode, session: SessionProxy) {
     if (!isPasswordReset(session)) {
-      throw new ConflictException('Password reset process was not stated');
+      throw new ConflictException('Password reset process was not started');
     }
 
     return this.auth2FA.verifyOne(payload, session);
@@ -115,7 +177,7 @@ export class AuthApiService {
 
   async resetPasswordFinish(password: string, session: SessionProxy): Promise<SuccessResponse> {
     if (!isPasswordReset(session)) {
-      throw new ConflictException('Password reset process was not stated');
+      throw new ConflictException('Password reset process was not started');
     }
     try {
       await this.auth.updateUser({ id: session.user.id, password });

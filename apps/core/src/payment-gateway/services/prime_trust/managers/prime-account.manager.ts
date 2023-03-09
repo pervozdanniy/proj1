@@ -12,8 +12,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as process from 'process';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { AccountResponse } from '~common/grpc/interfaces/payment-gateway';
+import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
+import { AccountResponse, AgreementRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 
 @Injectable()
@@ -243,5 +243,58 @@ export class PrimeAccountManager {
       status: account.status,
       number: account.number,
     };
+  }
+
+  async createAgreement(userDetails: AgreementRequest): Promise<UserAgreement> {
+    const formData = {
+      data: {
+        type: 'agreement-previews',
+        attributes: {
+          name: 'string',
+          'authorized-signature': 'string',
+          'account-type': 'custodial',
+          owner: {
+            'contact-type': 'natural_person',
+            name: `${userDetails.details.first_name} ${userDetails.details.last_name}`,
+            email: `${userDetails.email}`,
+            'tax-id-number': `${userDetails.details.tax_id_number}`,
+            'tax-country': `${userDetails.country_code}`,
+            'date-of-birth': `${userDetails.details.date_of_birth}`,
+            'primary-phone-number': {
+              country: `${userDetails.country_code}`,
+              number: `${userDetails.phone}`,
+              sms: true,
+            },
+            'primary-address': {
+              'street-1': `${userDetails.details.street}`,
+              'postal-code': `${userDetails.details.postal_code}`,
+              city: `${userDetails.details.city}`,
+              region: `${userDetails.details.region}`,
+              country: `${userDetails.country_code}`,
+            },
+          },
+        },
+      },
+    };
+    try {
+      const agreementResponse = await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/agreement-previews`,
+        data: formData,
+      });
+      const agreementData = agreementResponse.data.data;
+
+      return { id: agreementData.id, content: agreementData.attributes.content };
+    } catch (e) {
+      this.logger.error(e.response.data.errors);
+
+      if (e instanceof PrimeTrustException) {
+        const { detail, code } = e.getFirstError();
+
+        throw new GrpcException(code, detail);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
+    }
   }
 }

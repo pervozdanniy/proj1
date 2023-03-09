@@ -44,8 +44,6 @@ export class UserService {
   async getUserInfo(id: number) {
     const userDetails = await this.userRepository
       .createQueryBuilder('u')
-      .leftJoinAndSelect('u.country', 'c')
-      .leftJoinAndSelect('c.payment_gateway', 'p')
       .leftJoinAndSelect('u.details', 'd')
       .where('u.id = :id', { id })
       .getOne();

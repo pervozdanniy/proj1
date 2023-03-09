@@ -50,7 +50,7 @@ export class UserDetails {
 
   @ApiProperty({ example: 'NV' })
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   region: string;
 
   @ApiProperty({ format: 'date', example: '1995-09-09' })
@@ -66,7 +66,7 @@ export class UserDetails {
 
   @ApiProperty({ example: 89145 })
   @IsNumber()
-  @IsOptional()
+  @IsNotEmpty()
   postal_code: number;
 
   @ApiProperty({ example: 123123123 })

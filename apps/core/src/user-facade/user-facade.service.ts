@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { SuccessResponse, User } from '~common/grpc/interfaces/common';
 import { CheckIfUniqueRequest, NullableUser } from '~common/grpc/interfaces/core';
-import { PaymentGatewayService } from '../payment-gateway/services/payment-gateway.service';
+//import { PaymentGatewayService } from '../payment-gateway/services/payment-gateway.service';
 import { FindRequestDto } from '../user/dto/find.request.dto';
 import { CreateRequestDto, UpdateContactsRequestDto, UpdateRequestDto } from '../user/dto/user-request.dto';
 import { UserResponseDto } from '../user/dto/user-response.dto';
@@ -15,8 +15,7 @@ export class UserFacadeService {
 
   constructor(
     private readonly userService: UserService,
-    private readonly contactService: UserContactService,
-    private readonly payment: PaymentGatewayService,
+    private readonly contactService: UserContactService, //  private readonly payment: PaymentGatewayService,
   ) {}
 
   async updateContacts(payload: UpdateContactsRequestDto): Promise<User> {
@@ -34,9 +33,12 @@ export class UserFacadeService {
       .update(user, { new: contacts })
       .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
 
-    await this.payment.createAccount(user.id);
+    /** we can uncomment this part after when registration will be done in mobile because in
+     prime trust we cant delete accounts,it is difficult for testing **/
 
-    return plainToInstance(UserResponseDto, user);
+    //  await this.payment.createAccount(user.id);
+
+    return plainToInstance(UserResponseDto, { ...user });
   }
 
   async findByLogin(payload: FindRequestDto): Promise<NullableUser> {
