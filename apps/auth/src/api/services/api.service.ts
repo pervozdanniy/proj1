@@ -96,8 +96,12 @@ export class AuthApiService {
 
   async approveAgreement(request: ApproveAgreementRequest, session: SessionProxy): Promise<SuccessResponse> {
     const { id } = request;
-    if (!isAgreement(session)) {
+    if (!isRegistered(session)) {
       throw new ConflictException('Registration process was not stated');
+    }
+
+    if (!isAgreement(session)) {
+      throw new ConflictException('Agreement process was not stated');
     }
     const {
       agreement: { id: agreementId },
@@ -113,8 +117,12 @@ export class AuthApiService {
   }
 
   async registerFinish(payload: RegisterFinishRequest, session: SessionProxy) {
-    if (!isAgreement(session)) {
+    if (!isRegistered(session)) {
       throw new ConflictException('Registration process was not stated');
+    }
+
+    if (!isAgreement(session)) {
+      throw new ConflictException('Agreement process was not stated');
     }
     const {
       agreement: { status: agreementStatus },
