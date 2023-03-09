@@ -62,7 +62,7 @@ export class TwoFactorController implements TwoFactorServiceController {
     @GrpcSession() session: SessionProxy,
   ): Promise<TwoFactorRequireResponse> {
     try {
-      const methods = await this.auth2FA.enable(settings, session);
+      const methods = await this.auth2FA.enable(settings.method, session);
 
       return { required: { methods } };
     } catch (error) {

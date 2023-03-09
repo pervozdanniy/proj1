@@ -13,7 +13,6 @@ import { UserSourceEnum } from '~common/constants/user';
 import { SessionProxy } from '~common/grpc-session';
 import { AuthData, RegisterFinishRequest, RegisterStartRequest, TwoFactorCode } from '~common/grpc/interfaces/auth';
 import { SuccessResponse, User } from '~common/grpc/interfaces/common';
-import { BaseSettingsDto } from '../dto/2fa.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 
 @Injectable()
@@ -77,30 +76,31 @@ export class AuthApiService {
       throw new ConflictException('Registration process was not stated');
     }
     const user = await this.auth.createUser({ ...payload, ...session.register, source: UserSourceEnum.Api });
-    finishRegistration(session, user);
+
+    await this.auth2FA.setEnabled([TwoFactorMethod.Email, TwoFactorMethod.Sms], finishRegistration(session, user));
 
     return user;
   }
 
   async resetPasswordStart(payload: ResetPasswordDto, session: SessionProxy) {
     let user: User | undefined;
-    let settings: BaseSettingsDto;
+    let method: TwoFactorMethod;
     if (payload.email) {
       user = await this.auth.findByEmail(payload.email);
-      settings = { method: TwoFactorMethod.Email, destination: payload.email };
+      method = TwoFactorMethod.Email;
     } else if (payload.phone) {
       user = await this.auth.findByPhone(payload.phone);
-      settings = { method: TwoFactorMethod.Sms, destination: payload.phone };
+      method = TwoFactorMethod.Sms;
     } else {
       throw new BadRequestException('Phone or email should be specified');
     }
     if (!user) {
       throw new NotFoundException('No such user exists');
     }
-    this.auth2FA.requireOne(settings, resetPassword(session));
+    this.auth2FA.requireOne(method, resetPassword(session));
 
     const resp: AuthData = await this.login(user, session);
-    resp.verify = { type: 'Reset password confirmation', methods: [settings.method] };
+    resp.verify = { type: 'Reset password confirmation', methods: [method] };
 
     return resp;
   }

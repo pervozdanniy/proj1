@@ -7,10 +7,10 @@ export const isPreRegistered = (session: SessionInterface): session is PreRegist
 export const startRegistration = <T extends SessionInterface>(session: T, data: PreRegisterSessionData) =>
   Object.assign(session, { register: data });
 
-export const finishRegistration = <User = any>(
-  session: PreRegisteredSessionInterface,
+export const finishRegistration = <T extends PreRegisteredSessionInterface, User>(
+  session: T,
   user: User,
-): SessionInterface<User> => {
+): T & SessionInterface<User> => {
   delete session.register;
 
   return Object.assign(session, { user });

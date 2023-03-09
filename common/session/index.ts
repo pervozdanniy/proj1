@@ -1,4 +1,3 @@
-export * from './interfaces/auth.interface';
 export * from './interfaces/session.interface';
 export * from './redis.store';
 export * from './session-host';

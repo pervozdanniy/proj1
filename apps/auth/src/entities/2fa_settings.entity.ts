@@ -11,6 +11,6 @@ export class TwoFactorSettingsEntity {
   @PrimaryColumn({ type: 'varchar', length: 20, generated: false })
   method: TwoFactorMethod;
 
-  @Column({ type: 'varchar', nullable: true })
-  destination?: string;
+  @Column({ type: 'varchar' })
+  destination: string;
 }
