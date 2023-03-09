@@ -101,7 +101,6 @@ message SocialsAuthRequest {
 
 message TwoFactorSettings {
   string method = 1;
-  optional string destination = 2;
 }
 
 message TwoFactorEnableRequest {

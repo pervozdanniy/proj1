@@ -18,10 +18,10 @@ export const startRegistration = <T extends SessionInterface>(session: T, data: 
 export const registerRequestAgreement = <T extends SessionInterface>(session: T, data: UserDetailsSessionData) =>
   Object.assign(session, { user_data: data });
 
-export const finishRegistration = <User = any>(
-  session: AgreementSessionInterface,
+export const finishRegistration = <T extends RegisteredSessionInterface, User>(
+  session: T,
   user: User,
-): SessionInterface<User> => {
+): T & SessionInterface<User> => {
   delete session.register;
   delete session.user_details;
   delete session.agreement;
