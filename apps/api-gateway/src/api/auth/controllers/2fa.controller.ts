@@ -6,6 +6,7 @@ import {
   TwoFactorDisableRequestDto,
   TwoFactorEnableRequestDto,
   TwoFactorResendRequestDto,
+  TwoFactorVerificationDto,
   TwoFactorVerifyRequestDto,
 } from '../dto/2fa.request.dto';
 import { TwoFactorService } from '../services/2fa.service';
@@ -47,6 +48,21 @@ export class TwoFactorController {
   @Post('verify')
   verify(@Body() payload: TwoFactorVerifyRequestDto, @JwtSessionId() sessionId: string) {
     return this.twoFactor.verify(payload, sessionId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: TwoFactorSuccessResponseDto, description: '2FA completed' })
+  @ApiResponse({
+    status: HttpStatus.PRECONDITION_REQUIRED,
+    type: TwoFactorRequiredResponseDto,
+    description: 'Current 2FA method succeeded, but 2FA is not completed yet',
+  })
+  @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
+  @JwtSessionAuth({ allowUnverified: true })
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-one')
+  verifyOne(@Body() payload: TwoFactorVerificationDto, @JwtSessionId() sessionId: string) {
+    return this.twoFactor.verifyOne(payload, sessionId);
   }
 
   @ApiBearerAuth()
