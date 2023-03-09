@@ -45,7 +45,7 @@ export class CreateAgreementRequestDto implements CreateAgreementRequest {
   @ValidateNested()
   @IsOptional()
   @Type(() => UserDetails)
-  details?: UserDetails;
+  details: UserDetails;
 }
 
 export class ChangeAgreementStatusDto implements ApproveAgreementRequest {
