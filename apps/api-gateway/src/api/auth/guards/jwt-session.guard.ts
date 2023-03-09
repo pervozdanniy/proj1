@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { is2FA, isPasswordReset, isPreRegistered } from '~common/constants/auth';
+import { is2FA, isPasswordReset, isRegistered } from '~common/constants/auth';
 import { JwtSessionGuard as BaseGuard, SessionInterface, SessionProxy } from '~common/http-session';
 import { JWT_AUTH_METADATA } from '~common/http-session/meta';
 import { SessionMetadataOptions } from '../interfaces/session.interface';
@@ -45,7 +45,7 @@ export class JwtSessionGuard extends BaseGuard {
         HttpStatus.PRECONDITION_REQUIRED,
       );
     }
-    if (options.requirePreRegistration && !isPreRegistered(session)) {
+    if (options.requireRegistration && !isRegistered(session)) {
       throw new ConflictException({ message: "You haven't started registration process" });
     }
     if (options.requirePasswordReset && !isPasswordReset(session)) {

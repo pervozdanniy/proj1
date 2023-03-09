@@ -3,12 +3,11 @@ import { AuthService } from '@/auth/auth.service';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   finishRegistration,
+  isAgreement,
   isPasswordReset,
-  isPreAgreement,
-  isPreRegistered,
+  isRegistered,
+  registerRequestAgreement,
   resetPassword,
-  saveAgreementInSession,
-  saveUserDetailsInSession,
   startRegistration,
   TwoFactorMethod,
 } from '~common/constants/auth';
@@ -75,7 +74,7 @@ export class AuthApiService {
   }
 
   async registerVerify(payload: TwoFactorCode, session: SessionProxy) {
-    if (!isPreRegistered(session)) {
+    if (!isRegistered(session)) {
       throw new ConflictException('Registration process was not stated');
     }
 
@@ -83,14 +82,13 @@ export class AuthApiService {
   }
 
   async createAgreement(payload: CreateAgreementRequest, session: SessionProxy): Promise<UserAgreement> {
-    if (!isPreRegistered(session)) {
+    if (!isRegistered(session)) {
       throw new ConflictException('Registration process was not stated');
     }
-    saveUserDetailsInSession(session, payload);
 
     const agreement = await this.auth.createAgreement({ ...payload, ...session.register });
 
-    saveAgreementInSession(session, { id: agreement.id, status: false });
+    registerRequestAgreement(session, { user_details: payload, agreement: { id: agreement.id, status: false } });
 
     const content = agreement.content.replace(/\n|\t/g, '').replace(/\\"/g, '"');
 
@@ -99,12 +97,15 @@ export class AuthApiService {
 
   async approveAgreement(request: ApproveAgreementRequest, session: SessionProxy): Promise<SuccessResponse> {
     const { id } = request;
-    if (!isPreAgreement(session)) {
+    if (!isAgreement(session)) {
       throw new ConflictException('Registration process was not stated');
     }
+    const {
+      agreement: { id: agreementId },
+    } = session.user_data;
 
-    if (id === session.agreement.id) {
-      session.agreement.status = true;
+    if (id === agreementId) {
+      session.user_data.agreement.status = true;
     } else {
       throw new ConflictException('Unknown agreement id!');
     }
@@ -113,17 +114,20 @@ export class AuthApiService {
   }
 
   async registerFinish(payload: RegisterFinishRequest, session: SessionProxy) {
-    if (!isPreAgreement(session)) {
+    if (!isAgreement(session)) {
       throw new ConflictException('Registration process was not stated');
     }
+    const {
+      agreement: { status: agreementStatus },
+    } = session.user_data;
 
-    if (session.agreement.status !== true) {
+    if (agreementStatus !== true) {
       throw new ConflictException('Please approve agreement!');
     }
     const user = await this.auth.createUser({
       ...payload,
       ...session.register,
-      ...session.user_details,
+      ...session.user_data.user_details,
       source: UserSourceEnum.Api,
     });
     finishRegistration(session, user);

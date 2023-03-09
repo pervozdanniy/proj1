@@ -1,29 +1,25 @@
 import { SessionInterface } from '~common/session';
 import {
-  PreAgreementSessionData,
-  PreAgreementSessionInterface,
-  PreRegisteredSessionInterface,
-  PreRegisterSessionData,
+  AgreementSessionInterface,
+  RegisteredSessionInterface,
+  RegisterSessionData,
   UserDetailsSessionData,
 } from './interfaces';
 
-export const isPreRegistered = (session: SessionInterface): session is PreRegisteredSessionInterface =>
-  !!(session as PreRegisteredSessionInterface)?.register;
+export const isRegistered = (session: SessionInterface): session is RegisteredSessionInterface =>
+  !!(session as RegisteredSessionInterface)?.register;
 
-export const isPreAgreement = (session: SessionInterface): session is PreAgreementSessionInterface =>
-  !!(session as PreAgreementSessionInterface)?.agreement;
+export const isAgreement = (session: SessionInterface): session is AgreementSessionInterface =>
+  !!(session as AgreementSessionInterface)?.user_data;
 
-export const startRegistration = <T extends SessionInterface>(session: T, data: PreRegisterSessionData) =>
+export const startRegistration = <T extends SessionInterface>(session: T, data: RegisterSessionData) =>
   Object.assign(session, { register: data });
 
-export const saveUserDetailsInSession = <T extends SessionInterface>(session: T, data: UserDetailsSessionData) =>
-  Object.assign(session, { user_details: data });
-
-export const saveAgreementInSession = <T extends SessionInterface>(session: T, data: PreAgreementSessionData) =>
-  Object.assign(session, { agreement: data });
+export const registerRequestAgreement = <T extends SessionInterface>(session: T, data: UserDetailsSessionData) =>
+  Object.assign(session, { user_data: data });
 
 export const finishRegistration = <User = any>(
-  session: PreAgreementSessionInterface,
+  session: AgreementSessionInterface,
   user: User,
 ): SessionInterface<User> => {
   delete session.register;
