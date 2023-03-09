@@ -74,7 +74,7 @@ export class AuthApiService {
 
   async registerVerify(payload: TwoFactorCode, session: SessionProxy) {
     if (!isRegistered(session)) {
-      throw new ConflictException('Registration process was not stated');
+      throw new ConflictException('Registration process was not started');
     }
 
     return this.auth2FA.verifyOne(payload, session);
@@ -82,7 +82,7 @@ export class AuthApiService {
 
   async createAgreement(payload: CreateAgreementRequest, session: SessionProxy): Promise<UserAgreement> {
     if (!isRegistered(session)) {
-      throw new ConflictException('Registration process was not stated');
+      throw new ConflictException('Registration process was not started');
     }
 
     const agreement = await this.auth.createAgreement({ ...payload, ...session.register });
@@ -97,11 +97,11 @@ export class AuthApiService {
   async approveAgreement(request: ApproveAgreementRequest, session: SessionProxy): Promise<SuccessResponse> {
     const { id } = request;
     if (!isRegistered(session)) {
-      throw new ConflictException('Registration process was not stated');
+      throw new ConflictException('Registration process was not started');
     }
 
     if (!isAgreement(session)) {
-      throw new ConflictException('Agreement process was not stated');
+      throw new ConflictException('Agreement process was not started');
     }
     const {
       agreement: { id: agreementId },
@@ -118,11 +118,11 @@ export class AuthApiService {
 
   async registerFinish(payload: RegisterFinishRequest, session: SessionProxy) {
     if (!isRegistered(session)) {
-      throw new ConflictException('Registration process was not stated');
+      throw new ConflictException('Registration process was not started');
     }
 
     if (!isAgreement(session)) {
-      throw new ConflictException('Agreement process was not stated');
+      throw new ConflictException('Agreement process was not started');
     }
     const {
       agreement: { status: agreementStatus },
@@ -169,7 +169,7 @@ export class AuthApiService {
 
   async resetPasswordVerify(payload: TwoFactorCode, session: SessionProxy) {
     if (!isPasswordReset(session)) {
-      throw new ConflictException('Password reset process was not stated');
+      throw new ConflictException('Password reset process was not started');
     }
 
     return this.auth2FA.verifyOne(payload, session);
@@ -177,7 +177,7 @@ export class AuthApiService {
 
   async resetPasswordFinish(password: string, session: SessionProxy): Promise<SuccessResponse> {
     if (!isPasswordReset(session)) {
-      throw new ConflictException('Password reset process was not stated');
+      throw new ConflictException('Password reset process was not started');
     }
     try {
       await this.auth.updateUser({ id: session.user.id, password });

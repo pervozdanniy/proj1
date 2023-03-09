@@ -44,7 +44,7 @@ export class Auth2FAService {
 
   async requireConfirmation(session: SessionProxy) {
     if (!isRegistered(session)) {
-      throw new ConflictException('Registration process was not stated');
+      throw new ConflictException('Registration process was not started');
     }
     const constraints = this.generate([
       { method: TwoFactorMethod.Sms, destination: session.register.phone },
