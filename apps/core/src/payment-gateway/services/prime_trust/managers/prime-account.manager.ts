@@ -276,18 +276,17 @@ export class PrimeAccountManager {
         },
       },
     };
-    console.log(this.prime_trust_url);
     try {
       const agreementResponse = await this.httpService.request({
         method: 'post',
-        url: `${this.prime_trust_url}/v2/agreement-previews`,
+        url: `https://sandbox.primetrust.com/v2/agreement-previews`,
         data: formData,
       });
       const agreementData = agreementResponse.data.data;
 
       return { id: agreementData.id, content: agreementData.attributes.content };
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error(e.response.data.errors);
 
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
