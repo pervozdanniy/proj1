@@ -109,7 +109,6 @@ export class AuthApiService {
     const {
       agreement: { id: agreementId },
     } = session.user_data;
-    console.log(agreementId);
     if (id === agreementId) {
       session.user_data.agreement.status = true;
     } else {
