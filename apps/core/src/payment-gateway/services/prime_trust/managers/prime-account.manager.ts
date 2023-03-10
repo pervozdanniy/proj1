@@ -276,7 +276,7 @@ export class PrimeAccountManager {
         },
       },
     };
-    console.log(formData);
+    console.log(this.prime_trust_url);
     try {
       const agreementResponse = await this.httpService.request({
         method: 'post',
