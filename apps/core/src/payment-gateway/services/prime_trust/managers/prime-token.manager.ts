@@ -18,6 +18,7 @@ export class PrimeTokenManager {
   }
 
   async getToken() {
+    console.log(`${this.email}:${this.password}`);
     const headersRequest = {
       Authorization: `Basic ${Buffer.from(`${this.email}:${this.password}`).toString('base64')}`,
     };

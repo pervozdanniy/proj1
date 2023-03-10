@@ -33,7 +33,7 @@ export class PrimeTrustHttpService {
 
   async request<T = any>(config: AxiosRequestConfig, attempts = 5) {
     const token = await this.ensureAuth();
-
+    console.log(token);
     config = this.createConfig(config, token);
     const _retry = async (attempts: number): Promise<AxiosResponse<T>> => {
       try {
