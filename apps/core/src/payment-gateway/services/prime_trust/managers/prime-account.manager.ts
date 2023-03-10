@@ -279,7 +279,7 @@ export class PrimeAccountManager {
     try {
       const agreementResponse = await this.httpService.request({
         method: 'post',
-        url: `https://sandbox.primetrust.com/v2/agreement-previews`,
+        url: `${this.prime_trust_url}/v2/agreement-previews`,
         data: formData,
       });
       const agreementData = agreementResponse.data.data;
