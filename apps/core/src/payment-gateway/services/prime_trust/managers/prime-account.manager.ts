@@ -276,6 +276,7 @@ export class PrimeAccountManager {
         },
       },
     };
+    console.log(formData);
     try {
       const agreementResponse = await this.httpService.request({
         method: 'post',
@@ -286,7 +287,7 @@ export class PrimeAccountManager {
 
       return { id: agreementData.id, content: agreementData.attributes.content };
     } catch (e) {
-      this.logger.error(e.response.data.errors);
+      this.logger.error(e);
 
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
