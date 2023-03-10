@@ -89,7 +89,10 @@ export class AuthApiService {
 
     registerRequestAgreement(session, { user_details: payload, agreement: { id: agreement.id, status: false } });
 
-    const content = agreement.content.replace(/\n|\t/g, '').replace(/\\"/g, '"');
+    const contentResponse = agreement.content.replace(/\n|\t/g, '').replace(/\\"/g, '"');
+    const closingTag = 'of this Agreement.</span></span>';
+    const position = contentResponse.indexOf(closingTag);
+    const content = contentResponse.substring(0, position + closingTag.length);
 
     return { ...agreement, content };
   }
@@ -106,7 +109,7 @@ export class AuthApiService {
     const {
       agreement: { id: agreementId },
     } = session.user_data;
-
+    console.log(agreementId);
     if (id === agreementId) {
       session.user_data.agreement.status = true;
     } else {
