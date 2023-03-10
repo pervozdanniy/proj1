@@ -10,15 +10,14 @@ export class PrimeTokenManager {
   private readonly email: string;
   private readonly password: string;
   constructor(private readonly httpService: HttpService, config: ConfigService<ConfigInterface>) {
-    const { prime_trust_url } = config.get('app');
+    //  const { prime_trust_url } = config.get('app');
     const { email, password } = config.get('prime_trust');
     this.email = email;
     this.password = password;
-    this.prime_trust_url = prime_trust_url;
+    this.prime_trust_url = 'https://sandbox.primetrust.com';
   }
 
   async getToken() {
-    console.log(`${this.email}:${this.password}`);
     const headersRequest = {
       Authorization: `Basic ${Buffer.from(`${this.email}:${this.password}`).toString('base64')}`,
     };
@@ -26,6 +25,7 @@ export class PrimeTokenManager {
     const result = await lastValueFrom(
       this.httpService.post(`${this.prime_trust_url}/auth/jwts`, {}, { headers: headersRequest }),
     );
+    console.log(result.data);
 
     return result.data;
   }
