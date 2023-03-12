@@ -2,7 +2,7 @@ import { UserCheckService } from '@/user/services/user-check.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CountryService } from '~svc/core/src/country/country.service';
+import { CountryService } from '../../country/country.service';
 import { FindRequestDto } from '../dto/find.request.dto';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserDetailsEntity } from '../entities/user-details.entity';
@@ -51,15 +51,8 @@ export class UserService {
     return userDetails;
   }
 
-  async findByLogin({ email, phone }: FindRequestDto) {
-    if (email) {
-      return this.userRepository.findOneBy({ email });
-    }
-    if (phone) {
-      return this.userRepository.findOneBy({ phone });
-    }
-
-    return undefined;
+  findByLogin({ email, phone }: FindRequestDto) {
+    return this.userRepository.findOneBy({ email, phone });
   }
 
   async delete(id: number) {

@@ -3,9 +3,9 @@ import { AuthService } from '@/auth/auth.service';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   finishRegistration,
-  isAgreement,
   isPasswordReset,
-  isRegistered,
+  isRegistration,
+  isRegistrationAgreement,
   registerRequestAgreement,
   resetPassword,
   startRegistration,
@@ -73,7 +73,7 @@ export class AuthApiService {
   }
 
   async registerVerify(payload: TwoFactorCode, session: SessionProxy) {
-    if (!isRegistered(session)) {
+    if (!isRegistration(session)) {
       throw new ConflictException('Registration process was not started');
     }
 
@@ -81,7 +81,7 @@ export class AuthApiService {
   }
 
   async createAgreement(payload: CreateAgreementRequest, session: SessionProxy): Promise<UserAgreement> {
-    if (!isRegistered(session)) {
+    if (!isRegistration(session)) {
       throw new ConflictException('Registration process was not started');
     }
 
@@ -97,19 +97,11 @@ export class AuthApiService {
     return { ...agreement, content };
   }
 
-  async approveAgreement(request: ApproveAgreementRequest, session: SessionProxy): Promise<SuccessResponse> {
-    const { id } = request;
-    if (!isRegistered(session)) {
-      throw new ConflictException('Registration process was not started');
+  async approveAgreement({ id }: ApproveAgreementRequest, session: SessionProxy): Promise<SuccessResponse> {
+    if (!isRegistrationAgreement(session)) {
+      throw new ConflictException('Registration agreement process was not started');
     }
-
-    if (!isAgreement(session)) {
-      throw new ConflictException('Agreement process was not started');
-    }
-    const {
-      agreement: { id: agreementId },
-    } = session.user_data;
-    if (id === agreementId) {
+    if (id === session.user_data.agreement.id) {
       session.user_data.agreement.status = true;
     } else {
       throw new ConflictException('Unknown agreement id!');
@@ -119,25 +111,18 @@ export class AuthApiService {
   }
 
   async registerFinish(payload: RegisterFinishRequest, session: SessionProxy) {
-    if (!isRegistered(session)) {
-      throw new ConflictException('Registration process was not started');
+    if (!isRegistrationAgreement(session)) {
+      throw new ConflictException('Registration agreement process was not started');
     }
 
-    if (!isAgreement(session)) {
-      throw new ConflictException('Agreement process was not started');
-    }
-    const {
-      agreement: { status: agreementStatus },
-    } = session.user_data;
-
-    if (agreementStatus !== true) {
+    if (session.user_data.agreement.status !== true) {
       throw new ConflictException('Please approve agreement!');
     }
     const user = await this.auth.createUser({
       ...payload,
       ...session.register,
       ...session.user_data.user_details,
-      source: UserSourceEnum.Api,
+      source: session.register.source ?? UserSourceEnum.Api,
     });
     finishRegistration(session, user);
 

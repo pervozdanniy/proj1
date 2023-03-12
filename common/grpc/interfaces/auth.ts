@@ -87,7 +87,8 @@ export interface TwoFactorRequireResponse {
 export interface RegisterStartRequest {
   email: string;
   phone: string;
-  password: string;
+  password?: string | undefined;
+  source?: string | undefined;
 }
 
 export interface RegisterFinishRequest {

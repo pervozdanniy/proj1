@@ -140,7 +140,11 @@ message TwoFactorRequireResponse {
 message RegisterStartRequest {
   string email = 1;
   string phone = 2;
-  string password = 3;
+  oneof pwd_or_source {
+    string password = 3;
+    string source = 4;
+  }
+  
 }
 
 message RegisterFinishRequest {
