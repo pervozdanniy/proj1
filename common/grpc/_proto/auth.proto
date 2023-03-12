@@ -94,8 +94,8 @@ message ClientLoginRequest {
 }
 
 message SocialsAuthRequest {
-  string username = 1;
-  string email = 2;
+  string email = 1;
+  string phone = 2;
   string source = 3;
 }
 
@@ -144,13 +144,12 @@ message RegisterStartRequest {
 }
 
 message RegisterFinishRequest {
-  string username = 1;
-  repeated string contacts = 2;
+  repeated string contacts = 1;
 }
 
 message CreateAgreementRequest {
   string country_code = 1;
-  optional common.UserDetails details = 2;
+  common.UserDetails details = 2;
 }
 
 message ApproveAgreementRequest {

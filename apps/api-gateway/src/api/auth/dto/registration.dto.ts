@@ -56,12 +56,6 @@ export class ChangeAgreementStatusDto implements ApproveAgreementRequest {
 }
 
 export class RegistrationFinishRequestDto implements RegisterFinishRequest {
-  @ApiProperty({ example: 'test_user' })
-  @IsString()
-  @IsNotEmpty()
-  @Length(2, 200)
-  username: string;
-
   @ApiPropertyOptional({ type: 'string', isArray: true })
   @IsOptional()
   @IsArray()

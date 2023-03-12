@@ -43,8 +43,8 @@ export interface ClientLoginRequest {
 }
 
 export interface SocialsAuthRequest {
-  username: string;
   email: string;
+  phone: string;
   source: string;
 }
 
@@ -91,13 +91,12 @@ export interface RegisterStartRequest {
 }
 
 export interface RegisterFinishRequest {
-  username: string;
   contacts: string[];
 }
 
 export interface CreateAgreementRequest {
   country_code: string;
-  details?: UserDetails | undefined;
+  details: UserDetails | undefined;
 }
 
 export interface ApproveAgreementRequest {

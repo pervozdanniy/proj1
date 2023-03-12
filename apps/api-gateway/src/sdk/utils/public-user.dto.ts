@@ -7,9 +7,6 @@ export class PublicUserDto implements User {
   id: number;
 
   @ApiProperty()
-  username: string;
-
-  @ApiProperty()
   email: string;
 
   @Exclude()

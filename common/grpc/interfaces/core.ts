@@ -16,7 +16,6 @@ export interface UserContacts {
 
 export interface UpdateRequest {
   id: number;
-  username?: string | undefined;
   country_code?: string | undefined;
   phone?: string | undefined;
   password?: string | undefined;
@@ -26,7 +25,6 @@ export interface UpdateRequest {
 }
 
 export interface CreateRequest {
-  username: string;
   email: string;
   password?: string | undefined;
   phone?: string | undefined;

@@ -64,10 +64,6 @@ export class UserDetails {
 export class CreateRequestDto implements CreateRequest {
   @IsNotEmpty()
   @IsString()
-  username: string;
-
-  @IsNotEmpty()
-  @IsString()
   email: string;
 
   @IsOptional()

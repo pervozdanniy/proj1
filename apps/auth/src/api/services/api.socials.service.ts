@@ -19,11 +19,10 @@ export class ApiSocialsService implements OnModuleInit {
     this.userService = this.client.getService('UserService');
   }
 
-  async loginSocials(request: SocialsAuthRequest, session: SessionProxy) {
-    const { email, username, source } = request;
+  async loginSocials({ email, phone, source }: SocialsAuthRequest, session: SessionProxy) {
     const payload: CreateRequest = {
       email,
-      username,
+      phone,
       source,
       status: UserStatusEnum.Active,
       contacts: [],

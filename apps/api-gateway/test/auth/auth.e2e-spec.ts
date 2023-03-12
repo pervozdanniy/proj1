@@ -19,7 +19,6 @@ const hash = bcrypt.hashSync(password, 10);
 
 const mockUser = {
   id: 1,
-  username: 'test',
   email: 'test@test.com',
   password: hash,
   created_at: new Date(),
@@ -114,7 +113,6 @@ describe('AuthService (e2e)', () => {
 
       expect(resp.body.id).toEqual(mockUser.id);
       expect(resp.body.email).toEqual(mockUser.email);
-      expect(resp.body.username).toEqual(mockUser.username);
       expect(resp.body.password).toBeUndefined();
     });
 

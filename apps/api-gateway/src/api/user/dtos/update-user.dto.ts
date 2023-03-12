@@ -89,12 +89,6 @@ export class UpdateUserDto implements UpdateRequest {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  @Length(2, 200)
-  username?: string;
-
-  @ApiPropertyOptional()
-  @IsString()
-  @IsOptional()
   phone?: string;
 
   @ApiPropertyOptional()
