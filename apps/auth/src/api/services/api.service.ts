@@ -146,6 +146,7 @@ export class AuthApiService {
     if (!user) {
       throw new NotFoundException('No such user exists');
     }
+    session.user = user;
     this.auth2FA.requireOne(method, resetPassword(session));
 
     const resp: AuthData = await this.login(user, session);
