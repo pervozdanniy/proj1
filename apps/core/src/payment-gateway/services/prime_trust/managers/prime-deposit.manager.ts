@@ -38,7 +38,6 @@ import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 export class PrimeDepositManager {
   private readonly prime_trust_url: string;
 
-  private readonly fee_percentage: number = 2;
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
@@ -200,11 +199,7 @@ export class PrimeDepositManager {
 
     const contributionResponse = await this.getContributionInfo(resource_id);
     const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
-
-    const amount = (
-      parseFloat(contributionResponse['amount']) -
-      parseFloat(contributionResponse['amount']) * this.fee_percentage * 0.01
-    ).toString();
+    const amount = contributionResponse['amount'];
 
     await this.primeFundsTransferManager.convertUSDtoAsset(account_id, amount, false);
     if (existedDeposit) {
