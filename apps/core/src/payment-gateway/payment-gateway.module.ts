@@ -6,6 +6,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
+import { CountryModule } from '../country/country.module';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
@@ -50,6 +51,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     HttpModule,
     UserModule,
     NotificationModule,
+    CountryModule,
     TypeOrmModule.forFeature([
       PrimeTrustAccountEntity,
       PrimeTrustContactEntity,

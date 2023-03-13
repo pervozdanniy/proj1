@@ -15,6 +15,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import { AccountResponse, AgreementRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { CountryService } from '../../../../country/country.service';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -29,6 +30,8 @@ export class PrimeAccountManager {
     private readonly notificationService: NotificationService,
 
     private readonly primeKycManager: PrimeKycManager,
+
+    private countryService: CountryService,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -112,7 +115,7 @@ export class PrimeAccountManager {
       return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
       //
     } catch (e) {
-      this.logger.error(e.response.data.errors);
+      this.logger.error(e.errors);
 
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
@@ -246,6 +249,9 @@ export class PrimeAccountManager {
   }
 
   async createAgreement(userDetails: AgreementRequest): Promise<UserAgreement> {
+    if (userDetails.country_code === 'US' && userDetails.details) {
+      this.countryService.checkUSA(userDetails.details);
+    }
     const formData = {
       data: {
         type: 'agreement-previews',
@@ -286,7 +292,7 @@ export class PrimeAccountManager {
 
       return { id: agreementData.id, content: agreementData.attributes.content };
     } catch (e) {
-      this.logger.error(e.response.data.errors);
+      this.logger.error(e.errors);
 
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
