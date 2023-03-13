@@ -50,8 +50,8 @@ export class UserDetails {
 
   @ApiProperty({ example: 'NV' })
   @IsString()
-  @IsNotEmpty()
-  region: string;
+  @IsOptional()
+  region?: string;
 
   @ApiProperty({ format: 'date', example: '1995-09-09' })
   @IsString()
