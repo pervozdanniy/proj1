@@ -3,7 +3,6 @@ import { User, UserAgreement } from '~common/grpc/interfaces/common';
 
 export class UserResponseDto implements User {
   id: number;
-  username: string;
   email: string;
   phone: string;
   password: string;

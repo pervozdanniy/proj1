@@ -5,7 +5,8 @@ import {
   confirm2FA,
   confirm2FAMethod,
   is2FA,
-  isRegistered,
+  isRegistration,
+  registerIsSocial,
   require2FA,
   TwoFactorConstraint,
 } from '~common/constants/auth';
@@ -43,20 +44,23 @@ export class Auth2FAService {
   }
 
   async requireConfirmation(session: SessionProxy) {
-    if (!isRegistered(session)) {
+    if (!isRegistration(session)) {
       throw new ConflictException('Registration process was not started');
     }
-    const constraints = this.generate([
-      { method: TwoFactorMethod.Sms, destination: session.register.phone },
-      { method: TwoFactorMethod.Email, destination: session.register.email },
-    ]);
+
+    const settings = [{ method: TwoFactorMethod.Sms, destination: session.register.phone }];
+    if (!registerIsSocial(session)) {
+      settings.push({ method: TwoFactorMethod.Email, destination: session.register.email });
+    }
+
+    const constraints = this.generate(settings);
     require2FA(session, {
       verify: constraints,
       expiresAt: Date.now() + 15 * 60 * 60 * 1000,
     });
     this.notify.send(constraints, session.id);
 
-    return [TwoFactorMethod.Email, TwoFactorMethod.Sms];
+    return settings.map((s) => s.method);
   }
 
   async requireIfEnabled(session: SessionProxy) {

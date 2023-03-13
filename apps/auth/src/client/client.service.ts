@@ -91,7 +91,6 @@ export class ClientService {
   async register(request: UnsignedRegisterRequest, client: AuthClientInterface) {
     const payload: CreateRequest = {
       email: request.login,
-      username: request.login,
       password: request.password ?? null,
       country_code: request.countryCode,
       contacts: [],

@@ -3,7 +3,6 @@ export enum UserStatusEnum {
 }
 
 export enum UserSourceEnum {
-  SDK = 'sdk',
   Api = 'api',
   Google = 'google',
   Facebook = 'facebook',

@@ -3,7 +3,8 @@ import { SessionInterface, SessionMetadataOptions } from '~common/session';
 export type RegisterSessionData = {
   email: string;
   phone: string;
-  password: string;
+  password?: string;
+  source?: string;
 };
 
 export type AgreementSessionData = {
@@ -30,12 +31,12 @@ export type UserDetailsSessionData = {
   agreement: AgreementSessionData;
 };
 
-export interface RegisteredSessionInterface extends SessionInterface {
+export interface RegisterSessionInterface extends SessionInterface {
   user?: never;
   register: RegisterSessionData;
 }
 
-export interface AgreementSessionInterface extends RegisteredSessionInterface {
+export interface AgreementSessionInterface extends RegisterSessionInterface {
   user_data: UserDetailsSessionData;
 }
 

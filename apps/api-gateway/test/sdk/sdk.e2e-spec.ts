@@ -56,9 +56,7 @@ describe('SDK Auth client (signed)', () => {
       .send(payload)
       .expect(201);
     expect(userStorage).toHaveLength(1);
-    expect(userStorage[0]).toHaveProperty('username');
     expect(userStorage[0]).not.toHaveProperty('password');
-    expect(userStorage[0].username).toEqual('mock_user_1');
     expect(userStorage[0].email).toEqual('mock_user_1');
   });
 

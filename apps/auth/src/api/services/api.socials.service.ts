@@ -2,10 +2,9 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { UserStatusEnum } from '~common/constants/user';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { SocialsAuthRequest } from '~common/grpc/interfaces/auth';
-import { CreateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
+import { UserServiceClient } from '~common/grpc/interfaces/core';
 import { SessionProxy } from '~common/session';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { AuthApiService } from './api.service';
@@ -20,24 +19,15 @@ export class ApiSocialsService implements OnModuleInit {
   }
 
   async loginSocials(request: SocialsAuthRequest, session: SessionProxy) {
-    const { email, username, source } = request;
-    const payload: CreateRequest = {
-      email,
-      username,
-      source,
-      status: UserStatusEnum.Active,
-      contacts: [],
-    };
-
-    let { user } = await firstValueFrom(this.userService.findByLogin({ email }));
-    if (!user) {
-      user = await firstValueFrom(this.userService.create(payload));
-    } else {
-      if (user.source !== source) {
-        throw new GrpcException(Status.ALREADY_EXISTS, 'User already exist!', 409);
+    const { user } = await firstValueFrom(this.userService.findByLogin({ email: request.email, phone: request.phone }));
+    if (user) {
+      if (user.source === request.source) {
+        return this.authService.login(user, session);
       }
+
+      throw new GrpcException(Status.ALREADY_EXISTS, 'User already exist!');
     }
 
-    return this.authService.login(user, session);
+    return this.authService.registerStart(request, session);
   }
 }

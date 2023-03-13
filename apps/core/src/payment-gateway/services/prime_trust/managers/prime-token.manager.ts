@@ -18,12 +18,12 @@ export class PrimeTokenManager {
   }
 
   async getToken() {
-    const headersRequest = {
-      Authorization: `Basic ${Buffer.from(`${this.email}:${this.password}`).toString('base64')}`,
-    };
-
     const result = await lastValueFrom(
-      this.httpService.post(`${this.prime_trust_url}/auth/jwts`, {}, { headers: headersRequest }),
+      this.httpService.post(
+        `${this.prime_trust_url}/auth/jwts`,
+        {},
+        { auth: { username: this.email, password: this.password } },
+      ),
     );
 
     return result.data;

@@ -43,8 +43,8 @@ export interface ClientLoginRequest {
 }
 
 export interface SocialsAuthRequest {
-  username: string;
   email: string;
+  phone: string;
   source: string;
 }
 
@@ -87,17 +87,17 @@ export interface TwoFactorRequireResponse {
 export interface RegisterStartRequest {
   email: string;
   phone: string;
-  password: string;
+  password?: string | undefined;
+  source?: string | undefined;
 }
 
 export interface RegisterFinishRequest {
-  username: string;
   contacts: string[];
 }
 
 export interface CreateAgreementRequest {
   country_code: string;
-  details?: UserDetails | undefined;
+  details: UserDetails | undefined;
 }
 
 export interface ApproveAgreementRequest {
