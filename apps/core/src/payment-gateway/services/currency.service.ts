@@ -1,19 +1,19 @@
 import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 
 export type CurrencyCode = string;
 
+@Injectable()
 export class CurrencyService {
   constructor(private readonly http: HttpService) {}
 
   async rates<T extends CurrencyCode[]>(from: CurrencyCode, ...to: T) {
     const { data } = await lastValueFrom(
-      this.http.get<Record<CurrencyCode, Record<T[number], number>>>(
-        `https://min-api.cryptocompare.com/data/price?fsym=${from}&tsyms=${to.join(',')}`,
-      ),
+      this.http.get(`https://min-api.cryptocompare.com/data/price?fsym=${from}&tsyms=${to.join(',')}`),
     );
 
-    return data[from];
+    return data;
   }
 
   async ratesUsd<T extends CurrencyCode[]>(...codes: T) {
