@@ -110,7 +110,7 @@ export class PrimeAccountManager {
         return contact.attributes['account-id'] === account.uuid;
       });
 
-      await this.primeKycManager.saveContact({ data: contactData.pop() }, account.user_id);
+      await this.primeKycManager.saveContact(contactData.pop(), account.user_id);
 
       return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
       //
@@ -177,7 +177,7 @@ export class PrimeAccountManager {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
-      .select(['a.uuid as account_id,u.id as user_id,u.username as username'])
+      .select(['a.uuid as account_id,u.id as user_id'])
       .where('a.uuid = :id', { id })
       .getRawOne();
 
