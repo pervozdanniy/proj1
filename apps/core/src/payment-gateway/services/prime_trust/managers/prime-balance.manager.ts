@@ -56,7 +56,6 @@ export class PrimeBalanceManager {
       this.axiosService.get(`https://min-api.cryptocompare.com/data/price?fsym=${this.asset}&tsyms=USD`),
     );
     const convertedAmount = parseFloat(convertData.data['USD']) * parseFloat(cacheData.settled);
-
     cacheData.settled = String(convertedAmount.toFixed(2));
 
     return this.saveBalance(user_id, cacheData);
@@ -68,10 +67,14 @@ export class PrimeBalanceManager {
         method: 'get',
         url: `${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-asset-totals`,
       });
-      const attributes = cacheResponse.data.included[0].attributes;
+      let balance = '0';
+      if (cacheResponse.data.included.length !== 0) {
+        const attributes = cacheResponse.data.included[0].attributes;
+        balance = attributes['settled'];
+      }
 
       return {
-        settled: attributes['settled'],
+        settled: balance,
         'currency-type': 'USD',
       };
     } catch (e) {

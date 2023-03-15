@@ -6,14 +6,21 @@ export type CurrencyCode = string;
 
 @Injectable()
 export class CurrencyService {
-  constructor(private readonly http: HttpService) {}
+  protected readonly api_key: string;
+  constructor(private readonly http: HttpService) {
+    this.api_key = '9OAx3LWiI1deEbZfCGQBjwSPrNE6M3YE';
+  }
 
   async rates<T extends CurrencyCode[]>(from: CurrencyCode, ...to: T) {
     const { data } = await lastValueFrom(
-      this.http.get(`https://min-api.cryptocompare.com/data/price?fsym=${from}&tsyms=${to.join(',')}`),
+      this.http.get(`https://api.apilayer.com/exchangerates_data/latest?symbols=${to.join(',')}&base=${from}`, {
+        headers: {
+          apikey: this.api_key,
+        },
+      }),
     );
 
-    return data;
+    return data['rates'];
   }
 
   async ratesUsd<T extends CurrencyCode[]>(...codes: T) {
