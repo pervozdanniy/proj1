@@ -27,7 +27,7 @@ export class UserDetailsEntity {
 
   @Column({
     type: 'integer',
-    default: SendType.EMAIL,
+    default: SendType.UNRECOGNIZED,
   })
   send_type: SendType;
 

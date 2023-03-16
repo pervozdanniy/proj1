@@ -67,6 +67,7 @@ export class Auth2FAService {
     const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
     if (enabled.length) {
       const contstraints = this.generate(enabled);
+      console.log(contstraints);
       require2FA(session, {
         verify: contstraints,
         expiresAt: Date.now() + 15 * 60 * 60 * 1000,
