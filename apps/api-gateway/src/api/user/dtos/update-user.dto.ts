@@ -74,7 +74,7 @@ export class UserDetails {
   @IsNotEmpty()
   tax_id_number: number;
 
-  @ApiProperty({ enum: Object.values(SendType), default: SendType.ALL })
+  @ApiProperty({ enum: Object.values(SendType), default: SendType.SEND_TYPE_UNSPECIFIED })
   @IsEnum(SendType)
   @Type(() => Number)
   send_type?: SendType;

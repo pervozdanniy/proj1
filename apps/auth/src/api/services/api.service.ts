@@ -37,10 +37,10 @@ export class AuthApiService {
 
     const resp: AuthData = { access_token: token };
 
-    const methods = await this.auth2FA.requireIfEnabled(session);
-    if (methods.length) {
-      resp.verify = { type: '2FA Verification', methods };
-    }
+    // const methods = await this.auth2FA.requireIfEnabled(session);
+    // if (methods.length) {
+    //   resp.verify = { type: '2FA Verification', methods };
+    // }
 
     return resp;
   }

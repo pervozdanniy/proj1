@@ -10,7 +10,9 @@ export enum UserSourceEnum {
 }
 
 export enum SendType {
-  EMAIL = 1,
-  SMS = 2,
-  ALL = SendType.SMS | SendType.EMAIL,
+  SEND_TYPE_UNSPECIFIED = 0,
+  SEND_TYPE_EMAIL = 1,
+  SEND_TYPE_SMS = 2,
+  SEND_TYPE_ALL = 3,
+  UNRECOGNIZED = -1,
 }
