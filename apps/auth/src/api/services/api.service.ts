@@ -37,10 +37,18 @@ export class AuthApiService {
 
     const resp: AuthData = { access_token: token };
 
-    // const methods = await this.auth2FA.requireIfEnabled(session);
-    // if (methods.length) {
-    //   resp.verify = { type: '2FA Verification', methods };
-    // }
+    const methods = await this.auth2FA.requireIfEnabled(session);
+    if (methods.length) {
+      resp.verify = { type: '2FA Verification', methods };
+    }
+
+    return resp;
+  }
+
+  async resetLogin(user: User, session: SessionProxy) {
+    const token = await this.auth.login(user, session);
+
+    const resp: AuthData = { access_token: token };
 
     return resp;
   }
@@ -154,7 +162,7 @@ export class AuthApiService {
     session.user = user;
     this.auth2FA.requireOne(method, resetPassword(session));
 
-    const resp: AuthData = await this.login(user, session);
+    const resp: AuthData = await this.resetLogin(user, session);
     resp.verify = { type: 'Reset password confirmation', methods: [method] };
 
     return resp;
