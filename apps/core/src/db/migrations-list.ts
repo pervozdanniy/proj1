@@ -34,6 +34,7 @@ import { AlterBalanceTable1677138110571 } from './migrations/1677138110571-Alter
 import { AlterBankAccountTable1677664281088 } from './migrations/1677664281088-AlterBankAccountTable';
 import { RemoveCountryEntity1678111485298 } from './migrations/1678111485298-RemoveCountryEntity';
 import { RemoveUsername1678630767390 } from './migrations/1678630767390-RemoveUsername';
+import { AlterUsersTable1679033609244 } from './migrations/1679033609244-AlterUsersTable';
 
 export default [
   createUserTable1669901299726,
@@ -72,4 +73,5 @@ export default [
   AlterBankAccountTable1677664281088,
   RemoveCountryEntity1678111485298,
   RemoveUsername1678630767390,
+  AlterUsersTable1679033609244,
 ];

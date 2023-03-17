@@ -129,10 +129,11 @@ export class AuthApiService {
       source: session.register.source ?? UserSourceEnum.Api,
     });
     finishRegistration(session, user);
+    const currentUser = await this.auth.getUserById(user.id);
 
     await this.auth2FA.setEnabled([TwoFactorMethod.Email, TwoFactorMethod.Sms], finishRegistration(session, user));
 
-    return user;
+    return currentUser;
   }
 
   async resetPasswordStart(payload: ResetPasswordDto, session: SessionProxy) {
