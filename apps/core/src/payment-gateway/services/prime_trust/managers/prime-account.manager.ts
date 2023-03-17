@@ -1,4 +1,3 @@
-import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
@@ -8,16 +7,12 @@ import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-//import { ClientGrpc } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as process from 'process';
-//import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-//import { InjectGrpc } from '~common/grpc/helpers';
 import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import { AccountResponse, AgreementRequest } from '~common/grpc/interfaces/payment-gateway';
-//import { WebsocketServiceClient } from '~common/grpc/interfaces/websocket';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryService } from '../../../../country/country.service';
 
@@ -27,28 +22,21 @@ export class PrimeAccountManager {
   private readonly prime_trust_url: string;
   private readonly app_domain: string;
 
-  // private webSocketClient: WebsocketServiceClient;
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-
-    private readonly notificationService: NotificationService,
 
     private readonly primeKycManager: PrimeKycManager,
 
     private countryService: CountryService,
 
     @InjectRepository(PrimeTrustAccountEntity)
-    private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>, //  @InjectGrpc('websocket') private readonly client: ClientGrpc,
+    private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
     this.app_domain = domain;
   }
-
-  // onModuleInit() {
-  //   this.webSocketClient = this.client.getService('WebsocketService');
-  // }
 
   async createAccount(userDetails: UserEntity): Promise<AccountResponse> {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
@@ -193,7 +181,7 @@ export class PrimeAccountManager {
     if (!accountData) {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
-    const { account_id, user_id } = accountData;
+    const { account_id } = accountData;
 
     const accountResponse = await this.getAccountInfo(account_id);
     await this.primeAccountRepository.update(
@@ -202,15 +190,6 @@ export class PrimeAccountManager {
         status: accountResponse.status,
       },
     );
-
-    const notificationPayload = {
-      user_id,
-      title: 'User Account',
-      type: 'accounts',
-      description: `Account created with status ${accountResponse.status}`,
-    };
-
-    this.notificationService.createAsync(notificationPayload);
 
     return { success: true };
   }
@@ -231,7 +210,6 @@ export class PrimeAccountManager {
   }
 
   async getAccount(id: number): Promise<AccountResponse> {
-    // await firstValueFrom(this.webSocketClient.send({ event: 'test', data: 'test' }));
     const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
 
     return {
