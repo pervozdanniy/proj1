@@ -13,6 +13,7 @@ import {
   ParseIntPipe,
   Patch,
   Put,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -22,6 +23,7 @@ import { plainToInstance } from 'class-transformer';
 import { SuccessResponse, User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '../auth';
 import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.dto';
+import { GetContactsDto } from './dtos/get-contacts.dto';
 import { VerifyUserDto } from './dtos/verify-user.dto';
 import { UserService } from './services/user.service';
 
@@ -33,6 +35,17 @@ import { UserService } from './services/user.service';
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @ApiOperation({ summary: 'Get all transactions.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Get('contacts')
+  async getContacts(@JwtSessionUser() { id }: User, @Query() query: GetContactsDto) {
+    return this.userService.getContacts({ user_id: id, ...query });
+  }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get authorized user' })

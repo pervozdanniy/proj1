@@ -7,7 +7,6 @@ import {
   BankAccountResponseDTO,
   ContactResponseDTO,
   DocumentResponseDTO,
-  TransferFundsResponseDTO,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
@@ -176,7 +175,6 @@ export class MainController {
   @ApiOperation({ summary: 'Get all transactions.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: TransferFundsResponseDTO,
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
