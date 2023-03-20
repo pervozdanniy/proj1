@@ -5,7 +5,7 @@ import {
   CheckIfUniqueRequest,
   NullableUser,
   UserServiceController,
-  UserServiceControllerMethods,
+  UserServiceControllerMethods, VerifyRequest,
 } from '~common/grpc/interfaces/core';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { FindRequestDto } from '../user/dto/find.request.dto';
@@ -85,5 +85,9 @@ export class UserFacadeController implements UserServiceController {
     const success = await this.userService.checkIfUnique(payload);
 
     return { success };
+  }
+
+  async verifySocure(payload: VerifyRequest): Promise<SuccessResponse> {
+    return this.userService.verifySocure(payload);
   }
 }

@@ -19,9 +19,10 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { User } from '~common/grpc/interfaces/common';
+import { SuccessResponse, User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '../auth';
 import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.dto';
+import { VerifyUserDto } from './dtos/verify-user.dto';
 import { UserService } from './services/user.service';
 
 @ApiTags('User')
@@ -99,5 +100,15 @@ export class UserController {
     return plainToInstance(PublicUserDto, user);
   }
 
-  //test
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update user`s contacts.' })
+  @ApiResponse({
+    description: 'The user`s contacts created successfully.',
+    type: PublicUserDto,
+  })
+  @JwtSessionAuth()
+  @Patch('verify')
+  async verifySocure(@JwtSessionUser() { id }: User, @Body() payload: VerifyUserDto): Promise<SuccessResponse> {
+    return this.userService.verifySocure({ id, ...payload });
+  }
 }

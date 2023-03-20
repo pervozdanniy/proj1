@@ -10,6 +10,8 @@ import public "notification.proto";
 service UserService {
   rpc GetById (common.IdRequest) returns (common.User);
 
+  rpc VerifySocure(VerifyRequest) returns (common.SuccessResponse);
+
   rpc FindByLogin (FindByLoginRequest) returns (NullableUser);
 
   rpc Create (CreateRequest) returns (common.User);
@@ -21,6 +23,12 @@ service UserService {
   rpc UpdateContacts (UpdateContactsRequest) returns (common.User);
 
   rpc CheckIfUnique (CheckIfUniqueRequest) returns (common.SuccessResponse);
+}
+
+message VerifyRequest {
+  uint32 id = 1;
+  bool socure_verify = 2;
+  string document_uuid = 3;
 }
 
 message NullableUser {

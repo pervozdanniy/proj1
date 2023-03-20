@@ -66,7 +66,6 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       BankAccountEntity,
       DepositParamsEntity,
     ]),
-    ClientsModule.registerAsync([asyncClientOptions('websocket')]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
   ],
   providers: [

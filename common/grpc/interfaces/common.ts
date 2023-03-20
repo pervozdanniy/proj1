@@ -33,6 +33,8 @@ export interface UserDetails {
   region?: string | undefined;
   send_type?: number | undefined;
   avatar?: string | undefined;
+  socure_verify?: boolean | undefined;
+  document_uuid?: string | undefined;
 }
 
 export interface IdRequest {

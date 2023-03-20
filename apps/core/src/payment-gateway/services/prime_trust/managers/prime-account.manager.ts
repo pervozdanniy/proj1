@@ -1,4 +1,3 @@
-import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
@@ -26,8 +25,6 @@ export class PrimeAccountManager {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-
-    private readonly notificationService: NotificationService,
 
     private readonly primeKycManager: PrimeKycManager,
 
@@ -184,7 +181,7 @@ export class PrimeAccountManager {
     if (!accountData) {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
-    const { account_id, user_id } = accountData;
+    const { account_id } = accountData;
 
     const accountResponse = await this.getAccountInfo(account_id);
     await this.primeAccountRepository.update(
@@ -193,31 +190,6 @@ export class PrimeAccountManager {
         status: accountResponse.status,
       },
     );
-
-    const notificationPayload = {
-      user_id,
-      title: 'User Account',
-      type: 'accounts',
-      description: `Account created with status ${accountResponse.status}`,
-    };
-
-    this.notificationService.createAsync(notificationPayload);
-
-    // this.websocketServiceClient
-    //   .send({ event: 'test', data: 'test' })
-    //   .pipe(
-    //     map((message: any) => {
-    //       console.log(message);
-    //       // Do something with the response
-    //     }),
-    //     catchError((error: any) => {
-    //       console.error(error);
-    //
-    //       // Handle the error
-    //       return throwError(error);
-    //     }),
-    //   )
-    //   .subscribe();
 
     return { success: true };
   }

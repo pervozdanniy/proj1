@@ -93,4 +93,8 @@ export class AuthService implements OnModuleInit {
   generateToken(sessionId: string) {
     return this.jwt.signAsync({ sub: sessionId });
   }
+
+  async getUserById(id: number) {
+    return firstValueFrom(this.userService.getById({ id }));
+  }
 }

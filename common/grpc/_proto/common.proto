@@ -33,6 +33,8 @@ message UserDetails {
     optional string region = 8;
     optional uint32 send_type = 9;
     optional string avatar = 10;
+    optional bool socure_verify = 11;
+    optional string document_uuid = 12;
 }
 
 message IdRequest {

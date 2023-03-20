@@ -25,6 +25,12 @@ export class UserDetailsEntity {
   @Column('varchar', { length: 50, nullable: true })
   date_of_birth: string;
 
+  @Column('boolean', { default: false })
+  socure_verify: boolean;
+
+  @Column('varchar', { length: 50, nullable: true })
+  document_uuid: string;
+
   @Column({
     type: 'integer',
     default: SendType.UNRECOGNIZED,

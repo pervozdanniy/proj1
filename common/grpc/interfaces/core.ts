@@ -5,6 +5,12 @@ import { IdRequest, SuccessResponse, User, UserDetails } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface VerifyRequest {
+  id: number;
+  socure_verify: boolean;
+  document_uuid: string;
+}
+
 export interface NullableUser {
   user?: User | undefined;
 }
@@ -55,6 +61,8 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface UserServiceClient {
   getById(request: IdRequest, ...rest: any): Observable<User>;
 
+  verifySocure(request: VerifyRequest, ...rest: any): Observable<SuccessResponse>;
+
   findByLogin(request: FindByLoginRequest, ...rest: any): Observable<NullableUser>;
 
   create(request: CreateRequest, ...rest: any): Observable<User>;
@@ -70,6 +78,11 @@ export interface UserServiceClient {
 
 export interface UserServiceController {
   getById(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
+
+  verifySocure(
+    request: VerifyRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   findByLogin(
     request: FindByLoginRequest,
@@ -94,6 +107,7 @@ export function UserServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "getById",
+      "verifySocure",
       "findByLogin",
       "create",
       "delete",

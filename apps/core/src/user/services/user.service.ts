@@ -2,11 +2,13 @@ import { UserCheckService } from '@/user/services/user-check.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { VerifyRequest } from '~common/grpc/interfaces/core';
 import { CountryService } from '../../country/country.service';
 import { FindRequestDto } from '../dto/find.request.dto';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserDetailsEntity } from '../entities/user-details.entity';
 import { UserEntity } from '../entities/user.entity';
+import {SuccessResponse} from "~common/grpc/interfaces/common";
 
 @Injectable()
 export class UserService {
@@ -87,5 +89,12 @@ export class UserService {
     const count = await this.userRepository.countBy([{ email }, { phone }]);
 
     return count === 0;
+  }
+
+  async verifySocure(payload: VerifyRequest): Promise<SuccessResponse> {
+    const { id, document_uuid, socure_verify } = payload;
+    await this.userDetailsRepository.update({ user_id: id }, { socure_verify, document_uuid });
+
+    return { success: true };
   }
 }

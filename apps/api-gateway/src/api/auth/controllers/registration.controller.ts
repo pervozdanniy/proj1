@@ -13,7 +13,7 @@ import {
   AgreementResponseDTO,
   SuccessResponseDTO,
 } from '../../payment-gateway/prime_trust/utils/prime-trust-response.dto';
-import { PublicUserDto } from '../../utils/public-user.dto';
+import { PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
 import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
 import {
@@ -76,13 +76,13 @@ export class RegistrationController {
   }
 
   @ApiOperation({ summary: 'Finish registration process' })
-  @ApiCreatedResponse({ type: PublicUserDto })
+  @ApiCreatedResponse({ type: PublicUserWithContactsDto })
   @ApiBearerAuth()
   @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true })
   @Post('finish')
   async finish(@Body() payload: RegistrationFinishRequestDto, @JwtSessionId() sessionId: string) {
     const user = await this.registerService.finish(payload, sessionId);
 
-    return plainToInstance(PublicUserDto, user);
+    return plainToInstance(PublicUserWithContactsDto, user);
   }
 }
