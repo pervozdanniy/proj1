@@ -14,6 +14,7 @@ import {
   CreditCardsResponse,
   DepositResponse,
   DocumentResponse,
+  JsonData,
   Token_Data,
   Transaction,
   TransactionResponse,
@@ -200,7 +201,7 @@ export class TransactionResponseDto implements TransactionResponse {
   transactions: TransactionDto[];
 }
 
-export class JsonDataDto {
+export class JsonDataDto implements JsonData {
   @ApiProperty()
   data: string;
 }

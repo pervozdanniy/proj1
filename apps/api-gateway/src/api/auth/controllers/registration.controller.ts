@@ -10,8 +10,8 @@ import {
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import {
-  AgreementResponseDTO,
-  SuccessResponseDTO,
+  AgreementResponseDto,
+  SuccessResponseDto,
 } from '../../payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
@@ -58,7 +58,7 @@ export class RegistrationController {
   }
 
   @ApiOperation({ summary: 'Create agreement process' })
-  @ApiCreatedResponse({ type: AgreementResponseDTO })
+  @ApiCreatedResponse({ type: AgreementResponseDto })
   @ApiBearerAuth()
   @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true })
   @Post('create/agreement')
@@ -67,7 +67,7 @@ export class RegistrationController {
   }
 
   @ApiOperation({ summary: 'Approve or decline agreement' })
-  @ApiCreatedResponse({ type: SuccessResponseDTO })
+  @ApiCreatedResponse({ type: SuccessResponseDto })
   @ApiBearerAuth()
   @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true })
   @Post('approve/agreement')

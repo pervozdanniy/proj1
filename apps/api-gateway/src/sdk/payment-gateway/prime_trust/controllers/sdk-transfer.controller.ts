@@ -3,7 +3,8 @@ import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInte
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
-import { TransferFundsDto } from '../dtos/transfer/transfer-funds.dto';
+import { TransferFundsRequestDto } from '../dtos/transfer/transfer-funds.dto';
+import { TransferFundsResponseDto } from '../utils/prime-trust-response.dto';
 
 @ApiTags('SDK/Prime Trust/Transfer Funds')
 @ApiBearerAuth()
@@ -17,10 +18,11 @@ export class SdkTransferController {
   @ApiOperation({ summary: 'Transfer funds.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: TransferFundsResponseDto,
   })
   @JwtSessionAuth()
   @Post('/funds')
-  async transferFunds(@JwtSessionUser() { id }: User, @Body() payload: TransferFundsDto) {
+  async transferFunds(@JwtSessionUser() { id }: User, @Body() payload: TransferFundsRequestDto) {
     return this.paymentGatewayService.transferFunds({ sender_id: id, ...payload });
   }
 }

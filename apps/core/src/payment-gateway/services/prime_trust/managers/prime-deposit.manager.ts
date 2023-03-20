@@ -201,7 +201,7 @@ export class PrimeDepositManager {
     const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
     const amount = contributionResponse['amount'];
 
-    await this.primeFundsTransferManager.convertUSDtoAsset(account_id, amount, false);
+    await this.primeFundsTransferManager.convertUsDtoAsset(account_id, amount, false);
     if (existedDeposit) {
       await this.depositEntityRepository.update(
         { uuid: resource_id },

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 
-export class TransferFundsDto {
+export class TransferFundsRequestDto {
   @ApiProperty({ description: 'User id', example: 6 })
   @IsNumber()
   @Min(1)

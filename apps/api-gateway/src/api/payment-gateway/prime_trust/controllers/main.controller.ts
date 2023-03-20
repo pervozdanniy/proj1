@@ -1,12 +1,14 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
 import { PaymentGatewayService } from '@/api/payment-gateway/prime_trust/services/payment-gateway.service';
 import {
-  AccountResponseDTO,
-  BalanceResponseDTO,
-  BankAccountParamsDTO,
-  BankAccountResponseDTO,
-  ContactResponseDTO,
-  DocumentResponseDTO,
+  AccountResponseDto,
+  BalanceResponseDto,
+  BankAccountParamsDto,
+  BankAccountResponseDto,
+  ContactResponseDto,
+  DocumentResponseDto,
+  TokenDto,
+  TransactionResponseDto,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
@@ -42,6 +44,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Token.' })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: TokenDto,
   })
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
@@ -82,7 +85,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Account.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: AccountResponseDTO,
+    type: AccountResponseDto,
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
@@ -94,7 +97,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Contact.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: ContactResponseDTO,
+    type: ContactResponseDto,
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
@@ -103,13 +106,13 @@ export class MainController {
     return this.paymentGatewayService.getContact({ id });
   }
 
-  @Post('kyc/upload-document')
+  @Post('/kyc/upload-document')
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload new file.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The file successfully uploaded.',
-    type: DocumentResponseDTO,
+    type: DocumentResponseDto,
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
@@ -127,7 +130,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Balance.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: BalanceResponseDTO,
+    type: BalanceResponseDto,
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
@@ -139,7 +142,7 @@ export class MainController {
   @ApiOperation({ summary: 'Get Bank Accounts.' })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: BankAccountResponseDTO,
+    type: BankAccountResponseDto,
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
@@ -151,11 +154,11 @@ export class MainController {
   @ApiOperation({ summary: 'Get Banks information from user country.' })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: BankAccountResponseDTO,
+    type: BankAccountResponseDto,
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Get('available/banks')
+  @Get('/available/banks')
   async getBanksInfo(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBanksInfo({ id });
   }
@@ -163,7 +166,7 @@ export class MainController {
   @ApiOperation({ summary: 'Add Bank Account params.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: BankAccountParamsDTO,
+    type: BankAccountParamsDto,
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
@@ -174,7 +177,8 @@ export class MainController {
 
   @ApiOperation({ summary: 'Get all transactions.' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
+    status: HttpStatus.OK,
+    type: TransactionResponseDto,
   })
   @ApiBearerAuth()
   @JwtSessionAuth()

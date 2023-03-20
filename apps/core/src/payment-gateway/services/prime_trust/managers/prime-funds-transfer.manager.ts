@@ -3,7 +3,7 @@ import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { PrimeBalanceManager } from '@/payment-gateway/services/prime_trust/managers/prime-balance.manager';
-import { AssetToUSDResponse, SendFundsResponse, USDtoAssetResponse } from '@/payment-gateway/types/prime-trust';
+import { AssetToUSDResponse, SendFundsResponse, UsDtoAssetResponse } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
@@ -40,7 +40,7 @@ export class PrimeFundsTransferManager {
     this.prime_trust_url = prime_trust_url;
   }
 
-  async convertUSDtoAsset(account_id: string, amount: string, cancel?: boolean): Promise<USDtoAssetResponse> {
+  async convertUsDtoAsset(account_id: string, amount: string, cancel?: boolean): Promise<UsDtoAssetResponse> {
     const formData = {
       data: {
         type: 'quotes',
@@ -172,7 +172,7 @@ export class PrimeFundsTransferManager {
     const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: sender_id });
     const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: receiver_id });
 
-    const { unit_count, fee_amount } = await this.convertUSDtoAsset(fromAccountId, amount, true);
+    const { unit_count, fee_amount } = await this.convertUsDtoAsset(fromAccountId, amount, true);
 
     const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count);
 
