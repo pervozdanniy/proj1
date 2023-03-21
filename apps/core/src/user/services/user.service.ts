@@ -132,20 +132,21 @@ export class UserService {
 
     queryBuilder.andWhere('contactDetails.user_id = :user_id', { user_id });
 
-    queryBuilder
-      .select([
-        'u.id as id',
-        'u.email as email',
-        'u.phone as phone',
-        'd.first_name as first_name',
-        'd.last_name as last_name',
-      ])
-      .orderBy('u.id', 'DESC');
+    queryBuilder.select([
+      'u.id as id',
+      'u.email as email',
+      'u.phone as phone',
+      'd.first_name as first_name',
+      'd.last_name as last_name',
+    ]);
 
-    const contacts = await queryBuilder.limit(limit).getRawMany();
+    let has_more = false;
 
-    if (contacts.length === 0) {
-      return { contacts, has_more: false };
+    const contacts = await queryBuilder.limit(limit + 1).getRawMany();
+
+    if (contacts.length === limit + 1) {
+      has_more = true;
+      contacts.splice(-1);
     }
 
     const { id: last_id } = contacts.at(-1);
@@ -153,7 +154,7 @@ export class UserService {
     return {
       last_id,
       contacts,
-      has_more: last_id > 1,
+      has_more,
     };
   }
 }
