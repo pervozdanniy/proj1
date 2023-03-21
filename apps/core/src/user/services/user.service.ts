@@ -105,10 +105,10 @@ export class UserService {
     const queryBuilder = this.userRepository
       .createQueryBuilder('u')
       .leftJoin(UserDetailsEntity, 'd', 'd.user_id = u.id')
-      .leftJoin(UserContactEntity, 'contactDetails', 'contactDetails.contact_id = u.id');
+      .innerJoin(UserContactEntity, 'contactDetails', 'contactDetails.contact_id = u.id');
 
     if (search_after) {
-      queryBuilder.where('contactDetails.contact_id < :search_after', { search_after });
+      queryBuilder.where('contactDetails.contact_id > :search_after', { search_after });
     }
 
     if (search_term) {
