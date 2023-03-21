@@ -144,7 +144,7 @@ export class UserService {
 
     const contacts = await queryBuilder.limit(limit + 1).getRawMany();
 
-    if (contacts.length === limit + 1) {
+    if (contacts.length > limit) {
       has_more = true;
       contacts.splice(-1);
     }
