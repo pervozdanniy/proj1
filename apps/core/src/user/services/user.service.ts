@@ -104,9 +104,8 @@ export class UserService {
 
     const queryBuilder = this.userRepository
       .createQueryBuilder('u')
-      .leftJoinAndSelect(UserDetailsEntity, 'd', 'd.user_id = u.id')
-      .leftJoinAndSelect(UserContactEntity, 'c', 'c.user_id = u.id')
-      .leftJoinAndSelect(UserContactEntity, 'contactDetails', 'contactDetails.contact_id = u.id');
+      .leftJoin(UserDetailsEntity, 'd', 'd.user_id = u.id')
+      .leftJoin(UserContactEntity, 'contactDetails', 'contactDetails.contact_id = u.id');
 
     if (search_after) {
       queryBuilder.where('contactDetails.contact_id < :search_after', { search_after });
@@ -116,16 +115,16 @@ export class UserService {
       queryBuilder.andWhere(
         new Brackets((qb) => {
           qb.where('u.email ILIKE :search_term', {
-            search_term: `%${search_term}%`,
+            search_term: `${search_term}%`,
           })
             .orWhere('u.phone ILIKE :search_term', {
-              search_term: `%${search_term}%`,
+              search_term: `${search_term}%`,
             })
             .orWhere('d.first_name ILIKE :search_term', {
-              search_term: `%${search_term}%`,
+              search_term: `${search_term}%`,
             })
             .orWhere('d.last_name ILIKE :search_term', {
-              search_term: `%${search_term}%`,
+              search_term: `${search_term}%`,
             });
         }),
       );
@@ -141,7 +140,7 @@ export class UserService {
         'd.first_name as first_name',
         'd.last_name as last_name',
       ])
-      .orderBy('u.created_at', 'DESC');
+      .orderBy('u.id', 'DESC');
 
     const contacts = await queryBuilder.limit(limit).getRawMany();
 
