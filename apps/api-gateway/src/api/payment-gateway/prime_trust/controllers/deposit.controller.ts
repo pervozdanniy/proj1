@@ -1,11 +1,11 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/api/auth';
 import { PaymentGatewayService } from '@/api/payment-gateway/prime_trust/services/payment-gateway.service';
 import {
-  ContributionResponseDTO,
-  CreditCardResourceResponseDTO,
-  CreditCardsResponseDTO,
-  DepositResponseDTO,
-  SuccessResponseDTO,
+  ContributionResponseDto,
+  CreditCardResourceResponseDto,
+  CreditCardsResponseDto,
+  DepositResponseDto,
+  SuccessResponseDto,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -42,7 +42,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Add Bank params for deposit.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: DepositResponseDTO,
+    type: DepositResponseDto,
   })
   @JwtSessionAuth()
   @Post('/add/params')
@@ -57,7 +57,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Create Credit Card Resource.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: CreditCardResourceResponseDTO,
+    type: CreditCardResourceResponseDto,
   })
   @JwtSessionAuth()
   @Post('/credit_card/resource')
@@ -68,7 +68,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Verify Credit Card.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: SuccessResponseDTO,
+    type: SuccessResponseDto,
   })
   @JwtSessionAuth()
   @Post('/credit_card/verify')
@@ -81,7 +81,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Get Credit Cards.' })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: CreditCardsResponseDTO,
+    type: CreditCardsResponseDto,
   })
   @JwtSessionAuth()
   @Get('/credit_cards')
@@ -92,7 +92,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Deposit funds by credit card.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: ContributionResponseDTO,
+    type: ContributionResponseDto,
   })
   @JwtSessionAuth()
   @Post('/make')

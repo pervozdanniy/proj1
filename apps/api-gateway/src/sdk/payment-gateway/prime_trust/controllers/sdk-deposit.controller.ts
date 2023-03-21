@@ -7,6 +7,13 @@ import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
 import { CreateReferenceDto } from '../dtos/deposit/deposit-funds.dto';
 import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
 import { MakeDepositDto } from '../dtos/deposit/make-deposit.dto';
+import {
+  ContributionResponseDto,
+  CreditCardResourceResponseDto,
+  CreditCardsResponseDto,
+  DepositResponseDto,
+  SuccessResponseDto,
+} from '../utils/prime-trust-response.dto';
 
 @ApiTags('SDK/Prime Trust/Deposit Funds')
 @ApiBearerAuth()
@@ -28,16 +35,6 @@ export class SdkDepositController {
     return this.paymentGatewayService.createReference({ id, ...payload });
   }
 
-  @ApiOperation({ summary: 'Create Credit Card Resource.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/credit_card/resource')
-  async createCreditCardResource(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.createCreditCardResource({ id });
-  }
-
   /**
    * deposit funds ACH
    */
@@ -45,6 +42,7 @@ export class SdkDepositController {
   @ApiOperation({ summary: 'Add Bank params for deposit.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: DepositResponseDto,
   })
   @JwtSessionAuth()
   @Post('/add/params')
@@ -56,9 +54,21 @@ export class SdkDepositController {
    * credit card
    */
 
+  @ApiOperation({ summary: 'Create Credit Card Resource.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: CreditCardResourceResponseDto,
+  })
+  @JwtSessionAuth()
+  @Post('/credit_card/resource')
+  async createCreditCardResource(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.createCreditCardResource({ id });
+  }
+
   @ApiOperation({ summary: 'Verify Credit Card.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: SuccessResponseDto,
   })
   @JwtSessionAuth()
   @Post('/credit_card/verify')
@@ -71,6 +81,7 @@ export class SdkDepositController {
   @ApiOperation({ summary: 'Get Credit Cards.' })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: CreditCardsResponseDto,
   })
   @JwtSessionAuth()
   @Get('/credit_cards')
@@ -81,10 +92,21 @@ export class SdkDepositController {
   @ApiOperation({ summary: 'Deposit funds by credit card.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: ContributionResponseDto,
   })
   @JwtSessionAuth()
   @Post('/make')
   async makeDeposit(@JwtSessionUser() { id }: User, @Body() payload: MakeDepositDto) {
     return this.paymentGatewayService.makeDeposit({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Get Deposit Params' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @JwtSessionAuth()
+  @Get('/params')
+  async getDepositParams(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getDepositParams({ id });
   }
 }

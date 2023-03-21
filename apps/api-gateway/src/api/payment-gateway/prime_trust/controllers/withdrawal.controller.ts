@@ -4,6 +4,7 @@ import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInte
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { WithdrawalMakeDto } from '../dtos/withdrawal/withdrawal-make.dto';
+import { JsonDataDto } from '../utils/prime-trust-response.dto';
 
 @ApiTags('Prime Trust/Withdrawal Funds')
 @ApiBearerAuth()
@@ -18,6 +19,7 @@ export class WithdrawalController {
   @ApiOperation({ summary: 'Make withdrawal.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: JsonDataDto,
   })
   @JwtSessionAuth()
   @Post('/make')

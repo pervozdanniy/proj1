@@ -13,6 +13,7 @@ import {
   ParseIntPipe,
   Patch,
   Put,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -21,7 +22,10 @@ import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOperation, ApiRespo
 import { plainToInstance } from 'class-transformer';
 import { SuccessResponse, User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '../auth';
+import { ContactsResponseDto } from '../utils/contacts.dto';
 import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.dto';
+import { SuccessDto } from '../utils/success.dto';
+import { GetContactsDto } from './dtos/get-contacts.dto';
 import { VerifyUserDto } from './dtos/verify-user.dto';
 import { UserService } from './services/user.service';
 
@@ -33,6 +37,18 @@ import { UserService } from './services/user.service';
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @ApiOperation({ summary: 'Get all contacts.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: ContactsResponseDto,
+  })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Get('contacts')
+  async getContacts(@JwtSessionUser() { id }: User, @Query() query: GetContactsDto) {
+    return this.userService.getContacts({ user_id: id, ...query });
+  }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get authorized user' })
@@ -101,10 +117,10 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update user`s contacts.' })
+  @ApiOperation({ summary: 'Update user`s verification status.' })
   @ApiResponse({
-    description: 'The user`s contacts created successfully.',
-    type: PublicUserDto,
+    description: 'The user status updated successfully.',
+    type: SuccessDto,
   })
   @JwtSessionAuth()
   @Patch('verify')

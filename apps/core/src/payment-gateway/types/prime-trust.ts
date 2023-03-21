@@ -9,7 +9,7 @@ export type SendFundsResponse = {
   created_at: string;
 };
 
-export type USDtoAssetResponse = {
+export type UsDtoAssetResponse = {
   fee_amount: string;
   unit_count: string;
 };

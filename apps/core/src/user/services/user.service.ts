@@ -1,14 +1,15 @@
 import { UserCheckService } from '@/user/services/user-check.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { VerifyRequest } from '~common/grpc/interfaces/core';
+import { Brackets, Repository } from 'typeorm';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { ContactsResponse, SearchContactRequest, VerifyRequest } from '~common/grpc/interfaces/core';
 import { CountryService } from '../../country/country.service';
 import { FindRequestDto } from '../dto/find.request.dto';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
+import { UserContactEntity } from '../entities/user-contact.entity';
 import { UserDetailsEntity } from '../entities/user-details.entity';
 import { UserEntity } from '../entities/user.entity';
-import {SuccessResponse} from "~common/grpc/interfaces/common";
 
 @Injectable()
 export class UserService {
@@ -96,5 +97,64 @@ export class UserService {
     await this.userDetailsRepository.update({ user_id: id }, { socure_verify, document_uuid });
 
     return { success: true };
+  }
+
+  async getContacts(request: SearchContactRequest): Promise<ContactsResponse> {
+    const { user_id, search_after, limit, search_term } = request;
+
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('u')
+      .leftJoin(UserDetailsEntity, 'd', 'd.user_id = u.id')
+      .innerJoin(UserContactEntity, 'contactDetails', 'contactDetails.contact_id = u.id');
+
+    if (search_after) {
+      queryBuilder.where('contactDetails.contact_id > :search_after', { search_after });
+    }
+
+    if (search_term) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('u.email ILIKE :search_term', {
+            search_term: `${search_term}%`,
+          })
+            .orWhere('u.phone ILIKE :search_term', {
+              search_term: `${search_term}%`,
+            })
+            .orWhere('d.first_name ILIKE :search_term', {
+              search_term: `${search_term}%`,
+            })
+            .orWhere('d.last_name ILIKE :search_term', {
+              search_term: `${search_term}%`,
+            });
+        }),
+      );
+    }
+
+    queryBuilder.andWhere('contactDetails.user_id = :user_id', { user_id });
+
+    queryBuilder.select([
+      'u.id as id',
+      'u.email as email',
+      'u.phone as phone',
+      'd.first_name as first_name',
+      'd.last_name as last_name',
+    ]);
+
+    let has_more = false;
+
+    const contacts = await queryBuilder.limit(limit + 1).getRawMany();
+
+    if (contacts.length > limit) {
+      has_more = true;
+      contacts.splice(-1);
+    }
+
+    const { id: last_id } = contacts.at(-1);
+
+    return {
+      last_id,
+      contacts,
+      has_more,
+    };
   }
 }

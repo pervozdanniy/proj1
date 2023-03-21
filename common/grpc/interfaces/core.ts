@@ -5,6 +5,19 @@ import { IdRequest, SuccessResponse, User, UserDetails } from "./common";
 
 export const protobufPackage = "skopa.core";
 
+export interface ContactsResponse {
+  contacts: User[];
+  has_more: boolean;
+  last_id?: number | undefined;
+}
+
+export interface SearchContactRequest {
+  user_id: number;
+  search_after: number;
+  limit: number;
+  search_term?: string | undefined;
+}
+
 export interface VerifyRequest {
   id: number;
   socure_verify: boolean;
@@ -74,6 +87,8 @@ export interface UserServiceClient {
   updateContacts(request: UpdateContactsRequest, ...rest: any): Observable<User>;
 
   checkIfUnique(request: CheckIfUniqueRequest, ...rest: any): Observable<SuccessResponse>;
+
+  getContacts(request: SearchContactRequest, ...rest: any): Observable<ContactsResponse>;
 }
 
 export interface UserServiceController {
@@ -101,6 +116,11 @@ export interface UserServiceController {
     request: CheckIfUniqueRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  getContacts(
+    request: SearchContactRequest,
+    ...rest: any
+  ): Promise<ContactsResponse> | Observable<ContactsResponse> | ContactsResponse;
 }
 
 export function UserServiceControllerMethods() {
@@ -114,6 +134,7 @@ export function UserServiceControllerMethods() {
       "update",
       "updateContacts",
       "checkIfUnique",
+      "getContacts",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -1,7 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class BankParamsDto {
+  @ApiProperty({ example: 'BANCO_CHILE' })
+  @IsString()
+  @IsOptional()
+  bank_code: string;
+
   @ApiProperty({ example: 'Test Test' })
   @IsString()
   @IsNotEmpty()
@@ -14,6 +19,6 @@ export class BankParamsDto {
 
   @ApiProperty({ example: '021000021' })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   routing_number: string;
 }

@@ -23,6 +23,31 @@ service UserService {
   rpc UpdateContacts (UpdateContactsRequest) returns (common.User);
 
   rpc CheckIfUnique (CheckIfUniqueRequest) returns (common.SuccessResponse);
+
+  rpc GetContacts (SearchContactRequest) returns (ContactsResponse);
+}
+
+message ContactsResponse {
+  repeated Contact contacts = 1;
+  bool has_more = 2;
+  optional uint32 last_id = 3;
+}
+
+message Contact {
+  uint32 id = 1;
+  string email = 2;
+  string phone = 3;
+  string first_name = 4;
+  string last_name = 5;
+}
+
+
+
+message SearchContactRequest {
+  uint32 user_id = 1;
+  uint32 search_after = 2;
+  uint32 limit = 3;
+  optional string search_term = 4;
 }
 
 message VerifyRequest {

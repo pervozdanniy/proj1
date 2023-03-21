@@ -1,6 +1,12 @@
 import {
-  BankAccountResponseDTO,
-  TransferFundsResponseDTO,
+  AccountResponseDto,
+  BalanceResponseDto,
+  BankAccountParamsDto,
+  BankAccountResponseDto,
+  ContactResponseDto,
+  DocumentResponseDto,
+  TokenDto,
+  TransactionResponseDto,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -21,6 +27,7 @@ import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
+import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
@@ -38,14 +45,16 @@ export class SdkMainController {
   @ApiOperation({ summary: 'Get Token.' })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: TokenDto,
   })
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Post('/token')
-  async getToken(@JwtSessionUser() { id }: User) {
+  async getToken() {
     const {
       data: { token },
-    } = await this.paymentGatewayService.getToken(id);
+    } = await this.paymentGatewayService.getToken();
     await this.redis.set('prime_token', token);
 
     return { token };
@@ -55,30 +64,11 @@ export class SdkMainController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Post('/account')
   async createAccount(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.createAccount({ id });
-  }
-
-  @ApiOperation({ summary: 'Get Account.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Get('/account')
-  async getAccount(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getAccount({ id });
-  }
-
-  @ApiOperation({ summary: 'Get Contact.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Get('/contact')
-  async getContact(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getContact({ id });
   }
 
   //not necessary yet
@@ -93,16 +83,46 @@ export class SdkMainController {
   //   return this.paymentGatewayService.createContact({ id });
   // }
 
-  @Post('kyc/upload-document')
+  @ApiOperation({ summary: 'Get Account.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: AccountResponseDto,
+  })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Get('/account')
+  async getAccount(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getAccount({ id });
+  }
+
+  @ApiOperation({ summary: 'Get Contact.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: ContactResponseDto,
+  })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Get('/contact')
+  async getContact(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getContact({ id });
+  }
+
+  @Post('/kyc/upload-document')
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload new file.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The file successfully uploaded.',
+    type: DocumentResponseDto,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @UseInterceptors(FileInterceptor('file'))
-  async uploadDocument(@JwtSessionUser() { id }: User, @UploadedFile() file: any, @Body() payload: SendDocumentDto) {
+  async uploadDocument(
+    @JwtSessionUser() { id }: User,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() payload: SendDocumentDto,
+  ) {
     const { label } = payload;
 
     return this.paymentGatewayService.uploadDocument({ file, label, userId: { id } });
@@ -111,37 +131,45 @@ export class SdkMainController {
   @ApiOperation({ summary: 'Get Balance.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: BalanceResponseDto,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
-  @Post('/balance')
-  async getBalance(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getBalance({ id });
+  @Get('/balance')
+  async getBalance(@Query() query: BalanceRequestDto, @JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getBalance(id, query.currencies);
   }
 
   @ApiOperation({ summary: 'Get Bank Accounts.' })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: BankAccountResponseDto,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('/bank/account')
   async getBankAccounts(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBankAccounts({ id });
   }
 
-  @ApiOperation({ summary: 'Get Banks information from Latin America.' })
+  @ApiOperation({ summary: 'Get Banks information from user country.' })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: BankAccountResponseDTO,
+    type: BankAccountResponseDto,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
-  @Get('/banks/latin_america')
+  @Get('/available/banks')
   async getBanksInfo(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBanksInfo({ id });
   }
+
   @ApiOperation({ summary: 'Add Bank Account params.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: BankAccountParamsDto,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Post('/bank/account')
   async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
@@ -150,9 +178,10 @@ export class SdkMainController {
 
   @ApiOperation({ summary: 'Get all transactions.' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: TransferFundsResponseDTO,
+    status: HttpStatus.OK,
+    type: TransactionResponseDto,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('/transactions')
   async getTransactions(@JwtSessionUser() { id }: User, @Query() query: GetTransfersDto) {

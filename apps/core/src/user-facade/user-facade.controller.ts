@@ -3,9 +3,12 @@ import { plainToInstance } from 'class-transformer';
 import { SuccessResponse, User } from '~common/grpc/interfaces/common';
 import {
   CheckIfUniqueRequest,
+  ContactsResponse,
   NullableUser,
+  SearchContactRequest,
   UserServiceController,
-  UserServiceControllerMethods, VerifyRequest,
+  UserServiceControllerMethods,
+  VerifyRequest,
 } from '~common/grpc/interfaces/core';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { FindRequestDto } from '../user/dto/find.request.dto';
@@ -19,6 +22,9 @@ import { UserFacadeService } from './user-facade.service';
 @RpcController()
 @UserServiceControllerMethods()
 export class UserFacadeController implements UserServiceController {
+  getContacts(request: SearchContactRequest): Promise<ContactsResponse> {
+    return this.userService.getContacts(request);
+  }
   private readonly logger = new Logger(UserFacadeController.name);
 
   constructor(

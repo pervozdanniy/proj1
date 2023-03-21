@@ -45,8 +45,8 @@ export class SdkPaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.cipCheck(data));
   }
 
-  getToken(id: number) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getToken({ id }));
+  getToken() {
+    return lastValueFrom(this.paymentGatewayServiceClient.getToken({}));
   }
 
   createAccount(data: UserIdRequest) {
@@ -69,8 +69,8 @@ export class SdkPaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.updateContribution(data));
   }
 
-  getBalance(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.getBalance({ user_id: data.id, currencies: [] }));
+  getBalance(id: number, currencies?: string[]) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getBalance({ user_id: id, currencies: currencies ?? [] }));
   }
 
   async createReference(data: CreateReferenceRequest) {
@@ -138,5 +138,9 @@ export class SdkPaymentGatewayService implements OnModuleInit {
 
   koyweWebhooksHandler(data: KoyweWebhookType) {
     return lastValueFrom(this.paymentGatewayServiceClient.koyweWebhooksHandler(data));
+  }
+
+  getDepositParams(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getDepositParams(data));
   }
 }
