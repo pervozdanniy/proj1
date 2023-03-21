@@ -40,7 +40,7 @@ export class PrimeFundsTransferManager {
     this.prime_trust_url = prime_trust_url;
   }
 
-  async convertUsDtoAsset(account_id: string, amount: string, cancel?: boolean): Promise<UsDtoAssetResponse> {
+  async convertUSDtoAsset(account_id: string, amount: string, cancel?: boolean): Promise<UsDtoAssetResponse> {
     const formData = {
       data: {
         type: 'quotes',
@@ -172,7 +172,7 @@ export class PrimeFundsTransferManager {
     const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: sender_id });
     const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: receiver_id });
 
-    const { unit_count, fee_amount } = await this.convertUsDtoAsset(fromAccountId, amount, true);
+    const { unit_count, fee_amount } = await this.convertUSDtoAsset(fromAccountId, amount, true);
 
     const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count);
 
