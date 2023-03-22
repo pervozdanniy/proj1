@@ -1,7 +1,7 @@
 import { SessionInterface, SessionMetadataOptions } from '~common/session';
 
-export type ResetPassword<T extends SessionInterface> = T &  {
+export type ResetPassword<T extends SessionInterface> = T & {
   reset: true;
-}
+};
 
-export type WithReset<T extends SessionMetadataOptions> = T & { requirePasswordReset?: boolean }
+export type WithReset<T extends SessionMetadataOptions> = T & { requirePasswordReset?: boolean };

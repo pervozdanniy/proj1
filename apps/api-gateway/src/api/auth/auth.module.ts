@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { HttpSessionModule, JwtSessionMiddleware } from '~common/http-session';
+import { PaymentGatewayService } from '../payment-gateway/prime_trust/services/payment-gateway.service';
 import { TwoFactorController } from './controllers/2fa.controller';
 import { AuthController } from './controllers/auth.controller';
 import { ChangePasswordController } from './controllers/change-password.controller';
@@ -21,7 +22,7 @@ import { ResetPasswordService } from './services/reset-password.service';
     ResetPasswordController,
     ChangePasswordController,
   ],
-  providers: [AuthService, TwoFactorService, RegistrationService, ResetPasswordService],
+  providers: [AuthService, TwoFactorService, RegistrationService, ResetPasswordService, PaymentGatewayService],
   exports: [TwoFactorService, HttpSessionModule],
 })
 export class AuthModule implements NestModule {
