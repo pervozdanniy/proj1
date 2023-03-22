@@ -30,7 +30,7 @@ service AuthService {
 
   rpc ResetPasswordFinish (ResetPasswordFinishRequest) returns (common.SuccessResponse);
 
-  rpc ChangePasswordStart (ChangePasswordStartRequest) returns (AuthData);
+  rpc ChangePasswordStart (ChangePasswordStartRequest) returns (Verification);
 }
 
 service ClientService {

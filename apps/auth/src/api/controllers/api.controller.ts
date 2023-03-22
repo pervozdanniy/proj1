@@ -16,6 +16,7 @@ import {
   SocialsAuthRequest,
   TwoFactorCode,
   TwoFactorVerificationResponse,
+  Verification,
 } from '~common/grpc/interfaces/auth';
 import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
@@ -32,7 +33,7 @@ export class AuthApiController implements AuthServiceController {
   changePasswordStart(
     @Payload() request: ChangePasswordStartRequest,
     @GrpcSession() session: SessionProxy,
-  ): Promise<AuthData> {
+  ): Promise<Verification> {
     return this.authService.changePasswordStart(request, session);
   }
   constructor(private readonly authService: AuthApiService, private readonly socialAuthService: ApiSocialsService) {}

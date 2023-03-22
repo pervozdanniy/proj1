@@ -142,7 +142,7 @@ export interface AuthServiceClient {
 
   resetPasswordFinish(request: ResetPasswordFinishRequest, ...rest: any): Observable<SuccessResponse>;
 
-  changePasswordStart(request: ChangePasswordStartRequest, ...rest: any): Observable<AuthData>;
+  changePasswordStart(request: ChangePasswordStartRequest, ...rest: any): Observable<Verification>;
 }
 
 export interface AuthServiceController {
@@ -189,7 +189,7 @@ export interface AuthServiceController {
   changePasswordStart(
     request: ChangePasswordStartRequest,
     ...rest: any
-  ): Promise<AuthData> | Observable<AuthData> | AuthData;
+  ): Promise<Verification> | Observable<Verification> | Verification;
 }
 
 export function AuthServiceControllerMethods() {

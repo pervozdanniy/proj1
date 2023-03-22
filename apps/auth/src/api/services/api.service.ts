@@ -22,6 +22,7 @@ import {
   RegisterFinishRequest,
   RegisterStartRequest,
   TwoFactorCode,
+  Verification,
 } from '~common/grpc/interfaces/auth';
 import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
@@ -192,7 +193,7 @@ export class AuthApiService {
     return { success: true };
   }
 
-  async changePasswordStart(request: ChangePasswordStartRequest, session: SessionProxy): Promise<AuthData> {
+  async changePasswordStart(request: ChangePasswordStartRequest, session: SessionProxy): Promise<Verification> {
     const { type } = request;
     let method: TwoFactorMethod;
     if (type === ChangePasswordTypes.EMAIL) {
@@ -204,9 +205,8 @@ export class AuthApiService {
     }
 
     this.auth2FA.requireOne(method, resetPassword(session));
-    const resp: AuthData = { access_token: 'some' };
 
-    resp.verify = { type: 'Reset password confirmation', methods: [method] };
+    const resp = { type: 'Reset password confirmation', methods: [method] };
 
     return resp;
   }
