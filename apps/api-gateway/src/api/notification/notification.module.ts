@@ -5,11 +5,12 @@ import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { JwtSessionMiddleware } from '~common/http-session';
 import { AuthModule } from '../auth';
+import { PaymentGatewayService } from '../payment-gateway/prime_trust/services/payment-gateway.service';
 
 @Module({
   imports: [ClientsModule.registerAsync([asyncClientOptions('core')]), AuthModule],
   controllers: [NotificationController],
-  providers: [NotificationService],
+  providers: [NotificationService, PaymentGatewayService],
 })
 export class NotificationModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

@@ -29,7 +29,7 @@ export class DepositController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Post('/wire/reference')
   async createReference(@JwtSessionUser() { id }: User, @Body() payload: CreateReferenceDto) {
     return this.paymentGatewayService.createReference({ id, ...payload });
@@ -44,7 +44,7 @@ export class DepositController {
     status: HttpStatus.CREATED,
     type: DepositResponseDto,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Post('/add/params')
   async addDepositParams(@JwtSessionUser() { id }: User, @Body() payload: DepositParamsDto) {
     return this.paymentGatewayService.addDepositParams({ id, ...payload });
@@ -59,7 +59,7 @@ export class DepositController {
     status: HttpStatus.CREATED,
     type: CreditCardResourceResponseDto,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Post('/credit_card/resource')
   async createCreditCardResource(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.createCreditCardResource({ id });
@@ -94,7 +94,7 @@ export class DepositController {
     status: HttpStatus.CREATED,
     type: ContributionResponseDto,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Post('/make')
   async makeDeposit(@JwtSessionUser() { id }: User, @Body() payload: MakeDepositDto) {
     return this.paymentGatewayService.makeDeposit({ id, ...payload });

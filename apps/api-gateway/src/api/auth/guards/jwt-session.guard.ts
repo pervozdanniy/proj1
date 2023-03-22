@@ -11,12 +11,18 @@ import { Reflector } from '@nestjs/core';
 import { is2FA, isPasswordReset, isRegistration } from '~common/constants/auth';
 import { JwtSessionGuard as BaseGuard, SessionInterface, SessionProxy } from '~common/http-session';
 import { JWT_AUTH_METADATA } from '~common/http-session/meta';
+import { PaymentGatewayService } from '../../payment-gateway/prime_trust/services/payment-gateway.service';
 import { SessionMetadataOptions } from '../interfaces/session.interface';
 import { TwoFactorService } from '../services/2fa.service';
 
 @Injectable()
 export class JwtSessionGuard extends BaseGuard {
-  constructor(reflector: Reflector, private readonly twoFactor: TwoFactorService) {
+  constructor(
+    reflector: Reflector,
+    private readonly twoFactor: TwoFactorService,
+
+    private readonly paymentGatewayService: PaymentGatewayService,
+  ) {
     super(reflector);
   }
 
@@ -50,6 +56,13 @@ export class JwtSessionGuard extends BaseGuard {
     }
     if (options.requirePasswordReset && !isPasswordReset(session)) {
       throw new ConflictException({ message: "You haven't started password reset process" });
+    }
+
+    if (options.requireKYC) {
+      const contact = await this.paymentGatewayService.getContact({ id: session.user.id });
+      if (!contact.identity_confirmed || !contact.proof_of_address_documents_verified || !contact.cip_cleared) {
+        throw new ConflictException({ message: 'Please complete KYC verification!' });
+      }
     }
 
     return res;
