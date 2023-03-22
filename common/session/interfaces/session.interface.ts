@@ -2,6 +2,8 @@ import { SessionProxy } from '../session-host';
 
 export type SessionMetadataOptions = {
   allowUnauthorized?: boolean;
+
+  requireKYC?: boolean;
 };
 
 export interface SessionInterface<User = any> extends Record<string | symbol, unknown> {
