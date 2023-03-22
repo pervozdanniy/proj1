@@ -8,6 +8,7 @@ import {
   AuthData,
   AuthServiceController,
   AuthServiceControllerMethods,
+  ChangePasswordStartRequest,
   CreateAgreementRequest,
   RegisterFinishRequest,
   RegisterStartRequest,
@@ -28,6 +29,12 @@ import { ApiSocialsService } from '../services/api.socials.service';
 @RpcController()
 @AuthServiceControllerMethods()
 export class AuthApiController implements AuthServiceController {
+  changePasswordStart(
+    @Payload() request: ChangePasswordStartRequest,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<AuthData> {
+    return this.authService.changePasswordStart(request, session);
+  }
   constructor(private readonly authService: AuthApiService, private readonly socialAuthService: ApiSocialsService) {}
 
   registerStart(@Payload() request: RegisterStartRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {

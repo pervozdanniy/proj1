@@ -12,10 +12,12 @@ import {
   TwoFactorMethod,
 } from '~common/constants/auth';
 import { UserSourceEnum } from '~common/constants/user';
+import { ChangePasswordTypes } from '~common/enum/change-password-types';
 import { SessionProxy } from '~common/grpc-session';
 import {
   ApproveAgreementRequest,
   AuthData,
+  ChangePasswordStartRequest,
   CreateAgreementRequest,
   RegisterFinishRequest,
   RegisterStartRequest,
@@ -188,5 +190,24 @@ export class AuthApiService {
     await session.destroy().catch(() => {});
 
     return { success: true };
+  }
+
+  async changePasswordStart(request: ChangePasswordStartRequest, session: SessionProxy): Promise<AuthData> {
+    const { type } = request;
+    let method: TwoFactorMethod;
+    if (type === ChangePasswordTypes.EMAIL) {
+      method = TwoFactorMethod.Email;
+    } else if (type === ChangePasswordTypes.PHONE) {
+      method = TwoFactorMethod.Sms;
+    } else {
+      throw new BadRequestException('Phone or email should be specified');
+    }
+
+    this.auth2FA.requireOne(method, resetPassword(session));
+    const resp: AuthData = { access_token: 'some' };
+
+    resp.verify = { type: 'Reset password confirmation', methods: [method] };
+
+    return resp;
   }
 }

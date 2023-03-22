@@ -6,6 +6,10 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.auth";
 
+export interface ChangePasswordStartRequest {
+  type: string;
+}
+
 export interface AuthRequest {
   login: string;
   password: string;
@@ -137,6 +141,8 @@ export interface AuthServiceClient {
   resetPasswordVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
 
   resetPasswordFinish(request: ResetPasswordFinishRequest, ...rest: any): Observable<SuccessResponse>;
+
+  changePasswordStart(request: ChangePasswordStartRequest, ...rest: any): Observable<AuthData>;
 }
 
 export interface AuthServiceController {
@@ -179,6 +185,11 @@ export interface AuthServiceController {
     request: ResetPasswordFinishRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  changePasswordStart(
+    request: ChangePasswordStartRequest,
+    ...rest: any
+  ): Promise<AuthData> | Observable<AuthData> | AuthData;
 }
 
 export function AuthServiceControllerMethods() {
@@ -195,6 +206,7 @@ export function AuthServiceControllerMethods() {
       "resetPasswordStart",
       "resetPasswordVerify",
       "resetPasswordFinish",
+      "changePasswordStart",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

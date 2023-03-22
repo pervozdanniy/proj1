@@ -1,4 +1,3 @@
-import { UpdateUserDto, UserContactsDto } from '@/api/user/dtos/update-user.dto';
 import {
   Body,
   ClassSerializerInterceptor,
@@ -26,6 +25,7 @@ import { ContactsResponseDto } from '../utils/contacts.dto';
 import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.dto';
 import { SuccessDto } from '../utils/success.dto';
 import { GetContactsDto } from './dtos/get-contacts.dto';
+import { UpdateUserDto, UserContactsDto } from './dtos/update-user.dto';
 import { VerifyUserDto } from './dtos/verify-user.dto';
 import { UserService } from './services/user.service';
 

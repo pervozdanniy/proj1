@@ -29,6 +29,8 @@ service AuthService {
   rpc ResetPasswordVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
 
   rpc ResetPasswordFinish (ResetPasswordFinishRequest) returns (common.SuccessResponse);
+
+  rpc ChangePasswordStart (ChangePasswordStartRequest) returns (AuthData);
 }
 
 service ClientService {
@@ -55,6 +57,10 @@ service TwoFactorService {
   rpc Require (google.protobuf.Empty) returns (TwoFactorRequireResponse);
 
   rpc Resend (TwoFactorSettings) returns (common.SuccessResponse);
+}
+
+message ChangePasswordStartRequest {
+  string type = 1;
 }
 
 message AuthRequest {
