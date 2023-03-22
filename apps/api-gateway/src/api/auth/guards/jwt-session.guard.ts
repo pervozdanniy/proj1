@@ -3,7 +3,6 @@ import {
   ExecutionContext,
   HttpException,
   HttpStatus,
-  Inject,
   Injectable,
   PreconditionFailedException,
   UnauthorizedException,
@@ -22,7 +21,7 @@ export class JwtSessionGuard extends BaseGuard {
     reflector: Reflector,
     private readonly twoFactor: TwoFactorService,
 
-    @Inject(PaymentGatewayService) private readonly paymentGatewayService: PaymentGatewayService,
+    private readonly paymentGatewayService: PaymentGatewayService,
   ) {
     super(reflector);
   }
