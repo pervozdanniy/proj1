@@ -70,7 +70,7 @@ export class PrimeTransactionsManager {
 
     const transactions = await queryBuilder.limit(limit).getRawMany();
 
-    transactions.map((t) => {
+    transactions.forEach((t) => {
       if (t.type === 'transfer') {
         if (t.user_id === user_id) {
           t.title = `Outgoing transfer to ${t.r_first_name} ${t.r_last_name}`;

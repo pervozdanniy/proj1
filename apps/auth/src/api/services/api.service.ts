@@ -211,8 +211,10 @@ export class AuthApiService {
     return resp;
   }
 
-  async changeOldPassword(request: ChangeOldPasswordRequest, session: SessionProxy): Promise<SuccessResponse> {
-    const { old_password, new_password } = request;
+  async changeOldPassword(
+    { old_password, new_password }: ChangeOldPasswordRequest,
+    session: SessionProxy,
+  ): Promise<SuccessResponse> {
     const user = session.user;
     const validate = await this.auth.validateUser(user.email, old_password);
     if (!validate) {
