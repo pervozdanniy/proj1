@@ -9,6 +9,7 @@ export class NotificationService {
     @InjectQueue('sms_queue') private smsQueue: Queue,
     @InjectQueue('email_queue') private emailQueue: Queue,
   ) {}
+
   async add(request: AddNotificationRequest) {
     const {
       options: { send_type },

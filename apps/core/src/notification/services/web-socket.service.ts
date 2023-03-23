@@ -13,7 +13,11 @@ export class WebSocketService {
     this.webSocketClient = this.client.getService('WebsocketService');
   }
 
-  async send(event: string, data: string): Promise<SuccessResponse> {
-    return await firstValueFrom(this.webSocketClient.send({ event, data }));
+  send(event: string, data: string): Promise<SuccessResponse> {
+    return firstValueFrom(this.webSocketClient.send({ event, data }));
+  }
+
+  sendTo(message: { event: string; data?: string }, user_id: number) {
+    return firstValueFrom(this.webSocketClient.sendTo({ message, user_id }));
   }
 }
