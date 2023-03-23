@@ -194,8 +194,7 @@ export class AuthApiService {
     return { success: true };
   }
 
-  async changePasswordStart(request: ChangePasswordStartRequest, session: SessionProxy): Promise<Verification> {
-    const { type } = request;
+  async changePasswordStart({ type }: ChangePasswordStartRequest, session: SessionProxy): Promise<Verification> {
     let method: TwoFactorMethod;
     if (type === ChangePasswordTypes.EMAIL) {
       method = TwoFactorMethod.Email;

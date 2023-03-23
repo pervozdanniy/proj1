@@ -65,30 +65,28 @@ export class PrimeTransactionsManager {
     }
 
     queryBuilder
-      .select([
-        't.*',
-        `CASE 
-          WHEN t.type = 'transfer' THEN 
-            CASE 
-              WHEN t.user_id = ${user_id} THEN 'Outgoing transfer to ' || r.first_name || ' ' || r.last_name
-              ELSE 'Incoming transfer from ' || s.first_name || ' ' || s.last_name
-            END 
-          WHEN t.type = 'deposit' THEN 'Deposit action'
-          WHEN t.type = 'withdrawal' THEN 'Withdrawal action'
-          ELSE t.type
-        END as title`,
-        `CASE 
-          WHEN t.type = 'transfer' THEN 
-            CASE 
-              WHEN t.user_id = ${user_id} THEN 'outgoing_transfer'
-              ELSE 'incoming_transfer'
-            END 
-          ELSE t.type
-        END as type`,
-      ])
+      .select(['t.*', 's.last_name', 's.first_name', 'r.last_name', 'r.first_name'])
       .orderBy('t.created_at', 'DESC');
 
     const transactions = await queryBuilder.limit(limit).getRawMany();
+
+    transactions.map((t) => {
+      if (t.type === 'transfer') {
+        if (t.user_id === user_id) {
+          t.title = `Outgoing transfer to ${t.r_first_name} ${t.r_last_name}`;
+          t.type = 'outgoing_transfer';
+        } else {
+          t.title = `Incoming transfer to ${t.s_first_name} ${t.s_last_name}`;
+          t.type = 'incoming_transfer';
+        }
+      } else if (t.type === 'deposit') {
+        t.title = 'Deposit action';
+      } else if (t.type === 'withdrawal') {
+        t.title = 'Withdrawal action';
+      } else {
+        t.title = t.type;
+      }
+    });
 
     if (transactions.length === 0) {
       return { transactions, has_more: false };
