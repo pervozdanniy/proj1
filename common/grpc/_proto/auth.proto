@@ -12,6 +12,9 @@ service AuthService {
 
   rpc LoginSocials (SocialsAuthRequest) returns (AuthData);
 
+  rpc RegisterSocials (RegisterSocialRequest) returns (AuthData);
+
+
 
   rpc RegisterStart (RegisterStartRequest) returns (AuthData);
 
@@ -106,10 +109,16 @@ message ClientLoginRequest {
   optional string password = 2;
 }
 
-message SocialsAuthRequest {
+message RegisterSocialRequest {
   string email = 1;
   string phone = 2;
   string source = 3;
+}
+
+
+message SocialsAuthRequest {
+  string email = 1;
+  string source = 2;
 }
 
 message TwoFactorSettings {

@@ -3,7 +3,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { SocialsAuthRequest } from '~common/grpc/interfaces/auth';
+import { AuthData, RegisterSocialRequest, SocialsAuthRequest } from '~common/grpc/interfaces/auth';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
 import { SessionProxy } from '~common/session';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
@@ -19,12 +19,21 @@ export class ApiSocialsService implements OnModuleInit {
   }
 
   async loginSocials(request: SocialsAuthRequest, session: SessionProxy) {
-    const { user } = await firstValueFrom(this.userService.findByLogin({ email: request.email, phone: request.phone }));
+    const { user } = await firstValueFrom(this.userService.findByLogin({ email: request.email }));
     if (user) {
       if (user.source === request.source) {
         return this.authService.login(user, session);
       }
 
+      throw new GrpcException(Status.ALREADY_EXISTS, `User already exist for ${user.source} provider!`);
+    } else {
+      throw new GrpcException(Status.NOT_FOUND, 'User not found!');
+    }
+  }
+
+  async registerSocials(request: RegisterSocialRequest, session: SessionProxy): Promise<AuthData> {
+    const { user } = await firstValueFrom(this.userService.findByLogin({ email: request.email, phone: request.phone }));
+    if (user) {
       throw new GrpcException(Status.ALREADY_EXISTS, 'User already exist!');
     }
 

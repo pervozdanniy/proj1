@@ -51,9 +51,14 @@ export interface ClientLoginRequest {
   password?: string | undefined;
 }
 
-export interface SocialsAuthRequest {
+export interface RegisterSocialRequest {
   email: string;
   phone: string;
+  source: string;
+}
+
+export interface SocialsAuthRequest {
+  email: string;
   source: string;
 }
 
@@ -131,6 +136,8 @@ export interface AuthServiceClient {
 
   loginSocials(request: SocialsAuthRequest, ...rest: any): Observable<AuthData>;
 
+  registerSocials(request: RegisterSocialRequest, ...rest: any): Observable<AuthData>;
+
   registerStart(request: RegisterStartRequest, ...rest: any): Observable<AuthData>;
 
   registerVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
@@ -158,6 +165,8 @@ export interface AuthServiceController {
   logout(request: Empty, ...rest: any): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   loginSocials(request: SocialsAuthRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  registerSocials(request: RegisterSocialRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
 
   registerStart(request: RegisterStartRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
 
@@ -210,6 +219,7 @@ export function AuthServiceControllerMethods() {
       "login",
       "logout",
       "loginSocials",
+      "registerSocials",
       "registerStart",
       "registerVerify",
       "createAgreement",

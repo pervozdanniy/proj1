@@ -3,6 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthRequest, AuthServiceClient } from '~common/grpc/interfaces/auth';
+import { RegisterSocialsUserDto } from '../dto/register-socials-user.dto';
 import { SocialsUserDto } from '../dto/socials-user.dto';
 import { TwoFactorService } from './2fa.service';
 
@@ -25,5 +26,9 @@ export class AuthService implements OnModuleInit {
     const resp = await firstValueFrom(this.authClient.loginSocials(payload));
 
     return this.auth2FA.validateAuthResponse(resp);
+  }
+
+  async registerSocials(payload: RegisterSocialsUserDto) {
+    return this.authClient.registerSocials(payload);
   }
 }

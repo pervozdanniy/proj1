@@ -7,6 +7,7 @@ import { JwtSessionAuth, JwtSessionUser } from '../decorators/jwt-session.decora
 import { TwoFactorRequiredResponseDto } from '../dto/2fa.reponse.dto';
 import { AuthRequestDto } from '../dto/auth.request.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
+import { RegisterSocialsUserDto } from '../dto/register-socials-user.dto';
 import { SocialsUserDto } from '../dto/socials-user.dto';
 import { AuthService } from '../services/auth.service';
 
@@ -34,6 +35,14 @@ export class AuthController {
   @Post('socials/login')
   loginSocials(@Body() payload: SocialsUserDto) {
     return this.authService.loginSocials(payload);
+  }
+
+  @ApiOperation({ summary: 'Login use facebook user' })
+  @ApiResponse({ status: HttpStatus.OK, type: AuthResponseDto })
+  @ApiResponse({ status: HttpStatus.PRECONDITION_REQUIRED, type: TwoFactorRequiredResponseDto })
+  @Post('socials/registration')
+  registerSocials(@Body() payload: RegisterSocialsUserDto) {
+    return this.authService.registerSocials(payload);
   }
 
   @ApiBearerAuth()
