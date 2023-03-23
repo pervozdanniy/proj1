@@ -31,18 +31,6 @@ import { ApiSocialsService } from '../services/api.socials.service';
 @RpcController()
 @AuthServiceControllerMethods()
 export class AuthApiController implements AuthServiceController {
-  changeOldPassword(
-    @Payload() request: ChangeOldPasswordRequest,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<SuccessResponse> {
-    return this.authService.changeOldPassword(request, session);
-  }
-  changePasswordStart(
-    @Payload() request: ChangePasswordStartRequest,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<Verification> {
-    return this.authService.changePasswordStart(request, session);
-  }
   constructor(private readonly authService: AuthApiService, private readonly socialAuthService: ApiSocialsService) {}
 
   registerStart(@Payload() request: RegisterStartRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
@@ -117,5 +105,18 @@ export class AuthApiController implements AuthServiceController {
     @GrpcSession() session: SessionProxy,
   ): Promise<SuccessResponse> {
     return this.authService.resetPasswordFinish(request.password, session);
+  }
+
+  changeOldPassword(
+    @Payload() request: ChangeOldPasswordRequest,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<SuccessResponse> {
+    return this.authService.changeOldPassword(request, session);
+  }
+  changePasswordStart(
+    @Payload() request: ChangePasswordStartRequest,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<Verification> {
+    return this.authService.changePasswordStart(request, session);
   }
 }
