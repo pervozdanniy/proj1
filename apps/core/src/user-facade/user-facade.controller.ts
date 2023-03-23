@@ -22,9 +22,6 @@ import { UserFacadeService } from './user-facade.service';
 @RpcController()
 @UserServiceControllerMethods()
 export class UserFacadeController implements UserServiceController {
-  getContacts(request: SearchContactRequest): Promise<ContactsResponse> {
-    return this.userService.getContacts(request);
-  }
   private readonly logger = new Logger(UserFacadeController.name);
 
   constructor(
@@ -95,5 +92,8 @@ export class UserFacadeController implements UserServiceController {
 
   async verifySocure(payload: VerifyRequest): Promise<SuccessResponse> {
     return this.userService.verifySocure(payload);
+  }
+  getContacts(request: SearchContactRequest): Promise<ContactsResponse> {
+    return this.userService.getContacts(request);
   }
 }

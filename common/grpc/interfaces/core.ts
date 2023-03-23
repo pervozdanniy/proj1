@@ -6,9 +6,17 @@ import { IdRequest, SuccessResponse, User, UserDetails } from "./common";
 export const protobufPackage = "skopa.core";
 
 export interface ContactsResponse {
-  contacts: User[];
+  contacts: Contact[];
   has_more: boolean;
   last_id?: number | undefined;
+}
+
+export interface Contact {
+  id: number;
+  email: string;
+  phone: string;
+  first_name: string;
+  last_name: string;
 }
 
 export interface SearchContactRequest {

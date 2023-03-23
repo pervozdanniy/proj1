@@ -8,13 +8,17 @@ import {
   AuthData,
   AuthServiceController,
   AuthServiceControllerMethods,
+  ChangeOldPasswordRequest,
+  ChangePasswordStartRequest,
   CreateAgreementRequest,
   RegisterFinishRequest,
+  RegisterSocialRequest,
   RegisterStartRequest,
   ResetPasswordFinishRequest,
   SocialsAuthRequest,
   TwoFactorCode,
   TwoFactorVerificationResponse,
+  Verification,
 } from '~common/grpc/interfaces/auth';
 import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
@@ -28,6 +32,9 @@ import { ApiSocialsService } from '../services/api.socials.service';
 @RpcController()
 @AuthServiceControllerMethods()
 export class AuthApiController implements AuthServiceController {
+  registerSocials(@Payload() request: RegisterSocialRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
+    return this.socialAuthService.registerSocials(request, session);
+  }
   constructor(private readonly authService: AuthApiService, private readonly socialAuthService: ApiSocialsService) {}
 
   registerStart(@Payload() request: RegisterStartRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
@@ -102,5 +109,18 @@ export class AuthApiController implements AuthServiceController {
     @GrpcSession() session: SessionProxy,
   ): Promise<SuccessResponse> {
     return this.authService.resetPasswordFinish(request.password, session);
+  }
+
+  changeOldPassword(
+    @Payload() request: ChangeOldPasswordRequest,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<SuccessResponse> {
+    return this.authService.changeOldPassword(request, session);
+  }
+  changePasswordStart(
+    @Payload() request: ChangePasswordStartRequest,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<Verification> {
+    return this.authService.changePasswordStart(request, session);
   }
 }

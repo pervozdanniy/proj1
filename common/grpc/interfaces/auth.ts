@@ -6,6 +6,15 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.auth";
 
+export interface ChangeOldPasswordRequest {
+  old_password: string;
+  new_password: string;
+}
+
+export interface ChangePasswordStartRequest {
+  type: string;
+}
+
 export interface AuthRequest {
   login: string;
   password: string;
@@ -42,9 +51,14 @@ export interface ClientLoginRequest {
   password?: string | undefined;
 }
 
-export interface SocialsAuthRequest {
+export interface RegisterSocialRequest {
   email: string;
   phone: string;
+  source: string;
+}
+
+export interface SocialsAuthRequest {
+  email: string;
   source: string;
 }
 
@@ -122,6 +136,8 @@ export interface AuthServiceClient {
 
   loginSocials(request: SocialsAuthRequest, ...rest: any): Observable<AuthData>;
 
+  registerSocials(request: RegisterSocialRequest, ...rest: any): Observable<AuthData>;
+
   registerStart(request: RegisterStartRequest, ...rest: any): Observable<AuthData>;
 
   registerVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
@@ -137,6 +153,10 @@ export interface AuthServiceClient {
   resetPasswordVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
 
   resetPasswordFinish(request: ResetPasswordFinishRequest, ...rest: any): Observable<SuccessResponse>;
+
+  changePasswordStart(request: ChangePasswordStartRequest, ...rest: any): Observable<Verification>;
+
+  changeOldPassword(request: ChangeOldPasswordRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface AuthServiceController {
@@ -145,6 +165,8 @@ export interface AuthServiceController {
   logout(request: Empty, ...rest: any): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   loginSocials(request: SocialsAuthRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  registerSocials(request: RegisterSocialRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
 
   registerStart(request: RegisterStartRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
 
@@ -179,6 +201,16 @@ export interface AuthServiceController {
     request: ResetPasswordFinishRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  changePasswordStart(
+    request: ChangePasswordStartRequest,
+    ...rest: any
+  ): Promise<Verification> | Observable<Verification> | Verification;
+
+  changeOldPassword(
+    request: ChangeOldPasswordRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function AuthServiceControllerMethods() {
@@ -187,6 +219,7 @@ export function AuthServiceControllerMethods() {
       "login",
       "logout",
       "loginSocials",
+      "registerSocials",
       "registerStart",
       "registerVerify",
       "createAgreement",
@@ -195,6 +228,8 @@ export function AuthServiceControllerMethods() {
       "resetPasswordStart",
       "resetPasswordVerify",
       "resetPasswordFinish",
+      "changePasswordStart",
+      "changeOldPassword",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

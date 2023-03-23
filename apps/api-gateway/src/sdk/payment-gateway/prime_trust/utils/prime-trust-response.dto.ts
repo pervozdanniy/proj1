@@ -181,6 +181,9 @@ export class TransactionDto implements Transaction {
   id: number;
 
   @ApiProperty()
+  type: string;
+
+  @ApiProperty()
   amount: string;
   @ApiProperty()
   created_at: string;

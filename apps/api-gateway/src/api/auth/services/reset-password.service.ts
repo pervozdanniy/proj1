@@ -4,6 +4,8 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthServiceClient } from '~common/grpc/interfaces/auth';
+import { ChangePasswordTypeDto } from '../dto/change-password-type.dto';
+import { ChangePasswordDto } from '../dto/change-password.dto';
 import { ResetPasswordFinishDto, ResetPasswordStartDto, ResetPasswordVerifyDto } from '../dto/reset-password.dto';
 
 @Injectable()
@@ -43,5 +45,19 @@ export class ResetPasswordService implements OnModuleInit {
     metadata.set('sessionId', sessionId);
 
     return firstValueFrom(this.authClient.resetPasswordFinish(payload, metadata));
+  }
+
+  changePasswordStart(payload: ChangePasswordTypeDto, sessionId: string) {
+    const metadata = new Metadata();
+    metadata.set('sessionId', sessionId);
+
+    return firstValueFrom(this.authClient.changePasswordStart(payload, metadata));
+  }
+
+  changeOldPassword(payload: ChangePasswordDto, sessionId: string) {
+    const metadata = new Metadata();
+    metadata.set('sessionId', sessionId);
+
+    return firstValueFrom(this.authClient.changeOldPassword(payload, metadata));
   }
 }

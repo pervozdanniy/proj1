@@ -178,7 +178,8 @@ export class TransferFundsResponseDto implements TransferFundsResponse {
 export class TransactionDto implements Transaction {
   @ApiProperty()
   id: number;
-
+  @ApiProperty()
+  type: string;
   @ApiProperty()
   amount: string;
   @ApiProperty()

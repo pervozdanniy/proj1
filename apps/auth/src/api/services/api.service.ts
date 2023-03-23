@@ -12,14 +12,18 @@ import {
   TwoFactorMethod,
 } from '~common/constants/auth';
 import { UserSourceEnum } from '~common/constants/user';
+import { ChangePasswordTypes } from '~common/enum/change-password-types';
 import { SessionProxy } from '~common/grpc-session';
 import {
   ApproveAgreementRequest,
   AuthData,
+  ChangeOldPasswordRequest,
+  ChangePasswordStartRequest,
   CreateAgreementRequest,
   RegisterFinishRequest,
   RegisterStartRequest,
   TwoFactorCode,
+  Verification,
 } from '~common/grpc/interfaces/auth';
 import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
@@ -188,5 +192,35 @@ export class AuthApiService {
     await session.destroy().catch(() => {});
 
     return { success: true };
+  }
+
+  async changePasswordStart({ type }: ChangePasswordStartRequest, session: SessionProxy): Promise<Verification> {
+    let method: TwoFactorMethod;
+    if (type === ChangePasswordTypes.EMAIL) {
+      method = TwoFactorMethod.Email;
+    } else if (type === ChangePasswordTypes.PHONE) {
+      method = TwoFactorMethod.Sms;
+    } else {
+      throw new BadRequestException('Phone or email should be specified');
+    }
+
+    this.auth2FA.requireOne(method, resetPassword(session));
+
+    return { type: 'Reset password confirmation', methods: [method] };
+  }
+
+  async changeOldPassword(
+    { old_password, new_password }: ChangeOldPasswordRequest,
+    session: SessionProxy,
+  ): Promise<SuccessResponse> {
+    const user = session.user;
+    const validate = await this.auth.validateUser(user.email, old_password);
+    if (!validate) {
+      throw new BadRequestException('Wrong password!');
+    } else {
+      await this.auth.updateUser({ id: user.id, password: new_password });
+
+      return { success: true };
+    }
   }
 }

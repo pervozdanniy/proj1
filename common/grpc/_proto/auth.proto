@@ -12,6 +12,9 @@ service AuthService {
 
   rpc LoginSocials (SocialsAuthRequest) returns (AuthData);
 
+  rpc RegisterSocials (RegisterSocialRequest) returns (AuthData);
+
+
 
   rpc RegisterStart (RegisterStartRequest) returns (AuthData);
 
@@ -29,6 +32,10 @@ service AuthService {
   rpc ResetPasswordVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
 
   rpc ResetPasswordFinish (ResetPasswordFinishRequest) returns (common.SuccessResponse);
+
+  rpc ChangePasswordStart (ChangePasswordStartRequest) returns (Verification);
+
+  rpc ChangeOldPassword (ChangeOldPasswordRequest) returns (common.SuccessResponse);
 }
 
 service ClientService {
@@ -55,6 +62,15 @@ service TwoFactorService {
   rpc Require (google.protobuf.Empty) returns (TwoFactorRequireResponse);
 
   rpc Resend (TwoFactorSettings) returns (common.SuccessResponse);
+}
+
+message ChangeOldPasswordRequest {
+  string old_password = 1;
+  string new_password = 2;
+}
+
+message ChangePasswordStartRequest {
+  string type = 1;
 }
 
 message AuthRequest {
@@ -93,10 +109,16 @@ message ClientLoginRequest {
   optional string password = 2;
 }
 
-message SocialsAuthRequest {
+message RegisterSocialRequest {
   string email = 1;
   string phone = 2;
   string source = 3;
+}
+
+
+message SocialsAuthRequest {
+  string email = 1;
+  string source = 2;
 }
 
 message TwoFactorSettings {
