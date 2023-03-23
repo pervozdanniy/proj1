@@ -68,7 +68,7 @@ export class PrimeTransactionsManager {
       .select(['t.*', 's.last_name', 's.first_name', 'r.last_name', 'r.first_name'])
       .orderBy('t.created_at', 'DESC');
 
-    const transactions = await queryBuilder.limit(limit).getRawMany();
+    const transactions = await queryBuilder.limit(limit + 1).getRawMany();
 
     transactions.forEach((t) => {
       if (t.type === 'transfer') {
@@ -88,8 +88,11 @@ export class PrimeTransactionsManager {
       }
     });
 
-    if (transactions.length === 0) {
-      return { transactions, has_more: false };
+    let has_more = false;
+
+    if (transactions.length > limit) {
+      has_more = true;
+      transactions.splice(-1);
     }
 
     const { id: last_id } = transactions.at(-1);
@@ -97,7 +100,7 @@ export class PrimeTransactionsManager {
     return {
       last_id,
       transactions,
-      has_more: last_id > 1,
+      has_more,
     };
   }
 }
