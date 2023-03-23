@@ -67,11 +67,24 @@ export class PrimeTransactionsManager {
     queryBuilder
       .select([
         't.*',
-        `CASE
-        WHEN t.type = 'transfer' AND t.user_id = ${user_id} THEN 'to ' || r.first_name || ' ' || r.last_name
-        WHEN t.type = 'transfer' THEN 'from ' || s.first_name || ' ' || s.last_name
-        ELSE t.type
-      END as title`,
+        `CASE 
+          WHEN t.type = 'transfer' THEN 
+            CASE 
+              WHEN t.user_id = ${user_id} THEN 'Outgoing transfer to ' || r.first_name || ' ' || r.last_name
+              ELSE 'Incoming transfer from ' || s.first_name || ' ' || s.last_name
+            END 
+          WHEN t.type = 'deposit' THEN 'Deposit action'
+          WHEN t.type = 'withdrawal' THEN 'Withdrawal action'
+          ELSE t.type
+        END as title`,
+        `CASE 
+          WHEN t.type = 'transfer' THEN 
+            CASE 
+              WHEN t.user_id = ${user_id} THEN 'outgoing_transfer'
+              ELSE 'incoming_transfer'
+            END 
+          ELSE t.type
+        END as type`,
       ])
       .orderBy('t.created_at', 'DESC');
 

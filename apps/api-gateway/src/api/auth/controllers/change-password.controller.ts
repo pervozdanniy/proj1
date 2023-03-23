@@ -11,6 +11,7 @@ import { SuccessDto } from '../../utils/success.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
 import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
 import { ChangePasswordTypeDto } from '../dto/change-password-type.dto';
+import { ChangePasswordDto } from '../dto/change-password.dto';
 import { ResetPasswordFinishDto, ResetPasswordVerifyDto } from '../dto/reset-password.dto';
 import { ResetPasswordService } from '../services/reset-password.service';
 
@@ -50,5 +51,15 @@ export class ChangePasswordController {
   @Post('finish')
   finish(@Body() payload: ResetPasswordFinishDto, @JwtSessionId() sessionId: string) {
     return this.resetService.finish(payload, sessionId);
+  }
+
+  @ApiOperation({ summary: 'Change old password' })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @ApiCreatedResponse({ type: TwoFactorRequiredResponseDto })
+  @ApiConflictResponse()
+  @Post('old')
+  change(@Body() payload: ChangePasswordDto, @JwtSessionId() sessionId: string) {
+    return this.resetService.changeOldPassword(payload, sessionId);
   }
 }

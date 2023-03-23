@@ -17,6 +17,7 @@ import { SessionProxy } from '~common/grpc-session';
 import {
   ApproveAgreementRequest,
   AuthData,
+  ChangeOldPasswordRequest,
   ChangePasswordStartRequest,
   CreateAgreementRequest,
   RegisterFinishRequest,
@@ -209,5 +210,18 @@ export class AuthApiService {
     const resp = { type: 'Reset password confirmation', methods: [method] };
 
     return resp;
+  }
+
+  async changeOldPassword(request: ChangeOldPasswordRequest, session: SessionProxy): Promise<SuccessResponse> {
+    const { old_password, new_password } = request;
+    const user = session.user;
+    const validate = await this.auth.validateUser(user.email, old_password);
+    if (!validate) {
+      throw new BadRequestException('Wrong password!');
+    } else {
+      await this.auth.updateUser({ id: user.id, password: new_password });
+
+      return { success: true };
+    }
   }
 }

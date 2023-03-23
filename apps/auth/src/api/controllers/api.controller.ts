@@ -8,6 +8,7 @@ import {
   AuthData,
   AuthServiceController,
   AuthServiceControllerMethods,
+  ChangeOldPasswordRequest,
   ChangePasswordStartRequest,
   CreateAgreementRequest,
   RegisterFinishRequest,
@@ -30,6 +31,12 @@ import { ApiSocialsService } from '../services/api.socials.service';
 @RpcController()
 @AuthServiceControllerMethods()
 export class AuthApiController implements AuthServiceController {
+  changeOldPassword(
+    @Payload() request: ChangeOldPasswordRequest,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<SuccessResponse> {
+    return this.authService.changeOldPassword(request, session);
+  }
   changePasswordStart(
     @Payload() request: ChangePasswordStartRequest,
     @GrpcSession() session: SessionProxy,

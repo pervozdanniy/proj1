@@ -31,6 +31,8 @@ service AuthService {
   rpc ResetPasswordFinish (ResetPasswordFinishRequest) returns (common.SuccessResponse);
 
   rpc ChangePasswordStart (ChangePasswordStartRequest) returns (Verification);
+
+  rpc ChangeOldPassword (ChangeOldPasswordRequest) returns (common.SuccessResponse);
 }
 
 service ClientService {
@@ -57,6 +59,11 @@ service TwoFactorService {
   rpc Require (google.protobuf.Empty) returns (TwoFactorRequireResponse);
 
   rpc Resend (TwoFactorSettings) returns (common.SuccessResponse);
+}
+
+message ChangeOldPasswordRequest {
+  string old_password = 1;
+  string new_password = 2;
 }
 
 message ChangePasswordStartRequest {

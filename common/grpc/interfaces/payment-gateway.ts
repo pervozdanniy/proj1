@@ -80,6 +80,7 @@ export interface TransactionResponse {
 
 export interface Transaction {
   id: number;
+  type: string;
   title: string;
   amount: string;
   fee: string;
