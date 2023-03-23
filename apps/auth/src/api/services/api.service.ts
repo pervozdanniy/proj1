@@ -206,9 +206,7 @@ export class AuthApiService {
 
     this.auth2FA.requireOne(method, resetPassword(session));
 
-    const resp = { type: 'Reset password confirmation', methods: [method] };
-
-    return resp;
+    return { type: 'Reset password confirmation', methods: [method] };
   }
 
   async changeOldPassword(

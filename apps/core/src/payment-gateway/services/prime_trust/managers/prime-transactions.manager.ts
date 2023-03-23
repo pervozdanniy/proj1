@@ -64,9 +64,7 @@ export class PrimeTransactionsManager {
       );
     }
 
-    queryBuilder
-      .select(['t.*', 's.last_name', 's.first_name', 'r.last_name', 'r.first_name'])
-      .orderBy('t.created_at', 'DESC');
+    queryBuilder.select(['t.*', 's.last_name', 's.first_name', 'r.last_name', 'r.first_name']).orderBy('t.id', 'DESC');
 
     const transactions = await queryBuilder.limit(limit + 1).getRawMany();
 
