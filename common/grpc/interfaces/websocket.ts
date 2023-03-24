@@ -10,19 +10,31 @@ export interface WsMessage {
   data?: string | undefined;
 }
 
+export interface WsUserMessage {
+  user_id: number;
+  message: WsMessage | undefined;
+}
+
 export const SKOPA_WEBSOCKET_PACKAGE_NAME = "skopa.websocket";
 
 export interface WebsocketServiceClient {
   send(request: WsMessage, ...rest: any): Observable<SuccessResponse>;
+
+  sendTo(request: WsUserMessage, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface WebsocketServiceController {
   send(request: WsMessage, ...rest: any): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  sendTo(
+    request: WsUserMessage,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function WebsocketServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["send"];
+    const grpcMethods: string[] = ["send", "sendTo"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("WebsocketService", method)(constructor.prototype[method], method, descriptor);

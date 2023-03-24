@@ -6,9 +6,16 @@ import "common.proto";
 
 service WebsocketService {
   rpc Send (WsMessage) returns (common.SuccessResponse);
+
+  rpc SendTo (WsUserMessage) returns (common.SuccessResponse);
 }
 
 message WsMessage {
   string event = 1;
   optional string data = 2;
+}
+
+message WsUserMessage {
+  uint32 user_id = 1;
+  WsMessage message = 2;
 }

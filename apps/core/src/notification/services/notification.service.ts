@@ -8,6 +8,7 @@ import { InjectGrpc } from '~common/grpc/helpers';
 import { NotificationRequest, UpdateNotificationRequest } from '~common/grpc/interfaces/notification';
 import { NotifierServiceClient, NotifyOptions, NotifyRequest, SendType } from '~common/grpc/interfaces/notifier';
 import { NotificationEntity } from '../entities/notification.entity';
+import { WebSocketService } from './web-socket.service';
 
 @Injectable()
 export class NotificationService implements OnModuleInit {
@@ -19,6 +20,7 @@ export class NotificationService implements OnModuleInit {
     @InjectGrpc('notifier') private readonly client: ClientGrpc,
     @InjectRepository(NotificationEntity)
     private notificationEntityRepository: Repository<NotificationEntity>,
+    private readonly ws: WebSocketService,
 
     private readonly userService: UserService,
   ) {}
@@ -69,7 +71,11 @@ export class NotificationService implements OnModuleInit {
 
     await this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload));
 
-    await this.send({ body: payload.description, title: payload.title }, user_data);
+    const message = { body: payload.description, title: payload.title };
+    await Promise.all([
+      this.send(message, user_data),
+      this.ws.sendTo({ event: 'notification', data: JSON.stringify(message) }, payload.user_id),
+    ]);
   }
 
   send(notification: NotifyRequest, options: NotifyOptions) {

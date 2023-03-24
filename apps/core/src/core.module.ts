@@ -13,7 +13,6 @@ import { NotificationModule } from './notification/notification.module';
 import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
 import { UserFacadeModule } from './user-facade/user-facade.module';
 import { UserModule } from './user/user.module';
-import { WebSocketModule } from './web-socket/web-socket.module';
 
 @Module({
   imports: [
@@ -52,7 +51,6 @@ import { WebSocketModule } from './web-socket/web-socket.module';
     PaymentGatewayModule,
     HealthModule,
     UserFacadeModule,
-    WebSocketModule,
   ],
 })
 export class CoreModule {}
