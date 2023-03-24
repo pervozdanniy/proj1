@@ -1,5 +1,6 @@
 export enum UserStatusEnum {
   Active = 'active',
+  Closed = 'closed',
 }
 
 export enum UserSourceEnum {

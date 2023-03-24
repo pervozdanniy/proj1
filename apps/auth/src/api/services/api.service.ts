@@ -11,7 +11,7 @@ import {
   startRegistration,
   TwoFactorMethod,
 } from '~common/constants/auth';
-import { UserSourceEnum } from '~common/constants/user';
+import { UserSourceEnum, UserStatusEnum } from '~common/constants/user';
 import { ChangePasswordTypes } from '~common/enum/change-password-types';
 import { SessionProxy } from '~common/grpc-session';
 import {
@@ -25,7 +25,7 @@ import {
   TwoFactorCode,
   Verification,
 } from '~common/grpc/interfaces/auth';
-import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
+import { IdRequest, SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 
 @Injectable()
@@ -222,5 +222,38 @@ export class AuthApiService {
 
       return { success: true };
     }
+  }
+
+  async closeAccount({ id }: IdRequest, session: SessionProxy): Promise<User> {
+    let user = await this.auth.getUserById(id);
+    if (user.status === UserStatusEnum.Closed) {
+      throw new BadRequestException('User account has already closed!');
+    }
+    user = await this.auth.updateUser({ id, status: UserStatusEnum.Closed });
+    const notificationPayload = {
+      user_id: user.id,
+      title: 'User Contributions',
+      type: 'contributions',
+      description: `Your account closed`,
+    };
+    await this.auth.sendNotification(notificationPayload);
+    session.user = user;
+
+    return user;
+  }
+
+  async openAccount({ id }: IdRequest): Promise<User> {
+    let user: User | undefined;
+
+    try {
+      user = await this.auth.getUserById(id);
+    } catch (e) {
+      throw new BadRequestException('No such user exists!');
+    }
+    if (user.status === UserStatusEnum.Active) {
+      throw new BadRequestException('User account has already opened!');
+    }
+
+    return await this.auth.updateUser({ id, status: UserStatusEnum.Active });
   }
 }

@@ -1,10 +1,20 @@
 syntax = "proto3";
 
 package skopa.core;
+import "google/protobuf/empty.proto";
+
 
 service NotificationService {
   rpc List (NotificationRequest) returns (NotificationListResponse);
   rpc Update (UpdateNotificationRequest) returns (Notification);
+  rpc CreateAsync(CreateNotificationRequest) returns (google.protobuf.Empty);
+}
+
+message CreateNotificationRequest {
+    uint32 user_id = 1;
+  string description = 2;
+  string title = 3;
+  string type = 4;
 }
 
 

@@ -8,6 +8,7 @@ import { InjectGrpc } from '~common/grpc/helpers';
 import { RegisterStartRequest } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
 import { CreateRequest, UpdateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
+import { CreateNotificationRequest, NotificationServiceClient } from '~common/grpc/interfaces/notification';
 import { AgreementRequest, PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 
 @Injectable()
@@ -15,11 +16,14 @@ export class AuthService implements OnModuleInit {
   private logger = new Logger(AuthService.name);
   private userService: UserServiceClient;
   private paymentGatewayServiceClient: PaymentGatewayServiceClient;
+
+  private notifierService: NotificationServiceClient;
   constructor(@InjectGrpc('core') private readonly client: ClientGrpc, private readonly jwt: JwtService) {}
 
   onModuleInit() {
     this.userService = this.client.getService('UserService');
     this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');
+    this.notifierService = this.client.getService('NotificationService');
   }
 
   async validateUser(login: string, pass: string): Promise<User | null> {
@@ -96,5 +100,11 @@ export class AuthService implements OnModuleInit {
 
   async getUserById(id: number) {
     return firstValueFrom(this.userService.getById({ id }));
+  }
+
+  async sendNotification(payload: CreateNotificationRequest) {
+    console.log(payload);
+
+    return firstValueFrom(this.notifierService.createAsync(payload));
   }
 }

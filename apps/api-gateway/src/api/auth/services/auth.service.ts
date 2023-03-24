@@ -1,8 +1,10 @@
+import { Metadata } from '@grpc/grpc-js';
 import { OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthRequest, AuthServiceClient } from '~common/grpc/interfaces/auth';
+import { IdRequest } from '~common/grpc/interfaces/common';
 import { RegisterSocialsUserDto } from '../dto/register-socials-user.dto';
 import { SocialsUserDto } from '../dto/socials-user.dto';
 import { TwoFactorService } from './2fa.service';
@@ -30,5 +32,16 @@ export class AuthService implements OnModuleInit {
 
   async registerSocials(payload: RegisterSocialsUserDto) {
     return this.authClient.registerSocials(payload);
+  }
+
+  async closeAccount(payload: IdRequest, sessionId: string) {
+    const metadata = new Metadata();
+    metadata.set('sessionId', sessionId);
+
+    return this.authClient.closeAccount(payload, metadata);
+  }
+
+  async openAccount(payload: IdRequest) {
+    return this.authClient.openAccount(payload);
   }
 }

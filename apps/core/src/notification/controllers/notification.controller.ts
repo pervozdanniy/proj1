@@ -1,4 +1,5 @@
 import {
+  CreateNotificationRequest,
   Notification,
   NotificationListResponse,
   NotificationRequest,
@@ -20,5 +21,9 @@ export class NotificationController implements NotificationServiceController {
 
   update(request: UpdateNotificationRequest): Promise<Notification> {
     return this.notificationService.update(request);
+  }
+
+  createAsync(request: CreateNotificationRequest): void {
+    return this.notificationService.createAsync(request);
   }
 }

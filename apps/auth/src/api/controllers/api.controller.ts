@@ -20,7 +20,7 @@ import {
   TwoFactorVerificationResponse,
   Verification,
 } from '~common/grpc/interfaces/auth';
-import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
+import { IdRequest, SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
@@ -32,9 +32,6 @@ import { ApiSocialsService } from '../services/api.socials.service';
 @RpcController()
 @AuthServiceControllerMethods()
 export class AuthApiController implements AuthServiceController {
-  registerSocials(@Payload() request: RegisterSocialRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
-    return this.socialAuthService.registerSocials(request, session);
-  }
   constructor(private readonly authService: AuthApiService, private readonly socialAuthService: ApiSocialsService) {}
 
   registerStart(@Payload() request: RegisterStartRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
@@ -122,5 +119,16 @@ export class AuthApiController implements AuthServiceController {
     @GrpcSession() session: SessionProxy,
   ): Promise<Verification> {
     return this.authService.changePasswordStart(request, session);
+  }
+  registerSocials(@Payload() request: RegisterSocialRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
+    return this.socialAuthService.registerSocials(request, session);
+  }
+
+  closeAccount(@Payload() request: IdRequest, @GrpcSession() session: SessionProxy): Promise<User> {
+    return this.authService.closeAccount(request, session);
+  }
+
+  openAccount(@Payload() request: IdRequest): Promise<User> {
+    return this.authService.openAccount(request);
   }
 }
