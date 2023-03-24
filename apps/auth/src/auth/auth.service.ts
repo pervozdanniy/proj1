@@ -103,8 +103,6 @@ export class AuthService implements OnModuleInit {
   }
 
   async sendNotification(payload: CreateNotificationRequest) {
-    console.log(payload);
-
     return firstValueFrom(this.notifierService.createAsync(payload));
   }
 }

@@ -112,12 +112,12 @@ export class UpdateRequestDto implements UpdateRequest {
   username?: string;
 
   @IsOptional()
-  @IsString()
-  status?: string;
-
-  @IsOptional()
   @IsInt()
   country_code?: string;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
 
   @IsOptional()
   @IsPhoneNumber()
