@@ -1,7 +1,8 @@
-import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
+import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   AccountResponse,
+  AccountStatusResponse,
   AgreementRequest,
   BalanceRequest,
   BalanceResponse,
@@ -41,9 +42,6 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
-  createAgreement(request: AgreementRequest): Promise<UserAgreement> {
-    return this.paymentGatewayService.createAgreement(request);
-  }
   constructor(
     private mainService: MainService,
     private paymentGatewayService: PaymentGatewayService,
@@ -159,5 +157,12 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
   updateAssetDeposit(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.webhooksService.updateAssetDeposit(request);
+  }
+
+  getUserAccountStatus(request: IdRequest): Promise<AccountStatusResponse> {
+    return this.paymentGatewayService.getUserAccountStatus(request);
+  }
+  createAgreement(request: AgreementRequest): Promise<UserAgreement> {
+    return this.paymentGatewayService.createAgreement(request);
   }
 }

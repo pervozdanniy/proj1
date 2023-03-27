@@ -2,7 +2,7 @@ import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/serv
 import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
+import { JwtSessionAuth, JwtSessionUser } from '../../../client/decorators/jwt-client.decorator';
 import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
 import { CreateReferenceDto } from '../dtos/deposit/deposit-funds.dto';
 import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
@@ -29,7 +29,7 @@ export class SdkDepositController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true, requireActive: true })
   @Post('/wire/reference')
   async createReference(@JwtSessionUser() { id }: User, @Body() payload: CreateReferenceDto) {
     return this.paymentGatewayService.createReference({ id, ...payload });

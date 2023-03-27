@@ -1,8 +1,11 @@
+import { WithActive, WithKYC } from '../../constants/auth';
 import { SessionProxy } from '../session-host';
 
-export type SessionMetadataOptions = {
-  allowUnauthorized?: boolean;
-};
+export type SessionMetadataOptions = WithActive<
+  WithKYC<{
+    allowUnauthorized?: boolean;
+  }>
+>;
 
 export interface SessionInterface<User = any> extends Record<string | symbol, unknown> {
   user?: User;

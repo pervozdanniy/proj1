@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { is2FA, isPasswordReset, isRegistration } from '~common/constants/auth';
+import { UserStatusEnum } from '~common/constants/user';
 import { JwtSessionGuard as BaseGuard, SessionInterface, SessionProxy } from '~common/http-session';
 import { JWT_AUTH_METADATA } from '~common/http-session/meta';
 import { PaymentGatewayService } from '../../payment-gateway/prime_trust/services/payment-gateway.service';
@@ -62,6 +63,16 @@ export class JwtSessionGuard extends BaseGuard {
       const contact = await this.paymentGatewayService.getContact({ id: session.user.id });
       if (!contact.identity_confirmed || !contact.proof_of_address_documents_verified || !contact.cip_cleared) {
         throw new ConflictException({ message: 'Please complete KYC verification!' });
+      }
+    }
+
+    if (options.requireActive) {
+      const { status } = await this.paymentGatewayService.getUserAccountStatus(session.user.id);
+      if (status === UserStatusEnum.Closed) {
+        throw new ConflictException({
+          message:
+            'Your account closed,you hav`nt permission for this action,please send email to support for reactivation!',
+        });
       }
     }
 

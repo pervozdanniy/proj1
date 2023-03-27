@@ -1,10 +1,14 @@
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { SuccessResponse, UserAgreement, UserDetails } from "./common";
+import { IdRequest, SuccessResponse, UserAgreement, UserDetails } from "./common";
 import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
+
+export interface AccountStatusResponse {
+  status: string;
+}
 
 export interface AgreementRequest {
   email: string;
@@ -313,6 +317,8 @@ export interface PaymentGatewayServiceClient {
 
   getBalance(request: BalanceRequest, ...rest: any): Observable<BalanceResponse>;
 
+  getUserAccountStatus(request: IdRequest, ...rest: any): Observable<AccountStatusResponse>;
+
   getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
 
   /** banks */
@@ -408,6 +414,11 @@ export interface PaymentGatewayServiceController {
     request: BalanceRequest,
     ...rest: any
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
+
+  getUserAccountStatus(
+    request: IdRequest,
+    ...rest: any
+  ): Promise<AccountStatusResponse> | Observable<AccountStatusResponse> | AccountStatusResponse;
 
   getTransactions(
     request: SearchTransactionRequest,
@@ -531,6 +542,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "createContact",
       "uploadDocument",
       "getBalance",
+      "getUserAccountStatus",
       "getTransactions",
       "getBankAccounts",
       "getBanksInfo",
