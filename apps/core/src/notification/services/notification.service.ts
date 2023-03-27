@@ -5,7 +5,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { NotificationRequest, UpdateNotificationRequest } from '~common/grpc/interfaces/notification';
+import {
+  NotificationListResponse,
+  NotificationRequest,
+  UpdateNotificationRequest,
+} from '~common/grpc/interfaces/notification';
 import { NotifierServiceClient, NotifyOptions, NotifyRequest, SendType } from '~common/grpc/interfaces/notifier';
 import { NotificationEntity } from '../entities/notification.entity';
 import { WebSocketService } from './web-socket.service';
@@ -29,17 +33,31 @@ export class NotificationService implements OnModuleInit {
     this.notifierService = this.client.getService('NotifierService');
   }
 
-  async list(request: NotificationRequest) {
-    const { offset, limit, read, id } = request;
+  async list(request: NotificationRequest): Promise<NotificationListResponse> {
+    const { search_after, limit, read, id } = request;
     const queryBuilder = this.notificationEntityRepository.createQueryBuilder('n').where({ user_id: id });
+    if (search_after) {
+      queryBuilder.where('n.id < :search_after', { search_after });
+    }
     if (read !== undefined) {
       queryBuilder.where({ read });
     }
-    const [items, count] = await queryBuilder.skip(offset).take(limit).getManyAndCount();
+    queryBuilder.select(['n.*']).orderBy('n.id', 'DESC');
+    const notifications = await queryBuilder.limit(limit + 1).getRawMany();
+
+    let has_more = false;
+
+    if (notifications.length > limit) {
+      has_more = true;
+      notifications.splice(-1);
+    }
+
+    const { id: last_id } = notifications.at(-1);
 
     return {
-      items,
-      count,
+      last_id,
+      notifications,
+      has_more,
     };
   }
 

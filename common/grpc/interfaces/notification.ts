@@ -24,14 +24,15 @@ export interface UpdateNotificationRequest {
 
 export interface NotificationRequest {
   id: number;
+  search_after: number;
   limit: number;
-  offset: number;
   read?: boolean | undefined;
 }
 
 export interface NotificationListResponse {
-  items: Notification[];
-  count: number;
+  notifications: Notification[];
+  has_more: boolean;
+  last_id?: number | undefined;
 }
 
 export interface Notification {

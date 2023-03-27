@@ -11,7 +11,7 @@ service NotificationService {
 }
 
 message CreateNotificationRequest {
-    uint32 user_id = 1;
+  uint32 user_id = 1;
   string description = 2;
   string title = 3;
   string type = 4;
@@ -30,14 +30,15 @@ message UpdateNotificationRequest {
 
 message NotificationRequest {
   uint32 id = 1;
-  uint32 limit = 2;
-  uint32 offset = 3;
+  uint32 search_after = 2;
+  uint32 limit = 3;
   optional bool read = 4;
 }
 
 message NotificationListResponse {
-  repeated Notification items = 1;
-  uint32 count = 2;
+  repeated Notification notifications = 1;
+  bool has_more = 2;
+  optional uint32 last_id = 3;
 }
 
 message Notification {

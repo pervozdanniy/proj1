@@ -11,15 +11,15 @@ export class ListNotificationsDto {
   readonly limit: number = 20;
 
   @ApiProperty({
-    description: 'Skip the number of records from the results.',
+    description: 'Last id.',
     required: false,
-    default: 0,
-    minimum: 0,
+    default: 1,
+    minimum: 1,
   })
   @IsNumber()
   @Min(0)
   @Type(() => Number)
-  readonly offset: number = 0;
+  readonly search_after: number = 0;
 
   @ApiProperty({
     description: 'Read status.',
