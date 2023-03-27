@@ -57,9 +57,9 @@ export class AuthController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'User account close' })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @ApiResponse({
-    description: 'User account closed successfully.',
+    description: 'Account closed successfully.',
     type: PublicUserDto,
   })
   @Post('account/close')
@@ -71,7 +71,7 @@ export class AuthController {
   @ApiOperation({ summary: 'User account open' })
   @JwtSessionAuth()
   @ApiResponse({
-    description: 'User account opened successfully.',
+    description: 'Account opened successfully.',
     type: PublicUserDto,
   })
   @Post('account/open')
