@@ -1,13 +1,4 @@
-import {
-  AccountResponseDto,
-  BalanceResponseDto,
-  BankAccountParamsDto,
-  BankAccountResponseDto,
-  ContactResponseDto,
-  DocumentResponseDto,
-  TokenDto,
-  TransactionResponseDto,
-} from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
+import {} from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
@@ -31,6 +22,16 @@ import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
+import {
+  AccountResponseDto,
+  BalanceResponseDto,
+  BankAccountParamsDto,
+  BankAccountResponseDto,
+  ContactResponseDto,
+  DocumentResponseDto,
+  TokenDto,
+  TransactionResponseDto,
+} from '../utils/prime-trust-response.dto';
 
 @ApiTags('SDK/Prime Trust')
 @ApiBearerAuth()
@@ -49,7 +50,7 @@ export class SdkMainController {
   })
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Post('/token')
   async getToken() {
     const {
@@ -65,7 +66,7 @@ export class SdkMainController {
     status: HttpStatus.CREATED,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Post('/account')
   async createAccount(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.createAccount({ id });
@@ -89,7 +90,7 @@ export class SdkMainController {
     type: AccountResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Get('/account')
   async getAccount(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getAccount({ id });
@@ -101,7 +102,7 @@ export class SdkMainController {
     type: ContactResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Get('/contact')
   async getContact(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getContact({ id });
@@ -116,7 +117,7 @@ export class SdkMainController {
     type: DocumentResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @UseInterceptors(FileInterceptor('file'))
   async uploadDocument(
     @JwtSessionUser() { id }: User,
@@ -134,7 +135,7 @@ export class SdkMainController {
     type: BalanceResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Get('/balance')
   async getBalance(@Query() query: BalanceRequestDto, @JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBalance(id, query.currencies);
@@ -146,7 +147,7 @@ export class SdkMainController {
     type: BankAccountResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Get('/bank/account')
   async getBankAccounts(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBankAccounts({ id });
@@ -158,7 +159,7 @@ export class SdkMainController {
     type: BankAccountResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Get('/available/banks')
   async getBanksInfo(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBanksInfo({ id });
@@ -170,7 +171,7 @@ export class SdkMainController {
     type: BankAccountParamsDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Post('/bank/account')
   async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
     return this.paymentGatewayService.addBankAccountParams({ id, ...payload });
@@ -182,7 +183,7 @@ export class SdkMainController {
     type: TransactionResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Get('/transactions')
   async getTransactions(@JwtSessionUser() { id }: User, @Query() query: GetTransfersDto) {
     return this.paymentGatewayService.getTransactions({ user_id: id, ...query });

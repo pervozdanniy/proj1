@@ -74,9 +74,10 @@ export class PrimeTransactionsManager {
           t.title = `Outgoing transfer to ${t.r_first_name} ${t.r_last_name}`;
           t.type = 'outgoing_transfer';
         } else {
-          t.title = `Incoming transfer to ${t.s_first_name} ${t.s_last_name}`;
+          t.title = `Incoming transfer from ${t.s_first_name} ${t.s_last_name}`;
           t.type = 'incoming_transfer';
         }
+        t.name = `${t.r_first_name} ${t.r_last_name}`;
       } else if (t.type === 'deposit') {
         t.title = 'Deposit action';
       } else if (t.type === 'withdrawal') {

@@ -44,7 +44,7 @@ export class SdkDepositController {
     status: HttpStatus.CREATED,
     type: DepositResponseDto,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Post('/add/params')
   async addDepositParams(@JwtSessionUser() { id }: User, @Body() payload: DepositParamsDto) {
     return this.paymentGatewayService.addDepositParams({ id, ...payload });
@@ -59,7 +59,7 @@ export class SdkDepositController {
     status: HttpStatus.CREATED,
     type: CreditCardResourceResponseDto,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true, requireActive: true })
   @Post('/credit_card/resource')
   async createCreditCardResource(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.createCreditCardResource({ id });
@@ -70,7 +70,7 @@ export class SdkDepositController {
     status: HttpStatus.CREATED,
     type: SuccessResponseDto,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true, requireActive: true })
   @Post('/credit_card/verify')
   async verifyCreditCard(@JwtSessionUser() { id }: User, @Body() payload: CardResourceDto) {
     const { resource_id } = payload;
@@ -83,7 +83,7 @@ export class SdkDepositController {
     status: HttpStatus.OK,
     type: CreditCardsResponseDto,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true, requireActive: true })
   @Get('/credit_cards')
   async getCreditCards(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getCreditCards({ id });
@@ -94,7 +94,7 @@ export class SdkDepositController {
     status: HttpStatus.CREATED,
     type: ContributionResponseDto,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true, requireActive: true })
   @Post('/make')
   async makeDeposit(@JwtSessionUser() { id }: User, @Body() payload: MakeDepositDto) {
     return this.paymentGatewayService.makeDeposit({ id, ...payload });
@@ -104,7 +104,7 @@ export class SdkDepositController {
   @ApiResponse({
     status: HttpStatus.OK,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireActive: true })
   @Get('/params')
   async getDepositParams(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getDepositParams({ id });

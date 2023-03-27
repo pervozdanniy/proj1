@@ -86,6 +86,7 @@ export interface Transaction {
   id: number;
   type: string;
   title: string;
+  name: string;
   amount: string;
   fee: string;
   status: string;
