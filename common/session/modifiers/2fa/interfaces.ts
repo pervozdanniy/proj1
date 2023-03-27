@@ -1,15 +1,5 @@
+import { TwoFactorConstraint, TwoFactorMethod } from '~common/constants/auth';
 import { SessionInterface, SessionMetadataOptions } from '~common/session';
-
-export enum TwoFactorMethod {
-  Sms = 'sms',
-  Email = 'email',
-}
-
-export interface TwoFactorConstraint {
-  method: TwoFactorMethod;
-  code: number;
-  destination?: string;
-}
 
 export type TwoFactorSessionData<Verified extends boolean> = Verified extends true
   ? { isVerified: true }

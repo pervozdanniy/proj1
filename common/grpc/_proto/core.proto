@@ -67,6 +67,7 @@ message UserContacts {
 
 message UpdateRequest {
   uint32 id = 1;
+  optional string email = 2;
   optional string country_code = 3;
   optional string phone = 4;
   optional string password = 5;

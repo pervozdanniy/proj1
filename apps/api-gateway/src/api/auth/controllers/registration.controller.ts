@@ -15,7 +15,11 @@ import {
 } from '../../payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
-import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
+import {
+  TwoFactorAppliedResponseDto,
+  TwoFactorRequiredResponseDto,
+  TwoFactorSuccessResponseDto,
+} from '../dto/2fa.reponse.dto';
 import {
   ChangeAgreementStatusDto,
   CreateAgreementRequestDto,
@@ -34,7 +38,7 @@ export class RegistrationController {
   constructor(private readonly registerService: RegistrationService) {}
 
   @ApiOperation({ summary: 'Check if user is unique and start session' })
-  @ApiCreatedResponse({ type: TwoFactorRequiredResponseDto })
+  @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')
   start(@Body() payload: RegistrationStartRequestDto) {

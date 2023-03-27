@@ -5,11 +5,13 @@ import { HttpSessionModule, JwtSessionMiddleware } from '~common/http-session';
 import { PaymentGatewayService } from '../payment-gateway/prime_trust/services/payment-gateway.service';
 import { TwoFactorController } from './controllers/2fa.controller';
 import { AuthController } from './controllers/auth.controller';
+import { ChangeContactInfoController } from './controllers/change-contact-info.controller';
 import { ChangePasswordController } from './controllers/change-password.controller';
 import { RegistrationController } from './controllers/registration.controller';
 import { ResetPasswordController } from './controllers/reset-password.controller';
 import { TwoFactorService } from './services/2fa.service';
 import { AuthService } from './services/auth.service';
+import { ChangeContactInfoService } from './services/change-contact-info.service';
 import { RegistrationService } from './services/registration.service';
 import { ResetPasswordService } from './services/reset-password.service';
 
@@ -21,8 +23,16 @@ import { ResetPasswordService } from './services/reset-password.service';
     RegistrationController,
     ResetPasswordController,
     ChangePasswordController,
+    ChangeContactInfoController,
   ],
-  providers: [AuthService, TwoFactorService, RegistrationService, ResetPasswordService, PaymentGatewayService],
+  providers: [
+    AuthService,
+    TwoFactorService,
+    RegistrationService,
+    ResetPasswordService,
+    PaymentGatewayService,
+    ChangeContactInfoService,
+  ],
   exports: [TwoFactorService, HttpSessionModule],
 })
 export class AuthModule implements NestModule {
@@ -35,6 +45,7 @@ export class AuthModule implements NestModule {
         RegistrationController,
         ResetPasswordController,
         ChangePasswordController,
+        ChangeContactInfoController,
       );
   }
 }

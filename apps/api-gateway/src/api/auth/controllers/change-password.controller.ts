@@ -9,7 +9,11 @@ import {
 } from '@nestjs/swagger';
 import { SuccessDto } from '../../utils/success.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
-import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
+import {
+  TwoFactorAppliedResponseDto,
+  TwoFactorRequiredResponseDto,
+  TwoFactorSuccessResponseDto,
+} from '../dto/2fa.reponse.dto';
 import { ChangePasswordTypeDto } from '../dto/change-password-type.dto';
 import { ChangePasswordDto } from '../dto/change-password.dto';
 import { ResetPasswordFinishDto, ResetPasswordVerifyDto } from '../dto/reset-password.dto';
@@ -26,7 +30,7 @@ export class ChangePasswordController {
   @ApiOperation({ summary: 'Check change password type' })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @ApiCreatedResponse({ type: TwoFactorRequiredResponseDto })
+  @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')
   start(@Body() { type }: ChangePasswordTypeDto, @JwtSessionId() sessionId: string) {
