@@ -1,4 +1,5 @@
-import { WithActive, WithKYC } from '../../constants/auth';
+import { WithActive } from '../modifiers/auth/active/interfaces';
+import { WithKYC } from '../modifiers/auth/kyc/interfaces';
 import { SessionProxy } from '../session-host';
 
 export type SessionMetadataOptions = WithActive<

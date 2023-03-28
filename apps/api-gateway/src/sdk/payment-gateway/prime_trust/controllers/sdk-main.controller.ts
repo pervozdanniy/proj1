@@ -50,7 +50,7 @@ export class SdkMainController {
   })
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @Post('/token')
   async getToken() {
     const {
@@ -66,7 +66,7 @@ export class SdkMainController {
     status: HttpStatus.CREATED,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @Post('/account')
   async createAccount(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.createAccount({ id });
@@ -90,7 +90,7 @@ export class SdkMainController {
     type: AccountResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @Get('/account')
   async getAccount(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getAccount({ id });
@@ -102,7 +102,7 @@ export class SdkMainController {
     type: ContactResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @Get('/contact')
   async getContact(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getContact({ id });
@@ -117,7 +117,7 @@ export class SdkMainController {
     type: DocumentResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @UseInterceptors(FileInterceptor('file'))
   async uploadDocument(
     @JwtSessionUser() { id }: User,
@@ -135,7 +135,7 @@ export class SdkMainController {
     type: BalanceResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @Get('/balance')
   async getBalance(@Query() query: BalanceRequestDto, @JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBalance(id, query.currencies);
@@ -147,7 +147,7 @@ export class SdkMainController {
     type: BankAccountResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @Get('/bank/account')
   async getBankAccounts(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBankAccounts({ id });
@@ -159,7 +159,7 @@ export class SdkMainController {
     type: BankAccountResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @Get('/available/banks')
   async getBanksInfo(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBanksInfo({ id });
@@ -171,7 +171,7 @@ export class SdkMainController {
     type: BankAccountParamsDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @Post('/bank/account')
   async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
     return this.paymentGatewayService.addBankAccountParams({ id, ...payload });
@@ -183,7 +183,7 @@ export class SdkMainController {
     type: TransactionResponseDto,
   })
   @ApiBearerAuth()
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @Get('/transactions')
   async getTransactions(@JwtSessionUser() { id }: User, @Query() query: GetTransfersDto) {
     return this.paymentGatewayService.getTransactions({ user_id: id, ...query });

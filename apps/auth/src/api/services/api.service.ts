@@ -1,19 +1,22 @@
 import { Auth2FAService } from '@/auth-2fa/2fa.service';
 import { AuthService } from '@/auth/auth.service';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { TwoFactorMethod } from '~common/constants/auth';
+import { UserSourceEnum, UserStatusEnum } from '~common/constants/user';
+import { ChangePasswordTypes } from '~common/enum/change-password-types';
 import {
+  changeEmail,
+  changePhone,
   finishRegistration,
+  isChangeContactInfo,
   isPasswordReset,
   isRegistration,
   isRegistrationAgreement,
   registerRequestAgreement,
   resetPassword,
+  SessionProxy,
   startRegistration,
-  TwoFactorMethod,
-} from '~common/constants/auth';
-import { UserSourceEnum, UserStatusEnum } from '~common/constants/user';
-import { ChangePasswordTypes } from '~common/enum/change-password-types';
-import { SessionProxy } from '~common/grpc-session';
+} from '~common/grpc-session';
 import {
   ApproveAgreementRequest,
   AuthData,
@@ -255,5 +258,31 @@ export class AuthApiService {
     }
 
     return await this.auth.updateUser({ id, status: UserStatusEnum.Active });
+  }
+  changeContactStart(payload: { email?: string; phone?: string }, session: SessionProxy) {
+    if (payload.email) {
+      this.auth2FA.requireOne(TwoFactorMethod.Email, changeEmail(session, payload.email));
+
+      return { type: 'Change email confirmation', methods: [TwoFactorMethod.Email] };
+    }
+    if (payload.phone) {
+      this.auth2FA.requireOne(TwoFactorMethod.Sms, changePhone(session, payload.phone));
+
+      return { type: 'Change phone confirmation', methods: [TwoFactorMethod.Sms] };
+    }
+
+    throw new BadRequestException('Invalid payload');
+  }
+
+  async changeContactVerify(code: TwoFactorCode, session: SessionProxy) {
+    if (!isChangeContactInfo(session)) {
+      throw new ConflictException('Change phone process was not started');
+    }
+    const res = await this.auth2FA.verifyOne(code, session);
+    if (res.valid) {
+      await this.auth.updateUser({ id: session.user.id, ...session.change });
+    }
+
+    return res;
   }
 }

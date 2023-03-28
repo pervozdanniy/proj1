@@ -49,7 +49,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user info' })
   @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ allowClosed: true })
   @Get('me')
   async me(@JwtSessionUser() user: User) {
     return plainToInstance(PublicUserDto, user);
@@ -57,7 +57,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'User account close' })
-  @JwtSessionAuth({ requireActive: true })
+  @JwtSessionAuth()
   @ApiResponse({
     description: 'Account closed successfully.',
     type: PublicUserDto,

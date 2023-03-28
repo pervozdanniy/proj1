@@ -1,6 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import { TwoFactorConstraint } from '~common/constants/auth';
 import {
   confirm2FA,
   confirm2FAMethod,
@@ -8,9 +9,8 @@ import {
   isRegistration,
   registerIsSocial,
   require2FA,
-  TwoFactorConstraint,
-} from '~common/constants/auth';
-import { SessionProxy } from '~common/grpc-session';
+  SessionProxy,
+} from '~common/grpc-session';
 import { User } from '~common/grpc/interfaces/common';
 import { TwoFactorMethod, TwoFactorSettingsEntity } from '../entities/2fa_settings.entity';
 import { Notifier2FAService } from './notifier.service';

@@ -15,7 +15,11 @@ import {
 } from '../../payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
-import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
+import {
+  TwoFactorAppliedResponseDto,
+  TwoFactorRequiredResponseDto,
+  TwoFactorSuccessResponseDto,
+} from '../dto/2fa.reponse.dto';
 import {
   ChangeAgreementStatusDto,
   CreateAgreementRequestDto,
@@ -34,7 +38,7 @@ export class RegistrationController {
   constructor(private readonly registerService: RegistrationService) {}
 
   @ApiOperation({ summary: 'Check if user is unique and start session' })
-  @ApiCreatedResponse({ type: TwoFactorRequiredResponseDto })
+  @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')
   start(@Body() payload: RegistrationStartRequestDto) {
@@ -50,7 +54,7 @@ export class RegistrationController {
     description: 'Current 2FA method succeeded, but 2FA is not completed yet',
   })
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
-  @JwtSessionAuth({ allowUnauthorized: true, allowUnverified: true, requireRegistration: true })
+  @JwtSessionAuth({ allowUnauthorized: true, allowUnverified: true, requireRegistration: true, allowClosed: true })
   @HttpCode(HttpStatus.OK)
   @Post('verify')
   verify(@Body() payload: RegistrationVerifyRequestDto, @JwtSessionId() sessionId: string) {
@@ -60,7 +64,7 @@ export class RegistrationController {
   @ApiOperation({ summary: 'Create agreement process' })
   @ApiCreatedResponse({ type: AgreementResponseDto })
   @ApiBearerAuth()
-  @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true })
+  @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true, allowClosed: true })
   @Post('create/agreement')
   async createAgreement(@Body() payload: CreateAgreementRequestDto, @JwtSessionId() sessionId: string) {
     return await this.registerService.createAgreement(payload, sessionId);
@@ -69,7 +73,7 @@ export class RegistrationController {
   @ApiOperation({ summary: 'Approve or decline agreement' })
   @ApiCreatedResponse({ type: SuccessResponseDto })
   @ApiBearerAuth()
-  @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true })
+  @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true, allowClosed: true })
   @Post('approve/agreement')
   async approveAgreement(@Body() payload: ChangeAgreementStatusDto, @JwtSessionId() sessionId: string) {
     return await this.registerService.approveAgreement(payload, sessionId);
@@ -78,7 +82,7 @@ export class RegistrationController {
   @ApiOperation({ summary: 'Finish registration process' })
   @ApiCreatedResponse({ type: PublicUserWithContactsDto })
   @ApiBearerAuth()
-  @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true })
+  @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true, allowClosed: true })
   @Post('finish')
   async finish(@Body() payload: RegistrationFinishRequestDto, @JwtSessionId() sessionId: string) {
     const user = await this.registerService.finish(payload, sessionId);

@@ -30,6 +30,11 @@ export interface AuthData {
   verify?: Verification | undefined;
 }
 
+export interface ChangeContactInfoRequest {
+  phone?: string | undefined;
+  email?: string | undefined;
+}
+
 export interface ClientCreateRequest {
   name: string;
   pub_key?: string | undefined;
@@ -161,6 +166,10 @@ export interface AuthServiceClient {
   closeAccount(request: IdRequest, ...rest: any): Observable<User>;
 
   openAccount(request: IdRequest, ...rest: any): Observable<User>;
+
+  changeContactInfoStart(request: ChangeContactInfoRequest, ...rest: any): Observable<Verification>;
+
+  changeContactInfoVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
 }
 
 export interface AuthServiceController {
@@ -219,6 +228,16 @@ export interface AuthServiceController {
   closeAccount(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
   openAccount(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
+
+  changeContactInfoStart(
+    request: ChangeContactInfoRequest,
+    ...rest: any
+  ): Promise<Verification> | Observable<Verification> | Verification;
+
+  changeContactInfoVerify(
+    request: TwoFactorCode,
+    ...rest: any
+  ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
 }
 
 export function AuthServiceControllerMethods() {
@@ -240,6 +259,8 @@ export function AuthServiceControllerMethods() {
       "changeOldPassword",
       "closeAccount",
       "openAccount",
+      "changeContactInfoStart",
+      "changeContactInfoVerify",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

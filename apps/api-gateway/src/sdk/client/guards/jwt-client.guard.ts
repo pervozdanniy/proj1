@@ -27,7 +27,7 @@ export class JwtClientGuard extends BaseGuard {
       }
     }
 
-    if (options.requireActive) {
+    if (!options.allowClosed) {
       const { status } = await this.sdkPaymentGatewayService.getUserAccountStatus(session.user.id);
       if (status === UserStatusEnum.Closed) {
         throw new ConflictException({

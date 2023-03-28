@@ -9,7 +9,11 @@ import {
 } from '@nestjs/swagger';
 import { SuccessDto } from '../../utils/success.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
-import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
+import {
+  TwoFactorAppliedResponseDto,
+  TwoFactorRequiredResponseDto,
+  TwoFactorSuccessResponseDto,
+} from '../dto/2fa.reponse.dto';
 import { ChangePasswordTypeDto } from '../dto/change-password-type.dto';
 import { ChangePasswordDto } from '../dto/change-password.dto';
 import { ResetPasswordFinishDto, ResetPasswordVerifyDto } from '../dto/reset-password.dto';
@@ -25,8 +29,8 @@ export class ChangePasswordController {
 
   @ApiOperation({ summary: 'Check change password type' })
   @ApiBearerAuth()
-  @JwtSessionAuth()
-  @ApiCreatedResponse({ type: TwoFactorRequiredResponseDto })
+  @JwtSessionAuth({ allowClosed: true })
+  @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')
   start(@Body() { type }: ChangePasswordTypeDto, @JwtSessionId() sessionId: string) {
@@ -37,7 +41,7 @@ export class ChangePasswordController {
   @ApiBearerAuth()
   @ApiOkResponse({ type: TwoFactorSuccessResponseDto, description: '2FA completed' })
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
-  @JwtSessionAuth({ requirePasswordReset: true, allowUnverified: true })
+  @JwtSessionAuth({ requirePasswordReset: true, allowUnverified: true, allowClosed: true })
   @HttpCode(HttpStatus.OK)
   @Post('verify')
   verify(@Body() payload: ResetPasswordVerifyDto, @JwtSessionId() sessionId: string) {
@@ -47,7 +51,7 @@ export class ChangePasswordController {
   @ApiOperation({ summary: 'Finish change password process' })
   @ApiCreatedResponse({ type: SuccessDto })
   @ApiBearerAuth()
-  @JwtSessionAuth({ requirePasswordReset: true })
+  @JwtSessionAuth({ requirePasswordReset: true, allowClosed: true })
   @Post('finish')
   finish(@Body() payload: ResetPasswordFinishDto, @JwtSessionId() sessionId: string) {
     return this.resetService.finish(payload, sessionId);
@@ -55,7 +59,7 @@ export class ChangePasswordController {
 
   @ApiOperation({ summary: 'Change old password' })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ allowClosed: true })
   @ApiCreatedResponse({ type: TwoFactorRequiredResponseDto })
   @ApiConflictResponse()
   @Post('old')
