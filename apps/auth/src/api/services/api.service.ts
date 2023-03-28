@@ -29,6 +29,7 @@ import {
   Verification,
 } from '~common/grpc/interfaces/auth';
 import { IdRequest, SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
+import { NotifyRequest } from '~common/grpc/interfaces/notifier';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 
 @Injectable()
@@ -228,18 +229,15 @@ export class AuthApiService {
   }
 
   async closeAccount({ id }: IdRequest, session: SessionProxy): Promise<User> {
-    let user = await this.auth.getUserById(id);
-    if (user.status === UserStatusEnum.Closed) {
+    if (session.user.status === UserStatusEnum.Closed) {
       throw new BadRequestException('User account has already closed!');
     }
-    user = await this.auth.updateUser({ id, status: UserStatusEnum.Closed });
-    const notificationPayload = {
-      user_id: user.id,
+    const user = await this.auth.updateUser({ id, status: UserStatusEnum.Closed });
+    const notificationPayload: NotifyRequest = {
       title: 'User account',
-      type: 'accounts',
-      description: `Your account closed!`,
+      body: `Your account closed!`,
     };
-    await this.auth.sendNotification(notificationPayload);
+    await this.auth.sendNotification(user.email, notificationPayload);
     session.user = user;
 
     return user;
@@ -257,7 +255,14 @@ export class AuthApiService {
       throw new BadRequestException('User account has already opened!');
     }
 
-    return await this.auth.updateUser({ id, status: UserStatusEnum.Active });
+    const updatedUser = await this.auth.updateUser({ id, status: UserStatusEnum.Active });
+    const notificationPayload: NotifyRequest = {
+      title: 'User account',
+      body: `Your account opened,please login again!`,
+    };
+    await this.auth.sendNotification(user.email, notificationPayload);
+
+    return updatedUser;
   }
   changeContactStart(payload: { email?: string; phone?: string }, session: SessionProxy) {
     if (payload.email) {
