@@ -228,11 +228,12 @@ export class AuthApiService {
     }
   }
 
-  async closeAccount({ id }: IdRequest, session: SessionProxy): Promise<User> {
+  async closeAccount(session: SessionProxy): Promise<User> {
+    console.log(session);
     if (session.user.status === UserStatusEnum.Closed) {
       throw new BadRequestException('User account has already closed!');
     }
-    const user = await this.auth.updateUser({ id, status: UserStatusEnum.Closed });
+    const user = await this.auth.updateUser({ id: session.user.id, status: UserStatusEnum.Closed });
     const notificationPayload: NotifyRequest = {
       title: 'User account',
       body: `Your account closed!`,

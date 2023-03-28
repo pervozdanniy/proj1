@@ -7,7 +7,6 @@ import "google/protobuf/empty.proto";
 service NotificationService {
   rpc List (NotificationRequest) returns (NotificationListResponse);
   rpc Update (UpdateNotificationRequest) returns (Notification);
-  rpc CreateAsync(CreateNotificationRequest) returns (google.protobuf.Empty);
 }
 
 message CreateNotificationRequest {

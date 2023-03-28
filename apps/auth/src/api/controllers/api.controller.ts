@@ -126,8 +126,8 @@ export class AuthApiController implements AuthServiceController {
     return this.authService.changePasswordStart(request, session);
   }
 
-  closeAccount(@Payload() request: IdRequest, @GrpcSession() session: SessionProxy): Promise<User> {
-    return this.authService.closeAccount(request, session);
+  closeAccount(@GrpcSession() session: SessionProxy): Promise<User> {
+    return this.authService.closeAccount(session);
   }
 
   openAccount(@Payload() request: IdRequest): Promise<User> {

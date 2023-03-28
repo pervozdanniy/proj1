@@ -34,11 +34,11 @@ export class AuthService implements OnModuleInit {
     return this.authClient.registerSocials(payload);
   }
 
-  async closeAccount(payload: IdRequest, sessionId: string) {
+  async closeAccount(sessionId: string) {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 
-    return this.authClient.closeAccount(payload, metadata);
+    return this.authClient.closeAccount({}, metadata);
   }
 
   async openAccount(payload: IdRequest) {

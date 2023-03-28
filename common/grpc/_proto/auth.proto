@@ -36,7 +36,7 @@ service AuthService {
 
   rpc ChangeOldPassword (ChangeOldPasswordRequest) returns (common.SuccessResponse);
 
-  rpc CloseAccount (common.IdRequest) returns (common.User);
+  rpc CloseAccount (google.protobuf.Empty) returns (common.User);
 
   rpc OpenAccount (common.IdRequest) returns (common.User);
 

@@ -163,7 +163,7 @@ export interface AuthServiceClient {
 
   changeOldPassword(request: ChangeOldPasswordRequest, ...rest: any): Observable<SuccessResponse>;
 
-  closeAccount(request: IdRequest, ...rest: any): Observable<User>;
+  closeAccount(request: Empty, ...rest: any): Observable<User>;
 
   openAccount(request: IdRequest, ...rest: any): Observable<User>;
 
@@ -225,7 +225,7 @@ export interface AuthServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  closeAccount(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
+  closeAccount(request: Empty, ...rest: any): Promise<User> | Observable<User> | User;
 
   openAccount(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
 

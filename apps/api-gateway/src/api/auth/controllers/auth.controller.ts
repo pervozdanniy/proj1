@@ -2,8 +2,9 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/commo
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
+import { SessionProxy } from '~common/session';
 import { PublicUserDto } from '../../utils/public-user.dto';
-import { JwtSessionAuth, JwtSessionId, JwtSessionUser } from '../decorators/jwt-session.decorators';
+import { JwtSession, JwtSessionAuth, JwtSessionId, JwtSessionUser } from '../decorators/jwt-session.decorators';
 import { TwoFactorRequiredResponseDto } from '../dto/2fa.reponse.dto';
 import { AuthRequestDto } from '../dto/auth.request.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
@@ -63,8 +64,10 @@ export class AuthController {
     type: PublicUserDto,
   })
   @Post('account/close')
-  closeAccount(@JwtSessionUser() { id }: User, @JwtSessionId() sessionId: string) {
-    return this.authService.closeAccount({ id }, sessionId);
+  closeAccount(@JwtSessionId() sessionId: string, @JwtSession() session: SessionProxy) {
+    console.log(session);
+
+    return this.authService.closeAccount(sessionId);
   }
 
   @ApiBearerAuth()

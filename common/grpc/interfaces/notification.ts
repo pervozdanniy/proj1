@@ -1,7 +1,6 @@
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
@@ -49,8 +48,6 @@ export interface NotificationServiceClient {
   list(request: NotificationRequest, ...rest: any): Observable<NotificationListResponse>;
 
   update(request: UpdateNotificationRequest, ...rest: any): Observable<Notification>;
-
-  createAsync(request: CreateNotificationRequest, ...rest: any): Observable<Empty>;
 }
 
 export interface NotificationServiceController {
@@ -63,13 +60,11 @@ export interface NotificationServiceController {
     request: UpdateNotificationRequest,
     ...rest: any
   ): Promise<Notification> | Observable<Notification> | Notification;
-
-  createAsync(request: CreateNotificationRequest, ...rest: any): void;
 }
 
 export function NotificationServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["list", "update", "createAsync"];
+    const grpcMethods: string[] = ["list", "update"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("NotificationService", method)(constructor.prototype[method], method, descriptor);

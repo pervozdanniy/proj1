@@ -241,7 +241,7 @@ export class PrimeWithdrawalManager {
       description: `Your disbursements status for ${withdrawResponse['amount']} ${withdrawResponse['currency-type']} ${withdrawResponse['status']}`,
     };
 
-    this.notificationService.createAsync(notificationPayload);
+    await this.notificationService.create(notificationPayload);
 
     return { success: true };
   }
