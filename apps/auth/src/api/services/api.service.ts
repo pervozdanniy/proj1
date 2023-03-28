@@ -229,7 +229,6 @@ export class AuthApiService {
   }
 
   async closeAccount(session: SessionProxy): Promise<User> {
-    console.log(session);
     if (session.user.status === UserStatusEnum.Closed) {
       throw new BadRequestException('User account has already closed!');
     }
