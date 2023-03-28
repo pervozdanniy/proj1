@@ -9,7 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { SuccessDto } from '../../utils/success.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
-import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
+import { TwoFactorAppliedResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
 import { ResetPasswordFinishDto, ResetPasswordStartDto, ResetPasswordVerifyDto } from '../dto/reset-password.dto';
 import { ResetPasswordService } from '../services/reset-password.service';
 
@@ -22,7 +22,7 @@ export class ResetPasswordController {
   constructor(private readonly resetService: ResetPasswordService) {}
 
   @ApiOperation({ summary: 'Check if user is unique and start session' })
-  @ApiCreatedResponse({ type: TwoFactorRequiredResponseDto })
+  @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')
   start(@Body() payload: ResetPasswordStartDto) {

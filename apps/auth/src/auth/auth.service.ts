@@ -72,16 +72,16 @@ export class AuthService implements OnModuleInit {
     return firstValueFrom(this.userService.create(payload));
   }
 
-  async createAgreement(payload: AgreementRequest) {
-    return firstValueFrom(this.paymentGatewayServiceClient.createAgreement(payload));
-  }
-
   async updateUser(payload: UpdateRequest) {
     if (payload.password) {
       payload.password = await bcrypt.hash(payload.password, 10);
     }
 
     return firstValueFrom(this.userService.update(payload));
+  }
+
+  async createAgreement(payload: AgreementRequest) {
+    return firstValueFrom(this.paymentGatewayServiceClient.createAgreement(payload));
   }
 
   login(user: User, session: SessionProxy) {

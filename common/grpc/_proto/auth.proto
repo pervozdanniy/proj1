@@ -15,7 +15,6 @@ service AuthService {
   rpc RegisterSocials (RegisterSocialRequest) returns (AuthData);
 
 
-
   rpc RegisterStart (RegisterStartRequest) returns (AuthData);
 
   rpc RegisterVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
@@ -36,6 +35,11 @@ service AuthService {
   rpc ChangePasswordStart (ChangePasswordStartRequest) returns (Verification);
 
   rpc ChangeOldPassword (ChangeOldPasswordRequest) returns (common.SuccessResponse);
+
+
+  rpc ChangeContactInfoStart (ChangeContactInfoRequest) returns (Verification);
+
+  rpc ChangeContactInfoVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
 }
 
 service ClientService {
@@ -86,6 +90,13 @@ message Verification {
 message AuthData {
   string access_token = 1;
   optional Verification verify = 2;
+}
+
+message ChangeContactInfoRequest {
+  oneof contact {
+    string phone = 1;
+    string email = 2;
+  }
 }
 
 message ClientCreateRequest {

@@ -8,8 +8,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { is2FA, isPasswordReset, isRegistration } from '~common/constants/auth';
-import { JwtSessionGuard as BaseGuard, SessionInterface, SessionProxy } from '~common/http-session';
+import {
+  is2FA,
+  isPasswordReset,
+  isRegistration,
+  JwtSessionGuard as BaseGuard,
+  SessionInterface,
+  SessionProxy,
+} from '~common/http-session';
 import { JWT_AUTH_METADATA } from '~common/http-session/meta';
 import { PaymentGatewayService } from '../../payment-gateway/prime_trust/services/payment-gateway.service';
 import { SessionMetadataOptions } from '../interfaces/session.interface';
@@ -20,7 +26,6 @@ export class JwtSessionGuard extends BaseGuard {
   constructor(
     reflector: Reflector,
     private readonly twoFactor: TwoFactorService,
-
     private readonly paymentGatewayService: PaymentGatewayService,
   ) {
     super(reflector);

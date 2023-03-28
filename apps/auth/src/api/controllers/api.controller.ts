@@ -1,8 +1,7 @@
 import { status } from '@grpc/grpc-js';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
-import { RegisterSessionInterface } from '~common/constants/auth';
-import { GrpcSession, GrpcSessionAuth, SessionProxy } from '~common/grpc-session';
+import { GrpcSession, GrpcSessionAuth, RegisterSessionInterface, SessionProxy } from '~common/grpc-session';
 import {
   ApproveAgreementRequest,
   AuthData,
@@ -24,6 +23,7 @@ import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/co
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { ChangeContactInfoDto } from '../dto/change-contact-info.dto';
 import { LoginRequestDto } from '../dto/login.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { AuthApiService } from '../services/api.service';
@@ -32,9 +32,6 @@ import { ApiSocialsService } from '../services/api.socials.service';
 @RpcController()
 @AuthServiceControllerMethods()
 export class AuthApiController implements AuthServiceController {
-  registerSocials(@Payload() request: RegisterSocialRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
-    return this.socialAuthService.registerSocials(request, session);
-  }
   constructor(private readonly authService: AuthApiService, private readonly socialAuthService: ApiSocialsService) {}
 
   registerStart(@Payload() request: RegisterStartRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
@@ -85,6 +82,10 @@ export class AuthApiController implements AuthServiceController {
     return this.socialAuthService.loginSocials(request, session);
   }
 
+  registerSocials(@Payload() request: RegisterSocialRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
+    return this.socialAuthService.registerSocials(request, session);
+  }
+
   @GrpcSessionAuth({ allowUnauthorized: true })
   async logout(_request: Empty, @GrpcSession() session: SessionProxy): Promise<SuccessResponse> {
     return this.authService.logout(session);
@@ -117,10 +118,22 @@ export class AuthApiController implements AuthServiceController {
   ): Promise<SuccessResponse> {
     return this.authService.changeOldPassword(request, session);
   }
+
   changePasswordStart(
     @Payload() request: ChangePasswordStartRequest,
     @GrpcSession() session: SessionProxy,
   ): Promise<Verification> {
     return this.authService.changePasswordStart(request, session);
+  }
+
+  changeContactInfoStart(@Payload() request: ChangeContactInfoDto, @GrpcSession() session: SessionProxy): Verification {
+    return this.authService.changeContactStart(request, session);
+  }
+
+  changeContactInfoVerify(
+    @Payload() request: TwoFactorCode,
+    @GrpcSession() session: SessionProxy,
+  ): Promise<TwoFactorVerificationResponse> {
+    return this.authService.changeContactVerify(request, session);
   }
 }

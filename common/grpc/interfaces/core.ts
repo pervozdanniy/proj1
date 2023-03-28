@@ -43,6 +43,7 @@ export interface UserContacts {
 
 export interface UpdateRequest {
   id: number;
+  email?: string | undefined;
   country_code?: string | undefined;
   phone?: string | undefined;
   password?: string | undefined;

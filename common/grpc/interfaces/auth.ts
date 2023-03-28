@@ -30,6 +30,11 @@ export interface AuthData {
   verify?: Verification | undefined;
 }
 
+export interface ChangeContactInfoRequest {
+  phone?: string | undefined;
+  email?: string | undefined;
+}
+
 export interface ClientCreateRequest {
   name: string;
   pub_key?: string | undefined;
@@ -157,6 +162,10 @@ export interface AuthServiceClient {
   changePasswordStart(request: ChangePasswordStartRequest, ...rest: any): Observable<Verification>;
 
   changeOldPassword(request: ChangeOldPasswordRequest, ...rest: any): Observable<SuccessResponse>;
+
+  changeContactInfoStart(request: ChangeContactInfoRequest, ...rest: any): Observable<Verification>;
+
+  changeContactInfoVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
 }
 
 export interface AuthServiceController {
@@ -211,6 +220,16 @@ export interface AuthServiceController {
     request: ChangeOldPasswordRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  changeContactInfoStart(
+    request: ChangeContactInfoRequest,
+    ...rest: any
+  ): Promise<Verification> | Observable<Verification> | Verification;
+
+  changeContactInfoVerify(
+    request: TwoFactorCode,
+    ...rest: any
+  ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
 }
 
 export function AuthServiceControllerMethods() {
@@ -230,6 +249,8 @@ export function AuthServiceControllerMethods() {
       "resetPasswordFinish",
       "changePasswordStart",
       "changeOldPassword",
+      "changeContactInfoStart",
+      "changeContactInfoVerify",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
