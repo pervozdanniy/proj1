@@ -232,9 +232,9 @@ export class AuthApiService {
     user = await this.auth.updateUser({ id, status: UserStatusEnum.Closed });
     const notificationPayload = {
       user_id: user.id,
-      title: 'User Contributions',
-      type: 'contributions',
-      description: `Your account closed`,
+      title: 'User account',
+      type: 'accounts',
+      description: `Your account closed!`,
     };
     await this.auth.sendNotification(notificationPayload);
     session.user = user;
