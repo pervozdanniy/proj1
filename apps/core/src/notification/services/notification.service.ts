@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { InjectGrpc } from '~common/grpc/helpers';
 import {
+  Notification,
   NotificationListResponse,
   NotificationRequest,
   UpdateNotificationRequest,
@@ -61,13 +62,25 @@ export class NotificationService implements OnModuleInit {
     };
   }
 
-  async update(request: UpdateNotificationRequest): Promise<NotificationEntity> {
+  async update(request: UpdateNotificationRequest): Promise<Notification> {
     const {
       payload: { id, read },
     } = request;
-    const notification = await this.notificationEntityRepository.findOneByOrFail({ id });
 
-    return this.notificationEntityRepository.save({ ...notification, read });
+    await this.notificationEntityRepository.update({ id }, { read });
+
+    const notificationEntity = await this.notificationEntityRepository.findOneBy({
+      id,
+    });
+
+    return {
+      id: notificationEntity.id,
+      type: notificationEntity.type,
+      title: notificationEntity.title,
+      description: notificationEntity.description,
+      read: notificationEntity.read,
+      created_at: notificationEntity.created_at.toString(),
+    };
   }
 
   createAsync(payload: { user_id: number; description: string; title: string; type: string }) {

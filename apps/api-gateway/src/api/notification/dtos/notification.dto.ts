@@ -16,6 +16,9 @@ export class NotificationDto implements Notification {
 
   @ApiProperty()
   read: boolean;
+
+  @ApiProperty()
+  created_at: string;
 }
 
 export class NotificationListDto implements NotificationListResponse {

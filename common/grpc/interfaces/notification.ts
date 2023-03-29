@@ -40,6 +40,7 @@ export interface Notification {
   type: string;
   description: string;
   read: boolean;
+  created_at: string;
 }
 
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";

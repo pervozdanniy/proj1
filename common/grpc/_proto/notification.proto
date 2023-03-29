@@ -46,4 +46,5 @@ message Notification {
   string type = 3;
   string description = 4;
   bool read = 5;
+  string created_at = 6;
 }
