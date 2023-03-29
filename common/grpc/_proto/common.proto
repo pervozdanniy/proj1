@@ -6,6 +6,7 @@ message User {
     uint32 id = 1;
     string email = 3;
     optional string password = 4;
+    optional string status = 5;
     string created_at = 6;
     string updated_at = 7;
     optional string phone = 8;

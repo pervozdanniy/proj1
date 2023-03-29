@@ -2,7 +2,7 @@ import { Auth2FAService } from '@/auth-2fa/2fa.service';
 import { AuthService } from '@/auth/auth.service';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { TwoFactorMethod } from '~common/constants/auth';
-import { UserSourceEnum } from '~common/constants/user';
+import { UserSourceEnum, UserStatusEnum } from '~common/constants/user';
 import { ChangePasswordTypes } from '~common/enum/change-password-types';
 import {
   changeEmail,
@@ -28,7 +28,8 @@ import {
   TwoFactorCode,
   Verification,
 } from '~common/grpc/interfaces/auth';
-import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
+import { IdRequest, SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
+import { NotifyRequest } from '~common/grpc/interfaces/notifier';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 
 @Injectable()
@@ -227,6 +228,42 @@ export class AuthApiService {
     }
   }
 
+  async closeAccount(session: SessionProxy): Promise<User> {
+    if (session.user.status === UserStatusEnum.Closed) {
+      throw new BadRequestException('User account has already closed!');
+    }
+    const user = await this.auth.updateUser({ id: session.user.id, status: UserStatusEnum.Closed });
+    const notificationPayload: NotifyRequest = {
+      title: 'User account',
+      body: `Your account closed!`,
+    };
+    await this.auth.sendNotification(user.email, notificationPayload);
+    session.user = user;
+
+    return user;
+  }
+
+  async openAccount({ id }: IdRequest): Promise<User> {
+    let user: User | undefined;
+
+    try {
+      user = await this.auth.getUserById(id);
+    } catch (e) {
+      throw new BadRequestException('No such user exists!');
+    }
+    if (user.status === UserStatusEnum.Active) {
+      throw new BadRequestException('User account has already opened!');
+    }
+
+    const updatedUser = await this.auth.updateUser({ id, status: UserStatusEnum.Active });
+    const notificationPayload: NotifyRequest = {
+      title: 'User account',
+      body: `Your account opened,please login again!`,
+    };
+    await this.auth.sendNotification(user.email, notificationPayload);
+
+    return updatedUser;
+  }
   changeContactStart(payload: { email?: string; phone?: string }, session: SessionProxy) {
     if (payload.email) {
       this.auth2FA.requireOne(TwoFactorMethod.Email, changeEmail(session, payload.email));

@@ -1,5 +1,7 @@
 export * from './2fa/helpers';
 export * from './2fa/interfaces';
+export * from './auth/active/interfaces';
+export * from './auth/kyc/interfaces';
 export * from './change-contact-info/helpers';
 export * from './change-contact-info/interfaces';
 export * from './registration/helpers';

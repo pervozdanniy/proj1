@@ -4,6 +4,13 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "skopa.core";
 
+export interface CreateNotificationRequest {
+  user_id: number;
+  description: string;
+  title: string;
+  type: string;
+}
+
 export interface NotificationPayload {
   id: number;
   read: boolean;
@@ -16,14 +23,15 @@ export interface UpdateNotificationRequest {
 
 export interface NotificationRequest {
   id: number;
+  search_after: number;
   limit: number;
-  offset: number;
   read?: boolean | undefined;
 }
 
 export interface NotificationListResponse {
-  items: Notification[];
-  count: number;
+  notifications: Notification[];
+  has_more: boolean;
+  last_id?: number | undefined;
 }
 
 export interface Notification {
@@ -32,6 +40,7 @@ export interface Notification {
   type: string;
   description: string;
   read: boolean;
+  created_at: string;
 }
 
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";

@@ -33,7 +33,7 @@ export class ResetPasswordController {
   @ApiBearerAuth()
   @ApiOkResponse({ type: TwoFactorSuccessResponseDto, description: '2FA completed' })
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
-  @JwtSessionAuth({ allowUnauthorized: true, allowUnverified: true, requirePasswordReset: true })
+  @JwtSessionAuth({ allowUnauthorized: true, allowUnverified: true, requirePasswordReset: true, allowClosed: true })
   @HttpCode(HttpStatus.OK)
   @Post('verify')
   verify(@Body() payload: ResetPasswordVerifyDto, @JwtSessionId() sessionId: string) {
@@ -43,7 +43,7 @@ export class ResetPasswordController {
   @ApiOperation({ summary: 'Finish registration process' })
   @ApiCreatedResponse({ type: SuccessDto })
   @ApiBearerAuth()
-  @JwtSessionAuth({ allowUnauthorized: true, requirePasswordReset: true })
+  @JwtSessionAuth({ allowUnauthorized: true, requirePasswordReset: true, allowClosed: true })
   @Post('finish')
   finish(@Body() payload: ResetPasswordFinishDto, @JwtSessionId() sessionId: string) {
     return this.resetService.finish(payload, sessionId);

@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { SuccessResponse, User, UserAgreement, UserDetails } from "./common";
+import { IdRequest, SuccessResponse, User, UserAgreement, UserDetails } from "./common";
 import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.auth";
@@ -163,6 +163,10 @@ export interface AuthServiceClient {
 
   changeOldPassword(request: ChangeOldPasswordRequest, ...rest: any): Observable<SuccessResponse>;
 
+  closeAccount(request: Empty, ...rest: any): Observable<User>;
+
+  openAccount(request: IdRequest, ...rest: any): Observable<User>;
+
   changeContactInfoStart(request: ChangeContactInfoRequest, ...rest: any): Observable<Verification>;
 
   changeContactInfoVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
@@ -221,6 +225,10 @@ export interface AuthServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
+  closeAccount(request: Empty, ...rest: any): Promise<User> | Observable<User> | User;
+
+  openAccount(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
+
   changeContactInfoStart(
     request: ChangeContactInfoRequest,
     ...rest: any
@@ -249,6 +257,8 @@ export function AuthServiceControllerMethods() {
       "resetPasswordFinish",
       "changePasswordStart",
       "changeOldPassword",
+      "closeAccount",
+      "openAccount",
       "changeContactInfoStart",
       "changeContactInfoVerify",
     ];

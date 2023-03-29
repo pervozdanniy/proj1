@@ -3,10 +3,11 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedRespo
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { PublicUserDto } from '../../utils/public-user.dto';
-import { JwtSessionAuth, JwtSessionUser } from '../decorators/jwt-session.decorators';
+import { JwtSessionAuth, JwtSessionId, JwtSessionUser } from '../decorators/jwt-session.decorators';
 import { TwoFactorRequiredResponseDto } from '../dto/2fa.reponse.dto';
 import { AuthRequestDto } from '../dto/auth.request.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
+import { OpenAccountRequestDto } from '../dto/open-account.request.dto';
 import { RegisterSocialsUserDto } from '../dto/register-socials-user.dto';
 import { SocialsUserDto } from '../dto/socials-user.dto';
 import { AuthService } from '../services/auth.service';
@@ -48,9 +49,33 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user info' })
   @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ allowClosed: true })
   @Get('me')
   async me(@JwtSessionUser() user: User) {
     return plainToInstance(PublicUserDto, user);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'User account close' })
+  @JwtSessionAuth()
+  @ApiResponse({
+    description: 'Account closed successfully.',
+    type: PublicUserDto,
+  })
+  @Post('account/close')
+  closeAccount(@JwtSessionId() sessionId: string) {
+    return this.authService.closeAccount(sessionId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'User account open' })
+  @JwtSessionAuth()
+  @ApiResponse({
+    description: 'Account opened successfully.',
+    type: PublicUserDto,
+  })
+  @Post('account/open')
+  openAccount(@Body() { user_id }: OpenAccountRequestDto) {
+    return this.authService.openAccount({ id: user_id });
   }
 }

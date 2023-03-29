@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Notification, NotificationListResponse } from '~common/grpc/interfaces/notification';
 
-export class NotificationDto {
+export class NotificationDto implements Notification {
   @ApiProperty()
   id: number;
 
@@ -16,7 +17,15 @@ export class NotificationDto {
   @ApiProperty()
   read: boolean;
 
-  constructor(partial: Partial<NotificationDto>) {
-    Object.assign(this, partial);
-  }
+  @ApiProperty()
+  created_at: string;
+}
+
+export class NotificationListDto implements NotificationListResponse {
+  @ApiProperty()
+  has_more: boolean;
+  @ApiProperty()
+  last_id: number | undefined;
+  @ApiProperty()
+  notifications: Notification[];
 }

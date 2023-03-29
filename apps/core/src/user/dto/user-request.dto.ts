@@ -116,6 +116,10 @@ export class UpdateRequestDto implements UpdateRequest {
   country_code?: string;
 
   @IsOptional()
+  @IsString()
+  status?: string;
+
+  @IsOptional()
   @IsPhoneNumber()
   phone?: string;
 

@@ -8,6 +8,7 @@ import { InjectGrpc } from '~common/grpc/helpers';
 import { RegisterStartRequest } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
 import { CreateRequest, UpdateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
+import { NotifierServiceClient, NotifyRequest, SendType } from '~common/grpc/interfaces/notifier';
 import { AgreementRequest, PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
 
 @Injectable()
@@ -15,11 +16,18 @@ export class AuthService implements OnModuleInit {
   private logger = new Logger(AuthService.name);
   private userService: UserServiceClient;
   private paymentGatewayServiceClient: PaymentGatewayServiceClient;
-  constructor(@InjectGrpc('core') private readonly client: ClientGrpc, private readonly jwt: JwtService) {}
+
+  private notifierService: NotifierServiceClient;
+  constructor(
+    @InjectGrpc('notifier') private readonly notifierClient: ClientGrpc,
+    @InjectGrpc('core') private readonly coreClient: ClientGrpc,
+    private readonly jwt: JwtService,
+  ) {}
 
   onModuleInit() {
-    this.userService = this.client.getService('UserService');
-    this.paymentGatewayServiceClient = this.client.getService('PaymentGatewayService');
+    this.userService = this.coreClient.getService('UserService');
+    this.paymentGatewayServiceClient = this.coreClient.getService('PaymentGatewayService');
+    this.notifierService = this.notifierClient.getService('NotifierService');
   }
 
   async validateUser(login: string, pass: string): Promise<User | null> {
@@ -96,5 +104,14 @@ export class AuthService implements OnModuleInit {
 
   async getUserById(id: number) {
     return firstValueFrom(this.userService.getById({ id }));
+  }
+
+  async sendNotification(email: string, { title, body }: NotifyRequest) {
+    return firstValueFrom(
+      this.notifierService.add({
+        notification: { title, body },
+        options: { send_type: SendType.SEND_TYPE_EMAIL, email },
+      }),
+    );
   }
 }

@@ -1,13 +1,4 @@
-import {
-  AccountResponseDto,
-  BalanceResponseDto,
-  BankAccountParamsDto,
-  BankAccountResponseDto,
-  ContactResponseDto,
-  DocumentResponseDto,
-  TokenDto,
-  TransactionResponseDto,
-} from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
+import {} from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { SdkPaymentGatewayService } from '@/sdk/payment-gateway/prime_trust/services/sdk-payment-gateway.service';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
@@ -31,6 +22,16 @@ import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
+import {
+  AccountResponseDto,
+  BalanceResponseDto,
+  BankAccountParamsDto,
+  BankAccountResponseDto,
+  ContactResponseDto,
+  DocumentResponseDto,
+  TokenDto,
+  TransactionResponseDto,
+} from '../utils/prime-trust-response.dto';
 
 @ApiTags('SDK/Prime Trust')
 @ApiBearerAuth()

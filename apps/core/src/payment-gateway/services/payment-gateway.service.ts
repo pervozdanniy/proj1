@@ -1,6 +1,6 @@
 import { UserService } from '@/user/services/user.service';
 import { Injectable } from '@nestjs/common';
-import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
+import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
   AccountResponse,
   AgreementRequest,
@@ -39,7 +39,7 @@ export class PaymentGatewayService {
     return this.primeTrustService.createAccount(userDetails);
   }
 
-  async createAgreement(request: AgreementRequest): Promise<UserAgreement> {
+  createAgreement(request: AgreementRequest): Promise<UserAgreement> {
     return this.primeTrustService.createAgreement(request);
   }
 
@@ -80,44 +80,44 @@ export class PaymentGatewayService {
     return resp;
   }
 
-  async createCreditCardResource(id: number) {
+  createCreditCardResource(id: number) {
     return this.primeTrustService.createCreditCardResource(id);
   }
 
-  async verifyCreditCard(request: VerifyCreditCardRequest) {
+  verifyCreditCard(request: VerifyCreditCardRequest) {
     const { resource_id } = request;
 
     return this.primeTrustService.verifyCreditCard(resource_id);
   }
 
-  async getCreditCards(id: number) {
+  getCreditCards(id: number) {
     return this.primeTrustService.getCreditCards(id);
   }
 
-  async transferFunds(request: TransferFundsRequest) {
+  transferFunds(request: TransferFundsRequest) {
     return this.primeTrustService.transferFunds(request);
   }
 
-  async getAccount(id: number) {
+  getAccount(id: number) {
     return this.primeTrustService.getAccount(id);
   }
 
-  async getContact(id: number) {
+  getContact(id: number) {
     return this.primeTrustService.getContact(id);
   }
-  async getTransactions(request: SearchTransactionRequest) {
+  getTransactions(request: SearchTransactionRequest) {
     return this.primeTrustService.getTransactions(request);
   }
 
-  async getDepositParams(request: UserIdRequest) {
+  getDepositParams(request: UserIdRequest) {
     return this.primeTrustService.getDepositParams(request.id);
   }
 
-  async addDepositParams(request: DepositParamRequest) {
+  addDepositParams(request: DepositParamRequest) {
     return this.primeTrustService.addDepositParams(request);
   }
 
-  async makeDeposit(request: MakeDepositRequest) {
+  makeDeposit(request: MakeDepositRequest) {
     return this.primeTrustService.makeDeposit(request);
   }
 
@@ -125,5 +125,9 @@ export class PaymentGatewayService {
     const userDetails = await this.userService.getUserInfo(request.id);
 
     return this.primeTrustService.getBankAccounts(request.id, userDetails.country_code);
+  }
+
+  getUserAccountStatus(request: IdRequest) {
+    return this.primeTrustService.getUserAccountStatus(request);
   }
 }

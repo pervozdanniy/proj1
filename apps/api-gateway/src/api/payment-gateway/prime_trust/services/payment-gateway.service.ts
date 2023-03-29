@@ -147,4 +147,8 @@ export class PaymentGatewayService implements OnModuleInit {
   koyweWebhooksHandler(data: KoyweWebhookType) {
     return lastValueFrom(this.paymentGatewayServiceClient.koyweWebhooksHandler(data));
   }
+
+  getUserAccountStatus(id: number) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getUserAccountStatus({ id }));
+  }
 }

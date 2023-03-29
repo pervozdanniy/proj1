@@ -5,7 +5,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { NotificationRequest, UpdateNotificationRequest } from '~common/grpc/interfaces/notification';
+import {
+  Notification,
+  NotificationListResponse,
+  NotificationRequest,
+  UpdateNotificationRequest,
+} from '~common/grpc/interfaces/notification';
 import { NotifierServiceClient, NotifyOptions, NotifyRequest, SendType } from '~common/grpc/interfaces/notifier';
 import { NotificationEntity } from '../entities/notification.entity';
 import { WebSocketService } from './web-socket.service';
@@ -29,27 +34,53 @@ export class NotificationService implements OnModuleInit {
     this.notifierService = this.client.getService('NotifierService');
   }
 
-  async list(request: NotificationRequest) {
-    const { offset, limit, read, id } = request;
+  async list(request: NotificationRequest): Promise<NotificationListResponse> {
+    const { search_after, limit, read, id } = request;
     const queryBuilder = this.notificationEntityRepository.createQueryBuilder('n').where({ user_id: id });
+    if (search_after) {
+      queryBuilder.where('n.id < :search_after', { search_after });
+    }
     if (read !== undefined) {
       queryBuilder.where({ read });
     }
-    const [items, count] = await queryBuilder.skip(offset).take(limit).getManyAndCount();
+    queryBuilder.select(['n.*']).orderBy('n.id', 'DESC');
+    const notifications = await queryBuilder.limit(limit + 1).getRawMany();
+
+    let has_more = false;
+
+    if (notifications.length > limit) {
+      has_more = true;
+      notifications.splice(-1);
+    }
+
+    const { id: last_id } = notifications.at(-1);
 
     return {
-      items,
-      count,
+      last_id,
+      notifications,
+      has_more,
     };
   }
 
-  async update(request: UpdateNotificationRequest): Promise<NotificationEntity> {
+  async update(request: UpdateNotificationRequest): Promise<Notification> {
     const {
       payload: { id, read },
     } = request;
-    const notification = await this.notificationEntityRepository.findOneByOrFail({ id });
 
-    return this.notificationEntityRepository.save({ ...notification, read });
+    await this.notificationEntityRepository.update({ id }, { read });
+
+    const notificationEntity = await this.notificationEntityRepository.findOneBy({
+      id,
+    });
+
+    return {
+      id: notificationEntity.id,
+      type: notificationEntity.type,
+      title: notificationEntity.title,
+      description: notificationEntity.description,
+      read: notificationEntity.read,
+      created_at: notificationEntity.created_at.toString(),
+    };
   }
 
   createAsync(payload: { user_id: number; description: string; title: string; type: string }) {

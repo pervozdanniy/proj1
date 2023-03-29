@@ -17,6 +17,7 @@ service PaymentGatewayService {
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
   rpc GetBalance (BalanceRequest) returns (BalanceResponse);
+  rpc GetUserAccountStatus (common.IdRequest) returns (AccountStatusResponse);
 
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
@@ -49,6 +50,10 @@ service PaymentGatewayService {
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
+}
+
+message AccountStatusResponse {
+  string status = 1;
 }
 
 message AgreementRequest {
@@ -129,10 +134,11 @@ message Transaction {
   uint32 id = 1;
   string type = 2;
   string title = 3;
-  string amount = 4;
-  string fee = 5;
-  string status = 6;
-  string created_at = 7;
+  string name = 4;
+  string amount = 5;
+  string fee = 6;
+  string status = 7;
+  string created_at = 8;
 }
 
 message TransferResponse {

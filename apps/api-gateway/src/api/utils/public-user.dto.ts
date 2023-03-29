@@ -52,6 +52,9 @@ export class PublicUserDto implements User {
   password: string;
 
   @ApiProperty()
+  status: string;
+
+  @ApiProperty()
   created_at: string;
 
   @ApiProperty()

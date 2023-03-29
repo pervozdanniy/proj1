@@ -1,6 +1,5 @@
 import { ListNotificationsDto } from '@/api/notification/dtos/list-notifications.dto';
-import { NotificationDto } from '@/api/notification/dtos/notification.dto';
-import { PaginatedNotificationsDto } from '@/api/notification/dtos/paginated-notifications.dto';
+import { NotificationDto, NotificationListDto } from '@/api/notification/dtos/notification.dto';
 import { UpdateNotificationDto } from '@/api/notification/dtos/update-notification.dto';
 import { NotificationService } from '@/api/notification/services/notification.service';
 import {
@@ -29,7 +28,7 @@ export class NotificationController {
   constructor(private notificationService: NotificationService) {}
 
   @ApiOperation({ summary: 'Get list of notifications' })
-  @ApiResponse({ status: HttpStatus.OK, type: PaginatedNotificationsDto })
+  @ApiResponse({ status: HttpStatus.OK, type: NotificationListDto })
   @HttpCode(HttpStatus.OK)
   @JwtSessionAuth()
   @Get('/list')

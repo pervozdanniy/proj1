@@ -19,7 +19,7 @@ import {
   TwoFactorVerificationResponse,
   Verification,
 } from '~common/grpc/interfaces/auth';
-import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
+import { IdRequest, SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
@@ -124,6 +124,14 @@ export class AuthApiController implements AuthServiceController {
     @GrpcSession() session: SessionProxy,
   ): Promise<Verification> {
     return this.authService.changePasswordStart(request, session);
+  }
+
+  closeAccount(@GrpcSession() session: SessionProxy): Promise<User> {
+    return this.authService.closeAccount(session);
+  }
+
+  openAccount(@Payload() request: IdRequest): Promise<User> {
+    return this.authService.openAccount(request);
   }
 
   changeContactInfoStart(@Payload() request: ChangeContactInfoDto, @GrpcSession() session: SessionProxy): Verification {

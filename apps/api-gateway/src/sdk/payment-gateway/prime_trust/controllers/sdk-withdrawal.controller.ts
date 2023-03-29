@@ -21,7 +21,7 @@ export class SdkWithdrawalController {
     status: HttpStatus.CREATED,
     type: JsonDataDto,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Post('/make')
   async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
     return this.paymentGatewayService.makeWithdrawal({ id, ...payload });

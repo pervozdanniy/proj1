@@ -11,10 +11,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as process from 'process';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
-import { AccountResponse, AgreementRequest } from '~common/grpc/interfaces/payment-gateway';
+import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
+import { AccountResponse, AccountStatusResponse, AgreementRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryService } from '../../../../country/country.service';
+import { UserService } from '../../../../user/services/user.service';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -29,6 +30,8 @@ export class PrimeAccountManager {
     private readonly primeKycManager: PrimeKycManager,
 
     private countryService: CountryService,
+
+    private userService: UserService,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -274,5 +277,11 @@ export class PrimeAccountManager {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
     }
+  }
+
+  async getUserAccountStatus({ id }: IdRequest): Promise<AccountStatusResponse> {
+    const user = await this.userService.get(id);
+
+    return { status: user.status };
   }
 }

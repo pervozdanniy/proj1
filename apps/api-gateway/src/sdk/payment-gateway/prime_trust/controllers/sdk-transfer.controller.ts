@@ -20,7 +20,7 @@ export class SdkTransferController {
     status: HttpStatus.CREATED,
     type: TransferFundsResponseDto,
   })
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Post('/funds')
   async transferFunds(@JwtSessionUser() { id }: User, @Body() payload: TransferFundsRequestDto) {
     return this.paymentGatewayService.transferFunds({ sender_id: id, ...payload });

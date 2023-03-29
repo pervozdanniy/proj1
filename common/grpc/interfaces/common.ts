@@ -6,6 +6,7 @@ export interface User {
   id: number;
   email: string;
   password?: string | undefined;
+  status?: string | undefined;
   created_at: string;
   updated_at: string;
   phone?: string | undefined;

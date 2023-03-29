@@ -178,6 +178,10 @@ export class TransferFundsResponseDto implements TransferFundsResponse {
 export class TransactionDto implements Transaction {
   @ApiProperty()
   id: number;
+
+  @ApiProperty()
+  name: string;
+
   @ApiProperty()
   type: string;
   @ApiProperty()

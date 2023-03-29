@@ -1,5 +1,6 @@
 import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
+import { IdRequest } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
   AgreementRequest,
@@ -160,5 +161,9 @@ export class PrimeTrustService {
 
   createAgreement(request: AgreementRequest) {
     return this.primeAccountManager.createAgreement(request);
+  }
+
+  getUserAccountStatus(request: IdRequest) {
+    return this.primeAccountManager.getUserAccountStatus(request);
   }
 }

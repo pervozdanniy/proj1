@@ -16,7 +16,7 @@ import { AuthService } from './auth.service';
       }),
       inject: [ConfigService],
     }),
-    ClientsModule.registerAsync([asyncClientOptions('core')]),
+    ClientsModule.registerAsync([asyncClientOptions('core'), asyncClientOptions('notifier')]),
     GrpcSessionModule,
   ],
   providers: [AuthService],

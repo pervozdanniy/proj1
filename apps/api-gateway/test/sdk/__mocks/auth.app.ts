@@ -19,7 +19,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
   const auth = await Test.createTestingModule({
     imports: [
       ConfigModule.forRoot({ load: [configuration, testConfig], isGlobal: true }),
-      ClientsModule.registerAsync([asyncClientOptions('core')]),
+      ClientsModule.registerAsync([asyncClientOptions('core'), asyncClientOptions('notifier')]),
     ],
     controllers: [ClientController],
     providers: [
