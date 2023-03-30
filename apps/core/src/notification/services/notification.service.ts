@@ -47,13 +47,14 @@ export class NotificationService implements OnModuleInit {
     const notifications = await queryBuilder.limit(limit + 1).getRawMany();
 
     let has_more = false;
+    let last_id = 0;
 
     if (notifications.length > limit) {
       has_more = true;
       notifications.splice(-1);
+      const { id } = notifications.at(-1);
+      last_id = id;
     }
-
-    const { id: last_id } = notifications.at(-1);
 
     return {
       last_id,
