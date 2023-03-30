@@ -35,10 +35,10 @@ export class PaymentGatewayManager {
       case 'US':
         return this.moduleRef.get(USPaymentGateway);
       case 'CL':
+        return this.moduleRef.get(ChilePaymentGateway);
       case 'MX':
       case 'CO':
       case 'PE':
-        return this.moduleRef.get(ChilePaymentGateway);
       default:
         throw new Error(`Unsupported country: "${type}"`);
     }

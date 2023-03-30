@@ -42,6 +42,7 @@ export interface CreateReferenceRequest {
   id: number;
   amount: string;
   currency_type: string;
+  type: string;
 }
 
 export interface SearchTransactionRequest {
