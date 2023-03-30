@@ -88,13 +88,14 @@ export class PrimeTransactionsManager {
     });
 
     let has_more = false;
+    let last_id = 0;
 
     if (transactions.length > limit) {
       has_more = true;
       transactions.splice(-1);
+      const { id } = transactions.at(-1);
+      last_id = id;
     }
-
-    const { id: last_id } = transactions.at(-1);
 
     return {
       last_id,
