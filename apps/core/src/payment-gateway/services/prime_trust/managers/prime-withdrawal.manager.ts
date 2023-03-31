@@ -13,6 +13,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
+import { Providers } from '~common/enum/providers';
 import {
   AccountIdRequest,
   JsonData,
@@ -152,6 +153,7 @@ export class PrimeWithdrawalManager {
         param_id: withdrawalParams.id,
         fee,
         type: 'withdrawal',
+        provider: Providers.PRIME_TRUST,
       }),
     );
 

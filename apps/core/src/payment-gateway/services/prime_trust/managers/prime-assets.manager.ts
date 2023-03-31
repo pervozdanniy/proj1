@@ -134,7 +134,7 @@ export class PrimeAssetsManager {
     );
     const convertedAmount = parseFloat(convertData.data['USD']) * parseFloat(assetResponse['unit-count']);
     let type;
-    convertedAmount < 0 ? (type = 'pre_withdrawal') : (type = 'deposit');
+    convertedAmount < 0 ? (type = 'withdrawal') : (type = 'deposit');
     const amount = String(convertedAmount.toFixed(2));
 
     if (existedDeposit) {

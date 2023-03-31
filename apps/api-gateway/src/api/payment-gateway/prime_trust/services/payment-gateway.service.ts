@@ -17,7 +17,7 @@ import {
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { KoyweWebhookType } from '../webhooks/data';
+import { KoyweWebhookType, PayfuraWebhookType } from '../webhooks/data';
 
 @Injectable()
 export class PaymentGatewayService implements OnModuleInit {
@@ -144,11 +144,15 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getAvailablePaymentMethods({ id }));
   }
 
-  koyweWebhooksHandler(data: KoyweWebhookType) {
-    return lastValueFrom(this.paymentGatewayServiceClient.koyweWebhooksHandler(data));
+  koyweWebhooksHandler(payload: KoyweWebhookType) {
+    return lastValueFrom(this.paymentGatewayServiceClient.koyweWebhooksHandler(payload));
   }
 
   getUserAccountStatus(id: number) {
     return lastValueFrom(this.paymentGatewayServiceClient.getUserAccountStatus({ id }));
+  }
+
+  payfuraHandler(payload: PayfuraWebhookType) {
+    return lastValueFrom(this.paymentGatewayServiceClient.payfuraWebhooksHandler(payload));
   }
 }

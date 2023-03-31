@@ -32,3 +32,7 @@ export type KoyweWebhookType = {
   timeStamp: string;
   signature: string;
 };
+
+export type PayfuraWebhookType = {
+  orderId: string;
+};

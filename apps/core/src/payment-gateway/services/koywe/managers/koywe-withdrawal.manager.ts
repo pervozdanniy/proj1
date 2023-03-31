@@ -10,6 +10,7 @@ import Redis from 'ioredis';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
+import { Providers } from '~common/enum/providers';
 import { TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
@@ -71,6 +72,7 @@ export class KoyweWithdrawalManager {
         user_id: id,
         uuid: orderId,
         type: 'withdrawal',
+        provider: Providers.KOYWE,
         amount,
         currency_type: 'USD',
         status: status.toLowerCase(),

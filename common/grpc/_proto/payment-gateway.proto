@@ -50,6 +50,13 @@ service PaymentGatewayService {
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
+  rpc PayfuraWebhooksHandler (PayfuraWebhookRequest)   returns (common.SuccessResponse);
+}
+
+
+
+message PayfuraWebhookRequest {
+  string orderId = 1;
 }
 
 message AccountStatusResponse {

@@ -6,6 +6,10 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
+export interface PayfuraWebhookRequest {
+  orderId: string;
+}
+
 export interface AccountStatusResponse {
   status: string;
 }
@@ -372,6 +376,8 @@ export interface PaymentGatewayServiceClient {
   updateAssetDeposit(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   koyweWebhooksHandler(request: KoyweWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+
+  payfuraWebhooksHandler(request: PayfuraWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -530,6 +536,11 @@ export interface PaymentGatewayServiceController {
     request: KoyweWebhookRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  payfuraWebhooksHandler(
+    request: PayfuraWebhookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -566,6 +577,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "updateWithdraw",
       "updateAssetDeposit",
       "koyweWebhooksHandler",
+      "payfuraWebhooksHandler",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -1,19 +1,28 @@
+import { UserEntity } from '@/user/entities/user.entity';
 import { UserService } from '@/user/services/user.service';
+import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
+import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
+import { Providers } from '~common/enum/providers';
 import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
-import { UserEntity } from '../../../../user/entities/user.entity';
+import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData, CountryData } from '../../../country/data';
+import { TransfersEntity } from '../../../entities/transfers.entity';
 
 @Injectable()
 export class PayfuraDepositManager {
+  private readonly logger = new Logger(PayfuraDepositManager.name);
   private readonly payfura_url: string;
   private readonly payfura_key: string;
   private readonly payfura_secret: string;
   constructor(
+    @InjectRepository(TransfersEntity)
+    private readonly depositEntityRepository: Repository<TransfersEntity>,
     private readonly httpService: HttpService,
 
     private userService: UserService,
@@ -58,7 +67,10 @@ export class PayfuraDepositManager {
     data.wallet_address = wallet_address;
 
     const user_id = await this.createUser(userDetails);
-    const { url } = await this.createOrder(amount, wallet_address, user_id, userDetails.country_code);
+    const orderId = await this.createOrder(amount, wallet_address, user_id, userDetails.country_code);
+    await this.saveTransfer(userDetails.id, orderId, amount, currency_type);
+
+    const url = `https://sandbox.payfura.com/exchange?orderId=${orderId}&apiKey=${this.payfura_key}`;
 
     data.url = url;
 
@@ -106,14 +118,8 @@ export class PayfuraDepositManager {
     return payfuraUserId;
   }
 
-  async createOrder(
-    amount: string,
-    wallet_address: string,
-    userId: string,
-    country_code: string,
-  ): Promise<{ url: string }> {
-    const fiatId = this.getFiatCurrencies(country_code);
-    console.log(fiatId);
+  async createOrder(amount: string, wallet_address: string, userId: string, country_code: string): Promise<string> {
+    const fiatId = await this.getFiatCurrencies(country_code);
     const formData = {
       order: {
         cfpmId: fiatId,
@@ -133,11 +139,11 @@ export class PayfuraDepositManager {
         this.httpService.post(`${this.payfura_url}/v1/partner/order`, formData, { headers: headersRequest }),
       );
 
-      const url = `https://sandbox.payfura.com/exchange?orderId=${orderResponse.data.orderId}&apiKey=${this.payfura_key}`;
-
-      return { url };
+      return orderResponse.data.orderId;
     } catch (e) {
-      console.log(e.response.data);
+      this.logger.error(e.response.data);
+
+      throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
     }
   }
 
@@ -145,7 +151,7 @@ export class PayfuraDepositManager {
     let fiatId: number;
     try {
       const fiatResponse = await lastValueFrom(this.httpService.get(`${this.payfura_url}/v2/partner/fiat_currencies`));
-      console.log(fiatResponse.data.response);
+
       fiatResponse.data.response.forEach(
         (fiat: { country_code: string; payment_methods: [{ cfpm_id: number; type: string }] }) => {
           if (fiat.country_code === code) {
@@ -158,9 +164,38 @@ export class PayfuraDepositManager {
         },
       );
     } catch (e) {
-      console.log(e.response.data);
+      this.logger.error(e.response.data);
+
+      throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
     }
 
     return fiatId;
+  }
+
+  async saveTransfer(user_id: number, orderId: string, amount: string, currency_type: string) {
+    const headersRequest = {
+      Authorization: `Bearer ${this.payfura_secret}`,
+    };
+
+    try {
+      const getOrderResponse = await lastValueFrom(
+        this.httpService.get(`${this.payfura_url}/v1/partner/order?orderId=${orderId}`, {
+          headers: headersRequest,
+        }),
+      );
+      await this.depositEntityRepository.save(
+        this.depositEntityRepository.create({
+          user_id,
+          uuid: orderId,
+          type: 'deposit',
+          amount,
+          provider: Providers.PAYFURA,
+          currency_type,
+          status: getOrderResponse.data.status.toLowerCase(),
+        }),
+      );
+    } catch (e) {
+      throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
+    }
   }
 }

@@ -14,6 +14,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { DepositTypes } from '~common/enum/document-types.enum';
+import { Providers } from '~common/enum/providers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
@@ -216,6 +217,7 @@ export class PrimeDepositManager {
         status: contributionResponse['status'],
         param_type: contributionResponse['payment-type'],
         type: 'deposit',
+        provider: Providers.PRIME_TRUST,
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
     }
@@ -400,6 +402,7 @@ export class PrimeDepositManager {
       const contributionAttributes = contributionResponse.data.data.attributes;
       const contributionPayload: Record<string, any> = {
         type: 'deposit',
+        provider: Providers.PRIME_TRUST,
         user_id: id,
         uuid: contributionResponse.data.data.id,
         currency_type: contributionAttributes['currency-type'],
