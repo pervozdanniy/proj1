@@ -21,6 +21,7 @@ import {
   JsonData,
   KoyweWebhookRequest,
   MakeDepositRequest,
+  PayfuraWebhookRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PaymentMethodsResponse,
@@ -42,6 +43,9 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  payfuraWebhooksHandler(request: PayfuraWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.payfuraWebhooksHandler(request);
+  }
   constructor(
     private mainService: MainService,
     private paymentGatewayService: PaymentGatewayService,

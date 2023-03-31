@@ -32,6 +32,9 @@ import { KoyweTokenManager } from './services/koywe/managers/koywe-token.manager
 import { KoyweWebhookManager } from './services/koywe/managers/koywe-webhook.manager';
 import { KoyweWithdrawalManager } from './services/koywe/managers/koywe-withdrawal.manager';
 import { MainService } from './services/main.service';
+import { PayfuraDepositManager } from './services/payfura/managers/payfura-deposit.manager';
+import { PayfuraWebhookManager } from './services/payfura/managers/payfura-webhook.manager';
+import { PayfuraService } from './services/payfura/payfura.service';
 import { PaymentGatewayWebhooksService } from './services/payment-gateway-webhooks.service';
 import { PaymentGatewayService } from './services/payment-gateway.service';
 import { PrimeAccountManager } from './services/prime_trust/managers/prime-account.manager';
@@ -74,6 +77,9 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PaymentGatewayManager,
     PrimeTrustService,
     KoyweService,
+    PayfuraService,
+    PayfuraDepositManager,
+    PayfuraWebhookManager,
     KoyweDepositManager,
     KoyweBankAccountManager,
     KoyweTokenManager,

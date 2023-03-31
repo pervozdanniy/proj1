@@ -30,7 +30,7 @@ export class DepositController {
     status: HttpStatus.CREATED,
   })
   @JwtSessionAuth({ requireKYC: true })
-  @Post('/wire/reference')
+  @Post('/payment/reference')
   async createReference(@JwtSessionUser() { id }: User, @Body() payload: CreateReferenceDto) {
     return this.paymentGatewayService.createReference({ id, ...payload });
   }

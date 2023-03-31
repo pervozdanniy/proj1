@@ -46,6 +46,13 @@ export class KoyweMainManager {
     );
 
     //temporary solution,must be changed
-    return paymentMethodResponse.data[0]._id;
+    let id: string = null;
+    paymentMethodResponse.data.forEach((method: { _id: string; name: string }) => {
+      if (method.name === 'WIRECL') {
+        id = method._id;
+      }
+    });
+
+    return id;
   }
 }

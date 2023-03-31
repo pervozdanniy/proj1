@@ -14,19 +14,18 @@ import {
   WithdrawalInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../services/koywe/koywe.service';
+import { PayfuraService } from '../../services/payfura/payfura.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
 export class ChilePaymentGateway
   implements PaymentGatewayInterface, BankInterface, WireDepositInterface, WithdrawalInterface
 {
-  private primeTrustService: PrimeTrustService;
-  private koyweService: KoyweService;
-
-  constructor(primeTrustService: PrimeTrustService, koyweService: KoyweService) {
-    this.primeTrustService = primeTrustService;
-    this.koyweService = koyweService;
-  }
+  constructor(
+    private primeTrustService: PrimeTrustService,
+    private koyweService: KoyweService,
+    private payfuraService: PayfuraService,
+  ) {}
 
   getAvailablePaymentMethods(): PaymentMethods[] {
     return ['bank-transfer'];
@@ -42,8 +41,13 @@ export class ChilePaymentGateway
 
   async createReference(request: CreateReferenceRequest): Promise<JsonData> {
     const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
-
-    return this.koyweService.createReference(request, wallet_address, asset_transfer_method_id);
+    const { type } = request;
+    if (type === 'wire') {
+      return this.koyweService.createReference(request, wallet_address, asset_transfer_method_id);
+    }
+    if (type === 'cash') {
+      return this.payfuraService.createReference(request, wallet_address, asset_transfer_method_id);
+    }
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {

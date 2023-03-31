@@ -45,6 +45,7 @@ export interface ConfigInterface {
     domain: string;
     prime_trust_url: string;
     koywe_url: string;
+    payfura_url: string;
   };
 
   queues: {
@@ -64,6 +65,11 @@ export interface ConfigInterface {
 
   koywe: {
     client_id: string;
+    secret: string;
+  };
+
+  payfura: {
+    key: string;
     secret: string;
   };
 
@@ -146,6 +152,7 @@ export default (): ConfigInterface => ({
     domain: process.env.APP_DOMAIN,
     prime_trust_url: process.env.PRIME_TRUST_URL,
     koywe_url: process.env.KOYWE_URL,
+    payfura_url: process.env.PAYFURA_URL,
   },
   queues: {
     user_registration: {
@@ -184,5 +191,9 @@ export default (): ConfigInterface => ({
     id: process.env.ASSET_ID,
     type: process.env.ASSET_TYPE,
     short: process.env.ASSET_SHORT,
+  },
+  payfura: {
+    key: process.env.PAYFURA_KEY,
+    secret: process.env.PAYFURA_SECRET,
   },
 });
