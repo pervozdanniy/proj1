@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { CountryModule } from '../country/country.module';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
+import { InswitchAccountEntity } from './entities/inswitch/inswitch-account.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
 import { ContributionEntity } from './entities/prime_trust/contribution.entity';
@@ -24,6 +25,8 @@ import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { CurrencyService } from './services/currency.service';
+import { InswitchApiService } from './services/inswitch/api.service';
+import { InswitchService } from './services/inswitch/inswitch.service';
 import { KoyweService } from './services/koywe/koywe.service';
 import { KoyweBankAccountManager } from './services/koywe/managers/koywe-bank-account.manager';
 import { KoyweDepositManager } from './services/koywe/managers/koywe-deposit.manager';
@@ -65,6 +68,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       TransfersEntity,
       BankAccountEntity,
       DepositParamsEntity,
+      InswitchAccountEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
   ],
@@ -95,6 +99,8 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     USPaymentGateway,
     ChilePaymentGateway,
     CurrencyService,
+    InswitchApiService,
+    InswitchService,
   ],
   controllers: [PaymentGatewayController],
   exports: [PaymentGatewayService, CurrencyService],
