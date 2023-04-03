@@ -45,7 +45,7 @@ export class PeruPaymentGateway
     if (type === 'wire') {
       return this.koyweService.createReference(request, wallet_address, asset_transfer_method_id);
     }
-    if (type === 'cash') {
+    if (type === 'cash' || type === 'credit_card') {
       return this.payfuraService.createReference(request, wallet_address, asset_transfer_method_id);
     }
   }
