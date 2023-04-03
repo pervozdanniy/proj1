@@ -18,7 +18,7 @@ import { PayfuraService } from '../../services/payfura/payfura.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
-export class ChilePaymentGateway
+export class MexicoPaymentGateway
   implements PaymentGatewayInterface, BankInterface, WireDepositInterface, WithdrawalInterface
 {
   constructor(
@@ -41,18 +41,14 @@ export class ChilePaymentGateway
 
   async createReference(request: CreateReferenceRequest): Promise<JsonData> {
     const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
-    const { type } = request;
-    if (type === 'wire') {
-      return this.koyweService.createReference(request, wallet_address, asset_transfer_method_id);
-    }
-    if (type === 'cash' || type === 'credit_card') {
-      return this.payfuraService.createReference(request, wallet_address, asset_transfer_method_id);
-    }
+
+    return this.payfuraService.createReference(request, wallet_address, asset_transfer_method_id);
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     const { id, amount } = request;
-    const wallet = await this.koyweService.makeWithdrawal(request);
+    //must be Liquido withdrawal logic
+    const wallet = 'wallet address from Liquido';
 
     return await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
   }

@@ -18,7 +18,7 @@ import { PayfuraService } from '../../services/payfura/payfura.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
-export class ChilePaymentGateway
+export class ColombiaPaymentGateway
   implements PaymentGatewayInterface, BankInterface, WireDepositInterface, WithdrawalInterface
 {
   constructor(
@@ -45,7 +45,7 @@ export class ChilePaymentGateway
     if (type === 'wire') {
       return this.koyweService.createReference(request, wallet_address, asset_transfer_method_id);
     }
-    if (type === 'cash' || type === 'credit_card') {
+    if (type === 'cash') {
       return this.payfuraService.createReference(request, wallet_address, asset_transfer_method_id);
     }
   }

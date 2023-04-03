@@ -123,7 +123,8 @@ export class PayfuraDepositManager {
     const formData = {
       order: {
         cfpmId: fiatId,
-        cryptoCurrencyId: 1,
+        //USDC id
+        cryptoCurrencyId: 7,
         fiatAmount: amount,
         walletAddress: wallet_address,
       },
@@ -155,11 +156,7 @@ export class PayfuraDepositManager {
       fiatResponse.data.response.forEach(
         (fiat: { country_code: string; payment_methods: [{ cfpm_id: number; type: string }] }) => {
           if (fiat.country_code === code) {
-            fiat.payment_methods.forEach((p) => {
-              if (p.type === 'Voucher') {
-                fiatId = p.cfpm_id;
-              }
-            });
+            fiatId = fiat.payment_methods[0].cfpm_id;
           }
         },
       );
