@@ -6,7 +6,6 @@ import { UserSourceEnum, UserStatusEnum } from '~common/constants/user';
 import { ChangePasswordTypes } from '~common/enum/change-password-types';
 import {
   changeEmail,
-  changePhone,
   finishRegistration,
   isChangeContactInfo,
   isPasswordReset,
@@ -147,7 +146,7 @@ export class AuthApiService {
     finishRegistration(session, user);
     const currentUser = await this.auth.getUserById(user.id);
 
-    await this.auth2FA.setEnabled([TwoFactorMethod.Email, TwoFactorMethod.Sms], finishRegistration(session, user));
+    await this.auth2FA.setEnabled([TwoFactorMethod.Email /* TwoFactorMethod.Sms */], finishRegistration(session, user));
 
     return currentUser;
   }
@@ -158,9 +157,10 @@ export class AuthApiService {
     if (payload.email) {
       user = await this.auth.findByEmail(payload.email);
       method = TwoFactorMethod.Email;
-    } else if (payload.phone) {
-      user = await this.auth.findByPhone(payload.phone);
-      method = TwoFactorMethod.Sms;
+
+      // } else if (payload.phone) {
+      //   user = await this.auth.findByPhone(payload.phone);
+      //   method = TwoFactorMethod.Sms;
     } else {
       throw new BadRequestException('Phone or email should be specified');
     }
@@ -202,10 +202,10 @@ export class AuthApiService {
     let method: TwoFactorMethod;
     if (type === ChangePasswordTypes.EMAIL) {
       method = TwoFactorMethod.Email;
-    } else if (type === ChangePasswordTypes.PHONE) {
-      method = TwoFactorMethod.Sms;
+      // } else if (type === ChangePasswordTypes.PHONE) {
+      //   method = TwoFactorMethod.Sms;
     } else {
-      throw new BadRequestException('Phone or email should be specified');
+      throw new BadRequestException('Email should be specified');
     }
 
     this.auth2FA.requireOne(method, resetPassword(session));
@@ -270,11 +270,11 @@ export class AuthApiService {
 
       return { type: 'Change email confirmation', methods: [TwoFactorMethod.Email] };
     }
-    if (payload.phone) {
-      this.auth2FA.requireOne(TwoFactorMethod.Sms, changePhone(session, payload.phone));
-
-      return { type: 'Change phone confirmation', methods: [TwoFactorMethod.Sms] };
-    }
+    // if (payload.phone) {
+    //   this.auth2FA.requireOne(TwoFactorMethod.Sms, changePhone(session, payload.phone));
+    //
+    //   return { type: 'Change phone confirmation', methods: [TwoFactorMethod.Sms] };
+    // }
 
     throw new BadRequestException('Invalid payload');
   }

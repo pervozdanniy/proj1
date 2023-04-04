@@ -58,6 +58,8 @@ export class JwtSessionGuard extends BaseGuard {
       );
     }
     if (options.requireRegistration && !isRegistration(session)) {
+      console.log(session);
+
       throw new ConflictException({ message: "You haven't started registration process" });
     }
     if (options.requirePasswordReset && !isPasswordReset(session)) {
