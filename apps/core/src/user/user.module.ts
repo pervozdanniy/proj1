@@ -1,6 +1,5 @@
 import { CountryModule } from '@/country/country.module';
 import dbConfig from '@/db/db.config';
-import { UserCheckService } from '@/user/services/user-check.service';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -19,7 +18,7 @@ import { UserService } from './services/user.service';
     CountryModule,
     TypeOrmModule.forFeature([UserEntity, UserContactEntity, UserDetailsEntity]),
   ],
-  providers: [UserService, UserContactService, UserCheckService],
+  providers: [UserService, UserContactService],
 
   exports: [UserService, UserContactService],
 })

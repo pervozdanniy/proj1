@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -9,6 +9,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import { Request } from 'express';
 import {
   AgreementResponseDto,
   SuccessResponseDto,
@@ -27,6 +28,7 @@ import {
   RegistrationStartRequestDto,
   RegistrationVerifyRequestDto,
 } from '../dto/registration.dto';
+import { IpqualityScoreService } from '../services/ipquality-score.service';
 import { RegistrationService } from '../services/registration.service';
 
 @ApiTags('Auth')
@@ -35,13 +37,18 @@ import { RegistrationService } from '../services/registration.service';
   path: 'auth/registration',
 })
 export class RegistrationController {
-  constructor(private readonly registerService: RegistrationService) {}
+  constructor(
+    private readonly registerService: RegistrationService,
+    private readonly ipqualityScoreService: IpqualityScoreService,
+  ) {}
 
   @ApiOperation({ summary: 'Check if user is unique and start session' })
   @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')
-  start(@Body() payload: RegistrationStartRequestDto) {
+  async start(@Body() payload: RegistrationStartRequestDto, @Req() request: Request) {
+    await this.ipqualityScoreService.checkUserData(payload, request);
+
     return this.registerService.start(payload);
   }
 
