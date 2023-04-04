@@ -15,8 +15,14 @@ import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/paymen
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
-import { KoyweMainManager } from './koywe-main.manager';
+import { KoyweMainManager, KoywePaymentMethod } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
+
+export type KoyweReferenceParams = {
+  wallet_address: string;
+  asset_transfer_method_id: string;
+  method?: KoywePaymentMethod;
+};
 
 @Injectable()
 export class KoyweDepositManager {
@@ -41,10 +47,11 @@ export class KoyweDepositManager {
 
   async createReference(
     depositParams: CreateReferenceRequest,
-    wallet_address: string,
-    asset_transfer_method_id: string,
+    transferParams: KoyweReferenceParams,
   ): Promise<JsonData> {
     const { amount: beforeConvertAmount, id } = depositParams;
+    const { wallet_address, asset_transfer_method_id } = transferParams;
+
     const userDetails = await this.userService.getUserInfo(id);
     await this.koyweTokenManager.getToken(userDetails.email);
     const { currency_type } = countriesData[userDetails.country_code];
@@ -57,7 +64,7 @@ export class KoyweDepositManager {
 
     const amount = String(convertedAmount.toFixed(2));
 
-    const { quoteId } = await this.createQuote(amount, currency_type);
+    const { quoteId } = await this.createQuote({ amount, currency: currency_type, method: transferParams.method });
     const { orderId, providedAddress } = await this.createOrder(quoteId, userDetails.email, wallet_address);
     const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
     const fee = String(networkFee + koyweFee);
@@ -83,22 +90,21 @@ export class KoyweDepositManager {
       email: parts[4],
       amount,
       currency_type,
+      asset_transfer_method_id,
+      wallet_address,
     };
-
-    data.asset_transfer_method_id = asset_transfer_method_id;
-    data.wallet_address = wallet_address;
 
     return { data: JSON.stringify([data]) };
   }
 
-  async createQuote(amount: string, currency_type: string): Promise<KoyweQuote> {
+  async createQuote(params: { amount: string; currency: string; method?: KoywePaymentMethod }): Promise<KoyweQuote> {
     try {
-      const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(currency_type);
+      const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(params.currency, params.method);
 
       const formData = {
-        symbolIn: currency_type,
+        symbolIn: params.currency,
         symbolOut: this.asset,
-        amountIn: amount,
+        amountIn: params.amount,
         paymentMethodId,
         executable: true,
       };
