@@ -38,8 +38,8 @@ export class Auth2FAService {
     switch (method) {
       case TwoFactorMethod.Email:
         return user.email;
-      case TwoFactorMethod.Sms:
-        return user.phone;
+      // case TwoFactorMethod.Sms:
+      //   return user.phone;
     }
   }
 
@@ -48,7 +48,8 @@ export class Auth2FAService {
       throw new ConflictException('Registration process was not started');
     }
 
-    const settings = [{ method: TwoFactorMethod.Sms, destination: session.register.phone }];
+    //  const settings = [{ method: TwoFactorMethod.Sms, destination: session.register.phone }];
+    const settings = [];
     if (!registerIsSocial(session)) {
       settings.push({ method: TwoFactorMethod.Email, destination: session.register.email });
     }

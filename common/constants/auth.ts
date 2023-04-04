@@ -1,5 +1,5 @@
 export enum TwoFactorMethod {
-  Sms = 'sms',
+  //  Sms = 'sms',
   Email = 'email',
 }
 

@@ -1,4 +1,4 @@
 export enum ChangePasswordTypes {
-  PHONE = 'phone',
+  //  PHONE = 'phone',
   EMAIL = 'email',
 }
