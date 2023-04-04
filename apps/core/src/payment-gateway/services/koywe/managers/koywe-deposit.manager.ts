@@ -21,6 +21,7 @@ import { KoyweTokenManager } from './koywe-token.manager';
 @Injectable()
 export class KoyweDepositManager {
   private readonly koywe_url: string;
+  private readonly asset: string;
   constructor(
     private readonly httpService: HttpService,
     private readonly koyweTokenManager: KoyweTokenManager,
@@ -33,6 +34,8 @@ export class KoyweDepositManager {
     @InjectRedis() private readonly redis: Redis,
   ) {
     const { koywe_url } = config.get('app');
+    const { short } = config.get('asset');
+    this.asset = short;
     this.koywe_url = koywe_url;
   }
 
@@ -94,7 +97,7 @@ export class KoyweDepositManager {
 
       const formData = {
         symbolIn: currency_type,
-        symbolOut: 'USDC',
+        symbolOut: this.asset,
         amountIn: amount,
         paymentMethodId,
         executable: true,
