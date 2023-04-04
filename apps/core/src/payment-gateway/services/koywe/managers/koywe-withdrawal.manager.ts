@@ -22,6 +22,7 @@ import { KoyweTokenManager } from './koywe-token.manager';
 @Injectable()
 export class KoyweWithdrawalManager {
   private readonly koywe_url: string;
+  private readonly asset: string;
   constructor(
     private readonly koyweTokenManager: KoyweTokenManager,
 
@@ -38,6 +39,8 @@ export class KoyweWithdrawalManager {
     config: ConfigService<ConfigInterface>,
   ) {
     const { koywe_url } = config.get('app');
+    const { short } = config.get('asset');
+    this.asset = short;
     this.koywe_url = koywe_url;
   }
 
@@ -58,9 +61,9 @@ export class KoyweWithdrawalManager {
     const { currency_type } = countries[country_code];
 
     const convertData = await lastValueFrom(
-      this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=USDC`),
+      this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${this.asset}`),
     );
-    const convertedAmount = parseFloat(beforeConvertAmount) * parseFloat(convertData.data['USDC']);
+    const convertedAmount = parseFloat(beforeConvertAmount) * parseFloat(convertData.data[`${this.asset}`]);
 
     const amount = String(convertedAmount.toFixed(2));
     const { quoteId } = await this.createQuote(amount, currency_type);
@@ -88,7 +91,7 @@ export class KoyweWithdrawalManager {
       const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(currency_type);
 
       const formData = {
-        symbolIn: 'USDC',
+        symbolIn: this.asset,
         symbolOut: currency_type,
         amountIn: amount,
         paymentMethodId,

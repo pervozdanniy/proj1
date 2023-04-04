@@ -18,7 +18,7 @@ import { PayfuraService } from '../../services/payfura/payfura.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
-export class ChilePaymentGateway
+export class PeruPaymentGateway
   implements PaymentGatewayInterface, BankInterface, WireDepositInterface, WithdrawalInterface
 {
   constructor(

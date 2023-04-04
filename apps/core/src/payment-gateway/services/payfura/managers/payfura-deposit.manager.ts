@@ -20,6 +20,7 @@ export class PayfuraDepositManager {
   private readonly payfura_url: string;
   private readonly payfura_key: string;
   private readonly payfura_secret: string;
+  private readonly asset: string;
   constructor(
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
@@ -30,9 +31,11 @@ export class PayfuraDepositManager {
   ) {
     const { payfura_url } = config.get('app');
     const { key, secret } = config.get('payfura');
+    const { short } = config.get('asset');
     this.payfura_key = key;
     this.payfura_secret = secret;
     this.payfura_url = payfura_url;
+    this.asset = short;
   }
 
   async createReference(
@@ -120,10 +123,11 @@ export class PayfuraDepositManager {
 
   async createOrder(amount: string, wallet_address: string, userId: string, country_code: string): Promise<string> {
     const fiatId = await this.getFiatCurrencies(country_code);
+    const cryptoId = await this.getCryptoCurrency(this.asset);
     const formData = {
       order: {
         cfpmId: fiatId,
-        cryptoCurrencyId: 1,
+        cryptoCurrencyId: cryptoId,
         fiatAmount: amount,
         walletAddress: wallet_address,
       },
@@ -155,11 +159,7 @@ export class PayfuraDepositManager {
       fiatResponse.data.response.forEach(
         (fiat: { country_code: string; payment_methods: [{ cfpm_id: number; type: string }] }) => {
           if (fiat.country_code === code) {
-            fiat.payment_methods.forEach((p) => {
-              if (p.type === 'Voucher') {
-                fiatId = p.cfpm_id;
-              }
-            });
+            fiatId = fiat.payment_methods[0].cfpm_id;
           }
         },
       );
@@ -197,5 +197,26 @@ export class PayfuraDepositManager {
     } catch (e) {
       throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
     }
+  }
+
+  async getCryptoCurrency(type: string) {
+    let currencyId: number;
+    try {
+      const fiatResponse = await lastValueFrom(
+        this.httpService.get(`${this.payfura_url}/v1/partner/crypto_currencies`),
+      );
+
+      fiatResponse.data.response.forEach((crypto: { id: number; code: string; network: string }) => {
+        if (crypto.code === type && crypto.network === 'xlm') {
+          currencyId = crypto.id;
+        }
+      });
+    } catch (e) {
+      this.logger.error(e.response.data);
+
+      throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
+    }
+
+    return currencyId;
   }
 }

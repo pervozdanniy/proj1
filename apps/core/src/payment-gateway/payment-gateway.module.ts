@@ -19,7 +19,12 @@ import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
 import { TransfersEntity } from './entities/transfers.entity';
+import { ArgentinaPaymentGateway } from './manager/countries/argentina-payment.gateway';
+import { BrazilPaymentGateway } from './manager/countries/brazil-payment.gateway';
 import { ChilePaymentGateway } from './manager/countries/chile-payment.gateway';
+import { ColombiaPaymentGateway } from './manager/countries/colombia-payment.gateway';
+import { MexicoPaymentGateway } from './manager/countries/mexico-payment.gateway';
+import { PeruPaymentGateway } from './manager/countries/peru-payment.gateway';
 import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
@@ -100,6 +105,11 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PrimeAssetsManager,
     USPaymentGateway,
     ChilePaymentGateway,
+    PeruPaymentGateway,
+    MexicoPaymentGateway,
+    BrazilPaymentGateway,
+    ArgentinaPaymentGateway,
+    ColombiaPaymentGateway,
     CurrencyService,
   ],
   controllers: [PaymentGatewayController],
