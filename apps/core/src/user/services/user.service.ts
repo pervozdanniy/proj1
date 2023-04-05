@@ -1,4 +1,3 @@
-import { UserCheckService } from '@/user/services/user-check.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
@@ -18,7 +17,6 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(UserDetailsEntity)
     private userDetailsRepository: Repository<UserDetailsEntity>,
-    private userCheckService: UserCheckService,
     private countryService: CountryService,
   ) {}
 
@@ -27,8 +25,7 @@ export class UserService {
   }
 
   async create({ details, ...userData }: Omit<CreateRequestDto, 'contacts'>): Promise<UserEntity> {
-    const { country_code, source, phone, email } = userData;
-    await this.userCheckService.checkUserData(phone, email);
+    const { country_code, source } = userData;
 
     if (!source) {
       if (country_code === 'US' && details) {

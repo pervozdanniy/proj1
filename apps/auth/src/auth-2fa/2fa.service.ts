@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { TwoFactorConstraint } from '~common/constants/auth';
+import { TwoFactorConstraint, TwoFactorMethod } from '~common/constants/auth';
 import {
   confirm2FA,
   confirm2FAMethod,
@@ -12,7 +12,7 @@ import {
   SessionProxy,
 } from '~common/grpc-session';
 import { User } from '~common/grpc/interfaces/common';
-import { TwoFactorMethod, TwoFactorSettingsEntity } from '../entities/2fa_settings.entity';
+import { TwoFactorSettingsEntity } from '../entities/2fa_settings.entity';
 import { Notifier2FAService } from './notifier.service';
 
 @Injectable()
@@ -61,11 +61,16 @@ export class Auth2FAService {
     });
     this.notify.send(constraints, session.id);
 
+    if (registerIsSocial(session)) {
+      Object.assign(session, { twoFactor: { isVerified: true } });
+    }
+
     return settings.map((s) => s.method);
   }
 
   async requireIfEnabled(session: SessionProxy) {
-    const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
+    //temporary method: TwoFactorMethod.Email
+    const enabled = await this.settingsRepo.findBy({ user_id: session.user.id, method: TwoFactorMethod.Email });
     if (enabled.length) {
       const contstraints = this.generate(enabled);
       require2FA(session, {
