@@ -31,7 +31,9 @@ export class AuthService implements OnModuleInit {
   }
 
   async registerSocials(payload: RegisterSocialsUserDto) {
-    return this.authClient.registerSocials(payload);
+    const resp = await firstValueFrom(this.authClient.registerSocials(payload));
+
+    return this.auth2FA.validateAuthResponse(resp);
   }
 
   async closeAccount(sessionId: string) {
