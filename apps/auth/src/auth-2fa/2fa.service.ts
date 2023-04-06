@@ -38,8 +38,8 @@ export class Auth2FAService {
     switch (method) {
       case TwoFactorMethod.Email:
         return user.email;
-      // case TwoFactorMethod.Sms:
-      //   return user.phone;
+      case TwoFactorMethod.Sms:
+        return user.phone;
     }
   }
 
@@ -116,6 +116,7 @@ export class Auth2FAService {
 
   async enable(method: TwoFactorMethod, session: SessionProxy) {
     const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
+
     const codes = this.generate(enabled);
     if (enabled.findIndex((s) => s.method === method) >= 0) {
       throw new ConflictException(`Method ${method} is already enabled`);

@@ -18,6 +18,7 @@ export class BaseSettingsDto implements TwoFactorSettings {
 export class EnableRequestDto implements TwoFactorEnableRequest {
   @IsNotEmpty()
   @ValidateNested()
+  @Type(() => BaseSettingsDto)
   settings: BaseSettingsDto;
 }
 
