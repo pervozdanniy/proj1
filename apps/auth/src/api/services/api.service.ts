@@ -146,7 +146,14 @@ export class AuthApiService {
     finishRegistration(session, user);
     const currentUser = await this.auth.getUserById(user.id);
 
-    await this.auth2FA.setEnabled([TwoFactorMethod.Email /* TwoFactorMethod.Sms */], finishRegistration(session, user));
+    if (currentUser.source === UserSourceEnum.Api) {
+      await this.auth2FA.setEnabled(
+        [TwoFactorMethod.Email /* TwoFactorMethod.Sms */],
+        finishRegistration(session, user),
+      );
+    } else {
+      await this.auth2FA.setEnabled([], finishRegistration(session, user));
+    }
 
     return currentUser;
   }
