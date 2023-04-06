@@ -101,7 +101,7 @@ export class TwoFactorService implements OnModuleInit {
           access_token: access_token,
           methods: verify.methods,
         },
-        428,
+        HttpStatus.PRECONDITION_REQUIRED,
       );
     }
 

@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, ValidateNested } from 'class-validator';
 import { TwoFactorMethod } from '~common/constants/auth';
 
 export class TwoFactorVerificationDto {
@@ -29,11 +29,6 @@ export class TwoFactorEnableRequestDto {
   @IsEnum(TwoFactorMethod)
   @ApiProperty({ enum: Object.values(TwoFactorMethod) })
   method: TwoFactorMethod;
-
-  @IsOptional()
-  @IsString()
-  @ApiProperty()
-  destination?: string;
 }
 
 export class TwoFactorDisableRequestDto {
