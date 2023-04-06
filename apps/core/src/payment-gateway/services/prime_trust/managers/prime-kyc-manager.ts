@@ -21,8 +21,14 @@ import process from 'process';
 import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { AccountIdRequest, ContactResponse, DocumentResponse } from '~common/grpc/interfaces/payment-gateway';
+import {
+  AccountIdRequest,
+  ContactResponse,
+  DocumentResponse,
+  SocureDocumentRequest,
+} from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { PrimeTrustSocureDocumentEntity } from '../../../entities/prime_trust/prime-trust-socure-document.entity';
 
 @Injectable()
 export class PrimeKycManager {
@@ -41,6 +47,9 @@ export class PrimeKycManager {
 
     @InjectRepository(PrimeTrustKycDocumentEntity)
     private readonly primeTrustKycDocumentEntityRepository: Repository<PrimeTrustKycDocumentEntity>,
+
+    @InjectRepository(PrimeTrustSocureDocumentEntity)
+    private readonly primeTrustSocureDocumentEntityRepository: Repository<PrimeTrustSocureDocumentEntity>,
   ) {
     const { prime_trust_url } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -407,5 +416,13 @@ export class PrimeKycManager {
       cip_cleared: contact.cip_cleared,
       identity_confirmed: contact.identity_confirmed,
     };
+  }
+
+  async createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
+    await this.primeTrustSocureDocumentEntityRepository.save(
+      this.primeTrustSocureDocumentEntityRepository.create(request),
+    );
+
+    return { success: true };
   }
 }

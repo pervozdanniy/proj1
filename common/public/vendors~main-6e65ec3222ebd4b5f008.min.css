@@ -1,0 +1,29 @@
+.socure-position-relative {
+    position: relative;
+}
+
+.socure-position-absolute {
+    position: absolute;
+}
+
+.socure-rounded-circle {
+    border-radius: 50%;
+}
+
+.socure-cursor-pointer {
+    cursor: pointer;
+}
+
+.socure-icon-button {
+    background: transparent;
+    border: none;
+    vertical-align: middle;
+}
+
+.socure-icon-button svg {
+    vertical-align: middle;
+}
+
+
+
+/*# sourceMappingURL=vendors~main-6e65ec3222ebd4b5f008.min.css.map*/

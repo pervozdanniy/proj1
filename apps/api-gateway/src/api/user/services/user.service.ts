@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
-import { SearchContactRequest, UpdateRequest, UserServiceClient, VerifyRequest } from '~common/grpc/interfaces/core';
+import { SearchContactRequest, UpdateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
 import { UpdateUserDto, UserContactsDto } from '../dtos/update-user.dto';
 import { S3Service } from './s3.service';
 
@@ -48,10 +48,6 @@ export class UserService implements OnModuleInit {
     const user = await firstValueFrom(this.userService.updateContacts({ user_id: id, contacts }));
 
     return this.withUrl(user);
-  }
-
-  verifySocure(data: VerifyRequest) {
-    return lastValueFrom(this.userService.verifySocure(data));
   }
 
   getContacts(data: SearchContactRequest) {

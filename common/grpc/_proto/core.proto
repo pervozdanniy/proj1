@@ -10,8 +10,6 @@ import public "notification.proto";
 service UserService {
   rpc GetById (common.IdRequest) returns (common.User);
 
-  rpc VerifySocure(VerifyRequest) returns (common.SuccessResponse);
-
   rpc FindByLogin (FindByLoginRequest) returns (NullableUser);
 
   rpc Create (CreateRequest) returns (common.User);
@@ -48,12 +46,6 @@ message SearchContactRequest {
   uint32 search_after = 2;
   uint32 limit = 3;
   optional string search_term = 4;
-}
-
-message VerifyRequest {
-  uint32 id = 1;
-  bool socure_verify = 2;
-  string document_uuid = 3;
 }
 
 message NullableUser {

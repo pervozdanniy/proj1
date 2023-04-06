@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
-import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { ContactsResponse, SearchContactRequest, VerifyRequest } from '~common/grpc/interfaces/core';
+import { ContactsResponse, SearchContactRequest } from '~common/grpc/interfaces/core';
 import { CountryService } from '../../country/country.service';
 import { FindRequestDto } from '../dto/find.request.dto';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
@@ -87,13 +86,6 @@ export class UserService {
     const count = await this.userRepository.countBy([{ email }, { phone }]);
 
     return count === 0;
-  }
-
-  async verifySocure(payload: VerifyRequest): Promise<SuccessResponse> {
-    const { id, document_uuid, socure_verify } = payload;
-    await this.userDetailsRepository.update({ user_id: id }, { socure_verify, document_uuid });
-
-    return { success: true };
   }
 
   async getContacts(request: SearchContactRequest): Promise<ContactsResponse> {

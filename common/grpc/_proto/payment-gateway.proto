@@ -18,6 +18,7 @@ service PaymentGatewayService {
   rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
   rpc GetBalance (BalanceRequest) returns (BalanceResponse);
   rpc GetUserAccountStatus (common.IdRequest) returns (AccountStatusResponse);
+  rpc CreateSocureDocument(SocureDocumentRequest) returns (common.SuccessResponse);
 
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
@@ -51,6 +52,16 @@ service PaymentGatewayService {
   rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
   rpc PayfuraWebhooksHandler (PayfuraWebhookRequest)   returns (common.SuccessResponse);
+}
+
+message SocureDocumentRequest {
+  uint32 user_id = 1;
+  string uuid = 2;
+  string label = 3;
+  string status = 4;
+  string document_number = 5;
+  string expiration_date = 6;
+  string issuing_date = 7;
 }
 
 

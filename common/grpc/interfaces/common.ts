@@ -15,6 +15,7 @@ export interface User {
   details?: UserDetails | undefined;
   contacts: User[];
   agreement?: UserAgreement | undefined;
+  country_code?: string | undefined;
 }
 
 export interface UserAgreement {

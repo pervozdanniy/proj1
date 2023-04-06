@@ -17,6 +17,7 @@ import {
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+import { SocureDocumentDto } from '../dtos/main/socure.document.dto';
 import { KoyweWebhookType, PayfuraWebhookType } from '../webhooks/data';
 
 @Injectable()
@@ -154,5 +155,9 @@ export class PaymentGatewayService implements OnModuleInit {
 
   payfuraHandler(payload: PayfuraWebhookType) {
     return lastValueFrom(this.paymentGatewayServiceClient.payfuraWebhooksHandler(payload));
+  }
+
+  createSocureDocument(payload: SocureDocumentDto) {
+    return lastValueFrom(this.paymentGatewayServiceClient.createSocureDocument(payload));
   }
 }

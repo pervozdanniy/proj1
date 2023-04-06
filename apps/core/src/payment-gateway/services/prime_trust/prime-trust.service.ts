@@ -10,6 +10,7 @@ import {
   DepositParamRequest,
   MakeDepositRequest,
   SearchTransactionRequest,
+  SocureDocumentRequest,
   TransferFundsRequest,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -165,5 +166,9 @@ export class PrimeTrustService {
 
   getUserAccountStatus(request: IdRequest) {
     return this.primeAccountManager.getUserAccountStatus(request);
+  }
+
+  createSocureDocument(request: SocureDocumentRequest) {
+    return this.primeKycManager.createSocureDocument(request);
   }
 }

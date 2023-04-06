@@ -27,6 +27,7 @@ import {
   PaymentMethodsResponse,
   PG_Token,
   SearchTransactionRequest,
+  SocureDocumentRequest,
   TransactionResponse,
   TransferFundsRequest,
   TransferFundsResponse,
@@ -43,6 +44,9 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
+    return this.webhooksService.createSocureDocument(request);
+  }
   payfuraWebhooksHandler(request: PayfuraWebhookRequest): Promise<SuccessResponse> {
     return this.webhooksService.payfuraWebhooksHandler(request);
   }
