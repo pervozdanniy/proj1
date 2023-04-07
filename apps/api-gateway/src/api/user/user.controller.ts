@@ -17,9 +17,11 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import { ConfigInterface } from '~common/config/configuration';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '../auth';
 import { ContactsResponseDto } from '../utils/contacts.dto';
@@ -36,14 +38,18 @@ import { UserService } from './services/user.service';
 })
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  private readonly socure_sdk: string;
+  constructor(config: ConfigService<ConfigInterface>, private readonly userService: UserService) {
+    const { socure_sdk } = config.get('prime_trust');
+    this.socure_sdk = socure_sdk;
+  }
 
   @Get('socure')
   @Render('index')
   async root(@Query() { user_id }: UserIdDto) {
     const user = await this.userService.getById(user_id);
 
-    return { user };
+    return { user, socure_sdk: this.socure_sdk };
   }
 
   @Get('socure/kyc')

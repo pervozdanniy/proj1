@@ -32038,6 +32038,7 @@ var isPhoneNumberValid = function (phoneNumber) {
     var validPhoneNumber = false;
     if (phoneNumber) {
         var E164StandardRegEx = /^\+(1)[\0-9]{1,16}$/gm;
+      //  var E164StandardRegEx = /^\+(?:[0-9] ?){6,14}[0-9]$/;
         var cleanedPhoneNumber = phoneNumber.trim();
         validPhoneNumber = E164StandardRegEx.test(cleanedPhoneNumber);
     }

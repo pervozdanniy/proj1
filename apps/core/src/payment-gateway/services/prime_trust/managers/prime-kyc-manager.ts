@@ -5,7 +5,6 @@ import { PrimeTrustKycDocumentEntity } from '@/payment-gateway/entities/prime_tr
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import {
-  CipCheckType,
   ContactType,
   DocumentCheckType,
   DocumentDataType,
@@ -17,7 +16,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import FormData from 'form-data';
-import process from 'process';
 import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
@@ -180,31 +178,6 @@ export class PrimeKycManager {
         url: `${this.prime_trust_url}/v2/kyc-document-checks`,
         data: formData,
       });
-
-      const contactData = await this.httpService.request({
-        method: 'get',
-        url: `${this.prime_trust_url}/v2/contacts/${contact_uuid}?include=cip-checks`,
-      });
-
-      //document verify from development
-      if (process.env.NODE_ENV === 'dev') {
-        // await this.httpService.request({
-        //   method: 'post',
-        //   url: `${this.prime_trust_url}/v2/kyc-document-checks/${result.data.data.id}/sandbox/verify`,
-        //   data: null,
-        // });
-
-        // approve cip for development
-        contactData.data.included.map(async (inc: CipCheckType) => {
-          if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
-            await this.httpService.request({
-              method: 'post',
-              url: `${this.prime_trust_url}/v2/cip-checks/${inc.id}/sandbox/approve`,
-              data: null,
-            });
-          }
-        });
-      }
 
       return result.data;
     } catch (e) {
@@ -419,9 +392,14 @@ export class PrimeKycManager {
   }
 
   async createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
-    await this.primeTrustSocureDocumentEntityRepository.save(
-      this.primeTrustSocureDocumentEntityRepository.create(request),
-    );
+    const { uuid, user_id } = request;
+    const document = await this.primeTrustSocureDocumentEntityRepository.findOneBy({ uuid });
+    if (!document) {
+      await this.primeTrustSocureDocumentEntityRepository.save(
+        this.primeTrustSocureDocumentEntityRepository.create(request),
+      );
+      await this.notificationService.sendWs(user_id, 'socure', 'Document successfully uploaded!', 'Socure document');
+    }
 
     return { success: true };
   }
