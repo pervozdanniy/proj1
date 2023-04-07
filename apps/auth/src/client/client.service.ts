@@ -80,9 +80,7 @@ export class ClientService {
       user.source === client.name &&
       (client.is_secure || (await bcrypt.compare(payload.password, user.password)))
     ) {
-      const token = await this.auth.login(user, session);
-
-      return { access_token: token };
+      return this.auth.login(user, session);
     }
 
     throw new UnauthorizedException();
