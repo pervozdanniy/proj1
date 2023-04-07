@@ -74,6 +74,9 @@ export class PublicUserDto implements User {
   source: string;
 
   contacts: User[];
+
+  @ApiProperty()
+  country_code: string;
 }
 
 class ContactDto extends PublicUserDto {

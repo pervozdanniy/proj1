@@ -6,6 +6,7 @@ export class UserResponseDto implements User {
   email: string;
   phone: string;
   password: string;
+  country_code: string;
 
   @Type(() => Date)
   @Transform(({ value }) => value?.toString(), { toClassOnly: true })

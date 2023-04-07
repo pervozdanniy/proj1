@@ -12,9 +12,10 @@ message User {
     optional string phone = 8;
     optional string email_verified_at = 9;
     optional string source = 10;
-    optional UserDetails details = 11;
-    repeated User contacts = 12;
-    optional UserAgreement agreement = 13;
+    string country_code = 11;
+    optional UserDetails details = 12;
+    repeated User contacts = 13;
+    optional UserAgreement agreement = 14;
 }
 
 message UserAgreement {

@@ -30,6 +30,9 @@ export class PublicUserDto implements User {
   @Exclude()
   source: string;
 
+  @ApiProperty()
+  country_code: string;
+
   contacts: User[];
 }
 

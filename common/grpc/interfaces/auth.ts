@@ -125,7 +125,7 @@ export interface ApproveAgreementRequest {
 
 export interface ResetPasswordStartRequest {
   email?: string | undefined;
- // phone?: string | undefined;
+  phone?: string | undefined;
 }
 
 export interface ResetPasswordFinishRequest {
