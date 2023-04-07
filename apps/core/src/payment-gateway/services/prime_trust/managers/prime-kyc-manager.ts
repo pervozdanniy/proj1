@@ -4,12 +4,7 @@ import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustKycDocumentEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
-import {
-  ContactType,
-  DocumentCheckType,
-  DocumentDataType,
-  FileType,
-} from '@/payment-gateway/types/prime-trust';
+import { ContactType, DocumentCheckType, DocumentDataType, FileType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';

@@ -2,7 +2,7 @@ import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { PrimeKycManager } from '@/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
-import {AccountType, ContactType} from '@/payment-gateway/types/prime-trust';
+import { AccountType, ContactType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -15,7 +15,7 @@ import { AccountResponse, AccountStatusResponse, AgreementRequest } from '~commo
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryService } from '../../../../country/country.service';
 import { UserService } from '../../../../user/services/user.service';
-import {PrimeTrustSocureDocumentEntity} from "../../../entities/prime_trust/prime-trust-socure-document.entity";
+import { PrimeTrustSocureDocumentEntity } from '../../../entities/prime_trust/prime-trust-socure-document.entity';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -50,7 +50,7 @@ export class PrimeAccountManager {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
     }
 
-    let formData = {
+    const formData = {
       data: {
         type: 'account',
         attributes: {
@@ -58,7 +58,7 @@ export class PrimeAccountManager {
           name: `${userDetails.details.first_name} ${userDetails.details.last_name}s Account`,
           'authorized-signature': `Signature ${userDetails.email}`,
           owner: {
-            'socure-document-id':"",
+            'socure-document-id': '',
             'contact-type': 'natural_person',
             name: `${userDetails.details.first_name} ${userDetails.details.last_name}`,
             email: `${userDetails.email}`,
@@ -82,9 +82,12 @@ export class PrimeAccountManager {
       },
     };
 
-    const socureDocument = await this.primeTrustSocureDocumentEntityRepository.findOneBy({user_id:userDetails.id,status:'VERIFICATION_COMPLETE'})
-    if(socureDocument){
-      formData.data.attributes.owner["socure-document-id"] = socureDocument.uuid;
+    const socureDocument = await this.primeTrustSocureDocumentEntityRepository.findOneBy({
+      user_id: userDetails.id,
+      status: 'VERIFICATION_COMPLETE',
+    });
+    if (socureDocument) {
+      formData.data.attributes.owner['socure-document-id'] = socureDocument.uuid;
     }
     try {
       const accountResponse = await this.httpService.request({
