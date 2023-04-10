@@ -11,18 +11,18 @@ import { ApiGatewayModule } from './api-gateway.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(ApiGatewayModule, { rawBody: true });
-  const configPath = app.get(ConfigService<ConfigInterface>);
+  const config = app.get(ConfigService<ConfigInterface>);
   sentryInit();
 
-  const config = new DocumentBuilder()
+  const swaggerConfig = new DocumentBuilder()
     .setTitle('Skopa Services API')
     .setDescription('Skopa Services microservice API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
 
-  app.useStaticAssets(join(configPath.get('basePath'), 'apps/api-gateway/static/public'));
-  app.setBaseViewsDir(join(configPath.get('basePath'), 'apps/api-gateway/static/views'));
+  app.useStaticAssets(join(config.get('basePath'), 'apps/api-gateway/static/public'));
+  app.setBaseViewsDir(join(config.get('basePath'), 'apps/api-gateway/static/views'));
   app.setViewEngine('hbs');
 
   const validationOptions: ValidationPipeOptions = {
@@ -37,7 +37,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(app.get(ClassSerializerInterceptor));
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: {
       docExpansion: 'none',
