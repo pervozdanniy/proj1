@@ -57,6 +57,9 @@ export class PrimeAccountManager {
           'account-type': 'custodial',
           name: `${userDetails.details.first_name} ${userDetails.details.last_name}s Account`,
           'authorized-signature': `Signature ${userDetails.email}`,
+          'webhook-config': {
+            url: `${this.app_domain}/webhook/prime_trust`,
+          },
           owner: {
             'contact-type': 'natural_person',
             name: `${userDetails.details.first_name} ${userDetails.details.last_name}`,
@@ -100,9 +103,6 @@ export class PrimeAccountManager {
         data: formData,
       });
 
-      //hang webhook on account
-      await this.hangWebhook(userDetails, accountResponse.data.data.id);
-
       //create contact after creating account
       const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
 
@@ -114,6 +114,8 @@ export class PrimeAccountManager {
       const contactData = contactResponse.data.data.filter((contact: ContactType) => {
         return contact.attributes['account-id'] === account.uuid;
       });
+
+      await this.primeKycManager.saveContact(contactData.pop(), account.user_id);
 
       // if (process.env.NODE_ENV === 'dev') {
       //
@@ -133,8 +135,6 @@ export class PrimeAccountManager {
       //     }
       //   });
       // }
-
-      await this.primeKycManager.saveContact(contactData.pop(), account.user_id);
 
       // account open from development
       // if (process.env.NODE_ENV === 'dev') {
@@ -158,24 +158,6 @@ export class PrimeAccountManager {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
     }
-  }
-
-  async hangWebhook(userDetails: UserEntity, account_id: string) {
-    // hang webhook on account
-    await this.httpService.request({
-      method: 'post',
-      url: `${this.prime_trust_url}/v2/webhook-configs`,
-      data: {
-        data: {
-          type: 'webhook-configs',
-          attributes: {
-            'contact-email': userDetails.email,
-            url: `${this.app_domain}/webhook/prime_trust`,
-            'account-id': account_id,
-          },
-        },
-      },
-    });
   }
 
   async saveAccount(accountData: AccountType, user_id: number): Promise<PrimeTrustAccountEntity> {
