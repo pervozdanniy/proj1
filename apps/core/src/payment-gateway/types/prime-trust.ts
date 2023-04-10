@@ -107,7 +107,7 @@ export type CreateAccountType = {
         'primary-address': {
           'street-1': string;
           'postal-code': string;
-          region?: string;
+          region?: string | null;
           city: string;
           country: string;
         };

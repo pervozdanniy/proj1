@@ -56,7 +56,7 @@ export class PrimeAccountManager {
         attributes: {
           'account-type': 'custodial',
           name: `${userDetails.details.first_name} ${userDetails.details.last_name}s Account`,
-          'authorized-signature': `Signature ${userDetails.email}`,
+          'authorized-signature': `Signature`,
           'webhook-config': {
             url: `${this.app_domain}/webhook/prime_trust`,
           },
@@ -82,7 +82,7 @@ export class PrimeAccountManager {
         },
       },
     };
-    if (userDetails.country_code == 'US') {
+    if (userDetails.country_code === 'US') {
       formData.data.attributes.owner['primary-address']['region'] = `${userDetails.details.region}`;
     }
 
