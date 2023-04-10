@@ -115,8 +115,6 @@ export class PrimeAccountManager {
         return contact.attributes['account-id'] === account.uuid;
       });
 
-      console.log(contactData);
-
       // if (process.env.NODE_ENV === 'dev') {
       //
       //   const contactCipData = await this.httpService.request({
