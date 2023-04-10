@@ -116,14 +116,4 @@ export class SandboxGatewayController {
   async addAssets(@Body() payload: AddAssetDto) {
     return this.sandboxService.addAssets(payload);
   }
-
-  @ApiOperation({ summary: 'Add assets to account (for testing Ethereum)' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/assets/settle/withdrawal')
-  async settleAssetsWithdraw(@Body() payload: SettleWithdrawDto) {
-    return this.sandboxService.settleAssetsWithdraw(payload);
-  }
 }

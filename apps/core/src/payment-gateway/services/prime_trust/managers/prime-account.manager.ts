@@ -58,13 +58,13 @@ export class PrimeAccountManager {
           name: `${userDetails.details.first_name} ${userDetails.details.last_name}s Account`,
           'authorized-signature': `Signature ${userDetails.email}`,
           owner: {
-            'socure-document-id': '',
             'contact-type': 'natural_person',
             name: `${userDetails.details.first_name} ${userDetails.details.last_name}`,
             email: `${userDetails.email}`,
             'tax-id-number': `${userDetails.details.tax_id_number}`,
             'tax-country': `${userDetails.country_code}`,
             'date-of-birth': `${userDetails.details.date_of_birth}`,
+            'socure-document-id': '',
             'primary-phone-number': {
               country: `${userDetails.country_code}`,
               number: `${userDetails.phone}`,
@@ -81,6 +81,9 @@ export class PrimeAccountManager {
         },
       },
     };
+    if (userDetails.country_code !== 'US') {
+      delete formData.data.attributes.owner['primary-address'].region;
+    }
 
     const socureDocument = await this.primeTrustSocureDocumentEntityRepository.findOneBy({
       user_id: userDetails.id,
@@ -89,6 +92,7 @@ export class PrimeAccountManager {
     if (socureDocument) {
       formData.data.attributes.owner['socure-document-id'] = socureDocument.uuid;
     }
+
     try {
       const accountResponse = await this.httpService.request({
         method: 'post',
@@ -110,6 +114,8 @@ export class PrimeAccountManager {
       const contactData = contactResponse.data.data.filter((contact: ContactType) => {
         return contact.attributes['account-id'] === account.uuid;
       });
+
+      console.log(contactData);
 
       // if (process.env.NODE_ENV === 'dev') {
       //
@@ -133,13 +139,13 @@ export class PrimeAccountManager {
       await this.primeKycManager.saveContact(contactData.pop(), account.user_id);
 
       // account open from development
-      if (process.env.NODE_ENV === 'dev') {
-        await this.httpService.request({
-          method: 'post',
-          url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
-          data: null,
-        });
-      }
+      // if (process.env.NODE_ENV === 'dev') {
+      //   await this.httpService.request({
+      //     method: 'post',
+      //     url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
+      //     data: null,
+      //   });
+      // }
 
       return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
       //

@@ -74,8 +74,6 @@ export class RegistrationController {
   @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true, allowClosed: true })
   @Post('create/agreement')
   async createAgreement(@Body() payload: CreateAgreementRequestDto, @JwtSessionId() sessionId: string) {
-    console.log('asasas');
-
     return await this.registerService.createAgreement(payload, sessionId);
   }
 

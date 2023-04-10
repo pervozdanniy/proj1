@@ -387,13 +387,14 @@ export class PrimeKycManager {
   }
 
   async createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
-    const { uuid, user_id } = request;
-    const document = await this.primeTrustSocureDocumentEntityRepository.findOneBy({ uuid });
-    if (!document) {
+    const { user_id } = request;
+    try {
       await this.primeTrustSocureDocumentEntityRepository.save(
         this.primeTrustSocureDocumentEntityRepository.create(request),
       );
       await this.notificationService.sendWs(user_id, 'socure', 'Document successfully uploaded!', 'Socure document');
+    } catch (e) {
+      this.logger.log(e.message);
     }
 
     return { success: true };

@@ -17,7 +17,7 @@ export class PrimeTrustSocureDocumentEntity {
   @Column('integer')
   user_id: number;
 
-  @Column('character varying')
+  @Column('character varying', { unique: true })
   uuid: string;
 
   @Column('character varying', { nullable: true })
