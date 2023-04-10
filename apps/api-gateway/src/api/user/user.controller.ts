@@ -54,9 +54,7 @@ export class UserController {
 
   @Get('socure/kyc')
   @Render('kyc')
-  async kyc() {
-    return { message: 'Hello world!' };
-  }
+  async kyc() {}
   @ApiOperation({ summary: 'Get all contacts.' })
   @ApiResponse({
     status: HttpStatus.OK,
