@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsEmail,
   IsEnum,
   IsInt,
   IsISO31661Alpha2,
@@ -110,6 +111,10 @@ export class UpdateRequestDto implements UpdateRequest {
   @IsOptional()
   @IsString()
   username?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
 
   @IsOptional()
   @IsInt()
