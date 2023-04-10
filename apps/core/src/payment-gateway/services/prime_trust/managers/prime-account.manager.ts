@@ -2,7 +2,7 @@ import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { PrimeKycManager } from '@/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
-import { AccountType, ContactType } from '@/payment-gateway/types/prime-trust';
+import { AccountType, CipCheckType, ContactType, CreateAccountType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -50,7 +50,7 @@ export class PrimeAccountManager {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
     }
 
-    const formData = {
+    const formData: CreateAccountType = {
       data: {
         type: 'account',
         attributes: {
@@ -67,7 +67,6 @@ export class PrimeAccountManager {
             'tax-id-number': `${userDetails.details.tax_id_number}`,
             'tax-country': `${userDetails.country_code}`,
             'date-of-birth': `${userDetails.details.date_of_birth}`,
-            'socure-document-id': '',
             'primary-phone-number': {
               country: `${userDetails.country_code}`,
               number: `${userDetails.phone}`,
@@ -77,15 +76,14 @@ export class PrimeAccountManager {
               'street-1': `${userDetails.details.street}`,
               'postal-code': `${userDetails.details.postal_code}`,
               city: `${userDetails.details.city}`,
-              region: `${userDetails.details.region}`,
               country: `${userDetails.country_code}`,
             },
           },
         },
       },
     };
-    if (userDetails.country_code !== 'US') {
-      delete formData.data.attributes.owner['primary-address'].region;
+    if (userDetails.country_code == 'US') {
+      formData.data.attributes.owner['primary-address']['region'] = `${userDetails.details.region}`;
     }
 
     const socureDocument = await this.primeTrustSocureDocumentEntityRepository.findOneBy({
@@ -115,26 +113,25 @@ export class PrimeAccountManager {
         return contact.attributes['account-id'] === account.uuid;
       });
 
-      await this.primeKycManager.saveContact(contactData.pop(), account.user_id);
+      if (process.env.NODE_ENV === 'dev') {
+        const contactCipData = await this.httpService.request({
+          method: 'get',
+          url: `${this.prime_trust_url}/v2/contacts/${contactData[0].id}?include=cip-checks`,
+        });
 
-      // if (process.env.NODE_ENV === 'dev') {
-      //
-      //   const contactCipData = await this.httpService.request({
-      //     method: 'get',
-      //     url: `${this.prime_trust_url}/v2/contacts/${contactData[0].id}?include=cip-checks`,
-      //   });
-      //
-      //   // approve cip for development
-      //   contactCipData.data.included.map(async (inc: CipCheckType) => {
-      //     if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
-      //       await this.httpService.request({
-      //         method: 'post',
-      //         url: `${this.prime_trust_url}/v2/cip-checks/${inc.id}/sandbox/approve`,
-      //         data: null,
-      //       });
-      //     }
-      //   });
-      // }
+        // approve cip for development
+        contactCipData.data.included.map(async (inc: CipCheckType) => {
+          if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
+            await this.httpService.request({
+              method: 'post',
+              url: `${this.prime_trust_url}/v2/cip-checks/${inc.id}/sandbox/approve`,
+              data: null,
+            });
+          }
+        });
+      }
+
+      await this.primeKycManager.saveContact(contactData.pop(), account.user_id);
 
       // account open from development
       // if (process.env.NODE_ENV === 'dev') {
