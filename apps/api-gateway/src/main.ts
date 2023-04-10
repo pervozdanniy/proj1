@@ -21,8 +21,8 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  app.useStaticAssets(join(configPath.get('basePath'), 'common/public'));
-  app.setBaseViewsDir(join(configPath.get('basePath'), 'common/views'));
+  app.useStaticAssets(join(configPath.get('basePath'), 'apps/api-gateway/static/public'));
+  app.setBaseViewsDir(join(configPath.get('basePath'), 'apps/api-gateway/static/views'));
   app.setViewEngine('hbs');
 
   const validationOptions: ValidationPipeOptions = {
