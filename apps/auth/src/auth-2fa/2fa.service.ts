@@ -63,6 +63,7 @@ export class Auth2FAService {
 
     if (registerIsSocial(session)) {
       Object.assign(session, { twoFactor: { isVerified: true } });
+      await session.save();
     }
 
     return settings.map((s) => s.method);

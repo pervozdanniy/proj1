@@ -22,7 +22,7 @@ export class JwtClientGuard extends BaseGuard {
     }
     if (options.requireKYC) {
       const contact = await this.sdkPaymentGatewayService.getContact({ id: session.user.id });
-      if (!contact.identity_confirmed || !contact.proof_of_address_documents_verified || !contact.cip_cleared) {
+      if (!contact.identity_confirmed) {
         throw new ConflictException({ message: 'Please complete KYC verification!' });
       }
     }

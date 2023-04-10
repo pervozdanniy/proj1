@@ -98,17 +98,6 @@ export class PrimeAccountManager {
 
       //hang webhook on account
       await this.hangWebhook(userDetails, accountResponse.data.data.id);
-      //
-
-      // account open from development
-      // if (process.env.NODE_ENV === 'dev') {
-      //   await this.httpService.request({
-      //     method: 'post',
-      //     url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
-      //     data: null,
-      //   });
-      // }
-      //
 
       //create contact after creating account
       const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
@@ -117,6 +106,7 @@ export class PrimeAccountManager {
         method: 'get',
         url: `${this.prime_trust_url}/v2/contacts`,
       });
+
       const contactData = contactResponse.data.data.filter((contact: ContactType) => {
         return contact.attributes['account-id'] === account.uuid;
       });
@@ -142,10 +132,19 @@ export class PrimeAccountManager {
 
       await this.primeKycManager.saveContact(contactData.pop(), account.user_id);
 
+      // account open from development
+      if (process.env.NODE_ENV === 'dev') {
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
+          data: null,
+        });
+      }
+
       return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
       //
     } catch (e) {
-      this.logger.error(e.errors);
+      this.logger.error(e);
 
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();

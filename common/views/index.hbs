@@ -55,19 +55,22 @@
         qrCodeNeeded: true
     };
 
+    let country =  "{{user.country_code}}";
 
     let inputData =
             {
-                "customerUserId":"{{user.id}}",
                 "firstName": "{{user.details.first_name}}",
                 "surName":  "{{user.details.last_name}}",
                 "physicalAddress":  "{{user.details.street}}",
-                "state":  "{{user.details.region}}",
                 "zip":  "{{user.details.postal_code}}",
                 "city": "{{user.details.city}}",
                 "dob":  "{{user.details.date_of_birth}}",
                 "country":  "{{user.country_code}}"
             };
+
+    if(country === 'US'){
+        inputData["state"] = "{{user.details.region}}"
+    }
 
     console.log(inputData);
 

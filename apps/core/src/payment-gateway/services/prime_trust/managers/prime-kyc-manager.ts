@@ -303,9 +303,9 @@ export class PrimeKycManager {
         ...contact,
         ...data,
       });
-      let status = 'failed';
+      let status = false;
       if (data.identity_documents_verified) {
-        status = 'succeed';
+        status = true;
       }
 
       const notificationPayload = {
