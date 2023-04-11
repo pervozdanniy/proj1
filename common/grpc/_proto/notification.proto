@@ -1,8 +1,6 @@
 syntax = "proto3";
 
 package skopa.core;
-import "google/protobuf/empty.proto";
-
 
 service NotificationService {
   rpc List (NotificationRequest) returns (NotificationListResponse);

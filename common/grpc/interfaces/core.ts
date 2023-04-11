@@ -17,6 +17,7 @@ export interface Contact {
   phone: string;
   first_name: string;
   last_name: string;
+  avatar?: string | undefined;
 }
 
 export interface SearchContactRequest {
@@ -26,6 +27,24 @@ export interface SearchContactRequest {
   search_term?: string | undefined;
 }
 
+<<<<<<< HEAD
+=======
+export interface RecepientsRequest {
+  user_id: number;
+  limit: number;
+}
+
+export interface RecepientsResponse {
+  recepients: Contact[];
+}
+
+export interface VerifyRequest {
+  id: number;
+  socure_verify: boolean;
+  document_uuid: string;
+}
+
+>>>>>>> cee0e66 (SKOPA-507: added leatest recepients endpoint, fixed contacts and recepients to include avatar)
 export interface NullableUser {
   user?: User | undefined;
 }
@@ -90,6 +109,8 @@ export interface UserServiceClient {
   checkIfUnique(request: CheckIfUniqueRequest, ...rest: any): Observable<SuccessResponse>;
 
   getContacts(request: SearchContactRequest, ...rest: any): Observable<ContactsResponse>;
+
+  getLatestRecepients(request: RecepientsRequest, ...rest: any): Observable<RecepientsResponse>;
 }
 
 export interface UserServiceController {
@@ -117,6 +138,11 @@ export interface UserServiceController {
     request: SearchContactRequest,
     ...rest: any
   ): Promise<ContactsResponse> | Observable<ContactsResponse> | ContactsResponse;
+
+  getLatestRecepients(
+    request: RecepientsRequest,
+    ...rest: any
+  ): Promise<RecepientsResponse> | Observable<RecepientsResponse> | RecepientsResponse;
 }
 
 export function UserServiceControllerMethods() {
@@ -130,6 +156,7 @@ export function UserServiceControllerMethods() {
       "updateContacts",
       "checkIfUnique",
       "getContacts",
+      "getLatestRecepients",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
