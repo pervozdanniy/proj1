@@ -86,7 +86,7 @@ describe('AuthService (e2e)', () => {
 
       expect(payload).toHaveProperty('iat');
       expect(payload).toHaveProperty('exp');
-      expect(payload.exp - payload.iat).toBeGreaterThanOrEqual(365 * 24 * 60 * 60);
+      expect(payload.exp - payload.iat).toBeGreaterThanOrEqual(60 * 60);
 
       expect(payload).toHaveProperty('sub');
       expect(payload.sub).toEqual(mockUid);

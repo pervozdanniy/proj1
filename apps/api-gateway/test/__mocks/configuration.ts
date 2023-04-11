@@ -24,6 +24,8 @@ export default (): Partial<ConfigInterface> => ({
   },
   auth: {
     jwt: {
+      accessTokenTtl: 60 * 60,
+      refreshTokenTtl: 24 * 60 * 60,
       secret: 'jwt_sercret',
     },
   },

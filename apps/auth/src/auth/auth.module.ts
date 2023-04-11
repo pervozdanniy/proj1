@@ -24,6 +24,6 @@ import { TokenService } from './token.service';
     GrpcSessionModule,
   ],
   providers: [AuthService, TokenService],
-  exports: [AuthService, TokenService],
+  exports: [AuthService],
 })
 export class AuthModule {}
