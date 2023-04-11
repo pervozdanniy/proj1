@@ -6,6 +6,7 @@ import {
   confirm2FA,
   confirm2FAMethod,
   is2FA,
+  isChangeContactInfo,
   isRegistration,
   registerIsSocial,
   require2FA,
@@ -93,6 +94,14 @@ export class Auth2FAService {
   }
 
   requireOne(method: TwoFactorMethod, session: SessionProxy) {
+    if (isChangeContactInfo(session)) {
+      if (session.change.email) {
+        session.user.email = session.change.email;
+      }
+      if (session.change.phone) {
+        session.user.phone = session.change.phone;
+      }
+    }
     const destination = this.getDestination(method, session.user);
     const verify = this.generate([{ method, destination }]);
     require2FA(session, { verify, expiresAt: Date.now() + 15 * 60 * 60 * 1000 });
@@ -112,6 +121,22 @@ export class Auth2FAService {
       user_id: session.user.id,
     }));
     await this.settingsRepo.insert(entites);
+  }
+
+  async updateEnabled(session: SessionProxy) {
+    if (isChangeContactInfo(session)) {
+      let method;
+      let destination;
+      if (session.change.email) {
+        method = TwoFactorMethod.Email;
+        destination = session.user.email;
+      }
+      if (session.change.phone) {
+        method = TwoFactorMethod.Sms;
+        destination = session.user.phone;
+      }
+      await this.settingsRepo.update({ user_id: session.user.id, method }, { destination });
+    }
   }
 
   async enable(method: TwoFactorMethod, session: SessionProxy) {

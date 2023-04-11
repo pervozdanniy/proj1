@@ -293,6 +293,7 @@ export class AuthApiService {
     const res = await this.auth2FA.verifyOne(code, session);
     if (res.valid) {
       await this.auth.updateUser({ id: session.user.id, ...session.change });
+      await this.auth2FA.updateEnabled(session);
     }
 
     return res;
