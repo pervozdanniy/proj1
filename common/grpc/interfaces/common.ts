@@ -12,10 +12,10 @@ export interface User {
   phone?: string | undefined;
   email_verified_at?: string | undefined;
   source?: string | undefined;
-  country_code: string;
   details?: UserDetails | undefined;
   contacts: User[];
   agreement?: UserAgreement | undefined;
+  country_code?: string | undefined;
 }
 
 export interface UserAgreement {
@@ -35,8 +35,6 @@ export interface UserDetails {
   region?: string | undefined;
   send_type?: number | undefined;
   avatar?: string | undefined;
-  socure_verify?: boolean | undefined;
-  document_uuid?: string | undefined;
 }
 
 export interface IdRequest {

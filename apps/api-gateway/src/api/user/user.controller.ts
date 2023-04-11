@@ -13,20 +13,22 @@ import {
   Patch,
   Put,
   Query,
+  Render,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { SuccessResponse, User } from '~common/grpc/interfaces/common';
+import { ConfigInterface } from '~common/config/configuration';
+import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '../auth';
 import { ContactsResponseDto } from '../utils/contacts.dto';
 import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.dto';
-import { SuccessDto } from '../utils/success.dto';
 import { GetContactsDto } from './dtos/get-contacts.dto';
 import { UpdateUserDto, UserContactsDto } from './dtos/update-user.dto';
-import { VerifyUserDto } from './dtos/verify-user.dto';
+import { UserIdDto } from './dtos/user-id.dto';
 import { UserService } from './services/user.service';
 
 @ApiTags('User')
@@ -36,8 +38,23 @@ import { UserService } from './services/user.service';
 })
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  private readonly socure_sdk: string;
+  constructor(config: ConfigService<ConfigInterface>, private readonly userService: UserService) {
+    const { socure_sdk } = config.get('prime_trust');
+    this.socure_sdk = socure_sdk;
+  }
 
+  @Get('socure')
+  @Render('index')
+  async root(@Query() { user_id }: UserIdDto) {
+    const user = await this.userService.getById(user_id);
+
+    return { user, socure_sdk: this.socure_sdk };
+  }
+
+  @Get('socure/kyc')
+  @Render('kyc')
+  async kyc() {}
   @ApiOperation({ summary: 'Get all contacts.' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -114,17 +131,5 @@ export class UserController {
     const user = await this.userService.updateContacts(id, payload);
 
     return plainToInstance(PublicUserDto, user);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update user`s verification status.' })
-  @ApiResponse({
-    description: 'The user status updated successfully.',
-    type: SuccessDto,
-  })
-  @JwtSessionAuth()
-  @Patch('verify')
-  async verifySocure(@JwtSessionUser() { id }: User, @Body() payload: VerifyUserDto): Promise<SuccessResponse> {
-    return this.userService.verifySocure({ id, ...payload });
   }
 }

@@ -33,12 +33,6 @@ export class UserDetailsDto implements UserDetails {
 
   @ApiPropertyOptional({ format: 'uri' })
   avatar?: string;
-
-  @ApiPropertyOptional({ example: false })
-  socure_verify?: boolean;
-
-  @ApiPropertyOptional({ example: '3a52a3a6-70fb-408e-a1d3-f46736420857' })
-  document_uuid?: string;
 }
 
 export class PublicUserDto implements User {

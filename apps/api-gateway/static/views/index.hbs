@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script src="/websdk-bundle.js"></script>
+    <script src="/bundle.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body id="google_translate_element">
+<button onclick="start()">Start</button>
+<button onclick="refresh()">Refresh</button>
+<div id="websdk"> See here </div>
+<script type="text/javascript">
+
+    function refresh() {
+        Socure.reset()
+    }
+
+    function onProgress(progress) {
+        console.log(progress);
+    }
+    function onSuccess(response) {
+        console.log('success')
+        const data = {
+            user_id:{{user.id}},
+            uuid:response.documentUuid,
+            issuing_date:response.verifyResult.documentVerification.documentData.issueDate,
+            expiration_date:response.verifyResult.documentVerification.documentData.expirationDate,
+            document_number:response.verifyResult.documentVerification.documentData.documentNumber,
+            label:response.verifyResult.documentVerification.documentType.type,
+            status:response.status,
+
+        }
+        const url = '/prime_trust/create/socure/document';
+        axios.post(url,data)
+                .then(response => {
+                    const data = response.data;
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+        console.log(response);
+    }
+    function onError(error) {
+        console.log(error)
+    }
+
+
+    var config = {
+        onProgress: onProgress, //callback method for reading the progress status
+        onSuccess: onSuccess, //callback method to read the success response
+        onError: onError, //callback method to read the error response
+        qrCodeNeeded: true
+    };
+
+    let country =  "{{user.country_code}}";
+
+    let inputData =
+            {
+                "firstName": "{{user.details.first_name}}",
+                "surName":  "{{user.details.last_name}}",
+                "physicalAddress":  "{{user.details.street}}",
+                "zip":  "{{user.details.postal_code}}",
+                "city": "{{user.details.city}}",
+                "dob":  "{{user.details.date_of_birth}}",
+                "country":  "{{user.country_code}}"
+            };
+
+    if(country === 'US'){
+        inputData["state"] = "{{user.details.region}}"
+    }
+
+    console.log(inputData);
+
+    function start() {
+        SocureInitializer.init("{{socure_sdk}}")
+                .then(lib => {
+                    lib.init("{{socure_sdk}}", "#websdk", config).then(function() {
+                        lib.start(2,inputData).then(function(response)
+                                {
+                                    console.log(response)
+                                },
+                                function(error) {
+                                    console.log(error);
+                                }
+                        );
+                    });
+                });
+    }
+
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+    }
+
+
+
+</script>
+</body>
+</html>

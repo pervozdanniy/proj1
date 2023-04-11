@@ -8,7 +8,6 @@ import {
   SearchContactRequest,
   UserServiceController,
   UserServiceControllerMethods,
-  VerifyRequest,
 } from '~common/grpc/interfaces/core';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { FindRequestDto } from '../user/dto/find.request.dto';
@@ -88,10 +87,6 @@ export class UserFacadeController implements UserServiceController {
     const success = await this.userService.checkIfUnique(payload);
 
     return { success };
-  }
-
-  async verifySocure(payload: VerifyRequest): Promise<SuccessResponse> {
-    return this.userService.verifySocure(payload);
   }
   getContacts(request: SearchContactRequest): Promise<ContactsResponse> {
     return this.userService.getContacts(request);

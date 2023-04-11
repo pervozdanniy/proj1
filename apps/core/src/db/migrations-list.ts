@@ -36,6 +36,9 @@ import { RemoveCountryEntity1678111485298 } from './migrations/1678111485298-Rem
 import { RemoveUsername1678630767390 } from './migrations/1678630767390-RemoveUsername';
 import { AlterUsersTable1679033609244 } from './migrations/1679033609244-AlterUsersTable';
 import { AlterTransfersTable1680249255329 } from './migrations/1680249255329-AlterTransfersTable';
+import { CreateKycTable1680787242455 } from './migrations/1680787242455-CreateKycTable';
+import { AlterUserDetailsTable1680870468046 } from './migrations/1680870468046-AlterUserDetailsTable';
+import { AlterSocureTable1681129677815 } from './migrations/1681129677815-AlterSocureTable';
 
 export default [
   createUserTable1669901299726,
@@ -76,4 +79,7 @@ export default [
   RemoveUsername1678630767390,
   AlterUsersTable1679033609244,
   AlterTransfersTable1680249255329,
+  CreateKycTable1680787242455,
+  AlterUserDetailsTable1680870468046,
+  AlterSocureTable1681129677815,
 ];

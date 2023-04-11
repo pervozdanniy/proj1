@@ -61,6 +61,7 @@ export interface ConfigInterface {
   prime_trust: {
     email: string;
     password: string;
+    socure_sdk: string;
   };
 
   koywe: {
@@ -167,6 +168,7 @@ export default (): ConfigInterface => ({
   prime_trust: {
     email: process.env.PRIME_EMAIL,
     password: process.env.PRIME_PASSWORD,
+    socure_sdk: process.env.SOCURE_SDK,
   },
   sendgrid: {
     email: process.env.SENDGRID_EMAIL,

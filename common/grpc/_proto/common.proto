@@ -12,10 +12,10 @@ message User {
     optional string phone = 8;
     optional string email_verified_at = 9;
     optional string source = 10;
-    string country_code = 11;
-    optional UserDetails details = 12;
-    repeated User contacts = 13;
-    optional UserAgreement agreement = 14;
+    optional UserDetails details = 11;
+    repeated User contacts = 12;
+    optional UserAgreement agreement = 13;
+    optional string country_code = 14;
 }
 
 message UserAgreement {
@@ -35,8 +35,6 @@ message UserDetails {
     optional string region = 8;
     optional uint32 send_type = 9;
     optional string avatar = 10;
-    optional bool socure_verify = 11;
-    optional string document_uuid = 12;
 }
 
 message IdRequest {

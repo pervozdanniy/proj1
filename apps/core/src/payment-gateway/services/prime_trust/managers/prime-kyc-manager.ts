@@ -4,25 +4,24 @@ import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustKycDocumentEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
-import {
-  CipCheckType,
-  ContactType,
-  DocumentCheckType,
-  DocumentDataType,
-  FileType,
-} from '@/payment-gateway/types/prime-trust';
+import { ContactType, DocumentCheckType, DocumentDataType, FileType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import FormData from 'form-data';
-import process from 'process';
 import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { AccountIdRequest, ContactResponse, DocumentResponse } from '~common/grpc/interfaces/payment-gateway';
+import {
+  AccountIdRequest,
+  ContactResponse,
+  DocumentResponse,
+  SocureDocumentRequest,
+} from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { PrimeTrustSocureDocumentEntity } from '../../../entities/prime_trust/prime-trust-socure-document.entity';
 
 @Injectable()
 export class PrimeKycManager {
@@ -41,6 +40,9 @@ export class PrimeKycManager {
 
     @InjectRepository(PrimeTrustKycDocumentEntity)
     private readonly primeTrustKycDocumentEntityRepository: Repository<PrimeTrustKycDocumentEntity>,
+
+    @InjectRepository(PrimeTrustSocureDocumentEntity)
+    private readonly primeTrustSocureDocumentEntityRepository: Repository<PrimeTrustSocureDocumentEntity>,
   ) {
     const { prime_trust_url } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -172,31 +174,6 @@ export class PrimeKycManager {
         data: formData,
       });
 
-      const contactData = await this.httpService.request({
-        method: 'get',
-        url: `${this.prime_trust_url}/v2/contacts/${contact_uuid}?include=cip-checks`,
-      });
-
-      //document verify from development
-      if (process.env.NODE_ENV === 'dev') {
-        // await this.httpService.request({
-        //   method: 'post',
-        //   url: `${this.prime_trust_url}/v2/kyc-document-checks/${result.data.data.id}/sandbox/verify`,
-        //   data: null,
-        // });
-
-        // approve cip for development
-        contactData.data.included.map(async (inc: CipCheckType) => {
-          if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
-            await this.httpService.request({
-              method: 'post',
-              url: `${this.prime_trust_url}/v2/cip-checks/${inc.id}/sandbox/approve`,
-              data: null,
-            });
-          }
-        });
-      }
-
       return result.data;
     } catch (e) {
       this.logger.error(e);
@@ -326,9 +303,9 @@ export class PrimeKycManager {
         ...contact,
         ...data,
       });
-      let status = 'failed';
+      let status = false;
       if (data.identity_documents_verified) {
-        status = 'succeed';
+        status = true;
       }
 
       const notificationPayload = {
@@ -407,5 +384,19 @@ export class PrimeKycManager {
       cip_cleared: contact.cip_cleared,
       identity_confirmed: contact.identity_confirmed,
     };
+  }
+
+  async createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
+    const { user_id } = request;
+    try {
+      await this.primeTrustSocureDocumentEntityRepository.save(
+        this.primeTrustSocureDocumentEntityRepository.create(request),
+      );
+      await this.notificationService.sendWs(user_id, 'socure', 'Document successfully uploaded!', 'Socure document');
+    } catch (e) {
+      this.logger.log(e.message);
+    }
+
+    return { success: true };
   }
 }

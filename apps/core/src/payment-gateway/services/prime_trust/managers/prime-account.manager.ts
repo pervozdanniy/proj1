@@ -2,13 +2,12 @@ import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { PrimeKycManager } from '@/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
-import { AccountType, ContactType } from '@/payment-gateway/types/prime-trust';
+import { AccountType, CipCheckType, ContactType, CreateAccountType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as process from 'process';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
@@ -16,6 +15,7 @@ import { AccountResponse, AccountStatusResponse, AgreementRequest } from '~commo
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryService } from '../../../../country/country.service';
 import { UserService } from '../../../../user/services/user.service';
+import { PrimeTrustSocureDocumentEntity } from '../../../entities/prime_trust/prime-trust-socure-document.entity';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -35,6 +35,9 @@ export class PrimeAccountManager {
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
+
+    @InjectRepository(PrimeTrustSocureDocumentEntity)
+    private readonly primeTrustSocureDocumentEntityRepository: Repository<PrimeTrustSocureDocumentEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -47,13 +50,16 @@ export class PrimeAccountManager {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
     }
 
-    const formData = {
+    const formData: CreateAccountType = {
       data: {
         type: 'account',
         attributes: {
           'account-type': 'custodial',
           name: `${userDetails.details.first_name} ${userDetails.details.last_name}s Account`,
-          'authorized-signature': `Signature ${userDetails.email}`,
+          'authorized-signature': `Signature`,
+          'webhook-config': {
+            url: `${this.app_domain}/webhook/prime_trust`,
+          },
           owner: {
             'contact-type': 'natural_person',
             name: `${userDetails.details.first_name} ${userDetails.details.last_name}`,
@@ -70,13 +76,23 @@ export class PrimeAccountManager {
               'street-1': `${userDetails.details.street}`,
               'postal-code': `${userDetails.details.postal_code}`,
               city: `${userDetails.details.city}`,
-              region: `${userDetails.details.region}`,
               country: `${userDetails.country_code}`,
             },
           },
         },
       },
     };
+    if (userDetails.country_code === 'US') {
+      formData.data.attributes.owner['primary-address']['region'] = `${userDetails.details.region}`;
+    }
+
+    const socureDocument = await this.primeTrustSocureDocumentEntityRepository.findOneBy({
+      user_id: userDetails.id,
+      status: 'VERIFICATION_COMPLETE',
+    });
+    if (socureDocument) {
+      formData.data.attributes.owner['socure-document-id'] = socureDocument.uuid;
+    }
 
     try {
       const accountResponse = await this.httpService.request({
@@ -85,20 +101,6 @@ export class PrimeAccountManager {
         data: formData,
       });
 
-      //hang webhook on account
-      await this.hangWebhook(userDetails, accountResponse.data.data.id);
-      //
-
-      // account open from development
-      if (process.env.NODE_ENV === 'dev') {
-        // await this.httpService.request({
-        //   method: 'post',
-        //   url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
-        //   data: null,
-        // });
-      }
-      //
-
       //create contact after creating account
       const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
 
@@ -106,16 +108,44 @@ export class PrimeAccountManager {
         method: 'get',
         url: `${this.prime_trust_url}/v2/contacts`,
       });
+
       const contactData = contactResponse.data.data.filter((contact: ContactType) => {
         return contact.attributes['account-id'] === account.uuid;
       });
 
+      if (process.env.NODE_ENV === 'dev') {
+        const contactCipData = await this.httpService.request({
+          method: 'get',
+          url: `${this.prime_trust_url}/v2/contacts/${contactData[0].id}?include=cip-checks`,
+        });
+
+        // approve cip for development
+        contactCipData.data.included.map(async (inc: CipCheckType) => {
+          if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
+            await this.httpService.request({
+              method: 'post',
+              url: `${this.prime_trust_url}/v2/cip-checks/${inc.id}/sandbox/approve`,
+              data: null,
+            });
+          }
+        });
+      }
+
       await this.primeKycManager.saveContact(contactData.pop(), account.user_id);
+
+      // account open from development
+      // if (process.env.NODE_ENV === 'dev') {
+      //   await this.httpService.request({
+      //     method: 'post',
+      //     url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
+      //     data: null,
+      //   });
+      // }
 
       return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
       //
     } catch (e) {
-      this.logger.error(e.errors);
+      this.logger.error(e);
 
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
@@ -125,24 +155,6 @@ export class PrimeAccountManager {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
     }
-  }
-
-  async hangWebhook(userDetails: UserEntity, account_id: string) {
-    // hang webhook on account
-    await this.httpService.request({
-      method: 'post',
-      url: `${this.prime_trust_url}/v2/webhook-configs`,
-      data: {
-        data: {
-          type: 'webhook-configs',
-          attributes: {
-            'contact-email': userDetails.email,
-            url: `${this.app_domain}/webhook/prime_trust`,
-            'account-id': account_id,
-          },
-        },
-      },
-    });
   }
 
   async saveAccount(accountData: AccountType, user_id: number): Promise<PrimeTrustAccountEntity> {

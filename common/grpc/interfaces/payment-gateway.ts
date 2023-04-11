@@ -6,6 +6,16 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
+export interface SocureDocumentRequest {
+  user_id: number;
+  uuid: string;
+  label: string;
+  status: string;
+  document_number: string;
+  expiration_date: string;
+  issuing_date: string;
+}
+
 export interface PayfuraWebhookRequest {
   orderId: string;
 }
@@ -325,6 +335,8 @@ export interface PaymentGatewayServiceClient {
 
   getUserAccountStatus(request: IdRequest, ...rest: any): Observable<AccountStatusResponse>;
 
+  createSocureDocument(request: SocureDocumentRequest, ...rest: any): Observable<SuccessResponse>;
+
   getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
 
   /** banks */
@@ -427,6 +439,11 @@ export interface PaymentGatewayServiceController {
     request: IdRequest,
     ...rest: any
   ): Promise<AccountStatusResponse> | Observable<AccountStatusResponse> | AccountStatusResponse;
+
+  createSocureDocument(
+    request: SocureDocumentRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   getTransactions(
     request: SearchTransactionRequest,
@@ -556,6 +573,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "uploadDocument",
       "getBalance",
       "getUserAccountStatus",
+      "createSocureDocument",
       "getTransactions",
       "getBankAccounts",
       "getBanksInfo",

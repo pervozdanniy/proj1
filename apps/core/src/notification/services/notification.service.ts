@@ -113,4 +113,9 @@ export class NotificationService implements OnModuleInit {
   send(notification: NotifyRequest, options: NotifyOptions) {
     return firstValueFrom(this.notifierService.add({ notification, options }));
   }
+
+  async sendWs(user_id: number, event: string, body: string, title: string) {
+    const message = { body, title };
+    await this.ws.sendTo({ event, data: JSON.stringify(message) }, user_id);
+  }
 }

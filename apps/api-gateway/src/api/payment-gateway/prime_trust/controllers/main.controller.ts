@@ -30,6 +30,7 @@ import { User } from '~common/grpc/interfaces/common';
 import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
+import { SocureDocumentDto } from '../dtos/main/socure.document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Prime Trust')
@@ -194,5 +195,14 @@ export class MainController {
   @Get('/available-methods')
   async getAvailablePaymentMethods(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getAvailablePaymentMethods(id);
+  }
+
+  @ApiOperation({ summary: 'Create socure document.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @Post('/create/socure/document')
+  async createSocureDocument(@Body() payload: SocureDocumentDto) {
+    return this.paymentGatewayService.createSocureDocument(payload);
   }
 }

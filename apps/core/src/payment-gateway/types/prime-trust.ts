@@ -80,3 +80,38 @@ export type DocumentCheckType = {
     status: string;
   };
 };
+
+export type CreateAccountType = {
+  data: {
+    type: 'account';
+    attributes: {
+      'account-type': string;
+      name: string;
+      'authorized-signature': string;
+      'webhook-config': {
+        url: string;
+      };
+      owner: {
+        'contact-type': 'natural_person';
+        name: string;
+        email: string;
+        'tax-id-number': string;
+        'tax-country': string;
+        'date-of-birth': string;
+        'socure-document-id'?: string;
+        'primary-phone-number': {
+          country: string;
+          number: string;
+          sms: boolean;
+        };
+        'primary-address': {
+          'street-1': string;
+          'postal-code': string;
+          region?: string | null;
+          city: string;
+          country: string;
+        };
+      };
+    };
+  };
+};
