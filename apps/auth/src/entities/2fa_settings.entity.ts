@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Entity, PrimaryColumn } from 'typeorm';
 import { TwoFactorMethod } from '~common/constants/auth';
 
 export { TwoFactorMethod };
@@ -10,7 +10,4 @@ export class TwoFactorSettingsEntity {
 
   @PrimaryColumn({ type: 'varchar', length: 20, generated: false })
   method: TwoFactorMethod;
-
-  @Column({ type: 'varchar' })
-  destination: string;
 }

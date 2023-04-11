@@ -6,12 +6,12 @@ import {
   confirm2FA,
   confirm2FAMethod,
   is2FA,
+  isChangeContactInfo,
   isRegistration,
   registerIsSocial,
   require2FA,
   SessionProxy,
 } from '~common/grpc-session';
-import { User } from '~common/grpc/interfaces/common';
 import { TwoFactorSettingsEntity } from '../entities/2fa_settings.entity';
 import { Notifier2FAService } from './notifier.service';
 
@@ -22,11 +22,14 @@ export class Auth2FAService {
     private readonly notify: Notifier2FAService,
   ) {}
 
-  private generate(settings: Array<{ method: TwoFactorMethod; destination: string }>): TwoFactorConstraint[] {
-    return settings.map(({ method, destination }) => ({
+  private generate(
+    settings: Array<{ method: TwoFactorMethod }>,
+    user: { email: string; phone: string },
+  ): TwoFactorConstraint[] {
+    return settings.map(({ method }) => ({
       method,
       code: this.generateCode(),
-      destination,
+      destination: this.getDestination(method, user),
     }));
   }
 
@@ -34,7 +37,7 @@ export class Auth2FAService {
     return Math.floor(100000 + Math.random() * 899999);
   }
 
-  private getDestination(method: TwoFactorMethod, user: User) {
+  private getDestination(method: TwoFactorMethod, user: { email: string; phone: string }) {
     switch (method) {
       case TwoFactorMethod.Email:
         return user.email;
@@ -54,7 +57,7 @@ export class Auth2FAService {
       settings.push({ method: TwoFactorMethod.Email, destination: session.register.email });
     }
 
-    const constraints = this.generate(settings);
+    const constraints = this.generate(settings, session.register);
     require2FA(session, {
       verify: constraints,
       expiresAt: Date.now() + 15 * 60 * 60 * 1000,
@@ -71,8 +74,9 @@ export class Auth2FAService {
   async requireIfEnabled(session: SessionProxy) {
     //temporary method: TwoFactorMethod.Email
     const enabled = await this.settingsRepo.findBy({ user_id: session.user.id, method: TwoFactorMethod.Email });
+
     if (enabled.length) {
-      const contstraints = this.generate(enabled);
+      const contstraints = this.generate(enabled, session.user);
       require2FA(session, {
         verify: contstraints,
         expiresAt: Date.now() + 15 * 60 * 60 * 1000,
@@ -93,8 +97,15 @@ export class Auth2FAService {
   }
 
   requireOne(method: TwoFactorMethod, session: SessionProxy) {
-    const destination = this.getDestination(method, session.user);
-    const verify = this.generate([{ method, destination }]);
+    if (isChangeContactInfo(session)) {
+      if (session.change.email) {
+        session.user.email = session.change.email;
+      }
+      if (session.change.phone) {
+        session.user.phone = session.change.phone;
+      }
+    }
+    const verify = this.generate([{ method }], session.user);
     require2FA(session, { verify, expiresAt: Date.now() + 15 * 60 * 60 * 1000 });
     this.notify.send(verify, session.id);
   }
@@ -117,7 +128,7 @@ export class Auth2FAService {
   async enable(method: TwoFactorMethod, session: SessionProxy) {
     const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
 
-    const codes = this.generate(enabled);
+    const codes = this.generate(enabled, session.user);
     if (enabled.findIndex((s) => s.method === method) >= 0) {
       throw new ConflictException(`Method ${method} is already enabled`);
     }
@@ -139,7 +150,7 @@ export class Auth2FAService {
     if (enabled.length === 0) {
       throw new ConflictException('No 2FA methods are enabled');
     }
-    const constraints = this.generate(enabled);
+    const constraints = this.generate(enabled, session.user);
     require2FA(session, {
       verify: constraints,
       remove: methods.length ? methods : enabled.map((s) => s.method),
@@ -198,7 +209,6 @@ export class Auth2FAService {
         await this.settingsRepo.insert({
           user_id: session.user.id,
           method: session.twoFactor.add.method,
-          destination: session.twoFactor.add.destination,
         });
       }
       if (session.twoFactor.remove) {
