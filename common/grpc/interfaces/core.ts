@@ -27,8 +27,6 @@ export interface SearchContactRequest {
   search_term?: string | undefined;
 }
 
-<<<<<<< HEAD
-=======
 export interface RecepientsRequest {
   user_id: number;
   limit: number;
@@ -44,7 +42,6 @@ export interface VerifyRequest {
   document_uuid: string;
 }
 
->>>>>>> cee0e66 (SKOPA-507: added leatest recepients endpoint, fixed contacts and recepients to include avatar)
 export interface NullableUser {
   user?: User | undefined;
 }

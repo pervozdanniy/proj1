@@ -8,12 +8,8 @@ import {
   Contact,
   RecepientsRequest,
   SearchContactRequest,
-  SearchContactRequest,
-  UpdateRequest,
   UpdateRequest,
   UserServiceClient,
-  UserServiceClient,
-  VerifyRequest,
 } from '~common/grpc/interfaces/core';
 import { UpdateUserDto, UserContactsDto } from '../dtos/update-user.dto';
 import { S3Service } from './s3.service';

@@ -1,15 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
-import { SuccessResponse } from '~common/grpc/interfaces/common';
-import {
-  Contact,
-  ContactsResponse,
-  ContactsResponse,
-  SearchContactRequest,
-  SearchContactRequest,
-  VerifyRequest,
-} from '~common/grpc/interfaces/core';
+import { Contact, ContactsResponse, SearchContactRequest } from '~common/grpc/interfaces/core';
 import { CountryService } from '../../country/country.service';
 import { FindRequestDto } from '../dto/find.request.dto';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
