@@ -120,7 +120,14 @@ export class UserService {
     }
 
     queryBuilder.andWhere('contactDetails.user_id = :user_id', { user_id });
-    queryBuilder.select(['u.id', 'u.email', 'u.phone', 'ud.first_name', 'ud.last_name', 'ud.avatar']);
+    queryBuilder.select([
+      'u.id as id',
+      'u.email as email',
+      'u.phone as phone',
+      'ud.first_name as first_name',
+      'ud.last_name as last_name',
+      'ud.avatar as avatar',
+    ]);
 
     let has_more = false;
 
@@ -143,7 +150,14 @@ export class UserService {
   getLatestRecepients(request: { user_id: number; limit: number }): Promise<Contact[]> {
     return this.userRepository
       .createQueryBuilder('u')
-      .select(['u.id', 'u.email', 'u.phone', 'ud.first_name', 'ud.last_name', 'ud.avatar'])
+      .select([
+        'u.id as id',
+        'u.email as email',
+        'u.phone as phone',
+        'ud.first_name as first_name',
+        'ud.last_name as last_name',
+        'ud.avatar as avatar',
+      ])
       .innerJoin('transfers', 't', 'u.id = t.receiver_id')
       .leftJoinAndSelect(UserDetailsEntity, 'ud', 'u.id = ud.user_id')
       .where('t.user_id = :userId', { userId: request.user_id })
