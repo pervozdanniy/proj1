@@ -35,6 +35,7 @@ message UserDetails {
     optional string region = 8;
     optional uint32 send_type = 9;
     optional string avatar = 10;
+    optional string apartment = 11;
 }
 
 message IdRequest {

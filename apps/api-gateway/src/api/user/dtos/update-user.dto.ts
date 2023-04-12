@@ -69,6 +69,11 @@ export class UserDetails {
   @IsNotEmpty()
   postal_code: number;
 
+  @ApiProperty({ example: '12' })
+  @IsNotEmpty()
+  @Length(1, 50)
+  apartment: string;
+
   @ApiProperty({ example: 123123123 })
   @IsNumber()
   @IsNotEmpty()

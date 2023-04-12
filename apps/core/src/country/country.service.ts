@@ -3,7 +3,7 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { Country, CountryListResponse } from '~common/grpc/interfaces/country';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { UserDetails } from '../user/dto/user-request.dto';
+import { UserDetailsDto } from '../user/dto/user-request.dto';
 
 const countries: Country[] = [
   { code: 'US', name: 'United States of America' },
@@ -19,7 +19,7 @@ export class CountryService {
     return { items: countries };
   }
 
-  checkUSA(details: UserDetails) {
+  checkUSA(details: UserDetailsDto) {
     if (!details.region || !states.find((e) => e == details.region)) {
       throw new GrpcException(Status.INVALID_ARGUMENT, 'Please fill region for USA!', 400);
     }

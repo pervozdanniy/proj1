@@ -34,7 +34,9 @@ export class UserService {
 
     const user = await this.userRepository.save(this.userRepository.create(userData));
     if (details) {
-      await this.userDetailsRepository.save(this.userDetailsRepository.create({ user_id: user.id, ...details }));
+      user.details = await this.userDetailsRepository.save(
+        this.userDetailsRepository.create({ user_id: user.id, ...details }),
+      );
     }
 
     return user;
