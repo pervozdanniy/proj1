@@ -4,4 +4,4 @@ export type WithActive<T extends SessionMetadataOptions> = T & {
   allowClosed?: boolean;
 };
 
-export type ForNotSocial<T extends SessionMetadataOptions> = T & { forNotSocial?: boolean };
+export type ForbidSocial<T extends SessionMetadataOptions> = T & { forbidSocial?: boolean };

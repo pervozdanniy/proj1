@@ -19,8 +19,6 @@ export const startRegistration = <T extends SessionInterface>(session: T, data: 
 export const registerRequestAgreement = <T extends SessionInterface>(session: T, data: UserDetailsSessionData) =>
   Object.assign(session, { user_data: data });
 
-export const isSocial = (session: SessionInterface): boolean => session.user.source !== UserSourceEnum.Api;
-
 export const finishRegistration = <T extends RegisterSessionInterface, User>(
   session: T,
   user: User,
