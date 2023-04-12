@@ -23,6 +23,8 @@ service UserService {
   rpc CheckIfUnique (CheckIfUniqueRequest) returns (common.SuccessResponse);
 
   rpc GetContacts (SearchContactRequest) returns (ContactsResponse);
+
+  rpc GetLatestRecepients(RecepientsRequest) returns (RecepientsResponse);
 }
 
 message ContactsResponse {
@@ -37,15 +39,29 @@ message Contact {
   string phone = 3;
   string first_name = 4;
   string last_name = 5;
+  optional string avatar = 6;
 }
-
-
 
 message SearchContactRequest {
   uint32 user_id = 1;
   uint32 search_after = 2;
   uint32 limit = 3;
   optional string search_term = 4;
+}
+
+message RecepientsRequest {
+  uint32 user_id = 1;
+  uint32 limit = 2;
+}
+
+message RecepientsResponse {
+  repeated Contact recepients = 1;
+}
+
+message VerifyRequest {
+  uint32 id = 1;
+  bool socure_verify = 2;
+  string document_uuid = 3;
 }
 
 message NullableUser {

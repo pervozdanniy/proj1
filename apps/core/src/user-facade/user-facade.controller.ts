@@ -5,6 +5,8 @@ import {
   CheckIfUniqueRequest,
   ContactsResponse,
   NullableUser,
+  RecepientsRequest,
+  RecepientsResponse,
   SearchContactRequest,
   UserServiceController,
   UserServiceControllerMethods,
@@ -88,7 +90,14 @@ export class UserFacadeController implements UserServiceController {
 
     return { success };
   }
+
   getContacts(request: SearchContactRequest): Promise<ContactsResponse> {
     return this.userService.getContacts(request);
+  }
+
+  async getLatestRecepients(request: RecepientsRequest): Promise<RecepientsResponse> {
+    const recepients = await this.userService.getLatestRecepients(request);
+
+    return { recepients };
   }
 }

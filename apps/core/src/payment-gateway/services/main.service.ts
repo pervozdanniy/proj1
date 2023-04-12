@@ -61,4 +61,6 @@ export class MainService {
 
     throw new UnauthorizedException('This operation is not permitted in your country');
   }
+
+  async getLastRecepients() {}
 }

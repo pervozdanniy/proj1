@@ -1,8 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { Contact, ContactsResponse } from '~common/grpc/interfaces/core';
 
-class ContactDto implements Contact {
+export class ContactDto implements Contact {
   @ApiProperty()
   id: number;
   @ApiProperty()
@@ -13,6 +13,8 @@ class ContactDto implements Contact {
   last_name: string;
   @ApiProperty()
   phone: string;
+  @ApiPropertyOptional({ format: 'url' })
+  avatar?: string;
 }
 
 export class ContactsResponseDto implements ContactsResponse {
