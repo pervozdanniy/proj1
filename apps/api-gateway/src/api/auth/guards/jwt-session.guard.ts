@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserStatusEnum } from '~common/constants/user';
+import { UserSourceEnum, UserStatusEnum } from '~common/constants/user';
 import {
   is2FA,
   isPasswordReset,
@@ -57,6 +57,10 @@ export class JwtSessionGuard extends BaseGuard {
         HttpStatus.PRECONDITION_REQUIRED,
       );
     }
+    if (options.forbidSocial && session.user.social !== UserSourceEnum.Api) {
+      throw new ConflictException({ message: `This action unavailable for users were registered via social network!` });
+    }
+
     if (options.requireRegistration && !isRegistration(session)) {
       throw new ConflictException({ message: "You haven't started registration process" });
     }

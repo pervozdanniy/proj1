@@ -29,7 +29,7 @@ export class ChangePasswordController {
 
   @ApiOperation({ summary: 'Check change password type' })
   @ApiBearerAuth()
-  @JwtSessionAuth({ allowClosed: true })
+  @JwtSessionAuth({ allowClosed: true, forbidSocial: true })
   @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')

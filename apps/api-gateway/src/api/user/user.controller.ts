@@ -21,6 +21,7 @@ import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiConsumes,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -114,13 +115,34 @@ export class UserController {
     description: 'The user updated successfully.',
     type: PublicUserDto,
   })
-  @ApiConsumes('multipart/form-data')
   @JwtSessionAuth()
   @Put()
+  async update(@JwtSessionUser() { id }: User, @Body() payload: UpdateUserDto): Promise<PublicUserDto> {
+    const request = { ...payload, id };
+    const user = await this.userService.update(request);
+
+    return plainToInstance(PublicUserDto, user);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update user avatar.' })
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('avatar'))
-  async update(
+  @JwtSessionAuth()
+  @Put('/avatar')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        avatar: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  async upload(
     @JwtSessionUser() { id }: User,
-    @Body() payload: UpdateUserDto,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -130,11 +152,8 @@ export class UserController {
       }),
     )
     avatar: Express.Multer.File,
-  ): Promise<PublicUserDto> {
-    const request = { ...payload, id, avatar };
-    const user = await this.userService.update(request);
-
-    return plainToInstance(PublicUserDto, user);
+  ) {
+    return this.userService.upload(id, { avatar });
   }
 
   @ApiBearerAuth()

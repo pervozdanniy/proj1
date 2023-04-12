@@ -12,6 +12,7 @@ import {
   UserServiceClient,
 } from '~common/grpc/interfaces/core';
 import { UpdateUserDto, UserContactsDto } from '../dtos/update-user.dto';
+import { UploadAvatarDto } from '../dtos/upload-avatar.dto';
 import { S3Service } from './s3.service';
 
 @Injectable()
@@ -43,13 +44,8 @@ export class UserService implements OnModuleInit {
     return this.withAvatarUrl(user);
   }
 
-  async update({ avatar, ...request }: UpdateUserDto) {
+  async update(request: UpdateUserDto) {
     const payload: UpdateRequest = request;
-    if (avatar) {
-      const key = crypto.createHash('sha1').update(request.id.toString(), 'utf8').digest('hex');
-      await this.s3.upload(key, avatar);
-      payload.details = { ...payload.details, avatar: key };
-    }
     const user = await firstValueFrom(this.userService.update(payload));
 
     return this.withAvatarUrl(user);
@@ -67,11 +63,17 @@ export class UserService implements OnModuleInit {
 
     return resp;
   }
-
   async getLatestRecepients(data: RecepientsRequest) {
     const resp = await lastValueFrom(this.userService.getLatestRecepients(data));
     resp.recepients = resp.recepients.map((r) => this.withAvatarUrl(r));
 
     return resp;
+  }
+  async upload(id: number, { avatar }: UploadAvatarDto) {
+    const key = crypto.createHash('sha1').update(id.toString(), 'utf8').digest('hex');
+    await this.s3.upload(key, avatar);
+    await firstValueFrom(this.userService.update({ id, details: { avatar: key } }));
+
+    return { success: true };
   }
 }
