@@ -124,10 +124,11 @@ export class UserController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update user avatar.' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('avatar'))
   @JwtSessionAuth()
-  @Put('avatar')
+  @Put('/avatar')
   async upload(
     @JwtSessionUser() { id }: User,
     @UploadedFile(
@@ -140,7 +141,7 @@ export class UserController {
     )
     avatar: Express.Multer.File,
   ) {
-    return this.userService.upload(id, avatar);
+    return this.userService.upload(id, { avatar });
   }
 
   @ApiBearerAuth()

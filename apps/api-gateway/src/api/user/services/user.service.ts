@@ -12,6 +12,7 @@ import {
   UserServiceClient,
 } from '~common/grpc/interfaces/core';
 import { UpdateUserDto, UserContactsDto } from '../dtos/update-user.dto';
+import { UploadAvatarDto } from '../dtos/upload-avatar.dto';
 import { S3Service } from './s3.service';
 
 @Injectable()
@@ -68,7 +69,7 @@ export class UserService implements OnModuleInit {
 
     return resp;
   }
-  async upload(id: number, avatar: Express.Multer.File) {
+  async upload(id: number, { avatar }: UploadAvatarDto) {
     const key = crypto.createHash('sha1').update(id.toString(), 'utf8').digest('hex');
     await this.s3.upload(key, avatar);
     await firstValueFrom(this.userService.update({ id, details: { avatar: key } }));
