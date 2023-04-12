@@ -65,7 +65,16 @@ export class KoyweDepositManager {
     const amount = String(convertedAmount.toFixed(2));
 
     const { quoteId } = await this.createQuote({ amount, currency: currency_type, method: transferParams.method });
-    const { orderId, providedAddress } = await this.createOrder(quoteId, userDetails.email, wallet_address);
+    let documentNumber: string;
+    if (currency_type === 'CLP') {
+      documentNumber = '77638982K';
+    }
+    const { orderId, providedAddress } = await this.createOrder(
+      quoteId,
+      userDetails.email,
+      wallet_address,
+      documentNumber,
+    );
     const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
     const fee = String(networkFee + koyweFee);
     await this.depositEntityRepository.save(
@@ -117,7 +126,12 @@ export class KoyweDepositManager {
     }
   }
 
-  async createOrder(quoteId: string, email: string, wallet_address: string): Promise<KoyweCreateOrder> {
+  async createOrder(
+    quoteId: string,
+    email: string,
+    wallet_address: string,
+    documentNumber: string,
+  ): Promise<KoyweCreateOrder> {
     try {
       const token = await this.redis.get('koywe_token');
       const formData = {
@@ -125,6 +139,7 @@ export class KoyweDepositManager {
         quoteId,
         email,
         metadata: 'Deposit funds',
+        documentNumber,
       };
       const headersRequest = {
         Authorization: `Bearer ${token}`,

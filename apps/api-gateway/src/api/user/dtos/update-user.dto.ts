@@ -83,9 +83,6 @@ export class UserDetails {
 export class UpdateUserDto implements UpdateRequest {
   id: number;
 
-  @ApiPropertyOptional({ type: 'file', format: 'binary' })
-  avatar: Express.Multer.File;
-
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
