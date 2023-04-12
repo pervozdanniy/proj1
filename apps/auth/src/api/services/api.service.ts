@@ -163,6 +163,9 @@ export class AuthApiService {
     let method: TwoFactorMethod;
     if (payload.email) {
       user = await this.auth.findByEmail(payload.email);
+      if (user.source !== UserSourceEnum.Api) {
+        throw new BadRequestException(`You cant change password,you registered by using ${user.source} account`);
+      }
       method = TwoFactorMethod.Email;
 
       // } else if (payload.phone) {

@@ -17,7 +17,7 @@ export class ChangeContactInfoController {
   @ApiBearerAuth()
   @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @Post('start/email')
-  @JwtSessionAuth()
+  @JwtSessionAuth({ forSocial: false })
   async email(
     @Body() payload: ChangeEmailDto,
     @JwtSessionId() sessionId: string,

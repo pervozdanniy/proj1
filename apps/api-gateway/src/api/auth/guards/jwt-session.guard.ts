@@ -13,6 +13,7 @@ import {
   is2FA,
   isPasswordReset,
   isRegistration,
+  isSocial,
   JwtSessionGuard as BaseGuard,
   SessionInterface,
   SessionProxy,
@@ -57,6 +58,10 @@ export class JwtSessionGuard extends BaseGuard {
         HttpStatus.PRECONDITION_REQUIRED,
       );
     }
+    if (!options.forSocial && isSocial(session)) {
+      throw new ConflictException({ message: `This action unavailable for users were registered via social network!` });
+    }
+
     if (options.requireRegistration && !isRegistration(session)) {
       throw new ConflictException({ message: "You haven't started registration process" });
     }

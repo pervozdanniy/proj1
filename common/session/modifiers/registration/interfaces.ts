@@ -1,4 +1,5 @@
 import { SessionInterface, SessionMetadataOptions } from '~common/session';
+import { User } from '../../../grpc/interfaces/common';
 
 export type RegisterSessionData = {
   email: string;
@@ -32,7 +33,7 @@ export type UserDetailsSessionData = {
 };
 
 export interface RegisterSessionInterface extends SessionInterface {
-  user?: never;
+  user?: never | User;
   register: RegisterSessionData;
 }
 
