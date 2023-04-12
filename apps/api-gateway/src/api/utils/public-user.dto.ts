@@ -22,9 +22,6 @@ export class UserDetailsDto implements UserDetails {
   @ApiPropertyOptional({ example: '123 MK Road' })
   street?: string;
 
-  @ApiPropertyOptional({ example: 'Flat 12' })
-  apartment?: string;
-
   @ApiPropertyOptional({ example: 89145 })
   postal_code?: number;
 

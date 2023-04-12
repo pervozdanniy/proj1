@@ -35,7 +35,6 @@ export interface UserDetails {
   region?: string | undefined;
   send_type?: number | undefined;
   avatar?: string | undefined;
-  apartment?: string | undefined;
 }
 
 export interface IdRequest {

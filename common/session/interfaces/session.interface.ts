@@ -1,8 +1,8 @@
-import { ForSocial, WithActive } from '../modifiers/auth/active/interfaces';
+import { ForNotSocial, WithActive } from '../modifiers/auth/active/interfaces';
 import { WithKYC } from '../modifiers/auth/kyc/interfaces';
 import { SessionProxy } from '../session-host';
 
-export type SessionMetadataOptions = ForSocial<
+export type SessionMetadataOptions = ForNotSocial<
   WithActive<
     WithKYC<{
       allowUnauthorized?: boolean;

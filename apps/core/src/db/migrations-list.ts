@@ -39,7 +39,6 @@ import { AlterTransfersTable1680249255329 } from './migrations/1680249255329-Alt
 import { CreateKycTable1680787242455 } from './migrations/1680787242455-CreateKycTable';
 import { AlterUserDetailsTable1680870468046 } from './migrations/1680870468046-AlterUserDetailsTable';
 import { AlterSocureTable1681129677815 } from './migrations/1681129677815-AlterSocureTable';
-import { AlterUserDetailsTable1681294188258 } from './migrations/1681294188258-AlterUserDetailsTable';
 
 export default [
   createUserTable1669901299726,
@@ -83,5 +82,4 @@ export default [
   CreateKycTable1680787242455,
   AlterUserDetailsTable1680870468046,
   AlterSocureTable1681129677815,
-  AlterUserDetailsTable1681294188258,
 ];

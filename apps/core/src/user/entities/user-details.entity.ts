@@ -20,9 +20,6 @@ export class UserDetailsEntity {
   street: string;
 
   @Column('character varying', { length: 50, nullable: true })
-  apartment: string;
-
-  @Column('character varying', { length: 50, nullable: true })
   region: string;
 
   @Column('varchar', { length: 50, nullable: true })
