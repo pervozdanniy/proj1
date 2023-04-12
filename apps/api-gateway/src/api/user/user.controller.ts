@@ -21,6 +21,7 @@ import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiConsumes,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -129,6 +130,17 @@ export class UserController {
   @UseInterceptors(FileInterceptor('avatar'))
   @JwtSessionAuth()
   @Put('/avatar')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        avatar: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   async upload(
     @JwtSessionUser() { id }: User,
     @UploadedFile(

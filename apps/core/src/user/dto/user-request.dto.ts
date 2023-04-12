@@ -38,6 +38,11 @@ export class UserDetails {
 
   @IsString()
   @IsOptional()
+  @Length(2, 50)
+  apartment?: string;
+
+  @IsString()
+  @IsOptional()
   region?: string;
 
   @IsString()

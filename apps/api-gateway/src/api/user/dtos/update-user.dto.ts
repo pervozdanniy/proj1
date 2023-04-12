@@ -64,6 +64,12 @@ export class UserDetails {
   @Length(2, 50)
   street: string;
 
+  @ApiProperty({ example: 'Flat 12' })
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 50)
+  apartment?: string;
+
   @ApiProperty({ example: 89145 })
   @IsNumber()
   @IsNotEmpty()
