@@ -16,9 +16,9 @@ import { PrimeTrustAccountEntity } from './entities/prime_trust/prime-trust-acco
 import { PrimeTrustBalanceEntity } from './entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
-import { PrimeTrustSocureDocumentEntity } from './entities/prime_trust/prime-trust-socure-document.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
 import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
+import { SocureDocumentEntity } from './entities/socure-document.entity';
 import { TransfersEntity } from './entities/transfers.entity';
 import { ArgentinaPaymentGateway } from './manager/countries/argentina-payment.gateway';
 import { BrazilPaymentGateway } from './manager/countries/brazil-payment.gateway';
@@ -74,7 +74,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       TransfersEntity,
       BankAccountEntity,
       DepositParamsEntity,
-      PrimeTrustSocureDocumentEntity,
+      SocureDocumentEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
   ],

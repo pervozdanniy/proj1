@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity('socure_kyc_documents')
-export class PrimeTrustSocureDocumentEntity {
+export class SocureDocumentEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
