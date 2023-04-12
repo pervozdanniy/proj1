@@ -6,7 +6,7 @@ import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
 import {
   Contact,
-  // RecepientsRequest,
+  RecepientsRequest,
   SearchContactRequest,
   UpdateRequest,
   UserServiceClient,
@@ -62,13 +62,12 @@ export class UserService implements OnModuleInit {
 
     return resp;
   }
+  async getLatestRecepients(data: RecepientsRequest) {
+    const resp = await lastValueFrom(this.userService.getLatestRecepients(data));
+    resp.recepients = resp.recepients.map((r) => this.withAvatarUrl(r));
 
-  // async getLatestRecepients(data: RecepientsRequest) {
-  //   const resp = await lastValueFrom(this.userService.getLatestRecepients(data));
-  //   resp.recepients = resp.recepients.map((r) => this.withAvatarUrl(r));
-  //
-  //   return resp;
-  // }
+    return resp;
+  }
   async upload(id: number, avatar: Express.Multer.File) {
     const key = crypto.createHash('sha1').update(id.toString(), 'utf8').digest('hex');
     await this.s3.upload(key, avatar);

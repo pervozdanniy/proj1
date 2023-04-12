@@ -19,7 +19,15 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { ConfigInterface } from '~common/config/configuration';
 import { User } from '~common/grpc/interfaces/common';
@@ -27,6 +35,7 @@ import { JwtSessionAuth, JwtSessionUser } from '../auth';
 import { ContactsResponseDto } from '../utils/contacts.dto';
 import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.dto';
 import { GetContactsDto } from './dtos/get-contacts.dto';
+import { LatestRecepientsResponseDto } from './dtos/latest-recepients.dto';
 import { UpdateUserDto, UserContactsDto } from './dtos/update-user.dto';
 import { UserIdDto } from './dtos/user-id.dto';
 import { UserService } from './services/user.service';
@@ -56,15 +65,24 @@ export class UserController {
   @Render('kyc')
   async kyc() {}
   @ApiOperation({ summary: 'Get all contacts.' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: ContactsResponseDto,
-  })
+  @ApiOkResponse({ type: ContactsResponseDto })
   @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('contacts')
   async getContacts(@JwtSessionUser() { id }: User, @Query() query: GetContactsDto) {
     return this.userService.getContacts({ user_id: id, ...query });
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get latest user recepients' })
+  @ApiOkResponse({ type: LatestRecepientsResponseDto })
+  @JwtSessionAuth()
+  @Get('latest-recepients')
+  getLatestRecepients(
+    @Query('limit', new ParseIntPipe()) limit: number,
+    @JwtSessionUser() { id }: User,
+  ): Promise<LatestRecepientsResponseDto> {
+    return this.userService.getLatestRecepients({ user_id: id, limit });
   }
 
   @ApiBearerAuth()

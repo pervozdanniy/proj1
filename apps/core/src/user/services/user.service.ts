@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
-import { ContactsResponse, SearchContactRequest } from '~common/grpc/interfaces/core';
+import { Contact, ContactsResponse, SearchContactRequest } from '~common/grpc/interfaces/core';
 import { CountryService } from '../../country/country.service';
 import { FindRequestDto } from '../dto/find.request.dto';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
@@ -93,7 +93,7 @@ export class UserService {
 
     const queryBuilder = this.userRepository
       .createQueryBuilder('u')
-      .leftJoin(UserDetailsEntity, 'd', 'd.user_id = u.id')
+      .leftJoin(UserDetailsEntity, 'ud', 'ud.user_id = u.id')
       .innerJoin(UserContactEntity, 'contactDetails', 'contactDetails.contact_id = u.id');
 
     if (search_after) {
@@ -109,10 +109,10 @@ export class UserService {
             .orWhere('u.phone ILIKE :search_term', {
               search_term: `${search_term}%`,
             })
-            .orWhere('d.first_name ILIKE :search_term', {
+            .orWhere('ud.first_name ILIKE :search_term', {
               search_term: `${search_term}%`,
             })
-            .orWhere('d.last_name ILIKE :search_term', {
+            .orWhere('ud.last_name ILIKE :search_term', {
               search_term: `${search_term}%`,
             });
         }),
@@ -120,13 +120,13 @@ export class UserService {
     }
 
     queryBuilder.andWhere('contactDetails.user_id = :user_id', { user_id });
-
     queryBuilder.select([
       'u.id as id',
       'u.email as email',
       'u.phone as phone',
-      'd.first_name as first_name',
-      'd.last_name as last_name',
+      'ud.first_name as first_name',
+      'ud.last_name as last_name',
+      'ud.avatar as avatar',
     ]);
 
     let has_more = false;
@@ -145,5 +145,24 @@ export class UserService {
       contacts,
       has_more,
     };
+  }
+
+  getLatestRecepients(request: { user_id: number; limit: number }): Promise<Contact[]> {
+    return this.userRepository
+      .createQueryBuilder('u')
+      .select([
+        'u.id as id',
+        'u.email as email',
+        'u.phone as phone',
+        'ud.first_name as first_name',
+        'ud.last_name as last_name',
+        'ud.avatar as avatar',
+      ])
+      .innerJoin('transfers', 't', 'u.id = t.receiver_id')
+      .leftJoinAndSelect(UserDetailsEntity, 'ud', 'u.id = ud.user_id')
+      .where('t.user_id = :userId', { userId: request.user_id })
+      .andWhere(`t.updated_at >= (NOW() - interval '1 year')`)
+      .limit(request.limit)
+      .getRawMany();
   }
 }
