@@ -34,6 +34,9 @@ export class UserDetailsEntity {
   @Column('integer', { nullable: true })
   postal_code: number;
 
+  @Column('character varying', { length: 50, nullable: true })
+  apartment?: string;
+
   @Column('integer', { nullable: true })
   tax_id_number: number;
 

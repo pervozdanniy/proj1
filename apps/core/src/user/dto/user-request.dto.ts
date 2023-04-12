@@ -16,7 +16,7 @@ import {
 import { SendType, UserSourceEnum } from '~common/constants/user';
 import { CreateRequest, UpdateContactsRequest, UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 
-export class UserDetails {
+export class UserDetailsDto {
   @IsString()
   @IsOptional()
   first_name?: string;
@@ -60,6 +60,10 @@ export class UserDetails {
   @IsString()
   @IsOptional()
   avatar?: string;
+
+  @IsString()
+  @IsOptional()
+  apartment?: string;
 }
 
 export class CreateRequestDto implements CreateRequest {
@@ -83,9 +87,9 @@ export class CreateRequestDto implements CreateRequest {
   source?: UserSourceEnum;
 
   @ValidateNested()
-  @Type(() => UserDetails)
+  @Type(() => UserDetailsDto)
   @IsOptional()
-  details?: UserDetails;
+  details?: UserDetailsDto;
 
   @IsOptional()
   @IsArray()
@@ -133,9 +137,9 @@ export class UpdateRequestDto implements UpdateRequest {
   password?: string;
 
   @ValidateNested()
-  @Type(() => UserDetails)
+  @Type(() => UserDetailsDto)
   @IsOptional()
-  details?: UserDetails;
+  details?: UserDetailsDto;
 
   @ValidateNested()
   @Type(() => ContactsDto)
