@@ -4,6 +4,7 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import Redis from 'ioredis';
@@ -15,6 +16,7 @@ import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/paymen
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
+import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
 import { KoyweMainManager, KoywePaymentMethod } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
 
@@ -34,6 +36,8 @@ export class KoyweDepositManager {
     private readonly koyweMainManager: KoyweMainManager,
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
+    @InjectRepository(SocureDocumentEntity)
+    private readonly documentRepository: Repository<SocureDocumentEntity>,
 
     private userService: UserService,
     config: ConfigService<ConfigInterface>,
@@ -65,15 +69,17 @@ export class KoyweDepositManager {
     const amount = String(convertedAmount.toFixed(2));
 
     const { quoteId } = await this.createQuote({ amount, currency: currency_type, method: transferParams.method });
-    let documentNumber: string;
-    if (currency_type === 'CLP') {
-      documentNumber = '77638982K';
+
+    const document = await this.documentRepository.findOneBy({ user_id: id });
+    if (!document) {
+      throw new ConflictException('KYC is not completed');
     }
+
     const { orderId, providedAddress } = await this.createOrder(
       quoteId,
       userDetails.email,
       wallet_address,
-      documentNumber,
+      document.document_number,
     );
     const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
     const fee = String(networkFee + koyweFee);

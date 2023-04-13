@@ -15,7 +15,7 @@ import { AccountResponse, AccountStatusResponse, AgreementRequest } from '~commo
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryService } from '../../../../country/country.service';
 import { UserService } from '../../../../user/services/user.service';
-import { PrimeTrustSocureDocumentEntity } from '../../../entities/prime_trust/prime-trust-socure-document.entity';
+import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -36,8 +36,8 @@ export class PrimeAccountManager {
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
 
-    @InjectRepository(PrimeTrustSocureDocumentEntity)
-    private readonly primeTrustSocureDocumentEntityRepository: Repository<PrimeTrustSocureDocumentEntity>,
+    @InjectRepository(SocureDocumentEntity)
+    private readonly primeTrustSocureDocumentEntityRepository: Repository<SocureDocumentEntity>,
   ) {
     const { prime_trust_url, domain } = config.get('app');
     this.prime_trust_url = prime_trust_url;
