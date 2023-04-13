@@ -71,11 +71,16 @@ export interface CreateRequest {
   status?: string | undefined;
   details?: UserDetails | undefined;
   contacts: string[];
+  social_id?: string | undefined;
 }
 
 export interface FindByLoginRequest {
   email?: string | undefined;
   phone?: string | undefined;
+}
+
+export interface FindBySocialIdRequest {
+  social_id: string;
 }
 
 export interface UpdateContactsRequest {
@@ -94,6 +99,8 @@ export interface UserServiceClient {
   getById(request: IdRequest, ...rest: any): Observable<User>;
 
   findByLogin(request: FindByLoginRequest, ...rest: any): Observable<NullableUser>;
+
+  findBySocialId(request: FindBySocialIdRequest, ...rest: any): Observable<NullableUser>;
 
   create(request: CreateRequest, ...rest: any): Observable<User>;
 
@@ -115,6 +122,11 @@ export interface UserServiceController {
 
   findByLogin(
     request: FindByLoginRequest,
+    ...rest: any
+  ): Promise<NullableUser> | Observable<NullableUser> | NullableUser;
+
+  findBySocialId(
+    request: FindBySocialIdRequest,
     ...rest: any
   ): Promise<NullableUser> | Observable<NullableUser> | NullableUser;
 
@@ -147,6 +159,7 @@ export function UserServiceControllerMethods() {
     const grpcMethods: string[] = [
       "getById",
       "findByLogin",
+      "findBySocialId",
       "create",
       "delete",
       "update",

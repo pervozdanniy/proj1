@@ -340,14 +340,23 @@ export class PrimeKycManager {
 
     const { user_id } = accountData;
 
+    console.log('cip check activated');
+
+    if (process.env.NODE_ENV === 'dev') {
+      // approve cip for development
+
+      await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/cip-checks/${resource_id}/sandbox/approve`,
+        data: null,
+      });
+    }
+
     const cipResponse = await this.getCipCheckInfo(resource_id);
-    const notificationPayload = {
-      user_id,
-      title: 'User Documents',
-      type: 'cip_checks',
-      description: `Phone verification status ${cipResponse.status}`,
-    };
-    this.notificationService.createAsync(notificationPayload);
+
+    if (cipResponse === 'approved') {
+      await this.primeTrustContactEntityRepository.update({ user_id }, { cip_cleared: true });
+    }
 
     return { success: true };
   }

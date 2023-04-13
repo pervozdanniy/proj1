@@ -12,6 +12,8 @@ service UserService {
 
   rpc FindByLogin (FindByLoginRequest) returns (NullableUser);
 
+  rpc FindBySocialId (FindBySocialIdRequest) returns (NullableUser);
+
   rpc Create (CreateRequest) returns (common.User);
 
   rpc Delete (common.IdRequest) returns (common.SuccessResponse);
@@ -93,6 +95,7 @@ message CreateRequest {
   optional string status = 7;
   optional common.UserDetails details = 8;
   repeated string contacts = 9;
+  optional string social_id = 10;
 }
 
 message FindByLoginRequest {
@@ -100,6 +103,10 @@ message FindByLoginRequest {
     string email = 1;
     string phone = 2;
   }
+}
+
+message FindBySocialIdRequest {
+  string social_id = 1;
 }
 
 message UpdateContactsRequest {

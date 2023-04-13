@@ -16,6 +16,7 @@ export interface User {
   contacts: User[];
   agreement?: UserAgreement | undefined;
   country_code?: string | undefined;
+  social_id?: string | undefined;
 }
 
 export interface UserAgreement {

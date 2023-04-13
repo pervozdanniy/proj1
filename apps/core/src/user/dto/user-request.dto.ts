@@ -86,6 +86,9 @@ export class CreateRequestDto implements CreateRequest {
   @IsOptional()
   source?: UserSourceEnum;
 
+  @IsOptional()
+  social_id?: string;
+
   @ValidateNested()
   @Type(() => UserDetailsDto)
   @IsOptional()

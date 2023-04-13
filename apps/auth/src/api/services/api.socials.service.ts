@@ -2,6 +2,7 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { UserSourceEnum } from '~common/constants/user';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthData, RegisterSocialRequest, SocialsAuthRequest } from '~common/grpc/interfaces/auth';
 import { UserServiceClient } from '~common/grpc/interfaces/core';
@@ -18,10 +19,15 @@ export class ApiSocialsService implements OnModuleInit {
     this.userService = this.client.getService('UserService');
   }
 
-  async loginSocials(request: SocialsAuthRequest, session: SessionProxy) {
-    const { user } = await firstValueFrom(this.userService.findByLogin({ email: request.email }));
+  async loginSocials({ social_id, source, email }: SocialsAuthRequest, session: SessionProxy) {
+    const { user } = await firstValueFrom(
+      source === UserSourceEnum.Apple && social_id
+        ? this.userService.findBySocialId({ social_id })
+        : this.userService.findByLogin({ email }),
+    );
+
     if (user) {
-      if (user.source === request.source) {
+      if (user.source === source) {
         return this.authService.login(user, session);
       }
 

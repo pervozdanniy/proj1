@@ -47,6 +47,9 @@ export class UserEntity {
   @Column('varchar', { length: 50, default: UserSourceEnum.Api })
   source: UserSourceEnum;
 
+  @Column('varchar', { nullable: true })
+  social_id: string;
+
   @OneToOne(() => UserDetailsEntity, (details) => details.user)
   details?: UserDetailsEntity;
 

@@ -16,6 +16,7 @@ message User {
     repeated User contacts = 12;
     optional UserAgreement agreement = 13;
     optional string country_code = 14;
+    optional string social_id = 15;
 }
 
 message UserAgreement {

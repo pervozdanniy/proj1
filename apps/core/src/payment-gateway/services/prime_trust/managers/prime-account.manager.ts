@@ -2,7 +2,7 @@ import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { PrimeKycManager } from '@/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
-import { AccountType, CipCheckType, ContactType, CreateAccountType } from '@/payment-gateway/types/prime-trust';
+import { AccountType, CreateAccountType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -104,34 +104,16 @@ export class PrimeAccountManager {
       //create contact after creating account
       const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
 
-      const contactResponse = await this.httpService.request({
+      setTimeout(() => {
+        console.log('Delayed for 1 second.');
+      }, 1000);
+
+      const contactData = await this.httpService.request({
         method: 'get',
-        url: `${this.prime_trust_url}/v2/contacts`,
+        url: `${this.prime_trust_url}/v2/contacts?account.id=${account.uuid}`,
       });
 
-      const contactData = contactResponse.data.data.filter((contact: ContactType) => {
-        return contact.attributes['account-id'] === account.uuid;
-      });
-
-      if (process.env.NODE_ENV === 'dev') {
-        const contactCipData = await this.httpService.request({
-          method: 'get',
-          url: `${this.prime_trust_url}/v2/contacts/${contactData[0].id}?include=cip-checks`,
-        });
-
-        // approve cip for development
-        contactCipData.data.included.map(async (inc: CipCheckType) => {
-          if (inc.type === 'cip-checks' && inc.attributes.status === 'pending') {
-            await this.httpService.request({
-              method: 'post',
-              url: `${this.prime_trust_url}/v2/cip-checks/${inc.id}/sandbox/approve`,
-              data: null,
-            });
-          }
-        });
-      }
-
-      await this.primeKycManager.saveContact(contactData.pop(), account.user_id);
+      await this.primeKycManager.saveContact(contactData.data.data.pop(), account.user_id);
 
       // account open from development
       // if (process.env.NODE_ENV === 'dev') {

@@ -1,10 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEmail, IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { UserSourceEnum } from '~common/constants/user';
 
 export class RegisterSocialsUserDto {
-  @ApiProperty({ example: 'test453_sd@gmail.com' })
+  @ApiProperty({ example: '1212sdsdsa434' })
+  @IsString()
+  @IsOptional()
+  social_id?: string;
+
+  @ApiProperty({ example: 'test@gmail.com' })
   @IsString()
   @IsNotEmpty()
   @IsEmail()

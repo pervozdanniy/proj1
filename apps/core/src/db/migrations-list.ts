@@ -40,6 +40,7 @@ import { CreateKycTable1680787242455 } from './migrations/1680787242455-CreateKy
 import { AlterUserDetailsTable1680870468046 } from './migrations/1680870468046-AlterUserDetailsTable';
 import { AlterSocureTable1681129677815 } from './migrations/1681129677815-AlterSocureTable';
 import { AddApartmentFieldToUserTable1681292485266 } from './migrations/1681292485266-AddApartmentFieldToUserTable';
+import { AddSocialIdInUsersTable1681379332794 } from './migrations/1681379332794-AddSocialIdInUsersTable';
 
 export default [
   createUserTable1669901299726,
@@ -84,4 +85,5 @@ export default [
   AlterUserDetailsTable1680870468046,
   AlterSocureTable1681129677815,
   AddApartmentFieldToUserTable1681292485266,
+  AddSocialIdInUsersTable1681379332794,
 ];
