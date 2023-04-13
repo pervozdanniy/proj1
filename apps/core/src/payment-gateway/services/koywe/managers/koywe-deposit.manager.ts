@@ -114,7 +114,7 @@ export class KoyweDepositManager {
 
   async createQuote(params: { amount: string; currency: string; method?: KoywePaymentMethod }): Promise<KoyweQuote> {
     try {
-      const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(params.currency, params.method);
+      const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(params.currency, params.method ?? 'KHIPU');
 
       const formData = {
         symbolIn: params.currency,
