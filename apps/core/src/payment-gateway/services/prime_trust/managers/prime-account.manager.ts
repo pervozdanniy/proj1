@@ -104,9 +104,7 @@ export class PrimeAccountManager {
       //create contact after creating account
       const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
 
-      setTimeout(() => {
-        console.log('Delayed for 1 second.');
-      }, 1000);
+      setTimeout(() => {}, 1000);
 
       const contactData = await this.httpService.request({
         method: 'get',

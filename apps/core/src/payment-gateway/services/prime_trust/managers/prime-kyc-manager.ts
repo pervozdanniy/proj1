@@ -340,8 +340,6 @@ export class PrimeKycManager {
 
     const { user_id } = accountData;
 
-    console.log('cip check activated');
-
     if (process.env.NODE_ENV === 'dev') {
       // approve cip for development
 
