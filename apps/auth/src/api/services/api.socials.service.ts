@@ -21,7 +21,7 @@ export class ApiSocialsService implements OnModuleInit {
 
   async loginSocials({ social_id, source, email }: SocialsAuthRequest, session: SessionProxy) {
     const { user } = await firstValueFrom(
-      source === UserSourceEnum.Apple && social_id
+      source !== UserSourceEnum.Api && social_id
         ? this.userService.findBySocialId({ social_id })
         : this.userService.findByLogin({ email }),
     );
