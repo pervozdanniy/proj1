@@ -2,6 +2,7 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   FileTypeValidator,
   Get,
   HttpCode,
@@ -153,7 +154,24 @@ export class UserController {
     )
     avatar: Express.Multer.File,
   ) {
-    return this.userService.upload(id, { avatar });
+    const user = await this.userService.upload(id, { avatar });
+
+    return plainToInstance(PublicUserDto, user);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Remove avatar.' })
+  @ApiResponse({
+    description: 'The user updated successfully.',
+    type: PublicUserDto,
+  })
+  @JwtSessionAuth()
+  @Delete('/remove/avatar')
+  async removeAvatar(@JwtSessionUser() { id }: User): Promise<PublicUserDto> {
+    const request = { id };
+    const user = await this.userService.update(request);
+
+    return plainToInstance(PublicUserDto, user);
   }
 
   @ApiBearerAuth()
