@@ -167,10 +167,4 @@ export class UserService {
       .limit(request.limit)
       .getRawMany();
   }
-
-  async removeAvatar(id: number) {
-    await this.userDetailsRepository.update({ user_id: id }, { avatar: null });
-
-    return this.userRepository.findOne({ where: { id }, relations: ['details'] });
-  }
 }

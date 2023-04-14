@@ -77,7 +77,7 @@ export class S3Service {
     return `${this.baseUrl}/${this.bucket}/${this.buildKey(key)}`;
   }
 
-  async deleteAvatar(key: string) {
+  async delete(key: string) {
     const command = new DeleteObjectCommand({
       Bucket: this.bucket,
       Key: key,

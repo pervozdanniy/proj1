@@ -16,8 +16,6 @@ service UserService {
 
   rpc Delete (common.IdRequest) returns (common.SuccessResponse);
 
-  rpc RemoveAvatar (common.IdRequest) returns (common.User);
-
   rpc Update (UpdateRequest) returns (common.User);
 
   rpc UpdateContacts (UpdateContactsRequest) returns (common.User);

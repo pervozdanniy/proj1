@@ -82,8 +82,8 @@ export class UserService implements OnModuleInit {
 
   async removeAvatar(id: number) {
     const current = await firstValueFrom(this.userService.getById({ id }));
-    await this.s3.deleteAvatar(current.details.avatar);
-    const user = await firstValueFrom(this.userService.removeAvatar({ id }));
+    await this.s3.delete(current.details.avatar);
+    const user = await firstValueFrom(this.userService.update({ id, details: { avatar: '' } }));
 
     return this.withAvatarUrl(user);
   }

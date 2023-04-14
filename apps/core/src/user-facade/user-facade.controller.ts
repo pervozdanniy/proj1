@@ -1,6 +1,6 @@
 import { Logger, UsePipes, ValidationPipe } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { IdRequest, SuccessResponse, User } from '~common/grpc/interfaces/common';
+import { SuccessResponse, User } from '~common/grpc/interfaces/common';
 import {
   CheckIfUniqueRequest,
   ContactsResponse,
@@ -81,12 +81,6 @@ export class UserFacadeController implements UserServiceController {
         .update(user, contacts)
         .catch((error) => this.logger.error('Update user: contacts syncronization failed', error));
     }
-
-    return plainToInstance(UserResponseDto, user);
-  }
-
-  async removeAvatar({ id }: IdRequest): Promise<User> {
-    const user = await this.userService.removeAvatar(id);
 
     return plainToInstance(UserResponseDto, user);
   }

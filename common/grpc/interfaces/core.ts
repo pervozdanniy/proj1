@@ -99,8 +99,6 @@ export interface UserServiceClient {
 
   delete(request: IdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  removeAvatar(request: IdRequest, ...rest: any): Observable<User>;
-
   update(request: UpdateRequest, ...rest: any): Observable<User>;
 
   updateContacts(request: UpdateContactsRequest, ...rest: any): Observable<User>;
@@ -123,8 +121,6 @@ export interface UserServiceController {
   create(request: CreateRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
   delete(request: IdRequest, ...rest: any): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  removeAvatar(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
   update(request: UpdateRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
@@ -153,7 +149,6 @@ export function UserServiceControllerMethods() {
       "findByLogin",
       "create",
       "delete",
-      "removeAvatar",
       "update",
       "updateContacts",
       "checkIfUnique",
