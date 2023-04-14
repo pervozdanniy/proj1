@@ -65,10 +65,12 @@ export class UserService implements OnModuleInit {
   }
   async getLatestRecepients(data: RecepientsRequest) {
     const resp = await lastValueFrom(this.userService.getLatestRecepients(data));
+    console.log('HERE', resp);
     resp.recepients = resp.recepients.map((r) => this.withAvatarUrl(r));
 
     return resp;
   }
+
   async upload(id: number, { avatar }: UploadAvatarDto) {
     const key = crypto.createHash('sha1').update(id.toString(), 'utf8').digest('hex');
     await this.s3.upload(key, avatar);
