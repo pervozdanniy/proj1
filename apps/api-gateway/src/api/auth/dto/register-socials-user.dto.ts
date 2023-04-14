@@ -7,7 +7,7 @@ export class RegisterSocialsUserDto {
   @ApiProperty({ example: '1212sdsdsa434' })
   @IsString()
   @IsOptional()
-  social_id?: string;
+  socialId?: string;
 
   @ApiProperty({ example: 'test@gmail.com' })
   @IsString()

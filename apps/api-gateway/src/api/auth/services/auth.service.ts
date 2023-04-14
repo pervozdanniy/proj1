@@ -25,13 +25,13 @@ export class AuthService implements OnModuleInit {
   }
 
   async loginSocials(payload: SocialsUserDto) {
-    const resp = await firstValueFrom(this.authClient.loginSocials(payload));
+    const resp = await firstValueFrom(this.authClient.loginSocials({ ...payload, social_id: payload.socialId }));
 
     return this.auth2FA.validateAuthResponse(resp);
   }
 
   async registerSocials(payload: RegisterSocialsUserDto) {
-    const resp = await firstValueFrom(this.authClient.registerSocials(payload));
+    const resp = await firstValueFrom(this.authClient.registerSocials({ ...payload, social_id: payload.socialId }));
 
     return this.auth2FA.validateAuthResponse(resp);
   }
