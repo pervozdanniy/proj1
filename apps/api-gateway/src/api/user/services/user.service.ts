@@ -32,7 +32,7 @@ export class UserService implements OnModuleInit {
       user.details.avatar = this.s3.getUrl(user.details.avatar);
     }
     if (user.avatar) {
-      user.avatar = this.s3.getUrl(user.details.avatar);
+      user.avatar = this.s3.getUrl(user.avatar);
     }
 
     return user;
@@ -65,7 +65,6 @@ export class UserService implements OnModuleInit {
   }
   async getLatestRecepients(data: RecepientsRequest) {
     const resp = await lastValueFrom(this.userService.getLatestRecepients(data));
-    console.log('HERE', resp);
     resp.recepients = resp.recepients.map((r) => this.withAvatarUrl(r));
 
     return resp;
