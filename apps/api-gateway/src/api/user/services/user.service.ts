@@ -71,10 +71,21 @@ export class UserService implements OnModuleInit {
   }
 
   async upload(id: number, { avatar }: UploadAvatarDto) {
-    const key = crypto.createHash('sha1').update(id.toString(), 'utf8').digest('hex');
+    const timestamp = new Date().toISOString();
+    const input = id.toString() + timestamp;
+    const key = crypto.createHash('sha1').update(input, 'utf8').digest('hex');
     await this.s3.upload(key, avatar);
-    await firstValueFrom(this.userService.update({ id, details: { avatar: key } }));
 
-    return { success: true };
+    const user = await firstValueFrom(this.userService.update({ id, details: { avatar: key } }));
+
+    return this.withAvatarUrl(user);
+  }
+
+  async removeAvatar(id: number) {
+    const current = await firstValueFrom(this.userService.getById({ id }));
+    await this.s3.delete(current.details.avatar);
+    const user = await firstValueFrom(this.userService.update({ id, details: { avatar: '' } }));
+
+    return this.withAvatarUrl(user);
   }
 }
