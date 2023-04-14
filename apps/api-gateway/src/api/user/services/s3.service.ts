@@ -83,11 +83,6 @@ export class S3Service {
       Key: key,
     });
 
-    try {
-      await this.s3.send(command);
-      console.log(`Avatar ${key} deleted successfully`);
-    } catch (error) {
-      console.error(`Error deleting object ${key}: ${error}`);
-    }
+    return this.s3.send(command);
   }
 }
