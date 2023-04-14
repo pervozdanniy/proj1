@@ -46,7 +46,7 @@ export class UserService implements OnModuleInit {
 
   async update(request: UpdateUserDto) {
     const payload: UpdateRequest = request;
-    const user = await firstValueFrom(this.userService.update({ ...payload, details: { avatar: '' } }));
+    const user = await firstValueFrom(this.userService.update(payload));
 
     return this.withAvatarUrl(user);
   }
@@ -76,6 +76,14 @@ export class UserService implements OnModuleInit {
     await this.s3.upload(key, avatar);
 
     const user = await firstValueFrom(this.userService.update({ id, details: { avatar: key } }));
+
+    return this.withAvatarUrl(user);
+  }
+
+  async removeAvatar(id: number) {
+    const current = await firstValueFrom(this.userService.getById({ id }));
+    await this.s3.deleteAvatar(current.details.avatar);
+    const user = await firstValueFrom(this.userService.removeAvatar({ id }));
 
     return this.withAvatarUrl(user);
   }

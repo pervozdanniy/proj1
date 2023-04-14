@@ -73,9 +73,6 @@ export class UserService {
     await this.userRepository.update({ id }, payload);
 
     if (details) {
-      if (details.avatar.trim() === '') {
-        details.avatar = null;
-      }
       const currentDetails = await this.userDetailsRepository.findOneBy({ user_id: id });
       if (currentDetails) {
         await this.userDetailsRepository.update({ user_id: id }, details);
@@ -169,5 +166,11 @@ export class UserService {
       .andWhere(`t.updated_at >= (NOW() - interval '1 year')`)
       .limit(request.limit)
       .getRawMany();
+  }
+
+  async removeAvatar(id: number) {
+    await this.userDetailsRepository.update({ user_id: id }, { avatar: null });
+
+    return this.userRepository.findOne({ where: { id }, relations: ['details'] });
   }
 }

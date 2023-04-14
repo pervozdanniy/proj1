@@ -1,5 +1,6 @@
 import {
   CreateBucketCommand,
+  DeleteObjectCommand,
   HeadBucketCommand,
   HeadBucketRequest,
   PutBucketPolicyCommand,
@@ -74,5 +75,19 @@ export class S3Service {
 
   getUrl(key: string) {
     return `${this.baseUrl}/${this.bucket}/${this.buildKey(key)}`;
+  }
+
+  async deleteAvatar(key: string) {
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+    });
+
+    try {
+      await this.s3.send(command);
+      console.log(`Avatar ${key} deleted successfully`);
+    } catch (error) {
+      console.error(`Error deleting object ${key}: ${error}`);
+    }
   }
 }

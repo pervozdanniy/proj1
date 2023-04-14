@@ -168,8 +168,7 @@ export class UserController {
   @JwtSessionAuth()
   @Delete('/remove/avatar')
   async removeAvatar(@JwtSessionUser() { id }: User): Promise<PublicUserDto> {
-    const request = { id };
-    const user = await this.userService.update(request);
+    const user = await this.userService.removeAvatar(id);
 
     return plainToInstance(PublicUserDto, user);
   }
