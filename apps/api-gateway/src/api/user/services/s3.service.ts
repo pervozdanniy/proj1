@@ -1,5 +1,6 @@
 import {
   CreateBucketCommand,
+  DeleteObjectCommand,
   HeadBucketCommand,
   HeadBucketRequest,
   PutBucketPolicyCommand,
@@ -74,5 +75,14 @@ export class S3Service {
 
   getUrl(key: string) {
     return `${this.baseUrl}/${this.bucket}/${this.buildKey(key)}`;
+  }
+
+  async delete(key: string) {
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+    });
+
+    return this.s3.send(command);
   }
 }

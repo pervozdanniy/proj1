@@ -32,7 +32,7 @@ export class UserService implements OnModuleInit {
       user.details.avatar = this.s3.getUrl(user.details.avatar);
     }
     if (user.avatar) {
-      user.avatar = this.s3.getUrl(user.details.avatar);
+      user.avatar = this.s3.getUrl(user.avatar);
     }
 
     return user;
@@ -69,11 +69,23 @@ export class UserService implements OnModuleInit {
 
     return resp;
   }
-  async upload(id: number, { avatar }: UploadAvatarDto) {
-    const key = crypto.createHash('sha1').update(id.toString(), 'utf8').digest('hex');
-    await this.s3.upload(key, avatar);
-    await firstValueFrom(this.userService.update({ id, details: { avatar: key } }));
 
-    return { success: true };
+  async upload(id: number, { avatar }: UploadAvatarDto) {
+    const timestamp = new Date().toISOString();
+    const input = id.toString() + timestamp;
+    const key = crypto.createHash('sha1').update(input, 'utf8').digest('hex');
+    await this.s3.upload(key, avatar);
+
+    const user = await firstValueFrom(this.userService.update({ id, details: { avatar: key } }));
+
+    return this.withAvatarUrl(user);
+  }
+
+  async removeAvatar(id: number) {
+    const current = await firstValueFrom(this.userService.getById({ id }));
+    await this.s3.delete(current.details.avatar);
+    const user = await firstValueFrom(this.userService.update({ id, details: { avatar: '' } }));
+
+    return this.withAvatarUrl(user);
   }
 }
