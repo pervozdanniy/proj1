@@ -1,5 +1,13 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { ContributionEntity } from './contribution.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { PrimeTrustContactEntity } from './prime-trust-contact.entity';
 
 @Entity('deposit_params')
 export class DepositParamsEntity {
@@ -24,6 +32,7 @@ export class DepositParamsEntity {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => ContributionEntity, (c) => c.depositParams)
-  contributions?: ContributionEntity[];
+  @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.withdrawalParams, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  contact?: PrimeTrustContactEntity;
 }

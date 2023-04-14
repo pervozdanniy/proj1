@@ -10,14 +10,12 @@ import { CountryModule } from '../country/country.module';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
-import { ContributionEntity } from './entities/prime_trust/contribution.entity';
 import { DepositParamsEntity } from './entities/prime_trust/deposit-params.entity';
 import { PrimeTrustAccountEntity } from './entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from './entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
-import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
 import { SocureDocumentEntity } from './entities/socure-document.entity';
 import { TransfersEntity } from './entities/transfers.entity';
 import { ArgentinaPaymentGateway } from './manager/countries/argentina-payment.gateway';
@@ -67,9 +65,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       PrimeTrustKycDocumentEntity,
       PrimeTrustBalanceEntity,
       WithdrawalParamsEntity,
-      WithdrawalEntity,
       NotificationEntity,
-      ContributionEntity,
       CardResourceEntity,
       TransfersEntity,
       BankAccountEntity,

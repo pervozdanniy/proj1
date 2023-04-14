@@ -4,12 +4,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { PrimeTrustContactEntity } from './prime-trust-contact.entity';
-import { WithdrawalEntity } from './withdrawal.entity';
 
 @Entity('withdrawal_params')
 export class WithdrawalParamsEntity {
@@ -37,7 +35,4 @@ export class WithdrawalParamsEntity {
   @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.withdrawalParams, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   contact?: PrimeTrustContactEntity;
-
-  @OneToMany(() => WithdrawalEntity, (w) => w.params)
-  withdrawals?: WithdrawalEntity[];
 }

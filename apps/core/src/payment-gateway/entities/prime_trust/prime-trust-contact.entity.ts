@@ -1,7 +1,6 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
 import { TransfersEntity } from '../transfers.entity';
 import { BankAccountEntity } from './bank-account.entity';
-import { ContributionEntity } from './contribution.entity';
 import { PrimeTrustAccountEntity } from './prime-trust-account.entity';
 import { PrimeTrustKycDocumentEntity } from './prime-trust-kyc-document.entity';
 import { WithdrawalParamsEntity } from './withdrawal-params.entity';
@@ -54,9 +53,6 @@ export class PrimeTrustContactEntity {
 
   @OneToMany(() => TransfersEntity, (params) => params.contact)
   transferFunds?: TransfersEntity[];
-
-  @OneToMany(() => ContributionEntity, (params) => params.contact)
-  contributions?: ContributionEntity[];
 
   @OneToMany(() => BankAccountEntity, (params) => params.contact)
   bank_accounts?: BankAccountEntity[];
