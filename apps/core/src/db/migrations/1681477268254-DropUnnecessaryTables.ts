@@ -6,7 +6,5 @@ export class DropUnnecessaryTables1681477268254 implements MigrationInterface {
     await queryRunner.query('DROP TABLE withdrawals CASCADE;');
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    console.log(queryRunner);
-  }
+  public async down(): Promise<void> {}
 }
