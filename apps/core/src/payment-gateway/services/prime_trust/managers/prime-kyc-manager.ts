@@ -307,7 +307,7 @@ export class PrimeKycManager {
 
         throw new GrpcException(code, detail);
       } else {
-        throw new GrpcException(Status.ABORTED, e.message, 400);
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
     }
   }
