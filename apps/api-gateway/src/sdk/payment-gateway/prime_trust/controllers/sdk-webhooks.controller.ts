@@ -25,12 +25,15 @@ export class SdkWebhooksController {
     const sendData = {
       id: payload['account-id'],
       resource_id: payload['resource_id'],
-      payment_gateway: 'prime_trust',
     };
 
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
     }
+    if (resource_type === 'contacts' && action === 'update') {
+      return this.paymentGatewayService.updateContact(sendData);
+    }
+
     if (resource_type === 'kyc_document_checks' && action === 'update') {
       return this.paymentGatewayService.documentCheck(sendData);
     }

@@ -1,7 +1,7 @@
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
-import { PrimeKycManager } from '@/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
+// import { PrimeKycManager } from '@/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { AccountType, CreateAccountType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
@@ -27,7 +27,7 @@ export class PrimeAccountManager {
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
 
-    private readonly primeKycManager: PrimeKycManager,
+    // private readonly primeKycManager: PrimeKycManager,
 
     private countryService: CountryService,
 
@@ -103,15 +103,6 @@ export class PrimeAccountManager {
 
       //create contact after creating account
       const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
-
-      setTimeout(() => {}, 1000);
-
-      const contactData = await this.httpService.request({
-        method: 'get',
-        url: `${this.prime_trust_url}/v2/contacts?account.id=${account.uuid}`,
-      });
-
-      await this.primeKycManager.saveContact(contactData.data.data.pop(), account.user_id);
 
       // account open from development
       // if (process.env.NODE_ENV === 'dev') {

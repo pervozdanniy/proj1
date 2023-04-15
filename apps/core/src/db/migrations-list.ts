@@ -43,6 +43,7 @@ import { AddApartmentFieldToUserTable1681292485266 } from './migrations/16812924
 import { AddSocialIdInUsersTable1681379332794 } from './migrations/1681379332794-AddSocialIdInUsersTable';
 import { DropUnnecessaryTables1681477268254 } from './migrations/1681477268254-DropUnnecessaryTables';
 import { GenerateRelationsTable1681477802578 } from './migrations/1681477802578-GenerateRelationsTable';
+import { AlterKycDocumentsTable1681553441656 } from './migrations/1681553441656-AlterKycDocumentsTable';
 
 export default [
   createUserTable1669901299726,
@@ -90,4 +91,5 @@ export default [
   AddSocialIdInUsersTable1681379332794,
   DropUnnecessaryTables1681477268254,
   GenerateRelationsTable1681477802578,
+  AlterKycDocumentsTable1681553441656,
 ];
