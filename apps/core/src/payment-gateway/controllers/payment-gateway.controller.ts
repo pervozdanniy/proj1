@@ -81,8 +81,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
 
   updateContact(request: AccountIdRequest): Promise<SuccessResponse> {
-    console.log('contact update activated');
-
     return this.webhooksService.updateContact(request);
   }
   documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
