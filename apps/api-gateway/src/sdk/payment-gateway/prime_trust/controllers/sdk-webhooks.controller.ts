@@ -30,10 +30,15 @@ export class SdkWebhooksController {
     if (resource_type === 'accounts' && action === 'update') {
       return this.paymentGatewayService.updateAccount(sendData);
     }
-    if (resource_type === 'contacts' && action === 'update') {
+    if ((resource_type === 'contacts' || resource_type === 'contact') && action === 'update') {
       return this.paymentGatewayService.updateContact(sendData);
     }
-
+    if (resource_type === 'sub_asset_transfers' && action === 'update') {
+      return this.paymentGatewayService.updateBalance(sendData);
+    }
+    if (resource_type === 'internal_asset_transfers' && action === 'update') {
+      return this.paymentGatewayService.updateBalance(sendData);
+    }
     if (resource_type === 'kyc_document_checks' && action === 'update') {
       return this.paymentGatewayService.documentCheck(sendData);
     }

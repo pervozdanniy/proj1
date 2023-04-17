@@ -44,6 +44,9 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  transferToHotWallet(): Promise<SuccessResponse> {
+    return this.paymentGatewayService.transferToHotWallet();
+  }
   createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
     return this.webhooksService.createSocureDocument(request);
   }

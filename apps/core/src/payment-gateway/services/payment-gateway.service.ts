@@ -130,4 +130,8 @@ export class PaymentGatewayService {
   getUserAccountStatus(request: IdRequest) {
     return this.primeTrustService.getUserAccountStatus(request);
   }
+
+  transferToHotWallet() {
+    return this.primeTrustService.transferToHotWallet();
+  }
 }

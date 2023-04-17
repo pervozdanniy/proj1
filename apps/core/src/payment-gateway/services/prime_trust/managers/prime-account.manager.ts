@@ -1,13 +1,13 @@
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
-// import { PrimeKycManager } from '@/payment-gateway/services/prime_trust/managers/prime-kyc-manager';
 import { AccountType, CreateAccountType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as process from 'process';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
@@ -15,6 +15,7 @@ import { AccountResponse, AccountStatusResponse, AgreementRequest } from '~commo
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryService } from '../../../../country/country.service';
 import { UserService } from '../../../../user/services/user.service';
+import { PrimeTrustBalanceEntity } from '../../../entities/prime_trust/prime-trust-balance.entity';
 import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
 
 @Injectable()
@@ -266,5 +267,58 @@ export class PrimeAccountManager {
     const user = await this.userService.get(id);
 
     return { status: user.status };
+  }
+
+  async transferToHotWallet(): Promise<SuccessResponse> {
+    const accountsData: { account_id: string; unit_count: string }[] = await this.primeAccountRepository
+      .createQueryBuilder('a')
+      .leftJoinAndSelect(PrimeTrustBalanceEntity, 'b', 'a.user_id = b.user_id')
+      .select(['a.uuid as account_id,b.cold_balance as unit_count'])
+      .where('a.uuid = :id', { id: '5596b482-5867-4bd8-8992-22fa3656a45d' })
+      .take(2)
+      .getRawMany();
+
+    const sendData = accountsData.map((a) => {
+      const formData = {
+        data: {
+          type: 'sub-asset-transfers',
+          attributes: {
+            'unit-count': a.unit_count,
+            'account-id': a.account_id,
+            'asset-id': process.env.ASSET_ID,
+          },
+        },
+      };
+
+      return this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/sub-asset-transfers`,
+        data: formData,
+      });
+    });
+
+    await Promise.all(sendData).catch((e) => this.logger.log(e));
+
+    if (process.env.NODE_ENV === 'dev') {
+      const subAssetTransfers = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/sub-asset-transfers`,
+        data: null,
+      });
+
+      if (subAssetTransfers.data) {
+        subAssetTransfers.data.data.map((a: { id: string; attributes: { status: string } }) => {
+          if (a.attributes.status === 'pending') {
+            this.httpService.request({
+              method: 'post',
+              url: `${this.prime_trust_url}/v2/sub-asset-transfers/${a.id}/sandbox/settle`,
+              data: null,
+            });
+          }
+        });
+      }
+    }
+
+    return { success: true };
   }
 }

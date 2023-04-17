@@ -205,4 +205,15 @@ export class MainController {
   async createSocureDocument(@Body() payload: SocureDocumentDto) {
     return this.paymentGatewayService.createSocureDocument(payload);
   }
+
+  @ApiOperation({ summary: 'Transfer all accounts money to hot wallets.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Post('/hot_wallet')
+  async transferToHotWallet() {
+    return this.paymentGatewayService.transferToHotWallet();
+  }
 }

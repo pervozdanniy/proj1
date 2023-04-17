@@ -176,9 +176,21 @@ export class PrimeWithdrawalManager {
     return { data: JSON.stringify(response) };
   }
 
-  async sendWithdrawalRequest(request: TransferMethodRequest, account_id: string, funds_transfer_method_id: string) {
-    const { amount } = request;
-    const { total_amount, fee_amount } = await this.primeFundsTransferManager.convertAssetToUSD(account_id, amount);
+  async sendWithdrawalRequest(
+    { id, amount }: TransferMethodRequest,
+    account_id: string,
+    funds_transfer_method_id: string,
+  ) {
+    let hotStatus = false;
+    const balance = await this.primeBalanceManager.getAccountBalance(id);
+    if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
+      hotStatus = true;
+    }
+    const { total_amount, fee_amount } = await this.primeFundsTransferManager.convertAssetToUSD(
+      account_id,
+      amount,
+      hotStatus,
+    );
 
     const formData = {
       data: {

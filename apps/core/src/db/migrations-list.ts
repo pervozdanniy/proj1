@@ -44,6 +44,7 @@ import { AddSocialIdInUsersTable1681379332794 } from './migrations/1681379332794
 import { DropUnnecessaryTables1681477268254 } from './migrations/1681477268254-DropUnnecessaryTables';
 import { GenerateRelationsTable1681477802578 } from './migrations/1681477802578-GenerateRelationsTable';
 import { AlterKycDocumentsTable1681553441656 } from './migrations/1681553441656-AlterKycDocumentsTable';
+import { AddHotWalletParams1681741975606 } from './migrations/1681741975606-AddHotWalletParams';
 
 export default [
   createUserTable1669901299726,
@@ -92,4 +93,5 @@ export default [
   DropUnnecessaryTables1681477268254,
   GenerateRelationsTable1681477802578,
   AlterKycDocumentsTable1681553441656,
+  AddHotWalletParams1681741975606,
 ];

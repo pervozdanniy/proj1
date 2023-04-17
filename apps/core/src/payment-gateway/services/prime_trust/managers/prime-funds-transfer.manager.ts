@@ -88,7 +88,7 @@ export class PrimeFundsTransferManager {
     }
   }
 
-  async convertAssetToUSD(account_id: string, amount: string): Promise<AssetToUSDResponse> {
+  async convertAssetToUSD(account_id: string, amount: string, hotStatus: boolean): Promise<AssetToUSDResponse> {
     const formData = {
       data: {
         type: 'quotes',
@@ -97,9 +97,11 @@ export class PrimeFundsTransferManager {
           'asset-id': this.asset_id,
           'transaction-type': 'sell',
           amount,
+          hot: hotStatus,
         },
       },
     };
+
     try {
       const quoteResponse = await this.httpService.request({
         method: 'post',
@@ -129,7 +131,12 @@ export class PrimeFundsTransferManager {
     }
   }
 
-  async sendFunds(fromAccountId: string, toAccountId: string, unit_count: string): Promise<SendFundsResponse> {
+  async sendFunds(
+    fromAccountId: string,
+    toAccountId: string,
+    unit_count: string,
+    hotStatus: boolean,
+  ): Promise<SendFundsResponse> {
     try {
       const formData = {
         data: {
@@ -139,7 +146,7 @@ export class PrimeFundsTransferManager {
             'asset-id': this.asset_id,
             'from-account-id': fromAccountId,
             'to-account-id': toAccountId,
-            reference: 'For Trade Settlement',
+            'hot-transfer': hotStatus,
           },
         },
       };
@@ -174,7 +181,12 @@ export class PrimeFundsTransferManager {
 
     const { unit_count, fee_amount } = await this.convertUSDtoAsset(fromAccountId, amount, true);
 
-    const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count);
+    const balance = await this.primeBalanceManager.getAccountBalance(sender_id);
+    let hotStatus = false;
+    if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
+      hotStatus = true;
+    }
+    const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count, hotStatus);
 
     const payload = {
       fee: fee_amount,
@@ -219,7 +231,7 @@ export class PrimeFundsTransferManager {
       user_id: id,
       title: 'Funds Transfer',
       type: 'transfer_funds',
-      description: `${description}. Your current balance is ${balanceData['settled']} ${balanceData['currency-type']}`,
+      description: `${description}. Your current balance is ${balanceData['settled']} ${balanceData['currency_type']}`,
     };
 
     this.notificationService.createAsync(notificationPayload);

@@ -55,8 +55,14 @@ export class PrimeBalanceManager {
     const convertData = await lastValueFrom(
       this.axiosService.get(`https://min-api.cryptocompare.com/data/price?fsym=${this.asset}&tsyms=USD`),
     );
-    const convertedAmount = parseFloat(convertData.data['USD']) * parseFloat(cacheData.settled);
-    cacheData.settled = String(convertedAmount.toFixed(2));
+
+    cacheData.settled = String((parseFloat(convertData.data['USD']) * parseFloat(cacheData.settled)).toFixed(2));
+    cacheData.hot_balance = String(
+      (parseFloat(convertData.data['USD']) * parseFloat(cacheData.hot_balance)).toFixed(2),
+    );
+    cacheData.cold_balance = String(
+      (parseFloat(convertData.data['USD']) * parseFloat(cacheData.cold_balance)).toFixed(2),
+    );
 
     return this.saveBalance(user_id, cacheData);
   }
@@ -68,14 +74,20 @@ export class PrimeBalanceManager {
         url: `${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-asset-totals`,
       });
       let balance = '0';
+      let cold_balance = '0';
+      let hot_balance = '0';
       if (cacheResponse.data.included.length !== 0) {
         const attributes = cacheResponse.data.included[0].attributes;
         balance = attributes['settled'];
+        cold_balance = attributes['settled-cold'];
+        hot_balance = attributes['settled-hot'];
       }
 
       return {
         settled: balance,
-        'currency-type': 'USD',
+        cold_balance,
+        hot_balance,
+        currency_type: 'USD',
       };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
@@ -92,7 +104,9 @@ export class PrimeBalanceManager {
     const currentBalance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id } });
     const balancePayload = {
       settled: cacheData.settled,
-      currency_type: cacheData['currency-type'],
+      hot_balance: cacheData.hot_balance,
+      cold_balance: cacheData.cold_balance,
+      currency_type: cacheData.currency_type,
     };
 
     if (!currentBalance) {
@@ -109,7 +123,7 @@ export class PrimeBalanceManager {
     return { success: true };
   }
 
-  async getAccountBalance(id: number) {
+  async getAccountBalance(id: number): Promise<BalanceAttributes> {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: id } });
     if (!account) {
       throw new GrpcException(Status.NOT_FOUND, `Account for this user not exist!`, 400);
@@ -119,6 +133,8 @@ export class PrimeBalanceManager {
 
     return {
       settled: balance.settled,
+      hot_balance: balance.hot_balance,
+      cold_balance: balance.cold_balance,
       currency_type: balance.currency_type,
     };
   }
