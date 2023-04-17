@@ -324,9 +324,10 @@ export class PrimeKycManager {
     const { contact_id } = accountData;
 
     const cipResponse = await this.getCipCheckInfo(resource_id);
+
     if (process.env.NODE_ENV === 'dev') {
       // approve cip for development
-      if (cipResponse === 'pending') {
+      if (cipResponse.status === 'pending') {
         await this.httpService.request({
           method: 'post',
           url: `${this.prime_trust_url}/v2/cip-checks/${resource_id}/sandbox/approve`,
@@ -335,7 +336,7 @@ export class PrimeKycManager {
       }
     }
 
-    if (cipResponse === 'approved') {
+    if (cipResponse.status === 'approved') {
       await this.updateContact({ id, resource_id: contact_id });
     }
 
