@@ -137,15 +137,16 @@ export class UserService {
     ]);
 
     let has_more = false;
+    let last_id = 0;
 
     const contacts = await queryBuilder.limit(limit + 1).getRawMany();
 
     if (contacts.length > limit) {
       has_more = true;
       contacts.splice(-1);
+      const { id } = contacts.at(-1);
+      last_id = id;
     }
-
-    const { id: last_id } = contacts.at(-1);
 
     return {
       last_id,
