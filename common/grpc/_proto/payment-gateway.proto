@@ -46,6 +46,7 @@ service PaymentGatewayService {
   rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateContact (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
@@ -340,8 +341,7 @@ message JsonData {
 
 message AccountIdRequest{
   string id = 1;
-  string payment_gateway = 2;
-  optional string resource_id = 3;
+  optional string resource_id = 2;
 }
 
 

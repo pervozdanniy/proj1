@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { Contact, ContactsResponse, SearchContactRequest } from '~common/grpc/interfaces/core';
 import { CountryService } from '../../country/country.service';
+import { FindBySocialIdDto } from '../dto/find-by-social-id.dto';
 import { FindRequestDto } from '../dto/find.request.dto';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserContactEntity } from '../entities/user-contact.entity';
@@ -54,6 +55,10 @@ export class UserService {
 
   findByLogin({ email, phone }: FindRequestDto) {
     return this.userRepository.findOneBy({ email, phone });
+  }
+
+  findBySocialId({ social_id }: FindBySocialIdDto) {
+    return this.userRepository.findOneBy({ social_id });
   }
 
   async delete(id: number) {
@@ -132,15 +137,16 @@ export class UserService {
     ]);
 
     let has_more = false;
+    let last_id = 0;
 
     const contacts = await queryBuilder.limit(limit + 1).getRawMany();
 
     if (contacts.length > limit) {
       has_more = true;
       contacts.splice(-1);
+      const { id } = contacts.at(-1);
+      last_id = id;
     }
-
-    const { id: last_id } = contacts.at(-1);
 
     return {
       last_id,

@@ -280,7 +280,6 @@ export interface JsonData {
 
 export interface AccountIdRequest {
   id: string;
-  payment_gateway: string;
   resource_id?: string | undefined;
 }
 
@@ -378,6 +377,8 @@ export interface PaymentGatewayServiceClient {
   cipCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   updateAccount(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  updateContact(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
@@ -529,6 +530,11 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
+  updateContact(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
   updateBalance(
     request: AccountIdRequest,
     ...rest: any
@@ -590,6 +596,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "documentCheck",
       "cipCheck",
       "updateAccount",
+      "updateContact",
       "updateBalance",
       "updateContribution",
       "updateWithdraw",

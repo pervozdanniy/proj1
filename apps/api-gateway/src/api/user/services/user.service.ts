@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import crypto from 'node:crypto';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
@@ -83,9 +83,13 @@ export class UserService implements OnModuleInit {
 
   async removeAvatar(id: number) {
     const current = await firstValueFrom(this.userService.getById({ id }));
-    await this.s3.delete(current.details.avatar);
-    const user = await firstValueFrom(this.userService.update({ id, details: { avatar: '' } }));
+    if (current.details.avatar) {
+      await this.s3.delete(current.details.avatar);
+      const user = await firstValueFrom(this.userService.update({ id, details: { avatar: '' } }));
 
-    return this.withAvatarUrl(user);
+      return this.withAvatarUrl(user);
+    } else {
+      throw new HttpException('User doesnt have an avatar!', HttpStatus.BAD_REQUEST);
+    }
   }
 }

@@ -24,10 +24,10 @@ export class PrimeTrustKycDocumentEntity {
   @Column('character varying', { nullable: true })
   failure_details?: string;
 
-  @Column('character varying')
+  @Column('character varying', { nullable: true })
   file_url: string;
 
-  @Column('character varying')
+  @Column('character varying', { nullable: true })
   extension: string;
 
   @ManyToOne(() => PrimeTrustContactEntity)

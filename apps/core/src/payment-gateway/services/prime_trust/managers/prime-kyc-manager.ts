@@ -14,12 +14,7 @@ import FormData from 'form-data';
 import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import {
-  AccountIdRequest,
-  ContactResponse,
-  DocumentResponse,
-  SocureDocumentRequest,
-} from '~common/grpc/interfaces/payment-gateway';
+import { AccountIdRequest, DocumentResponse, SocureDocumentRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
 
@@ -245,60 +240,49 @@ export class PrimeKycManager {
     return { document_id: documentCheckResponse.id };
   }
 
-  async documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
+  async documentCheck({ resource_id, id }: AccountIdRequest): Promise<SuccessResponse> {
     try {
-      const { resource_id } = request;
       const accountData = await this.primeAccountRepository
         .createQueryBuilder('a')
         .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
         .leftJoinAndSelect('a.contact', 'c')
-        .leftJoinAndSelect('c.documents', 'd')
-        .select([
-          'd.kyc_check_uuid as kyc_check_uuid',
-          'a.uuid as account_id',
-          'c.uuid as contact_id',
-          'u.id as user_id',
-        ])
-        .where('d.kyc_check_uuid = :resource_id', { resource_id })
+        .select(['a.uuid as account_id', 'c.uuid as contact_id', 'u.id as user_id'])
+        .where('a.uuid = :id', { id })
         .getRawOne();
 
-      if (!accountData) {
-        throw new GrpcException(Status.NOT_FOUND, `Document by ${resource_id} id not found`, 400);
-      }
+      const { contact_id, user_id } = accountData;
 
-      const { contact_id, user_id, kyc_check_uuid } = accountData;
-
-      const result = await this.httpService.request({
+      const { data: documentData } = await this.httpService.request({
         method: 'get',
-        url: `${this.prime_trust_url}/v2/kyc-document-checks/${kyc_check_uuid}`,
+        url: `${this.prime_trust_url}/v2/kyc-document-checks/${resource_id}`,
       });
 
-      if (result.data) {
+      if (documentData.data) {
+        await this.primeTrustKycDocumentEntityRepository.save(
+          this.primeTrustKycDocumentEntityRepository.create({
+            user_id,
+            uuid: documentData.data.attributes['socure-reference-id'],
+            label: documentData.data.attributes['kyc-document-type'],
+            kyc_check_uuid: documentData.data.id,
+            status: documentData.data.attributes['status'],
+          }),
+        );
         await this.primeTrustKycDocumentEntityRepository.update(
-          { kyc_check_uuid: result.data.data.id },
+          { kyc_check_uuid: documentData.data.id },
           {
-            status: result.data.data.attributes.status,
-            failure_details: result.data.data.attributes['failure-details'],
+            status: documentData.data.attributes.status,
+            failure_details: documentData.data.attributes['failure-details'],
           },
         );
       }
 
-      const contactResponse = await this.httpService.request({
-        method: 'get',
-        url: `${this.prime_trust_url}/v2/contacts`,
-      });
-
-      const cData = contactResponse.data.data.find((c: ContactType) => {
-        return c.id === contact_id;
-      });
-
-      const contactData = { data: cData };
+      const contactResponse = await this.getContactByUuid(contact_id);
 
       const contact = await this.primeTrustContactEntityRepository.findOne({
-        where: { uuid: contactData.data.id },
+        where: { uuid: contactResponse.data.id },
       });
 
-      const data = this.collectContactData(contactData.data);
+      const data = this.collectContactData(contactResponse.data);
       await this.primeTrustContactEntityRepository.save({
         ...contact,
         ...data,
@@ -318,8 +302,6 @@ export class PrimeKycManager {
 
       return { success: true };
     } catch (e) {
-      this.logger.error(e.response.data.errors[0]);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
@@ -330,24 +312,33 @@ export class PrimeKycManager {
     }
   }
 
-  async cipCheck(id: string, resource_id: string) {
+  async cipCheck(id: string, resource_id: string): Promise<SuccessResponse> {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
-      .select(['u.id as user_id'])
+      .leftJoinAndSelect('a.contact', 'c')
+      .select(['c.uuid as contact_id'])
       .where('a.uuid = :id', { id })
       .getRawOne();
 
-    const { user_id } = accountData;
+    const { contact_id } = accountData;
 
     const cipResponse = await this.getCipCheckInfo(resource_id);
-    const notificationPayload = {
-      user_id,
-      title: 'User Documents',
-      type: 'cip_checks',
-      description: `Phone verification status ${cipResponse.status}`,
-    };
-    this.notificationService.createAsync(notificationPayload);
+
+    if (process.env.NODE_ENV === 'dev') {
+      // approve cip for development
+      if (cipResponse.status === 'pending') {
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/cip-checks/${resource_id}/sandbox/approve`,
+          data: null,
+        });
+      }
+    }
+
+    if (cipResponse.status === 'approved') {
+      await this.updateContact({ id, resource_id: contact_id });
+    }
 
     return { success: true };
   }
@@ -371,19 +362,8 @@ export class PrimeKycManager {
     }
   }
 
-  async getContact(id: number): Promise<ContactResponse> {
-    const contact = await this.primeTrustContactEntityRepository.findOneByOrFail({ user_id: id });
-
-    return {
-      uuid: contact.uuid,
-      first_name: contact.first_name,
-      last_name: contact.last_name,
-      proof_of_address_documents_verified: contact.proof_of_address_documents_verified,
-      identity_documents_verified: contact.identity_documents_verified,
-      aml_cleared: contact.aml_cleared,
-      cip_cleared: contact.cip_cleared,
-      identity_confirmed: contact.identity_confirmed,
-    };
+  async getContact(id: number): Promise<PrimeTrustContactEntity> {
+    return await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
   }
 
   async createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
@@ -398,5 +378,29 @@ export class PrimeKycManager {
     }
 
     return { success: true };
+  }
+
+  async updateContact({ id: account_id, resource_id }: AccountIdRequest): Promise<SuccessResponse> {
+    const contactData = await this.getContactByUuid(resource_id);
+
+    const account = await this.primeAccountRepository.findOneBy({ uuid: account_id });
+    const contact = await this.primeTrustContactEntityRepository.findOneBy({ uuid: contactData.data.id });
+    if (!contact) {
+      await this.saveContact(contactData.data, account.user_id);
+    } else {
+      const collectedData = this.collectContactData(contactData.data);
+      await this.primeTrustContactEntityRepository.update({ uuid: resource_id }, collectedData);
+    }
+
+    return { success: true };
+  }
+
+  async getContactByUuid(uuid: string): Promise<{ data: ContactType }> {
+    const contactData = await this.httpService.request({
+      method: 'get',
+      url: `${this.prime_trust_url}/v2/contacts/${uuid}`,
+    });
+
+    return contactData.data;
   }
 }

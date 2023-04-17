@@ -147,4 +147,8 @@ export class SdkPaymentGatewayService implements OnModuleInit {
   getUserAccountStatus(id: number) {
     return lastValueFrom(this.paymentGatewayServiceClient.getUserAccountStatus({ id }));
   }
+
+  updateContact(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateContact(data));
+  }
 }

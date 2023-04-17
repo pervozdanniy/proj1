@@ -58,6 +58,10 @@ export class PrimeTrustService {
     return this.primeAccountManager.updateAccount(id);
   }
 
+  updateContact(request: AccountIdRequest) {
+    return this.primeKycManager.updateContact(request);
+  }
+
   createContact(userDetails: UserEntity) {
     return this.primeKycManager.createContact(userDetails);
   }

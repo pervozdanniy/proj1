@@ -34,6 +34,10 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.updateAccount(data));
   }
 
+  updateContact(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.updateContact(data));
+  }
+
   documentCheck(data: AccountIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.documentCheck(data));
   }

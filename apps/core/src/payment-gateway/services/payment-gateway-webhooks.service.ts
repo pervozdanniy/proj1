@@ -21,6 +21,10 @@ export class PaymentGatewayWebhooksService {
     return this.primeTrustService.updateAccount(request.id);
   }
 
+  updateContact(request: AccountIdRequest) {
+    return this.primeTrustService.updateContact(request);
+  }
+
   documentCheck(request: AccountIdRequest) {
     return this.primeTrustService.documentCheck(request);
   }
