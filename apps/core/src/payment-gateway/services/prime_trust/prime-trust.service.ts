@@ -175,4 +175,8 @@ export class PrimeTrustService {
   createSocureDocument(request: SocureDocumentRequest) {
     return this.primeKycManager.createSocureDocument(request);
   }
+
+  transferToHotWallet() {
+    return this.primeAccountManager.transferToHotWallet();
+  }
 }

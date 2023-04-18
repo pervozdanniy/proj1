@@ -336,6 +336,8 @@ export interface PaymentGatewayServiceClient {
 
   createSocureDocument(request: SocureDocumentRequest, ...rest: any): Observable<SuccessResponse>;
 
+  transferToHotWallet(request: Empty, ...rest: any): Observable<SuccessResponse>;
+
   getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
 
   /** banks */
@@ -443,6 +445,11 @@ export interface PaymentGatewayServiceController {
 
   createSocureDocument(
     request: SocureDocumentRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  transferToHotWallet(
+    request: Empty,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
@@ -580,6 +587,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "getBalance",
       "getUserAccountStatus",
       "createSocureDocument",
+      "transferToHotWallet",
       "getTransactions",
       "getBankAccounts",
       "getBanksInfo",

@@ -9,6 +9,12 @@ export class PrimeTrustBalanceEntity {
   @Column('float', { default: 0 })
   settled: string;
 
+  @Column('float', { default: 0, nullable: true })
+  hot_balance: string;
+
+  @Column('float', { default: 0, nullable: true })
+  cold_balance: string;
+
   @Column('character varying')
   currency_type: string;
 

@@ -164,4 +164,8 @@ export class PaymentGatewayService implements OnModuleInit {
   createSocureDocument(payload: SocureDocumentDto) {
     return lastValueFrom(this.paymentGatewayServiceClient.createSocureDocument(payload));
   }
+
+  transferToHotWallet() {
+    return lastValueFrom(this.paymentGatewayServiceClient.transferToHotWallet({}));
+  }
 }

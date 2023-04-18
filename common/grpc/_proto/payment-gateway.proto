@@ -19,6 +19,7 @@ service PaymentGatewayService {
   rpc GetBalance (BalanceRequest) returns (BalanceResponse);
   rpc GetUserAccountStatus (common.IdRequest) returns (AccountStatusResponse);
   rpc CreateSocureDocument(SocureDocumentRequest) returns (common.SuccessResponse);
+  rpc TransferToHotWallet(google.protobuf.Empty) returns (common.SuccessResponse);
 
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 

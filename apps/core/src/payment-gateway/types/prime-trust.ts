@@ -1,6 +1,8 @@
 export type BalanceAttributes = {
   settled: string;
-  'currency-type': string;
+  currency_type: string;
+  hot_balance: string;
+  cold_balance: string;
 };
 
 export type SendFundsResponse = {

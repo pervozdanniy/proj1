@@ -3,6 +3,7 @@ import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
@@ -11,6 +12,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { BankAccountParams, BanksInfoResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
+import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
 import { KoyweTokenManager } from './koywe-token.manager';
 
 @Injectable()
@@ -23,6 +25,9 @@ export class KoyweBankAccountManager {
 
     @InjectRepository(BankAccountEntity)
     private readonly bankAccountEntityRepository: Repository<BankAccountEntity>,
+
+    @InjectRepository(SocureDocumentEntity)
+    private readonly documentRepository: Repository<SocureDocumentEntity>,
 
     config: ConfigService<ConfigInterface>,
   ) {
@@ -50,11 +55,17 @@ export class KoyweBankAccountManager {
     const { country_code, email } = await this.userService.getUserInfo(id);
     const { code, currency_type } = countriesData[country_code];
 
+    const document = await this.documentRepository.findOneBy({ user_id: id });
+    if (!document) {
+      throw new ConflictException('KYC is not completed');
+    }
+
     const formData = {
       accountNumber: bank_account_number,
       countryCode: code,
       currencySymbol: currency_type,
       bankCode: bank_code,
+      documentNumber: document.document_number,
     };
     const { token } = await this.koyweTokenManager.getToken(email);
     try {
