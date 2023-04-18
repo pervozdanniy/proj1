@@ -269,13 +269,13 @@ export class PrimeAccountManager {
     return { status: user.status };
   }
 
-  async transferToHotWallet(): Promise<SuccessResponse> {
+  async processAccountsData(startIndex: number, batchSize: number): Promise<void> {
     const accountsData: { account_id: string; unit_count: string }[] = await this.primeAccountRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect(PrimeTrustBalanceEntity, 'b', 'a.user_id = b.user_id')
-      .select(['a.uuid as account_id,b.cold_balance as unit_count'])
-      .where('a.uuid = :id', { id: '5596b482-5867-4bd8-8992-22fa3656a45d' })
-      .take(2)
+      .select(['a.uuid as account_id', 'b.cold_balance as unit_count'])
+      .skip(startIndex)
+      .take(batchSize)
       .getRawMany();
 
     const sendData = accountsData.map((a) => {
@@ -318,6 +318,14 @@ export class PrimeAccountManager {
         });
       }
     }
+
+    if (accountsData.length === batchSize) {
+      await this.processAccountsData(startIndex + batchSize, batchSize);
+    }
+  }
+
+  async transferToHotWallet(): Promise<SuccessResponse> {
+    this.processAccountsData(0, 1000);
 
     return { success: true };
   }

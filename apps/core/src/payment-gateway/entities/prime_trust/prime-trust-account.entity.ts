@@ -31,9 +31,6 @@ export class PrimeTrustAccountEntity {
   @Column('varchar', { length: 50, nullable: true })
   status?: string;
 
-  @Column('boolean', { default: false, nullable: true })
-  hot_status?: boolean;
-
   @Column('varchar', { length: 50, nullable: true })
   offline_cold_storage?: string;
 

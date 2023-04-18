@@ -319,4 +319,26 @@ export class SandboxService {
       return e.response.data.errors;
     }
   }
+
+  async settleAssetsWithdrawal({ funds_transfer_id }: SettleWithdrawDto) {
+    const token = await this.redis.get('prime_token');
+    try {
+      const headersRequest = {
+        Authorization: `Bearer ${token}`,
+      };
+      const response = await lastValueFrom(
+        this.httpService.post(
+          `https://sandbox.primetrust.com/v2/asset-transfers/${funds_transfer_id}/sandbox/settle`,
+          null,
+          {
+            headers: headersRequest,
+          },
+        ),
+      );
+
+      return response.data;
+    } catch (e) {
+      return e.response.data.errors;
+    }
+  }
 }
