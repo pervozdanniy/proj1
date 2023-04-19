@@ -8,6 +8,8 @@ import {
   BalanceResponse,
   DepositParamRequest,
   DocumentResponse,
+  ExchangeRequest,
+  ExchangeResponse,
   MakeDepositRequest,
   PG_Token,
   SearchTransactionRequest,
@@ -133,5 +135,20 @@ export class PaymentGatewayService {
 
   transferToHotWallet() {
     return this.primeTrustService.transferToHotWallet();
+  }
+
+  async exchange({ currencies, currency_type, amount }: ExchangeRequest): Promise<ExchangeResponse> {
+    const resp: ExchangeResponse = { amount, currency_type, conversions: [] };
+
+    if (currencies.length) {
+      const conversions = await this.currencyService.convert(parseFloat(amount), currency_type, ...currencies);
+      for (const curr in conversions) {
+        if (Object.prototype.hasOwnProperty.call(conversions, curr)) {
+          resp.conversions.push({ currency: curr, amount: conversions[curr].toFixed(2) });
+        }
+      }
+    }
+
+    return resp;
   }
 }

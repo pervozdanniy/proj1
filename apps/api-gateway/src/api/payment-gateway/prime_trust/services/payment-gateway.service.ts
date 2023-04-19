@@ -17,6 +17,7 @@ import {
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { SocureDocumentDto } from '../dtos/main/socure.document.dto';
 import { KoyweWebhookType, PayfuraWebhookType } from '../webhooks/data';
 
@@ -167,5 +168,9 @@ export class PaymentGatewayService implements OnModuleInit {
 
   transferToHotWallet() {
     return lastValueFrom(this.paymentGatewayServiceClient.transferToHotWallet({}));
+  }
+
+  exchange({ amount, currencies, currency_type }: ExchangeDto) {
+    return lastValueFrom(this.paymentGatewayServiceClient.exchange({ amount, currencies, currency_type }));
   }
 }
