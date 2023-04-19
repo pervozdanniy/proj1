@@ -151,8 +151,6 @@ export class MainController {
   @JwtSessionAuth()
   @Post('/exchange')
   async exchange(@Body() payload: ExchangeDto) {
-    console.log(payload);
-
     return this.paymentGatewayService.exchange(payload);
   }
 
