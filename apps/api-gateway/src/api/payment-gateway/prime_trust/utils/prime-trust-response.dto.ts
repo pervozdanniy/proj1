@@ -14,6 +14,7 @@ import {
   CreditCardsResponse,
   DepositResponse,
   DocumentResponse,
+  ExchangeResponse,
   Token_Data,
   Transaction,
   TransactionResponse,
@@ -86,6 +87,18 @@ export class BalanceResponseDto implements BalanceResponse {
 
   @ApiProperty()
   settled: string;
+
+  @ApiProperty({ type: ConversionDto })
+  @Type(() => ConversionDto)
+  conversions: Conversion[];
+}
+
+export class ExchangeResponseDto implements ExchangeResponse {
+  @ApiProperty()
+  amount: string;
+
+  @ApiProperty()
+  currency_type: string;
 
   @ApiProperty({ type: ConversionDto })
   @Type(() => ConversionDto)

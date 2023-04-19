@@ -7,6 +7,7 @@ import {
   BankAccountResponseDto,
   ContactResponseDto,
   DocumentResponseDto,
+  ExchangeResponseDto,
   TokenDto,
   TransactionResponseDto,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
@@ -29,6 +30,7 @@ import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
+import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
 import { SocureDocumentDto } from '../dtos/main/socure.document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
@@ -138,6 +140,20 @@ export class MainController {
   @Get('/balance')
   async getBalance(@Query() query: BalanceRequestDto, @JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBalance(id, query.currencies);
+  }
+
+  @ApiOperation({ summary: 'Exchange course.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: ExchangeResponseDto,
+  })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Post('/exchange')
+  async exchange(@Body() payload: ExchangeDto) {
+    console.log(payload);
+
+    return this.paymentGatewayService.exchange(payload);
   }
 
   @ApiOperation({ summary: 'Get Bank Accounts.' })

@@ -263,6 +263,12 @@ export interface BalanceRequest {
   currencies: string[];
 }
 
+export interface ExchangeRequest {
+  amount: string;
+  currency_type: string;
+  currencies: string[];
+}
+
 export interface Conversion {
   currency: string;
   amount: string;
@@ -270,6 +276,12 @@ export interface Conversion {
 
 export interface BalanceResponse {
   settled: string;
+  currency_type: string;
+  conversions: Conversion[];
+}
+
+export interface ExchangeResponse {
+  amount: string;
   currency_type: string;
   conversions: Conversion[];
 }
@@ -331,6 +343,8 @@ export interface PaymentGatewayServiceClient {
   uploadDocument(request: UploadDocumentRequest, ...rest: any): Observable<DocumentResponse>;
 
   getBalance(request: BalanceRequest, ...rest: any): Observable<BalanceResponse>;
+
+  exchange(request: ExchangeRequest, ...rest: any): Observable<ExchangeResponse>;
 
   getUserAccountStatus(request: IdRequest, ...rest: any): Observable<AccountStatusResponse>;
 
@@ -437,6 +451,11 @@ export interface PaymentGatewayServiceController {
     request: BalanceRequest,
     ...rest: any
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
+
+  exchange(
+    request: ExchangeRequest,
+    ...rest: any
+  ): Promise<ExchangeResponse> | Observable<ExchangeResponse> | ExchangeResponse;
 
   getUserAccountStatus(
     request: IdRequest,
@@ -585,6 +604,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "createContact",
       "uploadDocument",
       "getBalance",
+      "exchange",
       "getUserAccountStatus",
       "createSocureDocument",
       "transferToHotWallet",

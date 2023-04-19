@@ -17,6 +17,7 @@ service PaymentGatewayService {
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
   rpc GetBalance (BalanceRequest) returns (BalanceResponse);
+  rpc Exchange (ExchangeRequest) returns (ExchangeResponse);
   rpc GetUserAccountStatus (common.IdRequest) returns (AccountStatusResponse);
   rpc CreateSocureDocument(SocureDocumentRequest) returns (common.SuccessResponse);
   rpc TransferToHotWallet(google.protobuf.Empty) returns (common.SuccessResponse);
@@ -324,6 +325,12 @@ message BalanceRequest {
   repeated string currencies = 2;
 }
 
+message ExchangeRequest {
+  string amount = 1;
+  string currency_type = 2;
+  repeated string currencies = 3;
+}
+
 message Conversion {
   string currency = 1;
   string amount = 2;
@@ -331,6 +338,11 @@ message Conversion {
 
 message BalanceResponse {
   string settled = 1;
+  string currency_type = 2;
+  repeated Conversion conversions = 3;
+}
+message ExchangeResponse {
+  string amount = 1;
   string currency_type = 2;
   repeated Conversion conversions = 3;
 }

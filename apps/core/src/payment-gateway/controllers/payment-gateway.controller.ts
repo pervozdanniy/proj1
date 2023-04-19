@@ -18,6 +18,8 @@ import {
   DepositParamsResponse,
   DepositResponse,
   DocumentResponse,
+  ExchangeRequest,
+  ExchangeResponse,
   JsonData,
   KoyweWebhookRequest,
   MakeDepositRequest,
@@ -44,6 +46,9 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  exchange(request: ExchangeRequest): Promise<ExchangeResponse> {
+    return this.paymentGatewayService.exchange(request);
+  }
   transferToHotWallet(): Promise<SuccessResponse> {
     return this.paymentGatewayService.transferToHotWallet();
   }
