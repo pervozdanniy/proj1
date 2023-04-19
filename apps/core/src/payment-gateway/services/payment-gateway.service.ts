@@ -87,9 +87,9 @@ export class PaymentGatewayService {
   }
 
   verifyCreditCard(request: VerifyCreditCardRequest) {
-    const { resource_id } = request;
+    const { resource_id, transfer_method_id } = request;
 
-    return this.primeTrustService.verifyCreditCard(resource_id);
+    return this.primeTrustService.verifyCreditCard(resource_id, transfer_method_id);
   }
 
   getCreditCards(id: number) {

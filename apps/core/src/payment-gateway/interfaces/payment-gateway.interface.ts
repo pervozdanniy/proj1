@@ -30,7 +30,7 @@ export interface WireDepositInterface {
 }
 
 export interface CreditCardInterface {
-  verifyCreditCard(resource_id: string): Promise<SuccessResponse>;
+  verifyCreditCard(resource_id: string, transfer_method_id: string): Promise<SuccessResponse>;
 
   getCreditCards(id: number): Promise<CreditCardsResponse>;
 

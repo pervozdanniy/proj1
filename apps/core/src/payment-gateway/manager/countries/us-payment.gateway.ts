@@ -47,6 +47,10 @@ export class USPaymentGateway
     return this.primeTrustService.createCreditCardResource(id);
   }
 
+  verifyCreditCard(resource_id: string, transfer_method_id: string): Promise<SuccessResponse> {
+    return this.primeTrustService.verifyCreditCard(resource_id, transfer_method_id);
+  }
+
   getAvailableBanks(country: string): Promise<BanksInfoResponse> {
     return this.primeTrustService.getBanksInfo(country);
   }
@@ -61,10 +65,6 @@ export class USPaymentGateway
 
   setDepositParams(request: DepositParamRequest): Promise<DepositResponse> {
     return this.primeTrustService.addDepositParams(request);
-  }
-
-  verifyCreditCard(resource_id: string): Promise<SuccessResponse> {
-    return this.primeTrustService.verifyCreditCard(resource_id);
   }
 
   getAvailablePaymentMethods(): PaymentMethods[] {
