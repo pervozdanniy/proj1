@@ -7,16 +7,26 @@ import {
   DepositResponseDto,
   SuccessResponseDto,
 } from '@/api/payment-gateway/prime_trust/utils/prime-trust-response.dto';
-import { Body, ClassSerializerInterceptor, Controller, Get, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+  Render,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
+import { CreditCardTokenDto } from '../dtos/deposit/credit-card-token.dto';
 import { CreateReferenceDto } from '../dtos/deposit/deposit-funds.dto';
 import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
 import { MakeDepositDto } from '../dtos/deposit/make-deposit.dto';
+import { VerifyCardDto } from '../dtos/deposit/verify-card.dto';
 
 @ApiTags('Prime Trust/Deposit Funds')
-@ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
@@ -29,6 +39,7 @@ export class DepositController {
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @Post('/payment/reference')
   async createReference(@JwtSessionUser() { id }: User, @Body() payload: CreateReferenceDto) {
@@ -44,6 +55,7 @@ export class DepositController {
     status: HttpStatus.CREATED,
     type: DepositResponseDto,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @Post('/add/params')
   async addDepositParams(@JwtSessionUser() { id }: User, @Body() payload: DepositParamsDto) {
@@ -59,10 +71,21 @@ export class DepositController {
     status: HttpStatus.CREATED,
     type: CreditCardResourceResponseDto,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @Post('/credit_card/resource')
   async createCreditCardResource(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.createCreditCardResource({ id });
+  }
+
+  @ApiOperation({ summary: 'Create Credit Card Resource.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  @Get('/credit_card/widget')
+  @Render('credit_card')
+  async cardWidget(@Query() { token, resource_id }: CreditCardTokenDto) {
+    return { token, resource_id };
   }
 
   @ApiOperation({ summary: 'Verify Credit Card.' })
@@ -70,12 +93,9 @@ export class DepositController {
     status: HttpStatus.CREATED,
     type: SuccessResponseDto,
   })
-  @JwtSessionAuth()
   @Post('/credit_card/verify')
-  async verifyCreditCard(@JwtSessionUser() { id }: User, @Body() payload: CardResourceDto) {
-    const { resource_id } = payload;
-
-    return this.paymentGatewayService.verifyCreditCard({ id, resource_id });
+  async verifyCreditCard(@Body() payload: VerifyCardDto) {
+    return this.paymentGatewayService.verifyCreditCard(payload);
   }
 
   @ApiOperation({ summary: 'Get Credit Cards.' })
@@ -83,6 +103,7 @@ export class DepositController {
     status: HttpStatus.OK,
     type: CreditCardsResponseDto,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('/credit_cards')
   async getCreditCards(@JwtSessionUser() { id }: User) {
@@ -94,6 +115,7 @@ export class DepositController {
     status: HttpStatus.CREATED,
     type: ContributionResponseDto,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @Post('/make')
   async makeDeposit(@JwtSessionUser() { id }: User, @Body() payload: MakeDepositDto) {
@@ -104,6 +126,7 @@ export class DepositController {
   @ApiResponse({
     status: HttpStatus.OK,
   })
+  @ApiBearerAuth()
   @JwtSessionAuth()
   @Get('/params')
   async getDepositParams(@JwtSessionUser() { id }: User) {

@@ -278,13 +278,13 @@ message CreditCard {
 }
 
 message VerifyCreditCardRequest {
-  uint32 id = 1;
-  string resource_id = 2;
+  string contact_id = 1;
+  string transfer_method_id = 2;
+  string resource_id = 3;
 }
 
 message CreditCardResourceResponse {
-  string resource_id = 1;
-  string resource_token = 2;
+  string redirect_url = 1;
 }
 
 message Withdrawal {

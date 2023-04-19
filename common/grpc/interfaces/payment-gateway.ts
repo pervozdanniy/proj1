@@ -217,13 +217,13 @@ export interface CreditCard {
 }
 
 export interface VerifyCreditCardRequest {
-  id: number;
+  contact_id: string;
+  transfer_method_id: string;
   resource_id: string;
 }
 
 export interface CreditCardResourceResponse {
-  resource_id: string;
-  resource_token: string;
+  redirect_url: string;
 }
 
 export interface Withdrawal {

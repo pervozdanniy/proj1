@@ -53,6 +53,14 @@ export type AccountType = {
   };
 };
 
+export type CardResourceType = {
+  id: string;
+  attributes: {
+    status: string;
+    'funds-transfer-method-id': string;
+  };
+};
+
 export type CipCheckType = {
   id: string;
   type: string;

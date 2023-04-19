@@ -129,9 +129,7 @@ export class DepositResponseDto implements DepositResponse {
 
 export class CreditCardResourceResponseDto implements CreditCardResourceResponse {
   @ApiProperty()
-  resource_id: string;
-  @ApiProperty()
-  resource_token: string;
+  redirect_url: string;
 }
 
 export class SuccessResponseDto implements SuccessResponse {

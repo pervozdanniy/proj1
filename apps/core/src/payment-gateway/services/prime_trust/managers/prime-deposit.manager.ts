@@ -11,6 +11,7 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as process from 'process';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { DepositTypes } from '~common/enum/document-types.enum';
@@ -31,6 +32,7 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import { CardResourceType } from '../../../types/prime-trust';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeBankAccountManager } from './prime-bank-account.manager';
 import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
@@ -267,8 +269,7 @@ export class PrimeDepositManager {
     );
 
     return {
-      resource_id: cardResource.uuid,
-      resource_token: cardResource.token,
+      redirect_url: `${process.env.APP_DOMAIN}/deposit/credit_card/widget?token=${cardResource.token}&resource_id=${cardResource.uuid}`,
     };
   }
 
@@ -306,26 +307,25 @@ export class PrimeDepositManager {
     }
   }
 
-  async verifyCreditCard(resource_id: string): Promise<SuccessResponse> {
+  async verifyCreditCard(resource_id: string, transfer_method_id: string): Promise<SuccessResponse> {
     try {
-      const cardResourceResponse = await this.httpService.request({
-        method: 'get',
-        url: `${this.prime_trust_url}/v2/credit-card-resources/${resource_id}`,
-      });
-
-      const cardAttributes = cardResourceResponse.data.data.attributes;
       const transferMethodResponse = await this.httpService.request({
         method: 'get',
-        url: `${this.prime_trust_url}/v2/funds-transfer-methods/${cardAttributes['funds-transfer-method-id']}?include=credit-card-resource`,
+        url: `${this.prime_trust_url}/v2/funds-transfer-methods/${transfer_method_id}?include=credit-card-resource`,
       });
 
       const transferMethodAttributes = transferMethodResponse.data.data.attributes;
+      const cardResources: CardResourceType[] = transferMethodResponse.data.included.map((c: CardResourceType) => {
+        if (c.id === resource_id && c.attributes['funds-transfer-method-id'] === transfer_method_id) {
+          return c;
+        }
+      });
 
       await this.cardResourceEntityRepository.update(
         { uuid: resource_id },
         {
-          transfer_method_id: cardAttributes['funds-transfer-method-id'],
-          status: cardAttributes['status'],
+          transfer_method_id,
+          status: cardResources[0].attributes.status,
           credit_card_bin: transferMethodAttributes['last-4'],
           credit_card_type: transferMethodAttributes['credit-card-type'],
           credit_card_expiration_date: transferMethodAttributes['credit-card-expiration-date'],
