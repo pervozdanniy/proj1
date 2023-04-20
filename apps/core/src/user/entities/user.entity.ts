@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { UserSourceEnum } from '~common/constants/user';
 import { NotificationEntity } from '../../notification/entities/notification.entity';
+import { SocureDocumentEntity } from '../../payment-gateway/entities/socure-document.entity';
 import { UserDetailsEntity } from './user-details.entity';
 
 @Entity('users')
@@ -70,4 +71,9 @@ export class UserEntity {
     synchronize: false,
   })
   contacts?: UserEntity[];
+
+  @OneToMany(() => SocureDocumentEntity, (document) => document.user)
+  documents?: SocureDocumentEntity[];
+
+  kyc?: SocureDocumentEntity;
 }

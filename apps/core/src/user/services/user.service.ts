@@ -21,7 +21,13 @@ export class UserService {
   ) {}
 
   get(id: number): Promise<UserEntity> {
-    return this.userRepository.findOneOrFail({ where: { id }, relations: ['details', 'contacts'] });
+    return this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.documents', 'documents')
+      .leftJoinAndSelect('user.details', 'details')
+      .leftJoinAndSelect('user.contacts', 'contacts')
+      .where('user.id = :id', { id })
+      .getOne();
   }
 
   async create({ details, ...userData }: Omit<CreateRequestDto, 'contacts'>): Promise<UserEntity> {

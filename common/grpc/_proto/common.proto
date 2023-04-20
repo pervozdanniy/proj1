@@ -17,6 +17,7 @@ message User {
     optional UserAgreement agreement = 13;
     optional string country_code = 14;
     optional string social_id = 15;
+    repeated UserDocument documents = 16; 
 }
 
 message UserAgreement {
@@ -37,6 +38,11 @@ message UserDetails {
     optional uint32 send_type = 9;
     optional string avatar = 10;
     optional string apartment = 11;
+}
+
+message UserDocument {
+    string label = 1;
+    string status = 2;
 }
 
 message IdRequest {

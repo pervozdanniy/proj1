@@ -17,6 +17,7 @@ export interface User {
   agreement?: UserAgreement | undefined;
   country_code?: string | undefined;
   social_id?: string | undefined;
+  documents: UserDocument[];
 }
 
 export interface UserAgreement {
@@ -37,6 +38,11 @@ export interface UserDetails {
   send_type?: number | undefined;
   avatar?: string | undefined;
   apartment?: string | undefined;
+}
+
+export interface UserDocument {
+  label: string;
+  status: string;
 }
 
 export interface IdRequest {

@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import { SendType } from '~common/constants/user';
-import { User, UserDetails } from '~common/grpc/interfaces/common';
+import { User, UserAgreement, UserDetails, UserDocument } from '~common/grpc/interfaces/common';
 
 export class UserDetailsDto implements UserDetails {
   @ApiPropertyOptional({ example: 'first_name' })
@@ -38,7 +38,16 @@ export class UserDetailsDto implements UserDetails {
   avatar?: string;
 }
 
+export class UserDocumentDto implements UserDocument {
+  @ApiProperty()
+  label: string;
+  @ApiProperty()
+  status: string;
+}
+
 export class PublicUserDto implements User {
+  agreement?: UserAgreement;
+
   @ApiProperty()
   id: number;
 
@@ -74,6 +83,12 @@ export class PublicUserDto implements User {
 
   @ApiProperty()
   country_code: string;
+
+  @Exclude()
+  social_id?: string;
+
+  @Type(() => UserDocumentDto)
+  documents: UserDocumentDto[];
 }
 
 class ContactDto extends PublicUserDto {
