@@ -1,7 +1,10 @@
 import { HttpException, HttpStatus, Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ClientGrpc } from '@nestjs/microservices';
+import * as jwt from 'jsonwebtoken';
 import crypto from 'node:crypto';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { ConfigInterface } from '~common/config/configuration';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
 import {
@@ -11,6 +14,7 @@ import {
   UpdateRequest,
   UserServiceClient,
 } from '~common/grpc/interfaces/core';
+import { SessionService } from '~common/session';
 import { UpdateUserDto, UserContactsDto } from '../dtos/update-user.dto';
 import { UploadAvatarDto } from '../dtos/upload-avatar.dto';
 import { S3Service } from './s3.service';
@@ -19,7 +23,13 @@ import { S3Service } from './s3.service';
 export class UserService implements OnModuleInit {
   private userService: UserServiceClient;
 
-  constructor(@InjectGrpc('core') private readonly core: ClientGrpc, private readonly s3: S3Service) {}
+  constructor(
+    @InjectGrpc('core') private readonly core: ClientGrpc,
+    private readonly s3: S3Service,
+    private readonly config: ConfigService<ConfigInterface>,
+
+    private readonly session: SessionService,
+  ) {}
 
   onModuleInit() {
     this.userService = this.core.getService('UserService');
@@ -91,5 +101,18 @@ export class UserService implements OnModuleInit {
     } else {
       throw new HttpException('User doesnt have an avatar!', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async generateSocureLink(token: string) {
+    return { redirect_url: `${this.config.get('app.domain', { infer: true })}/users/socure?token=${token}` };
+  }
+
+  async decode(token: string) {
+    const decodedToken = jwt.verify(token, this.config.get('auth.jwt.secret', { infer: true }));
+    const {
+      user: { id },
+    } = await this.session.get(typeof decodedToken.sub === 'string' ? decodedToken.sub : String(decodedToken.sub));
+
+    return await this.getById(id);
   }
 }

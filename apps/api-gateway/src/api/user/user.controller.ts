@@ -15,6 +15,7 @@ import {
   Put,
   Query,
   Render,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -31,6 +32,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import { Request } from 'express';
+import { ExtractJwt } from 'passport-jwt';
 import { ConfigInterface } from '~common/config/configuration';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '../auth';
@@ -39,7 +42,7 @@ import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.d
 import { GetContactsDto } from './dtos/get-contacts.dto';
 import { LatestRecepientsResponseDto } from './dtos/latest-recepients.dto';
 import { UpdateUserDto, UserContactsDto } from './dtos/update-user.dto';
-import { UserIdDto } from './dtos/user-id.dto';
+import { UserTokenDto } from './dtos/user-token.dto';
 import { UserService } from './services/user.service';
 
 @ApiTags('User')
@@ -55,10 +58,19 @@ export class UserController {
     this.socure_sdk = socure_sdk;
   }
 
+  @Get('socure/link')
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  link(@Req() request: Request) {
+    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
+
+    return this.userService.generateSocureLink(token);
+  }
+
   @Get('socure')
   @Render('index')
-  async root(@Query() { user_id }: UserIdDto) {
-    const user = await this.userService.getById(user_id);
+  async root(@Query() { token }: UserTokenDto) {
+    const user = await this.userService.decode(token);
 
     return { user, socure_sdk: this.socure_sdk };
   }
