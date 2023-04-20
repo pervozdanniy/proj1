@@ -34799,7 +34799,7 @@ var RedirectMethod = function (_a) {
             if (stepUpProcess === null || stepUpProcess === void 0 ? void 0 : stepUpProcess.url) {
                 const hashIndex = stepUpProcess.url.indexOf("#"); // Get the index of the hash character (#)
                 const hashString = stepUpProcess.url.substring(hashIndex);
-                const url = 'http://localhost:3000/users/socure/kyc?'+ hashString
+                const url = 'http://dev-api.skopadev.com/users/socure/kyc?'+ hashString
                 console.log(url)
                 window.open(url, "_blank");
                 setIsOpeningNewTab(true);
