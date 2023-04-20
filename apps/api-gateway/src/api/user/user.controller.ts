@@ -42,7 +42,7 @@ import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.d
 import { GetContactsDto } from './dtos/get-contacts.dto';
 import { LatestRecepientsResponseDto } from './dtos/latest-recepients.dto';
 import { UpdateUserDto, UserContactsDto } from './dtos/update-user.dto';
-import { UserIdDto } from './dtos/user-id.dto';
+import { UserTokenDto } from './dtos/user-token.dto';
 import { UserService } from './services/user.service';
 
 @ApiTags('User')
@@ -69,7 +69,7 @@ export class UserController {
 
   @Get('socure')
   @Render('index')
-  async root(@Query() { token }: UserIdDto) {
+  async root(@Query() { token }: UserTokenDto) {
     const user = await this.userService.decode(token);
 
     return { user, socure_sdk: this.socure_sdk };
