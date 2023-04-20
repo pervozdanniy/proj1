@@ -1,11 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, Min } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class UserIdDto {
-  @ApiProperty({ description: 'User id', required: true, default: 1 })
-  @IsNumber()
-  @Min(1)
-  @Type(() => Number)
-  readonly user_id: number = 1;
+  @ApiProperty({ description: 'token' })
+  @IsString()
+  @Type(() => String)
+  readonly token: string;
 }
