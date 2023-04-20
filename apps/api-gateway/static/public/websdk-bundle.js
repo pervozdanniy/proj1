@@ -1326,6 +1326,7 @@ var InitialDeviceTypes = {
 };
 
 var checkDeviceType = function checkDeviceType(type) {
+  console.log('WWWW', type)
   switch (type) {
     case DeviceTypes.Mobile:
       return {
@@ -1723,7 +1724,9 @@ var isWearable = isWearableType(device);
 var isEmbedded = isEmbeddedType(device);
 var isMobileSafari = isMobileSafariType(browser) || getIPad13();
 var isChromium = isChromiumType(browser);
-var isMobile = isMobileAndTabletType(device) || getIPad13();
+// var isMobile = isMobileAndTabletType(device) || getIPad13();
+// FORCE MOBILE TYPE ALWAYS
+var isMobile = true;
 var isMobileOnly = isMobileType(device);
 var isTablet = isTabletType(device) || getIPad13();
 var isBrowser = isBrowserType(device);
@@ -31781,6 +31784,7 @@ var Index = function (_a) {
     var _b = __read(Object(react["useState"])(false), 2), dataFetched = _b[0], setDataFetched = _b[1];
     Object(react["useEffect"])(function () {
         if (status !== "NotStarted" && dataFetched === false) {
+          // customization.current = defaultCustomization;
             services_StepUpProxyService.getInstance().getCustomization().then(function (result) {
                 customization.current = result;
                 setDataFetched(true);
@@ -34674,6 +34678,7 @@ var MobileNumberInput_read = (undefined && undefined.__read) || function (o, n) 
 var ErrorMessage = styled_components_browser_esm["b" /* default */].div(MobileNumberInput_templateObject_1 || (MobileNumberInput_templateObject_1 = MobileNumberInput_makeTemplateObject(["\n  color: red;\n  front-size: 12px;\n"], ["\n  color: red;\n  front-size: 12px;\n"])));
 var PhoneInputContainer = styled_components_browser_esm["b" /* default */].div(MobileNumberInput_templateObject_2 || (MobileNumberInput_templateObject_2 = MobileNumberInput_makeTemplateObject(["\n  &.focused div.flag-dropdown {\n    border-color: ", ";\n    border-right-color: none;\n  }\n   &.focused input.form-control:focus {\n    border-color: ", ";\n  }\n  div.flag-dropdown {\n    border-color: ", ";\n    border-right-color: none;\n  }\n  input.form-control {\n    border-color: ", ";\n  }\n"], ["\n  &.focused div.flag-dropdown {\n    border-color: ", ";\n    border-right-color: none;\n  }\n   &.focused input.form-control:focus {\n    border-color: ", ";\n  }\n  div.flag-dropdown {\n    border-color: ", ";\n    border-right-color: none;\n  }\n  input.form-control {\n    border-color: ", ";\n  }\n"])), function (props) { var _a, _b, _c; return (_c = (_b = (_a = props.theme) === null || _a === void 0 ? void 0 : _a.primary) === null || _b === void 0 ? void 0 : _b.button) === null || _c === void 0 ? void 0 : _c.primary.backgroundColor; }, function (props) { var _a, _b, _c; return (_c = (_b = (_a = props.theme) === null || _a === void 0 ? void 0 : _a.primary) === null || _b === void 0 ? void 0 : _b.button) === null || _c === void 0 ? void 0 : _c.primary.backgroundColor; }, function (props) { var _a, _b; return (_b = (_a = props.theme) === null || _a === void 0 ? void 0 : _a.primary) === null || _b === void 0 ? void 0 : _b.texts.header.color; }, function (props) { var _a, _b; return (_b = (_a = props.theme) === null || _a === void 0 ? void 0 : _a.primary) === null || _b === void 0 ? void 0 : _b.texts.header.color; });
 var MobileNumberInput = function (_a) {
+  console.log('MobileNumberInput')
     var updateSessionStatus = _a.updateSessionStatus;
     var customization = Object(react["useContext"])(Customization).customization;
     var inputScreen = customization.websdk.screens.input;
@@ -34768,6 +34773,7 @@ var RedirectMethod_read = (undefined && undefined.__read) || function (o, n) {
 
 
 var RedirectMethod = function (_a) {
+  
     var _b, _c, _d, _e, _f, _g, _h, _j;
     var stepUpProcess = _a.stepUpProcess;
     var maxContainerWidth = 650;
