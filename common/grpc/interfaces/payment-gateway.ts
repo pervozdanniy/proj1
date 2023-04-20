@@ -272,6 +272,7 @@ export interface ExchangeRequest {
 export interface Conversion {
   currency: string;
   amount: string;
+  rate?: string | undefined;
 }
 
 export interface BalanceResponse {

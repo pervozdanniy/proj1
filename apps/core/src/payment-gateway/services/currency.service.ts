@@ -31,7 +31,7 @@ export class CurrencyService {
     const rates = await this.rates(from, ...to);
     for (const curr in rates) {
       if (Object.prototype.hasOwnProperty.call(rates, curr)) {
-        rates[curr] = rates[curr] * amount;
+        rates[curr] = { amount: rates[curr] * amount, rate: rates[curr] };
       }
     }
 

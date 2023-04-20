@@ -46,18 +46,6 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
-  exchange(request: ExchangeRequest): Promise<ExchangeResponse> {
-    return this.paymentGatewayService.exchange(request);
-  }
-  transferToHotWallet(): Promise<SuccessResponse> {
-    return this.paymentGatewayService.transferToHotWallet();
-  }
-  createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
-    return this.webhooksService.createSocureDocument(request);
-  }
-  payfuraWebhooksHandler(request: PayfuraWebhookRequest): Promise<SuccessResponse> {
-    return this.webhooksService.payfuraWebhooksHandler(request);
-  }
   constructor(
     private mainService: MainService,
     private paymentGatewayService: PaymentGatewayService,
@@ -184,5 +172,18 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
   createAgreement(request: AgreementRequest): Promise<UserAgreement> {
     return this.paymentGatewayService.createAgreement(request);
+  }
+
+  exchange(request: ExchangeRequest): Promise<ExchangeResponse> {
+    return this.paymentGatewayService.exchange(request);
+  }
+  transferToHotWallet(): Promise<SuccessResponse> {
+    return this.paymentGatewayService.transferToHotWallet();
+  }
+  createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
+    return this.webhooksService.createSocureDocument(request);
+  }
+  payfuraWebhooksHandler(request: PayfuraWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.payfuraWebhooksHandler(request);
   }
 }
