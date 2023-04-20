@@ -74,7 +74,11 @@ export class PaymentGatewayService {
       );
       for (const curr in conversions) {
         if (Object.prototype.hasOwnProperty.call(conversions, curr)) {
-          resp.conversions.push({ currency: curr, amount: conversions[curr].toFixed(2) });
+          resp.conversions.push({
+            currency: curr,
+            amount: conversions[curr]['amount'].toFixed(2),
+            rate: conversions[curr]['rate'],
+          });
         }
       }
     }
@@ -144,7 +148,11 @@ export class PaymentGatewayService {
       const conversions = await this.currencyService.convert(parseFloat(amount), currency_type, ...currencies);
       for (const curr in conversions) {
         if (Object.prototype.hasOwnProperty.call(conversions, curr)) {
-          resp.conversions.push({ currency: curr, amount: conversions[curr].toFixed(2) });
+          resp.conversions.push({
+            currency: curr,
+            amount: conversions[curr]['amount'].toFixed(2),
+            rate: conversions[curr]['rate'],
+          });
         }
       }
     }
