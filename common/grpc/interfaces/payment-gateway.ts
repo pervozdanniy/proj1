@@ -16,6 +16,10 @@ export interface SocureDocumentRequest {
   issuing_date: string;
 }
 
+export interface LiquidoWebhookRequest {
+  transactionId: string;
+}
+
 export interface PayfuraWebhookRequest {
   orderId: string;
 }
@@ -408,6 +412,8 @@ export interface PaymentGatewayServiceClient {
   koyweWebhooksHandler(request: KoyweWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
   payfuraWebhooksHandler(request: PayfuraWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+
+  liquidoWebhooksHandler(request: LiquidoWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -591,6 +597,11 @@ export interface PaymentGatewayServiceController {
     request: PayfuraWebhookRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  liquidoWebhooksHandler(
+    request: LiquidoWebhookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -632,6 +643,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "updateAssetDeposit",
       "koyweWebhooksHandler",
       "payfuraWebhooksHandler",
+      "liquidoWebhooksHandler",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

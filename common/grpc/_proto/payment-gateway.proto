@@ -55,6 +55,7 @@ service PaymentGatewayService {
   rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
   rpc PayfuraWebhooksHandler (PayfuraWebhookRequest)   returns (common.SuccessResponse);
+  rpc LiquidoWebhooksHandler (LiquidoWebhookRequest)   returns (common.SuccessResponse);
 }
 
 message SocureDocumentRequest {
@@ -68,7 +69,9 @@ message SocureDocumentRequest {
 }
 
 
-
+message LiquidoWebhookRequest {
+  string transactionId = 1;
+}
 message PayfuraWebhookRequest {
   string orderId = 1;
 }

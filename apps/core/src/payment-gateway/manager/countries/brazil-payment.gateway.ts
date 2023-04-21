@@ -14,6 +14,7 @@ import {
   WithdrawalInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../services/koywe/koywe.service';
+import { LiquidoService } from '../../services/liquido/liquido.service';
 import { PayfuraService } from '../../services/payfura/payfura.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
@@ -25,6 +26,8 @@ export class BrazilPaymentGateway
     private primeTrustService: PrimeTrustService,
     private koyweService: KoyweService,
     private payfuraService: PayfuraService,
+
+    private liquidoService: LiquidoService,
   ) {}
 
   getAvailablePaymentMethods(): PaymentMethods[] {
@@ -49,8 +52,7 @@ export class BrazilPaymentGateway
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     const { id, amount } = request;
-    //must be Liquido withdrawal logic
-    const wallet = 'wallet address from Liquido';
+    const wallet = await this.liquidoService.makeWithdrawal(request);
 
     return await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
   }

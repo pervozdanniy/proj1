@@ -69,6 +69,14 @@ export interface ConfigInterface {
     secret: string;
   };
 
+  liquido: {
+    client_id: string;
+    secret: string;
+    x_api_key: string;
+    auth_url: string;
+    api_url: string;
+  };
+
   payfura: {
     key: string;
     secret: string;
@@ -197,5 +205,12 @@ export default (): ConfigInterface => ({
   payfura: {
     key: process.env.PAYFURA_KEY,
     secret: process.env.PAYFURA_SECRET,
+  },
+  liquido: {
+    client_id: process.env.LIQUIDO_ID,
+    secret: process.env.LIQUIDO_SECRET,
+    x_api_key: process.env.LIQUIDO_X_API_KEY,
+    api_url: process.env.LIQUIDO_API_URL,
+    auth_url: process.env.LIQUIDO_AUTH_URL,
   },
 });
