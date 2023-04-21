@@ -35,6 +35,10 @@ import { KoyweMainManager } from './services/koywe/managers/koywe-main.manager';
 import { KoyweTokenManager } from './services/koywe/managers/koywe-token.manager';
 import { KoyweWebhookManager } from './services/koywe/managers/koywe-webhook.manager';
 import { KoyweWithdrawalManager } from './services/koywe/managers/koywe-withdrawal.manager';
+import { LiquidoService } from './services/liquido/liquido.service';
+import { LiquidoTokenManager } from './services/liquido/managers/liquido-token.manager';
+import { LiquidoWebhookManager } from './services/liquido/managers/liquido-webhook.manager';
+import { LiquidoWithdrawalManager } from './services/liquido/managers/liquido-withdrawal.manager';
 import { MainService } from './services/main.service';
 import { PayfuraDepositManager } from './services/payfura/managers/payfura-deposit.manager';
 import { PayfuraWebhookManager } from './services/payfura/managers/payfura-webhook.manager';
@@ -109,6 +113,10 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     ArgentinaPaymentGateway,
     ColombiaPaymentGateway,
     CurrencyService,
+    LiquidoService,
+    LiquidoTokenManager,
+    LiquidoWithdrawalManager,
+    LiquidoWebhookManager,
   ],
   controllers: [PaymentGatewayController],
   exports: [PaymentGatewayService, CurrencyService],

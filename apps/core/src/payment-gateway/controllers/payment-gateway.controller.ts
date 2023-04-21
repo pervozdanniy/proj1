@@ -22,6 +22,7 @@ import {
   ExchangeResponse,
   JsonData,
   KoyweWebhookRequest,
+  LiquidoWebhookRequest,
   MakeDepositRequest,
   PayfuraWebhookRequest,
   PaymentGatewayServiceController,
@@ -185,5 +186,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
   payfuraWebhooksHandler(request: PayfuraWebhookRequest): Promise<SuccessResponse> {
     return this.webhooksService.payfuraWebhooksHandler(request);
+  }
+
+  liquidoWebhooksHandler(request: LiquidoWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.liquidoWebhooksHandler(request);
   }
 }

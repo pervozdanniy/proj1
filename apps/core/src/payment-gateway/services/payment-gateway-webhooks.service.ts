@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
   KoyweWebhookRequest,
+  LiquidoWebhookRequest,
   PayfuraWebhookRequest,
   SocureDocumentRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { KoyweService } from './koywe/koywe.service';
+import { LiquidoService } from './liquido/liquido.service';
 import { PayfuraService } from './payfura/payfura.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
@@ -15,6 +17,7 @@ export class PaymentGatewayWebhooksService {
     private primeTrustService: PrimeTrustService,
     private koyweService: KoyweService,
     private payfuraService: PayfuraService,
+    private liquidoService: LiquidoService,
   ) {}
 
   updateAccount(request: AccountIdRequest) {
@@ -57,6 +60,10 @@ export class PaymentGatewayWebhooksService {
 
   payfuraWebhooksHandler(request: PayfuraWebhookRequest) {
     return this.payfuraService.payfuraWebhooksHandler(request);
+  }
+
+  liquidoWebhooksHandler(request: LiquidoWebhookRequest) {
+    return this.liquidoService.liquidoWebhooksHandler(request);
   }
 
   createSocureDocument(request: SocureDocumentRequest) {

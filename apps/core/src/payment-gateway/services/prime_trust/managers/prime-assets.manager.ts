@@ -207,8 +207,7 @@ export class PrimeAssetsManager {
           'account-id': account_id,
           'wallet-address': wallet,
           'transfer-direction': 'outgoing',
-          'single-use': true,
-          'asset-transfer-type': 'bitcoin',
+          'single-use': false,
         },
       },
     };
