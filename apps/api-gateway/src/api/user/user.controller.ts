@@ -54,9 +54,8 @@ import { UserService } from './services/user.service';
 export class UserController {
   private readonly socure_sdk: string;
   constructor(config: ConfigService<ConfigInterface>, private readonly userService: UserService) {
-    const { socure_sdk } = config.get('prime_trust');
+    const { socure_sdk } = config.get('prime_trust', { infer: true });
     this.socure_sdk = socure_sdk;
-    this.socure_sdk = 'dbf8aa95-c77c-449e-a85b-6b499cd94362';
   }
 
   @Get('socure/link')

@@ -15,9 +15,6 @@ export class PrimeTokenManager {
     this.email = email;
     this.password = password;
     this.prime_trust_url = prime_trust_url;
-    //temporary
-    this.email = 'test_sxal14@gmail.com';
-    this.password = '0%5XmqH450%XwXoA';
   }
 
   async getToken() {
