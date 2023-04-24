@@ -182,7 +182,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.transferToHotWallet();
   }
   createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
-    return this.webhooksService.createSocureDocument(request);
+    return this.paymentGatewayService.createSocureDocument(request);
   }
   payfuraWebhooksHandler(request: PayfuraWebhookRequest): Promise<SuccessResponse> {
     return this.webhooksService.payfuraWebhooksHandler(request);
@@ -190,5 +190,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   liquidoWebhooksHandler(request: LiquidoWebhookRequest): Promise<SuccessResponse> {
     return this.webhooksService.liquidoWebhooksHandler(request);
+  }
+
+  failedSocureDocument(request: UserIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.failedSocureDocument(request);
   }
 }

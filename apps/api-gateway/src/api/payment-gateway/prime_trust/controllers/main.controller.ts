@@ -220,6 +220,15 @@ export class MainController {
     return this.paymentGatewayService.createSocureDocument(payload);
   }
 
+  @ApiOperation({ summary: 'Send Failed socure document notification.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @Post('/failed/socure/document')
+  async failedSocureDocument(@Body() payload: { id: number }) {
+    return this.paymentGatewayService.failedSocureDocument(payload);
+  }
+
   @ApiOperation({ summary: 'Transfer all accounts money to hot wallets.' })
   @ApiResponse({
     status: HttpStatus.CREATED,

@@ -14,7 +14,12 @@ import FormData from 'form-data';
 import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { AccountIdRequest, DocumentResponse, SocureDocumentRequest } from '~common/grpc/interfaces/payment-gateway';
+import {
+  AccountIdRequest,
+  DocumentResponse,
+  SocureDocumentRequest,
+  UserIdRequest,
+} from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
 
@@ -368,16 +373,18 @@ export class PrimeKycManager {
 
   async createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
     const { user_id } = request;
+    let status = false;
     try {
       await this.primeTrustSocureDocumentEntityRepository.save(
         this.primeTrustSocureDocumentEntityRepository.create(request),
       );
+      status = true;
       await this.notificationService.sendWs(user_id, 'socure', 'Document successfully uploaded!', 'Socure document');
     } catch (e) {
       this.logger.log(e.message);
     }
 
-    return { success: true };
+    return { success: status };
   }
 
   async updateContact({ id: account_id, resource_id }: AccountIdRequest): Promise<SuccessResponse> {
@@ -402,5 +409,11 @@ export class PrimeKycManager {
     });
 
     return contactData.data;
+  }
+
+  async failedSocureDocument({ id }: UserIdRequest): Promise<SuccessResponse> {
+    await this.notificationService.sendWs(id, 'socure', 'Document upload failed,please try again!', 'Socure document');
+
+    return { success: true };
   }
 }
