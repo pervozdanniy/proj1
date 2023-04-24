@@ -1726,7 +1726,7 @@ var isMobileSafari = isMobileSafariType(browser) || getIPad13();
 var isChromium = isChromiumType(browser);
 // var isMobile = isMobileAndTabletType(device) || getIPad13();
 // FORCE MOBILE TYPE ALWAYS
-var isMobile = false;
+var isMobile = true;
 var isMobileOnly = isMobileType(device);
 var isTablet = isTabletType(device) || getIPad13();
 var isBrowser = isBrowserType(device);
