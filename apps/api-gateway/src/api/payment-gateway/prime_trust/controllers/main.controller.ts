@@ -74,7 +74,7 @@ export class MainController {
   }
 
   //not necessary yet
-
+  // @ApiBearerAuth()
   // @ApiOperation({ summary: 'Add New Contact.' })
   // @ApiResponse({
   //   status: HttpStatus.CREATED,
@@ -161,7 +161,7 @@ export class MainController {
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Get('/bank/account')
+  @Get('/banks/account')
   async getBankAccounts(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBankAccounts({ id });
   }
@@ -173,7 +173,7 @@ export class MainController {
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Get('/available/banks')
+  @Get('/banks/available')
   async getBanksInfo(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBanksInfo({ id });
   }
@@ -185,7 +185,7 @@ export class MainController {
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Post('/bank/account')
+  @Post('/banks/account')
   async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
     return this.paymentGatewayService.addBankAccountParams({ id, ...payload });
   }

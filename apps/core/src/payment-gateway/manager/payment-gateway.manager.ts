@@ -3,10 +3,10 @@ import { ModuleRef } from '@nestjs/core';
 import {
   BankDepositInterface,
   BankInterface,
+  BankWithdrawalInterface,
   CreditCardInterface,
   PaymentGatewayInterface,
   WireDepositInterface,
-  WithdrawalInterface,
 } from '../interfaces/payment-gateway.interface';
 import { ArgentinaPaymentGateway } from './countries/argentina-payment.gateway';
 import { BrazilPaymentGateway } from './countries/brazil-payment.gateway';
@@ -23,12 +23,12 @@ export const hasCreditCard = <T extends PaymentGatewayInterface>(gateway: T): ga
   gateway.getAvailablePaymentMethods().includes('credit-card');
 
 export const hasBankDeposit = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & BankDepositInterface =>
-  'makeDeposit' in gateway && 'setDepositParams' in gateway;
+  hasBank(gateway) && 'makeDeposit' in gateway && 'setDepositParams' in gateway;
 
 export const hasWireTransfer = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & WireDepositInterface =>
   'createReference' in gateway;
 
-export const hasWithdrawal = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & WithdrawalInterface =>
+export const hasWithdrawal = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & BankWithdrawalInterface =>
   'makeWithdrawal' in gateway;
 
 @Injectable()

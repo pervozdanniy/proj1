@@ -75,7 +75,7 @@ export class KoyweDepositManager {
       throw new ConflictException('KYC is not completed');
     }
 
-    const { orderId, providedAddress } = await this.createOrder(
+    const { orderId, providedAddress, providedAction } = await this.createOrder(
       quoteId,
       userDetails.email,
       wallet_address,
@@ -95,21 +95,26 @@ export class KoyweDepositManager {
         fee,
       }),
     );
-    const parts = providedAddress.split('\n');
+    if (providedAddress) {
+      const parts = providedAddress.split('\n');
 
-    const data: ReferenceData = {
-      name: parts[0],
-      account_number: parts[1],
-      tax_id: parts[2],
-      bank: parts[3],
-      email: parts[4],
-      amount,
-      currency_type,
-      asset_transfer_method_id,
-      wallet_address,
-    };
+      const data: ReferenceData = {
+        name: parts[0],
+        account_number: parts[1],
+        tax_id: parts[2],
+        bank: parts[3],
+        email: parts[4],
+        amount,
+        currency_type,
+        asset_transfer_method_id,
+        wallet_address,
+      };
 
-    return { data: JSON.stringify([data]) };
+      return { data: JSON.stringify([data]) };
+    }
+    if (providedAction) {
+      return { data: providedAction };
+    }
   }
 
   async createQuote(params: { amount: string; currency: string; method?: KoywePaymentMethod }): Promise<KoyweQuote> {
@@ -123,7 +128,6 @@ export class KoyweDepositManager {
         paymentMethodId,
         executable: true,
       };
-
       const result = await lastValueFrom(this.httpService.post(`${this.koywe_url}/quotes`, formData));
 
       return result.data;

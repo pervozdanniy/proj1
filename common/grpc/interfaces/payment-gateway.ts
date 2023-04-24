@@ -6,6 +6,38 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
+export interface DepositFlowRequest {
+  user_id: number;
+  amount: string;
+  currency: string;
+}
+
+export interface DepositFlowResponse {
+  action: string;
+  select?: DepositSelectBankData | undefined;
+  redirect?: DepositRedirectData | undefined;
+  id?: number | undefined;
+}
+
+export interface DepositSelectBankData {
+  banks: BankAccountParams[];
+}
+
+export interface DepositRedirectData {
+  url: string;
+}
+
+export interface DepositNextStepRequest {
+  id: number;
+  user_id: number;
+  select?: PayWithBankRequest | undefined;
+}
+
+export interface PayWithBankRequest {
+  bank_id: number;
+  transfer_type: string;
+}
+
 export interface SocureDocumentRequest {
   user_id: number;
   uuid: string;
@@ -167,7 +199,7 @@ export interface MakeDepositRequest {
   id: number;
   funds_transfer_method_id: string;
   amount: string;
-  cvv: string;
+  cvv?: string | undefined;
 }
 
 export interface ContributionResponse {
@@ -658,3 +690,38 @@ export function PaymentGatewayServiceControllerMethods() {
 }
 
 export const PAYMENT_GATEWAY_SERVICE_NAME = "PaymentGatewayService";
+
+export interface DepositFlowServiceClient {
+  start(request: DepositFlowRequest, ...rest: any): Observable<DepositFlowResponse>;
+
+  payWithBank(request: DepositNextStepRequest, ...rest: any): Observable<ContributionResponse>;
+}
+
+export interface DepositFlowServiceController {
+  start(
+    request: DepositFlowRequest,
+    ...rest: any
+  ): Promise<DepositFlowResponse> | Observable<DepositFlowResponse> | DepositFlowResponse;
+
+  payWithBank(
+    request: DepositNextStepRequest,
+    ...rest: any
+  ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
+}
+
+export function DepositFlowServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = ["start", "payWithBank"];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("DepositFlowService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("DepositFlowService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
+
+export const DEPOSIT_FLOW_SERVICE_NAME = "DepositFlowService";

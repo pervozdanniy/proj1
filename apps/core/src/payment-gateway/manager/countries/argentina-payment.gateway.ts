@@ -8,10 +8,10 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import {
   BankInterface,
+  BankWithdrawalInterface,
   PaymentGatewayInterface,
-  PaymentMethods,
+  PaymentMethod,
   WireDepositInterface,
-  WithdrawalInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../services/koywe/koywe.service';
 import { PayfuraService } from '../../services/payfura/payfura.service';
@@ -19,7 +19,7 @@ import { PrimeTrustService } from '../../services/prime_trust/prime-trust.servic
 
 @Injectable()
 export class ArgentinaPaymentGateway
-  implements PaymentGatewayInterface, BankInterface, WireDepositInterface, WithdrawalInterface
+  implements PaymentGatewayInterface, BankInterface, WireDepositInterface, BankWithdrawalInterface
 {
   constructor(
     private primeTrustService: PrimeTrustService,
@@ -27,7 +27,7 @@ export class ArgentinaPaymentGateway
     private payfuraService: PayfuraService,
   ) {}
 
-  getAvailablePaymentMethods(): PaymentMethods[] {
+  getAvailablePaymentMethods(): PaymentMethod[] {
     return ['bank-transfer'];
   }
 

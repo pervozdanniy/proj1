@@ -16,11 +16,11 @@ import {
 import {
   BankDepositInterface,
   BankInterface,
+  BankWithdrawalInterface,
   CreditCardInterface,
   PaymentGatewayInterface,
-  PaymentMethods,
+  PaymentMethod,
   WireDepositInterface,
-  WithdrawalInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
@@ -32,7 +32,7 @@ export class USPaymentGateway
     WireDepositInterface,
     CreditCardInterface,
     BankDepositInterface,
-    WithdrawalInterface
+    BankWithdrawalInterface
 {
   private primeTrustService: PrimeTrustService;
 
@@ -67,7 +67,7 @@ export class USPaymentGateway
     return this.primeTrustService.addDepositParams(request);
   }
 
-  getAvailablePaymentMethods(): PaymentMethods[] {
+  getAvailablePaymentMethods(): PaymentMethod[] {
     return ['bank-transfer', 'credit-card'];
   }
 
