@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsEmail,
@@ -16,6 +16,7 @@ import { UserDetails } from '../../user/dtos/update-user.dto';
 import { TwoFactorVerificationDto } from './2fa.request.dto';
 
 export class RegistrationStartRequestDto {
+  @Transform(({ value }) => value.toLowerCase())
   @ApiProperty({ example: 'test453_sd@gmail.com' })
   @IsNotEmpty()
   @IsEmail()
