@@ -14,10 +14,12 @@ export class DepositService implements OnModuleInit {
     this.flowClient = this.client.getService('DepositFlowService');
   }
 
-  start(payload: { amount: string; currency: string }, userId: number) {
-    return firstValueFrom(
+  async start(payload: { amount: string; currency: string }, userId: number) {
+    const { id, ...rest } = await firstValueFrom(
       this.flowClient.start({ user_id: userId, amount: payload.amount, currency: payload.currency }),
     );
+
+    return { flowId: id, ...rest };
   }
 
   payWithBank(payload: { flowId: number; bankId: number; transferType: string }, userId: number) {
