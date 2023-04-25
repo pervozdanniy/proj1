@@ -13,10 +13,10 @@ import {
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 
-export type PaymentMethods = 'bank-transfer' | 'credit-card';
+export type PaymentMethod = 'bank-transfer' | 'credit-card' | 'cash';
 
 export interface PaymentGatewayInterface {
-  getAvailablePaymentMethods(): PaymentMethods[];
+  getAvailablePaymentMethods(): PaymentMethod[];
 }
 
 export interface BankInterface {
@@ -37,12 +37,12 @@ export interface CreditCardInterface {
   createCreditCardResource(id: number): Promise<CreditCardResourceResponse>;
 }
 
-export interface BankDepositInterface {
-  makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse>;
-
+export interface BankDepositInterface extends BankInterface {
   setDepositParams(request: DepositParamRequest): Promise<DepositResponse>;
+
+  makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse>;
 }
 
-export interface WithdrawalInterface {
+export interface BankWithdrawalInterface extends BankInterface {
   makeWithdrawal(request: TransferMethodRequest): Promise<JsonData>;
 }

@@ -11,7 +11,8 @@ export type ReferenceData = {
 };
 
 export type KoyweCreateOrder = {
-  providedAddress: string;
+  providedAddress?: string;
+  providedAction?: string;
   orderId: string;
 };
 

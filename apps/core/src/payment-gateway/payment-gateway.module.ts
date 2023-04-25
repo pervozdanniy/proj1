@@ -7,7 +7,9 @@ import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { CountryModule } from '../country/country.module';
+import { DepositFlowController } from './controllers/deposit-flow.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
+import { DepositFlowEntity } from './entities/flow/deposit.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from './entities/prime_trust/deposit-params.entity';
@@ -28,6 +30,7 @@ import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { CurrencyService } from './services/currency.service';
+import { DepositFlow } from './services/flow/deposit-flow.service';
 import { KoyweService } from './services/koywe/koywe.service';
 import { KoyweBankAccountManager } from './services/koywe/managers/koywe-bank-account.manager';
 import { KoyweDepositManager } from './services/koywe/managers/koywe-deposit.manager';
@@ -75,6 +78,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       BankAccountEntity,
       DepositParamsEntity,
       SocureDocumentEntity,
+      DepositFlowEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
   ],
@@ -117,8 +121,9 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     LiquidoTokenManager,
     LiquidoWithdrawalManager,
     LiquidoWebhookManager,
+    DepositFlow,
   ],
-  controllers: [PaymentGatewayController],
+  controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],
 })
 export class PaymentGatewayModule {}

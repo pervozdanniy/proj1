@@ -6,7 +6,7 @@ import { User } from '~common/grpc/interfaces/common';
 import { WithdrawalMakeDto } from '../dtos/withdrawal/withdrawal-make.dto';
 import { JsonDataDto } from '../utils/prime-trust-response.dto';
 
-@ApiTags('Prime Trust/Withdrawal Funds')
+@ApiTags('Withdrawal Funds')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({

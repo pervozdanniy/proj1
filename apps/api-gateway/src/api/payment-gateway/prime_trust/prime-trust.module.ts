@@ -12,6 +12,7 @@ import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { JwtSessionMiddleware } from '~common/http-session';
 import { WebhooksController } from './controllers/webhooks.controller';
+import { DepositService } from './services/deposit.service';
 
 @Module({
   imports: [HttpModule, AuthModule, ClientsModule.registerAsync([asyncClientOptions('core')])],
@@ -23,7 +24,7 @@ import { WebhooksController } from './controllers/webhooks.controller';
     SandboxGatewayController,
     WebhooksController,
   ],
-  providers: [PaymentGatewayService, SandboxService],
+  providers: [PaymentGatewayService, SandboxService, DepositService],
 })
 export class PrimeTrustModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

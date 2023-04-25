@@ -18,22 +18,29 @@ import {
   Render,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { CreditCardTokenDto } from '../dtos/deposit/credit-card-token.dto';
 import { CreateReferenceDto } from '../dtos/deposit/deposit-funds.dto';
 import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
+import {
+  DepositStartResponseDto,
+  PayWithBankRequestDto,
+  PayWithBankResponseDto,
+  StartDepositFlowDto,
+} from '../dtos/deposit/flow.dto';
 import { MakeDepositDto } from '../dtos/deposit/make-deposit.dto';
 import { VerifyCardDto } from '../dtos/deposit/verify-card.dto';
+import { DepositService } from '../services/deposit.service';
 
-@ApiTags('Prime Trust/Deposit Funds')
+@ApiTags('Deposit Funds')
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
   path: 'deposit',
 })
 export class DepositController {
-  constructor(private paymentGatewayService: PaymentGatewayService) {}
+  constructor(private paymentGatewayService: PaymentGatewayService, private readonly depositService: DepositService) {}
 
   @ApiOperation({ summary: 'Add Wire transfer reference.' })
   @ApiResponse({
@@ -57,7 +64,7 @@ export class DepositController {
   })
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
-  @Post('/add/params')
+  @Post('/params')
   async addDepositParams(@JwtSessionUser() { id }: User, @Body() payload: DepositParamsDto) {
     return this.paymentGatewayService.addDepositParams({ id, ...payload });
   }
@@ -131,5 +138,23 @@ export class DepositController {
   @Get('/params')
   async getDepositParams(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getDepositParams({ id });
+  }
+
+  @ApiOperation({ summary: 'Start deposit flow' })
+  @ApiCreatedResponse({ type: DepositStartResponseDto })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Post('/start')
+  start(@Body() payload: StartDepositFlowDto, @JwtSessionUser() { id }: User) {
+    return this.depositService.start(payload, id);
+  }
+
+  @ApiOperation({ summary: 'Select bank for deposit' })
+  @ApiCreatedResponse({ type: PayWithBankResponseDto })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Post('/pay-with-bank')
+  payWithBank(@Body() payload: PayWithBankRequestDto, @JwtSessionUser() { id }: User) {
+    return this.depositService.payWithBank(payload, id);
   }
 }

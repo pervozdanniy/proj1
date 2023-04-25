@@ -6,7 +6,7 @@ import { User } from '~common/grpc/interfaces/common';
 import { TransferFundsRequestDto } from '../dtos/transfer/transfer-funds.dto';
 import { TransferFundsResponseDto } from '../utils/prime-trust-response.dto';
 
-@ApiTags('Prime Trust/Transfer Funds')
+@ApiTags('Transfer Funds')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
@@ -22,7 +22,7 @@ export class TransferController {
     type: TransferFundsResponseDto,
   })
   @JwtSessionAuth({ requireKYC: true })
-  @Post('/funds')
+  @Post()
   async transferFunds(@JwtSessionUser() { id }: User, @Body() payload: TransferFundsRequestDto) {
     return this.paymentGatewayService.transferFunds({ sender_id: id, ...payload });
   }
