@@ -13,6 +13,7 @@ import {
   MakeDepositRequest,
   PG_Token,
   SearchTransactionRequest,
+  SocureDocumentRequest,
   TransferFundsRequest,
   UploadDocumentRequest,
   UserIdRequest,
@@ -158,5 +159,18 @@ export class PaymentGatewayService {
     }
 
     return resp;
+  }
+  failedSocureDocument(request: UserIdRequest) {
+    return this.primeTrustService.failedSocureDocument(request);
+  }
+
+  async createSocureDocument(request: SocureDocumentRequest) {
+    const { user_id } = request;
+    const response = await this.primeTrustService.createSocureDocument(request);
+    if (response.success === true) {
+      await this.createAccount(user_id);
+    }
+
+    return response;
   }
 }

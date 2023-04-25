@@ -124,7 +124,7 @@ export class UpdateRequestDto implements UpdateRequest {
   email?: string;
 
   @IsOptional()
-  @IsInt()
+  @IsString()
   country_code?: string;
 
   @IsOptional()

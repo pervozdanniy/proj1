@@ -13,6 +13,7 @@ import {
   SocureDocumentRequest,
   TransferFundsRequest,
   TransferMethodRequest,
+  UserIdRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from './managers/prime-account.manager';
 import { PrimeAssetsManager } from './managers/prime-assets.manager';
@@ -178,5 +179,9 @@ export class PrimeTrustService {
 
   transferToHotWallet() {
     return this.primeAccountManager.transferToHotWallet();
+  }
+
+  failedSocureDocument(request: UserIdRequest) {
+    return this.primeKycManager.failedSocureDocument(request);
   }
 }

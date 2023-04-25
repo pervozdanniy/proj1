@@ -4,7 +4,6 @@ import {
   KoyweWebhookRequest,
   LiquidoWebhookRequest,
   PayfuraWebhookRequest,
-  SocureDocumentRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { KoyweService } from './koywe/koywe.service';
 import { LiquidoService } from './liquido/liquido.service';
@@ -64,9 +63,5 @@ export class PaymentGatewayWebhooksService {
 
   liquidoWebhooksHandler(request: LiquidoWebhookRequest) {
     return this.liquidoService.liquidoWebhooksHandler(request);
-  }
-
-  createSocureDocument(request: SocureDocumentRequest) {
-    return this.primeTrustService.createSocureDocument(request);
   }
 }

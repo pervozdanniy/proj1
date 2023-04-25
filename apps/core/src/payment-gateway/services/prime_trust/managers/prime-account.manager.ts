@@ -14,6 +14,7 @@ import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfac
 import { AccountResponse, AccountStatusResponse, AgreementRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { CountryService } from '../../../../country/country.service';
+import { NotificationService } from '../../../../notification/services/notification.service';
 import { UserService } from '../../../../user/services/user.service';
 import { PrimeTrustBalanceEntity } from '../../../entities/prime_trust/prime-trust-balance.entity';
 import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
@@ -27,6 +28,8 @@ export class PrimeAccountManager {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
+
+    private readonly notificationService: NotificationService,
 
     // private readonly primeKycManager: PrimeKycManager,
 
@@ -87,9 +90,14 @@ export class PrimeAccountManager {
       formData.data.attributes.owner['primary-address']['region'] = `${userDetails.details.region}`;
     }
 
-    const socureDocument = await this.primeTrustSocureDocumentEntityRepository.findOneBy({
-      user_id: userDetails.id,
-      status: 'VERIFICATION_COMPLETE',
+    const socureDocument = await this.primeTrustSocureDocumentEntityRepository.findOne({
+      where: {
+        user_id: userDetails.id,
+        status: 'VERIFICATION_COMPLETE',
+      },
+      order: {
+        id: 'DESC',
+      },
     });
     if (socureDocument) {
       formData.data.attributes.owner['socure-document-id'] = socureDocument.uuid;
@@ -113,6 +121,7 @@ export class PrimeAccountManager {
       //     data: null,
       //   });
       // }
+      await this.notificationService.sendWs(userDetails.id, 'account', 'Account created successfully!', 'Account');
 
       return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
       //
@@ -121,6 +130,7 @@ export class PrimeAccountManager {
 
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
+        await this.notificationService.sendWs(userDetails.id, 'account', 'Account creation failed!', 'Account');
 
         throw new GrpcException(code, detail);
       } else {

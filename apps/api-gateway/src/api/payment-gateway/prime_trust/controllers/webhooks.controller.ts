@@ -38,10 +38,10 @@ export class WebhooksController {
     if (resource_type === 'internal_asset_transfers' && action === 'update') {
       return this.paymentGatewayService.updateBalance(sendData);
     }
-    if (resource_type === 'kyc_document_checks' && action === 'update') {
+    if (resource_type === 'kyc_document_checks' && (action === 'update' || action === 'create')) {
       return this.paymentGatewayService.documentCheck(sendData);
     }
-    if (resource_type === 'cip_checks' && action === 'update') {
+    if (resource_type === 'cip_checks' && (action === 'update' || action === 'create')) {
       return this.paymentGatewayService.cipCheck(sendData);
     }
     if (resource_type === 'contributions' && action === 'update') {

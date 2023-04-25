@@ -173,4 +173,8 @@ export class PaymentGatewayService implements OnModuleInit {
   exchange({ amount, currencies, currency_type }: ExchangeDto) {
     return lastValueFrom(this.paymentGatewayServiceClient.exchange({ amount, currencies, currency_type }));
   }
+
+  failedSocureDocument(payload: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.failedSocureDocument(payload));
+  }
 }
