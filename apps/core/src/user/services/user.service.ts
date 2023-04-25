@@ -60,7 +60,11 @@ export class UserService {
   }
 
   findByLogin({ email, phone }: FindRequestDto) {
-    return this.userRepository.findOneBy({ email, phone });
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('LOWER(user.email) = :email', { email })
+      .orWhere('user.phone = :phone', { phone })
+      .getOne();
   }
 
   findBySocialId({ social_id }: FindBySocialIdDto) {

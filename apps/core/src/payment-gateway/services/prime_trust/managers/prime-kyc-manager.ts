@@ -120,7 +120,7 @@ export class PrimeKycManager {
     };
   }
 
-  async saveContact(contactData: any, user_id: number) {
+  async saveContact(contactData: ContactType, user_id: number) {
     const data = this.collectContactData(contactData);
     await this.primeTrustContactEntityRepository.save(
       this.primeTrustContactEntityRepository.create({
@@ -132,23 +132,52 @@ export class PrimeKycManager {
     return { success: true };
   }
 
+  async getContactByAccount(account_id: string): Promise<ContactType> {
+    try {
+      const result = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/accounts/${account_id}?include=contacts`,
+      });
+
+      return result.data.included[0];
+    } catch (e) {
+      this.logger.error(e);
+
+      if (e instanceof PrimeTrustException) {
+        const { detail, code } = e.getFirstError();
+
+        throw new GrpcException(code, detail);
+      } else {
+        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+      }
+    }
+  }
+
   async uploadDocument(userDetails: UserEntity, file: any, label: string): Promise<DocumentResponse> {
     const country_code = userDetails.country_code;
     const account = await this.primeAccountRepository.findOne({
       where: { user_id: userDetails.id },
       relations: ['contact'],
     });
+    let contact_id;
+    if (!account.contact) {
+      contact_id = account.contact.uuid;
+    } else {
+      const contact = await this.getContactByAccount(account.uuid);
+      await this.saveContact(contact, userDetails.id);
+      contact_id = contact.id;
+    }
 
-    const documentResponse = await this.sendDocument(file, label, account.contact.uuid);
+    const documentResponse = await this.sendDocument(file, label, contact_id);
 
     const documentCheckResponse = await this.kycDocumentCheck(
       documentResponse.data.id,
-      account.contact.uuid,
+      contact_id,
       label,
       country_code,
     );
 
-    return this.saveDocument(documentResponse.data, account.contact.user_id, documentCheckResponse.data);
+    return this.saveDocument(documentResponse.data, userDetails.id, documentCheckResponse.data);
   }
 
   async kycDocumentCheck(document_uuid: string, contact_uuid: string, label: string, country_code: string) {
