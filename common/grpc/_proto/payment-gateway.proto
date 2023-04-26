@@ -371,9 +371,8 @@ message BalanceRequest {
 }
 
 message ExchangeRequest {
-  string amount = 1;
-  string currency_type = 2;
-  repeated string currencies = 3;
+  string currency_type = 1;
+  repeated string currencies = 2;
 }
 
 message Conversion {
@@ -388,9 +387,13 @@ message BalanceResponse {
   repeated Conversion conversions = 3;
 }
 message ExchangeResponse {
-  string amount = 1;
-  string currency_type = 2;
-  repeated Conversion conversions = 3;
+  string currency_type = 1;
+  repeated Rates conversions = 3;
+}
+
+message Rates {
+  string currency = 1;
+  optional string rate = 2;
 }
 
 message JsonData {
