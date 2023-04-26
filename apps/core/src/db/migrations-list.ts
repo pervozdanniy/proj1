@@ -46,6 +46,7 @@ import { GenerateRelationsTable1681477802578 } from './migrations/1681477802578-
 import { AlterKycDocumentsTable1681553441656 } from './migrations/1681553441656-AlterKycDocumentsTable';
 import { AddHotWalletParams1681741975606 } from './migrations/1681741975606-AddHotWalletParams';
 import { AddDepositFlowEntity1682250487665 } from './migrations/1682250487665-AddDepositFlowEntity';
+import { AddRecourceTypeToDepositFLow1682513214158 } from './migrations/1682513214158-AddRecourceTypeToDepositFLow';
 
 export default [
   createUserTable1669901299726,
@@ -96,4 +97,5 @@ export default [
   AlterKycDocumentsTable1681553441656,
   AddHotWalletParams1681741975606,
   AddDepositFlowEntity1682250487665,
+  AddRecourceTypeToDepositFLow1682513214158,
 ];

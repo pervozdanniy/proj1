@@ -10,17 +10,23 @@ export interface DepositFlowRequest {
   user_id: number;
   amount: string;
   currency: string;
+  type: string;
 }
 
 export interface DepositFlowResponse {
   action: string;
-  select?: DepositSelectBankData | undefined;
+  flow_id?: number | undefined;
+  banks?: DepositSelectBankData | undefined;
+  cards?: DepositSelectCardData | undefined;
   redirect?: DepositRedirectData | undefined;
-  id?: number | undefined;
 }
 
 export interface DepositSelectBankData {
-  banks: BankAccountParams[];
+  list: BankAccountParams[];
+}
+
+export interface DepositSelectCardData {
+  list: CreditCard[];
 }
 
 export interface DepositRedirectData {
@@ -30,12 +36,18 @@ export interface DepositRedirectData {
 export interface DepositNextStepRequest {
   id: number;
   user_id: number;
-  select?: PayWithBankRequest | undefined;
+  bank?: SelectBankRequest | undefined;
+  card?: SelectCardRequest | undefined;
 }
 
-export interface PayWithBankRequest {
-  bank_id: number;
+export interface SelectBankRequest {
+  id: number;
   transfer_type: string;
+}
+
+export interface SelectCardRequest {
+  id: number;
+  cvv: string;
 }
 
 export interface SocureDocumentRequest {
@@ -241,7 +253,7 @@ export interface CreditCardsResponse {
 }
 
 export interface CreditCard {
-  id: string;
+  id: number;
   transfer_method_id: string;
   credit_card_bin: string;
   credit_card_type: string;
@@ -705,7 +717,7 @@ export const PAYMENT_GATEWAY_SERVICE_NAME = "PaymentGatewayService";
 export interface DepositFlowServiceClient {
   start(request: DepositFlowRequest, ...rest: any): Observable<DepositFlowResponse>;
 
-  payWithBank(request: DepositNextStepRequest, ...rest: any): Observable<ContributionResponse>;
+  payWithSelectedResource(request: DepositNextStepRequest, ...rest: any): Observable<ContributionResponse>;
 }
 
 export interface DepositFlowServiceController {
@@ -714,7 +726,7 @@ export interface DepositFlowServiceController {
     ...rest: any
   ): Promise<DepositFlowResponse> | Observable<DepositFlowResponse> | DepositFlowResponse;
 
-  payWithBank(
+  payWithSelectedResource(
     request: DepositNextStepRequest,
     ...rest: any
   ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
@@ -722,7 +734,7 @@ export interface DepositFlowServiceController {
 
 export function DepositFlowServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["start", "payWithBank"];
+    const grpcMethods: string[] = ["start", "payWithSelectedResource"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("DepositFlowService", method)(constructor.prototype[method], method, descriptor);

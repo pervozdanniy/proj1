@@ -14,20 +14,35 @@ export class DepositService implements OnModuleInit {
     this.flowClient = this.client.getService('DepositFlowService');
   }
 
-  async start(payload: { amount: string; currency: string }, userId: number) {
-    const { id, ...rest } = await firstValueFrom(
-      this.flowClient.start({ user_id: userId, amount: payload.amount, currency: payload.currency }),
+  async start(payload: { amount: string; currency: string; type: string }, userId: number) {
+    const { flow_id, ...rest } = await firstValueFrom(
+      this.flowClient.start({
+        user_id: userId,
+        amount: payload.amount,
+        currency: payload.currency,
+        type: payload.type,
+      }),
     );
 
-    return { flowId: id, ...rest };
+    return { flowId: flow_id, ...rest };
   }
 
   payWithBank(payload: { flowId: number; bankId: number; transferType: string }, userId: number) {
     return firstValueFrom(
-      this.flowClient.payWithBank({
+      this.flowClient.payWithSelectedResource({
         id: payload.flowId,
         user_id: userId,
-        select: { bank_id: payload.bankId, transfer_type: payload.transferType },
+        bank: { id: payload.bankId, transfer_type: payload.transferType },
+      }),
+    );
+  }
+
+  payWithCard(payload: { flowId: number; cardId: number; cvv: string }, userId: number) {
+    return firstValueFrom(
+      this.flowClient.payWithSelectedResource({
+        id: payload.flowId,
+        user_id: userId,
+        card: { id: payload.cardId, cvv: payload.cvv },
       }),
     );
   }

@@ -256,12 +256,12 @@ export class PrimeDepositManager {
     }
   }
 
-  async createCreditCardResource(id: number): Promise<CreditCardResourceResponse> {
-    const contact = await this.primeTrustContactEntityRepository.findOneByOrFail({ user_id: id });
+  async createCreditCardResource(userId: number): Promise<CreditCardResourceResponse> {
+    const contact = await this.primeTrustContactEntityRepository.findOneByOrFail({ user_id: userId });
     const params = await this.getCreditCardResource(contact.uuid);
     const cardResource = await this.cardResourceEntityRepository.save(
       this.cardResourceEntityRepository.create({
-        user_id: id,
+        user_id: userId,
         uuid: params.id,
         token: params.attributes.token,
         status: params.attributes.status,

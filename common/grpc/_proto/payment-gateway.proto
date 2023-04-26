@@ -62,26 +62,32 @@ service PaymentGatewayService {
 service DepositFlowService {
   rpc Start(DepositFlowRequest) returns (DepositFlowResponse);
 
-  rpc PayWithBank(DepositNextStepRequest) returns (ContributionResponse);
+  rpc PayWithSelectedResource(DepositNextStepRequest) returns (ContributionResponse);
 }
 
 message DepositFlowRequest {
   uint32 user_id = 1;
   string amount = 2;
   string currency = 3;
+  string type = 4;
 }
 
 message DepositFlowResponse {
   string action = 1;
+  optional uint32 flow_id = 2;
   oneof data {
-    DepositSelectBankData select = 2;
-    DepositRedirectData redirect = 3;
-  }
-  optional uint32 id = 4;
+    DepositSelectBankData banks = 3;
+    DepositSelectCardData cards = 4;
+    DepositRedirectData redirect = 5;
+  };
 }
 
 message DepositSelectBankData {
-  repeated BankAccountParams banks = 1;
+  repeated BankAccountParams list = 1;
+}
+
+message DepositSelectCardData {
+  repeated CreditCard list = 1;
 }
 
 message DepositRedirectData {
@@ -92,13 +98,19 @@ message DepositNextStepRequest {
   uint32 id = 1;
   uint32 user_id = 2;
   oneof data {
-    PayWithBankRequest select = 3;
+    SelectBankRequest bank = 3;
+    SelectCardRequest card = 4;
   }
 }
 
-message PayWithBankRequest {
-  uint32 bank_id = 1;
+message SelectBankRequest {
+  uint32 id = 1;
   string transfer_type = 2;
+}
+
+message SelectCardRequest {
+  uint32 id = 1;
+  string cvv = 2;
 }
 
 message SocureDocumentRequest {
@@ -311,7 +323,7 @@ message CreditCardsResponse{
 }
 
 message CreditCard {
-  string id = 1;
+  uint32 id = 1;
   string transfer_method_id = 2;
   string credit_card_bin = 3;
   string credit_card_type = 4;

@@ -15,7 +15,6 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import {
   BankDepositInterface,
-  BankInterface,
   BankWithdrawalInterface,
   CreditCardInterface,
   PaymentGatewayInterface,
@@ -28,7 +27,6 @@ import { PrimeTrustService } from '../../services/prime_trust/prime-trust.servic
 export class USPaymentGateway
   implements
     PaymentGatewayInterface,
-    BankInterface,
     WireDepositInterface,
     CreditCardInterface,
     BankDepositInterface,
@@ -39,12 +37,13 @@ export class USPaymentGateway
   constructor(primeTrustService: PrimeTrustService) {
     this.primeTrustService = primeTrustService;
   }
+
   addBank(request: BankAccountParams): Promise<BankAccountParams> {
     return this.primeTrustService.addBankAccountParams(request);
   }
 
-  createCreditCardResource(id: number): Promise<CreditCardResourceResponse> {
-    return this.primeTrustService.createCreditCardResource(id);
+  createCreditCardResource(userId: number): Promise<CreditCardResourceResponse> {
+    return this.primeTrustService.createCreditCardResource(userId);
   }
 
   verifyCreditCard(resource_id: string, transfer_method_id: string): Promise<SuccessResponse> {

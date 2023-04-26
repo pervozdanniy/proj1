@@ -1,6 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsNotEmpty, IsNumberString, IsString, Length } from 'class-validator';
 
+export enum PaymentType {
+  BankTransfer = 'bank-transfer',
+  CreditCard = 'credit-card',
+  Cash = 'cash',
+}
+
 export class StartDepositFlowDto {
   @IsNumberString()
   @IsNotEmpty()
@@ -12,6 +18,11 @@ export class StartDepositFlowDto {
   @IsNotEmpty()
   @ApiProperty()
   currency: string;
+
+  @IsNotEmpty()
+  @IsEnum(PaymentType)
+  @ApiProperty({ enum: Object.values(PaymentType) })
+  type: PaymentType;
 }
 
 export enum TranferType {
@@ -19,20 +30,35 @@ export enum TranferType {
   ACH = 'ach',
 }
 
-export class PayWithBankRequestDto {
+export class PayWithResourceDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsInt()
   flowId: number;
+}
 
+export class PayWithBankRequestDto extends PayWithResourceDto {
   @ApiProperty()
   @IsNotEmpty()
+  @IsInt()
   bankId: number;
 
   @ApiProperty({ enum: Object.values(TranferType) })
   @IsEnum(TranferType)
   @IsNotEmpty()
   transferType: TranferType;
+}
+
+export class PayWithCardRequestDto extends PayWithResourceDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  cardId: number;
+
+  @ApiProperty({ maxLength: 4, minLength: 3 })
+  @IsNotEmpty()
+  @Length(3, 4)
+  cvv: string;
 }
 
 class BankParamsDto {
@@ -68,9 +94,4 @@ export class DepositStartResponseDto {
 
   @ApiPropertyOptional({ type: RedirectDto })
   redirect?: RedirectDto;
-}
-
-export class PayWithBankResponseDto {
-  @ApiProperty()
-  contribution_id: string;
 }

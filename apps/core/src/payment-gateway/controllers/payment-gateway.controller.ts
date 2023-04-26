@@ -153,6 +153,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   getContact({ id }: UserIdRequest): Promise<ContactResponse> {
     return this.paymentGatewayService.getContact(id);
   }
+
   createCreditCardResource({ id }: UserIdRequest): Promise<CreditCardResourceResponse> {
     return this.paymentGatewayService.createCreditCardResource(id);
   }
