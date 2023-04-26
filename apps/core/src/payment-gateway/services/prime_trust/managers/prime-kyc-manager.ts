@@ -292,22 +292,28 @@ export class PrimeKycManager {
       });
 
       if (documentData.data) {
-        await this.primeTrustKycDocumentEntityRepository.save(
-          this.primeTrustKycDocumentEntityRepository.create({
-            user_id,
-            uuid: documentData.data.attributes['socure-reference-id'],
-            label: documentData.data.attributes['kyc-document-type'],
-            kyc_check_uuid: documentData.data.id,
-            status: documentData.data.attributes['status'],
-          }),
-        );
-        await this.primeTrustKycDocumentEntityRepository.update(
-          { kyc_check_uuid: documentData.data.id },
-          {
-            status: documentData.data.attributes.status,
-            failure_details: documentData.data.attributes['failure-details'],
-          },
-        );
+        const document = await this.primeTrustKycDocumentEntityRepository.findOneBy({
+          kyc_check_uuid: documentData.data.id,
+        });
+        if (!document) {
+          await this.primeTrustKycDocumentEntityRepository.save(
+            this.primeTrustKycDocumentEntityRepository.create({
+              user_id,
+              uuid: documentData.data.attributes['socure-reference-id'],
+              label: documentData.data.attributes['kyc-document-type'],
+              kyc_check_uuid: documentData.data.id,
+              status: documentData.data.attributes.status,
+            }),
+          );
+        } else {
+          await this.primeTrustKycDocumentEntityRepository.update(
+            { kyc_check_uuid: documentData.data.id },
+            {
+              status: documentData.data.attributes.status,
+              failure_details: documentData.data.attributes['failure-details'],
+            },
+          );
+        }
       }
 
       const contactResponse = await this.getContactByUuid(contact_id);
@@ -427,6 +433,19 @@ export class PrimeKycManager {
       const collectedData = this.collectContactData(contactData.data);
       await this.primeTrustContactEntityRepository.update({ uuid: resource_id }, collectedData);
     }
+
+    const contactUploadedImagesResponse = await this.httpService.request({
+      method: 'get',
+      url: `${this.prime_trust_url}/v2/uploaded-documents?contact.id=${contactData.data.id}`,
+    });
+
+    const payload: any = {};
+    let uuid;
+    for (const u of contactUploadedImagesResponse.data.data) {
+      uuid = u.attributes.label.split('_')[0];
+      payload[`${u.attributes.description}`] = u.attributes['file-url'];
+    }
+    await this.primeTrustSocureDocumentEntityRepository.update({ uuid }, payload);
 
     return { success: true };
   }
