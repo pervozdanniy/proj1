@@ -170,8 +170,8 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.transferToHotWallet({}));
   }
 
-  exchange({ amount, currencies, currency_type }: ExchangeDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.exchange({ amount, currencies, currency_type }));
+  exchange({ currencies, currency_type }: ExchangeDto) {
+    return lastValueFrom(this.paymentGatewayServiceClient.exchange({ currencies, currency_type }));
   }
 
   failedSocureDocument(payload: UserIdRequest) {

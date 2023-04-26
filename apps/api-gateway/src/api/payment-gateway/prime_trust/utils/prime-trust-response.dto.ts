@@ -95,9 +95,6 @@ export class BalanceResponseDto implements BalanceResponse {
 
 export class ExchangeResponseDto implements ExchangeResponse {
   @ApiProperty()
-  amount: string;
-
-  @ApiProperty()
   currency_type: string;
 
   @ApiProperty({ type: ConversionDto })

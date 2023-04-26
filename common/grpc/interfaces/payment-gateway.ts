@@ -300,7 +300,6 @@ export interface BalanceRequest {
 }
 
 export interface ExchangeRequest {
-  amount: string;
   currency_type: string;
   currencies: string[];
 }
@@ -318,9 +317,13 @@ export interface BalanceResponse {
 }
 
 export interface ExchangeResponse {
-  amount: string;
   currency_type: string;
-  conversions: Conversion[];
+  conversions: Rates[];
+}
+
+export interface Rates {
+  currency: string;
+  rate?: string | undefined;
 }
 
 export interface JsonData {
