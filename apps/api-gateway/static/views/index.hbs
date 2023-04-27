@@ -1,20 +1,16 @@
 <!doctype html>
 <html>
 <head>
-    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-    <script src="/websdk-bundle.js"></script>
+    <script src="/websdk-bundle.js" data-variable="myVariable"></script>
     <script src="/bundle.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
-<body id="google_translate_element">
-<button onclick="start()">Start</button>
-<button onclick="refresh()">Refresh</button>
+<body>
+<div id="google_translate_element"></div>
 <div id="websdk"> See here </div>
 <script type="text/javascript">
 
-    function refresh() {
-        Socure.reset()
-    }
+    start()
 
     function onProgress(progress) {
         console.log(progress);
@@ -104,11 +100,19 @@
     }
 
     function googleTranslateElementInit() {
-        new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+        setCookie('googtrans', '/en/{{language}}/', 1);
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
+    }
+    function setCookie(key, value, expiry) {
+        var expires = new Date();
+        expires.setTime(expires.getTime() + (expiry * 24 * 60 * 60 * 1000));
+        document.cookie = key + '=' + value + ';expires=' + expires.toUTCString();
     }
 
-
-
 </script>
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

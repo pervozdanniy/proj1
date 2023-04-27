@@ -37,6 +37,7 @@ import { ExtractJwt } from 'passport-jwt';
 import { ConfigInterface } from '~common/config/configuration';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '../auth';
+import { languages } from '../country/constants/languages';
 import { ContactsResponseDto } from '../utils/contacts.dto';
 import { PublicUserDto, PublicUserWithContactsDto } from '../utils/public-user.dto';
 import { GetContactsDto } from './dtos/get-contacts.dto';
@@ -72,7 +73,11 @@ export class UserController {
   async root(@Query() { token }: UserTokenDto) {
     const user = await this.userService.decode(token);
 
-    return { user, socure_sdk: this.socure_sdk };
+    return {
+      user,
+      socure_sdk: this.socure_sdk,
+      language: languages[`${user.country_code as keyof typeof languages}`].toLowerCase(),
+    };
   }
 
   @Get('socure/kyc')
