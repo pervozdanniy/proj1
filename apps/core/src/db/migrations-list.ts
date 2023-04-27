@@ -47,6 +47,7 @@ import { AlterKycDocumentsTable1681553441656 } from './migrations/1681553441656-
 import { AddHotWalletParams1681741975606 } from './migrations/1681741975606-AddHotWalletParams';
 import { AddDepositFlowEntity1682250487665 } from './migrations/1682250487665-AddDepositFlowEntity';
 import { AddRecourceTypeToDepositFLow1682513214158 } from './migrations/1682513214158-AddRecourceTypeToDepositFLow';
+import { AlterSocureTable1682529569753 } from './migrations/1682529569753-AlterSocureTable';
 
 export default [
   createUserTable1669901299726,
@@ -98,4 +99,5 @@ export default [
   AddHotWalletParams1681741975606,
   AddDepositFlowEntity1682250487665,
   AddRecourceTypeToDepositFLow1682513214158,
+  AlterSocureTable1682529569753,
 ];

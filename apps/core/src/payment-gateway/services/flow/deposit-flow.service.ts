@@ -118,6 +118,7 @@ export class DepositFlow {
         id: flow.user_id,
         funds_transfer_method_id: card.transfer_method_id,
         amount: flow.amount,
+        cvv: payload.card.cvv,
       });
       await this.depositFlowRepo.delete(payload.id);
 

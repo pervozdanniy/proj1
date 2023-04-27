@@ -32,6 +32,15 @@ export class SocureDocumentEntity {
   @Column('character varying', { nullable: true })
   label: string;
 
+  @Column('character varying', { nullable: true })
+  documentfront: string;
+
+  @Column('character varying', { nullable: true })
+  documentback: string;
+
+  @Column('character varying', { nullable: true })
+  profileimage: string;
+
   @Column('character varying')
   status: string;
 
