@@ -4,7 +4,6 @@ export class AlterSocureTable1682529569753 implements MigrationInterface {
   name = 'AlterSocureTable1682529569753';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "prime_trust_accounts" DROP COLUMN "hot_status"`);
     await queryRunner.query(`ALTER TABLE "socure_kyc_documents" ADD "documentfront" character varying`);
     await queryRunner.query(`ALTER TABLE "socure_kyc_documents" ADD "documentback" character varying`);
     await queryRunner.query(`ALTER TABLE "socure_kyc_documents" ADD "profileimage" character varying`);
@@ -14,6 +13,5 @@ export class AlterSocureTable1682529569753 implements MigrationInterface {
     await queryRunner.query(`ALTER TABLE "socure_kyc_documents" DROP COLUMN "profileimage"`);
     await queryRunner.query(`ALTER TABLE "socure_kyc_documents" DROP COLUMN "documentback"`);
     await queryRunner.query(`ALTER TABLE "socure_kyc_documents" DROP COLUMN "documentfront"`);
-    await queryRunner.query(`ALTER TABLE "prime_trust_accounts" ADD "hot_status" boolean DEFAULT false`);
   }
 }
