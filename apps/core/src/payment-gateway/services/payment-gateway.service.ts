@@ -87,8 +87,8 @@ export class PaymentGatewayService {
     return resp;
   }
 
-  createCreditCardResource(id: number) {
-    return this.primeTrustService.createCreditCardResource(id);
+  createCreditCardResource(userId: number) {
+    return this.primeTrustService.createCreditCardResource(userId);
   }
 
   verifyCreditCard(request: VerifyCreditCardRequest) {

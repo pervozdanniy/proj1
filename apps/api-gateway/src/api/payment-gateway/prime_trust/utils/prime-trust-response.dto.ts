@@ -136,7 +136,7 @@ export class SuccessResponseDto implements SuccessResponse {
 
 export class CreditCardDto implements CreditCard {
   @ApiProperty()
-  id: string;
+  id: number;
 
   @ApiProperty()
   created_at: string;

@@ -1,5 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+export enum DepositResourceType {
+  Bank,
+  Card,
+}
+
 @Entity('deposit_flow')
 export class DepositFlowEntity {
   @PrimaryGeneratedColumn('increment')
@@ -16,4 +21,7 @@ export class DepositFlowEntity {
 
   @Column({ type: 'char', length: 2 })
   country_code: string;
+
+  @Column({ type: 'smallint' })
+  resource_type: DepositResourceType;
 }

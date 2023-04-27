@@ -102,8 +102,8 @@ export class PrimeTrustService {
     return this.primeDepositManager.updateContribution(request);
   }
 
-  createCreditCardResource(id: number) {
-    return this.primeDepositManager.createCreditCardResource(id);
+  createCreditCardResource(userId: number) {
+    return this.primeDepositManager.createCreditCardResource(userId);
   }
 
   verifyCreditCard(resource_id: string, transfer_method_id: string) {

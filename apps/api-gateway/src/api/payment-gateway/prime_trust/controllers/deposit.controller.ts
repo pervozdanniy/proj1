@@ -26,10 +26,11 @@ import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
 import {
   DepositStartResponseDto,
   PayWithBankRequestDto,
-  PayWithBankResponseDto,
+  PayWithCardRequestDto,
   StartDepositFlowDto,
 } from '../dtos/deposit/flow.dto';
 import { MakeDepositDto } from '../dtos/deposit/make-deposit.dto';
+import { SettleFundsDto } from '../dtos/deposit/settle-funds.dto';
 import { VerifyCardDto } from '../dtos/deposit/verify-card.dto';
 import { DepositService } from '../services/deposit.service';
 
@@ -150,11 +151,20 @@ export class DepositController {
   }
 
   @ApiOperation({ summary: 'Select bank for deposit' })
-  @ApiCreatedResponse({ type: PayWithBankResponseDto })
+  @ApiCreatedResponse({ type: SettleFundsDto })
   @ApiBearerAuth()
   @JwtSessionAuth()
   @Post('/pay-with-bank')
   payWithBank(@Body() payload: PayWithBankRequestDto, @JwtSessionUser() { id }: User) {
     return this.depositService.payWithBank(payload, id);
+  }
+
+  @ApiOperation({ summary: 'Select card for deposit' })
+  @ApiCreatedResponse({ type: SettleFundsDto })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Post('/pay-with-card')
+  payWithCard(@Body() payload: PayWithCardRequestDto, @JwtSessionUser() { id }: User) {
+    return this.depositService.payWithCard(payload, id);
   }
 }

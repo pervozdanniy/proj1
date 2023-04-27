@@ -32,14 +32,16 @@ export interface WireDepositInterface {
 export interface CreditCardInterface {
   verifyCreditCard(resource_id: string, transfer_method_id: string): Promise<SuccessResponse>;
 
-  getCreditCards(id: number): Promise<CreditCardsResponse>;
+  getCreditCards(userId: number): Promise<CreditCardsResponse>;
 
-  createCreditCardResource(id: number): Promise<CreditCardResourceResponse>;
+  createCreditCardResource(userId: number): Promise<CreditCardResourceResponse>;
 }
 
-export interface BankDepositInterface extends BankInterface {
+export interface BankDepositInterface extends BankInterface, DepositInterface {
   setDepositParams(request: DepositParamRequest): Promise<DepositResponse>;
+}
 
+export interface DepositInterface {
   makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse>;
 }
 
