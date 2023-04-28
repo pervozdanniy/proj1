@@ -36,18 +36,18 @@ export class KoyweBankAccountManager {
   }
 
   async getBanksInfo(country: string): Promise<BanksInfoResponse> {
-    if (country === 'US') {
+    const { code } = countriesData[country];
+    try {
+      const result = await lastValueFrom(this.httpService.get(`${this.koywe_url}/bank-info/${code}`));
+
+      return {
+        data: result.data,
+      };
+    } catch (e) {
       return {
         data: [],
       };
     }
-    const { code } = countriesData[country];
-
-    const result = await lastValueFrom(this.httpService.get(`${this.koywe_url}/bank-info/${code}`));
-
-    return {
-      data: result.data,
-    };
   }
 
   async addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
