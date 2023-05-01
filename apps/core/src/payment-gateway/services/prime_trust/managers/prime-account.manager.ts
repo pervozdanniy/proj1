@@ -114,13 +114,13 @@ export class PrimeAccountManager {
       const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
 
       // account open from development
-      // if (process.env.NODE_ENV === 'dev') {
-      //   await this.httpService.request({
-      //     method: 'post',
-      //     url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
-      //     data: null,
-      //   });
-      // }
+      if (process.env.NODE_ENV === 'dev') {
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
+          data: null,
+        });
+      }
       await this.notificationService.sendWs(userDetails.id, 'account', 'Account created successfully!', 'Account');
 
       return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
