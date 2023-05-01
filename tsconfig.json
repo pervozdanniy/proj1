@@ -23,9 +23,18 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "~svc/*": ["apps/*"],
-      "~common/*": ["common/*"],
-      "@/*": ["apps/core/src/*", "apps/auth/src/*", "apps/api-gateway/src/*"] // stub for VSCode only, for real config see apps/*/tsconfig.app.json
+      "~svc/*": [
+        "apps/*"
+      ],
+      "~common/*": [
+        "common/*"
+      ],
+      "@/*": [
+        "apps/core/src/*",
+        "apps/auth/src/*",
+        "apps/api-gateway/src/*",
+        "apps/sdk-gateway/src/*"
+      ]
     }
   }
 }

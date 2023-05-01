@@ -62,6 +62,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/websocket/tsconfig.app.json"
       }
+    },
+    "sdk-gateway": {
+      "type": "application",
+      "root": "apps/sdk-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/sdk-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/sdk-gateway/tsconfig.app.json"
+      }
     }
   }
 }
