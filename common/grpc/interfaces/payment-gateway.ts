@@ -454,6 +454,8 @@ export interface PaymentGatewayServiceClient {
 
   updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
+  fundsTransfer(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
   updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   updateAssetDeposit(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
@@ -632,6 +634,11 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
+  fundsTransfer(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
   updateWithdraw(
     request: AccountIdRequest,
     ...rest: any
@@ -694,6 +701,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "updateContact",
       "updateBalance",
       "updateContribution",
+      "fundsTransfer",
       "updateWithdraw",
       "updateAssetDeposit",
       "koyweWebhooksHandler",

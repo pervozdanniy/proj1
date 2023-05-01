@@ -80,6 +80,10 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   updateContact(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.webhooksService.updateContact(request);
   }
+
+  fundsTransfer(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.webhooksService.fundsTransfer(request);
+  }
   documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.webhooksService.documentCheck(request);
   }

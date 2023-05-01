@@ -64,4 +64,8 @@ export class PaymentGatewayWebhooksService {
   liquidoWebhooksHandler(request: LiquidoWebhookRequest) {
     return this.liquidoService.liquidoWebhooksHandler(request);
   }
+
+  fundsTransfer(request: AccountIdRequest) {
+    return this.primeTrustService.fundsTransfer(request);
+  }
 }

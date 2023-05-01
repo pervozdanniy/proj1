@@ -425,8 +425,23 @@ export class PrimeDepositManager {
       await this.primeBalanceManager.updateAccountBalance(account_id);
 
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
+      const contribution_id = contributionResponse.data.data.id;
 
-      return { contribution_id: contributionResponse.data.data.id };
+      if (process.env.NODE_ENV === 'dev') {
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/contributions/${contribution_id}/sandbox/authorize`,
+          data: null,
+        });
+
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/contributions/${contribution_id}/sandbox/settle`,
+          data: null,
+        });
+      }
+
+      return { contribution_id };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
