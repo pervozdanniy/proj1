@@ -40,9 +40,9 @@ pipelines:
             - docker push $REGISTRY/$IMAGE:latest
           # delete untagged images
             - aws ecr describe-repositories --output text | awk '{print $5}' | egrep -v '^$' | while read line; do  repo=$(echo $line | sed -e  "s/arn:aws:ecr.*\///g") ; aws ecr list-images --repository-name $repo --filter tagStatus=UNTAGGED --query 'imageIds[*]' --output text | while read imageId; do aws ecr batch-delete-image --repository-name $repo --image-ids imageDigest=$imageId; done; done
-    prod1:
+    prod:
       - step:
-          deployment: Prod1
+          deployment: Prod
           services:
             - docker
           script:
