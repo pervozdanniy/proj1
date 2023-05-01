@@ -151,4 +151,8 @@ export class SdkPaymentGatewayService implements OnModuleInit {
   updateContact(data: AccountIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.updateContact(data));
   }
+
+  fundsTransfer(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.fundsTransfer(data));
+  }
 }

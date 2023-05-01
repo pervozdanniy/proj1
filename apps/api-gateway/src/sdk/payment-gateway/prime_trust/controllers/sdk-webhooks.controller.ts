@@ -54,8 +54,9 @@ export class SdkWebhooksController {
       }
     }
     if (resource_type === 'funds_transfers' && action === 'update') {
-      return this.paymentGatewayService.updateBalance(sendData);
+      return this.paymentGatewayService.fundsTransfer(sendData);
     }
+
     if (resource_type === 'disbursements' && action === 'update') {
       return this.paymentGatewayService.updateWithdraw(sendData);
     }

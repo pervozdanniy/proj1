@@ -9,10 +9,12 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import process from 'process';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { AccountIdRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 
 @Injectable()
@@ -137,5 +139,38 @@ export class PrimeBalanceManager {
       cold_balance: balance.cold_balance,
       currency_type: balance.currency_type,
     };
+  }
+
+  async fundsTransfer(request: AccountIdRequest): Promise<SuccessResponse> {
+    const { resource_id, id: account_id } = request;
+    if (process.env.NODE_ENV === 'dev') {
+      try {
+        const fundsTransferResponse = await this.httpService.request({
+          method: 'get',
+          url: `${this.prime_trust_url}/v2/funds-transfers/${resource_id}`,
+        });
+        if (
+          fundsTransferResponse.data.data.attributes['contingencies-cleared-on'] &&
+          fundsTransferResponse.data.data.attributes['status'] === 'pending'
+        ) {
+          await this.httpService.request({
+            method: 'post',
+            url: `${this.prime_trust_url}/v2/funds-transfers/${resource_id}/sandbox/settle`,
+            data: null,
+          });
+        }
+      } catch (e) {
+        if (e instanceof PrimeTrustException) {
+          const { detail, code } = e.getFirstError();
+
+          throw new GrpcException(code, detail);
+        } else {
+          throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+        }
+      }
+    }
+    await this.updateAccountBalance(account_id);
+
+    return { success: true };
   }
 }

@@ -184,4 +184,8 @@ export class PrimeTrustService {
   failedSocureDocument(request: UserIdRequest) {
     return this.primeKycManager.failedSocureDocument(request);
   }
+
+  fundsTransfer(request: AccountIdRequest) {
+    return this.primeBalanceManager.fundsTransfer(request);
+  }
 }
