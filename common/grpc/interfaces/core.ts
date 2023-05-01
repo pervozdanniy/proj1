@@ -47,8 +47,7 @@ export interface NullableUser {
 }
 
 export interface UserContacts {
-  new: string[];
-  removed: string[];
+  phones: string[];
 }
 
 export interface UpdateRequest {

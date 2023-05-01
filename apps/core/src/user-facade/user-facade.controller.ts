@@ -35,7 +35,7 @@ export class UserFacadeController implements UserServiceController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async updateContacts(payload: UpdateContactsRequestDto): Promise<User> {
     const user = await this.userService.get(payload.user_id);
-    await this.contactService.update(user, payload.contacts);
+    await this.contactService.update(user, payload.contacts.phones);
 
     const updated = await this.userService.get(payload.user_id);
 
@@ -89,7 +89,7 @@ export class UserFacadeController implements UserServiceController {
     const user = await this.userService.update(payload);
     if (contacts) {
       this.contactService
-        .update(user, contacts)
+        .update(user, contacts.phones)
         .catch((error) => this.logger.error('Update user: contacts syncronization failed', error));
     }
 
