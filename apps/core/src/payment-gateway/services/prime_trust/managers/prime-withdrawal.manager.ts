@@ -10,6 +10,7 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import process from 'process';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
@@ -172,6 +173,14 @@ export class PrimeWithdrawalManager {
       attributes: fundsResponse.attributes,
       disbursement_authorization: fundsResponse.relationships['disbursement-authorization'],
     };
+
+    if (process.env.NODE_ENV === 'dev') {
+      await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/disbursement-authorizations/${response.disbursement_authorization.data.id}/sandbox/verify-owner`,
+        data: null,
+      });
+    }
 
     return { data: JSON.stringify(response) };
   }
