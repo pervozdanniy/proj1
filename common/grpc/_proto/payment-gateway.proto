@@ -52,7 +52,7 @@ service PaymentGatewayService {
   rpc UpdateContact (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
-  rpc FundsTransfer (AccountIdRequest) returns (common.SuccessResponse);
+  rpc ContingentHolds (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);

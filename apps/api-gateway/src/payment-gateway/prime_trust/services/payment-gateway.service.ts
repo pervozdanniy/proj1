@@ -178,7 +178,7 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.failedSocureDocument(payload));
   }
 
-  fundsTransfer(data: AccountIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.fundsTransfer(data));
+  contingentHolds(data: AccountIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.contingentHolds(data));
   }
 }

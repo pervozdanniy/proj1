@@ -185,7 +185,7 @@ export class PrimeTrustService {
     return this.primeKycManager.failedSocureDocument(request);
   }
 
-  fundsTransfer(request: AccountIdRequest) {
-    return this.primeBalanceManager.fundsTransfer(request);
+  contingentHolds(request: AccountIdRequest) {
+    return this.primeBalanceManager.contingentHolds(request);
   }
 }

@@ -65,7 +65,7 @@ export class PaymentGatewayWebhooksService {
     return this.liquidoService.liquidoWebhooksHandler(request);
   }
 
-  fundsTransfer(request: AccountIdRequest) {
-    return this.primeTrustService.fundsTransfer(request);
+  contingentHolds(request: AccountIdRequest) {
+    return this.primeTrustService.contingentHolds(request);
   }
 }

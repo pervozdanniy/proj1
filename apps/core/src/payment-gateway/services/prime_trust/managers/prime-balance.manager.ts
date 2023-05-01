@@ -141,24 +141,19 @@ export class PrimeBalanceManager {
     };
   }
 
-  async fundsTransfer(request: AccountIdRequest): Promise<SuccessResponse> {
+  async contingentHolds(request: AccountIdRequest): Promise<SuccessResponse> {
     const { resource_id, id: account_id } = request;
     if (process.env.NODE_ENV === 'dev') {
       try {
-        const fundsTransferResponse = await this.httpService.request({
+        const contingentHoldsResponse = await this.httpService.request({
           method: 'get',
-          url: `${this.prime_trust_url}/v2/funds-transfers/${resource_id}`,
+          url: `${this.prime_trust_url}/v2/contingent-holds/${resource_id}?include=funds-transfer`,
         });
-        if (
-          fundsTransferResponse.data.data.attributes['contingencies-cleared-on'] &&
-          fundsTransferResponse.data.data.attributes['status'] === 'pending'
-        ) {
           await this.httpService.request({
             method: 'post',
-            url: `${this.prime_trust_url}/v2/funds-transfers/${resource_id}/sandbox/settle`,
+            url: `${this.prime_trust_url}/v2/funds-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
             data: null,
           });
-        }
       } catch (e) {
         if (e instanceof PrimeTrustException) {
           const { detail, code } = e.getFirstError();

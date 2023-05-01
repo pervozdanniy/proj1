@@ -52,8 +52,8 @@ export class WebhooksController {
         return this.paymentGatewayService.updateContribution(sendData);
       }
     }
-    if (resource_type === 'funds_transfers' && action === 'update') {
-      return this.paymentGatewayService.fundsTransfer(sendData);
+    if (resource_type === 'contingent_holds' && action === 'update') {
+      return this.paymentGatewayService.contingentHolds(sendData);
     }
     if (resource_type === 'disbursements' && action === 'update') {
       return this.paymentGatewayService.updateWithdraw(sendData);
