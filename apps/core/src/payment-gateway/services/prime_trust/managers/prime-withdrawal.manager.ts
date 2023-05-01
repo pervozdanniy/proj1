@@ -53,7 +53,7 @@ export class PrimeWithdrawalManager {
 
   async addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
     const { id, bank_account_id, funds_transfer_type } = request;
-    await this.checkBankExists(bank_account_id);
+    await this.checkBankExists(id, bank_account_id);
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
     const transferMethod = await this.withdrawalParamsEntityRepository.findOneBy({
       user_id: id,
@@ -184,6 +184,22 @@ export class PrimeWithdrawalManager {
 
     return { data: JSON.stringify(response) };
   }
+  async checkSettledTrade(trade_id: string, attempt = 1): Promise<boolean> {
+    const tradeResponse = await this.httpService.request({
+      method: 'get',
+      url: `${this.prime_trust_url}/v2/trades/${trade_id}`,
+    });
+
+    if (tradeResponse.data.data.attributes.status !== 'settled') {
+      if (attempt < 5) {
+        await this.checkSettledTrade(trade_id, attempt + 1);
+      } else {
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   async sendWithdrawalRequest(
     { id, amount }: TransferMethodRequest,
@@ -195,11 +211,16 @@ export class PrimeWithdrawalManager {
     if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
       hotStatus = true;
     }
-    const { total_amount, fee_amount } = await this.primeFundsTransferManager.convertAssetToUSD(
+    const { total_amount, fee_amount, trade_id } = await this.primeFundsTransferManager.convertAssetToUSD(
       account_id,
       amount,
       hotStatus,
     );
+
+    const settledTrade = await this.checkSettledTrade(trade_id);
+    if (!settledTrade) {
+      throw new GrpcException(Status.ABORTED, 'Converting error,please try again', 400);
+    }
 
     const formData = {
       data: {
@@ -288,10 +309,14 @@ export class PrimeWithdrawalManager {
     }
   }
 
-  async checkBankExists(bank_id: number) {
+  async checkBankExists(user_id: number, bank_id: number) {
     const bank = await this.primeBankAccountManager.getBankAccountById(bank_id);
     if (!bank) {
       throw new GrpcException(Status.ABORTED, 'Bank account does`nt exist!', 400);
+    } else {
+      if (bank.user_id !== user_id) {
+        throw new GrpcException(Status.ABORTED, 'Wrong bank!', 400);
+      }
     }
   }
 }
