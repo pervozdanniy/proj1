@@ -175,7 +175,6 @@ export class PrimeWithdrawalManager {
 
     return { data: JSON.stringify(response) };
   }
-
   async checkSettledTrade(trade_id: string, attempt = 1): Promise<boolean> {
     const tradeResponse = await this.httpService.request({
       method: 'get',
