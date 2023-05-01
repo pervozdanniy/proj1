@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
@@ -54,7 +54,6 @@ export class UserDetails {
   region?: string;
 
   @ApiProperty({ format: 'date', example: '1995-09-09' })
-  @Transform(({ value }) => new Date(value).toISOString().slice(0, 10))
   @IsString()
   @IsNotEmpty()
   date_of_birth: string;
