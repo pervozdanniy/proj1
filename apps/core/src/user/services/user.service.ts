@@ -132,7 +132,10 @@ export class UserService {
       );
     }
 
-    queryBuilder.andWhere('contactDetails.user_id = :user_id', { user_id });
+    queryBuilder
+      .andWhere('contactDetails.user_id = :user_id', { user_id })
+      .andWhere('contactDetails.contact_id != :user_id', { user_id });
+
     queryBuilder.select([
       'u.id as id',
       'u.email as email',
