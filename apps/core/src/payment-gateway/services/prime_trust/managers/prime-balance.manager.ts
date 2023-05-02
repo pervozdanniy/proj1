@@ -149,11 +149,11 @@ export class PrimeBalanceManager {
           method: 'get',
           url: `${this.prime_trust_url}/v2/contingent-holds/${resource_id}?include=funds-transfer`,
         });
-          await this.httpService.request({
-            method: 'post',
-            url: `${this.prime_trust_url}/v2/funds-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
-            data: null,
-          });
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/funds-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
+          data: null,
+        });
       } catch (e) {
         if (e instanceof PrimeTrustException) {
           const { detail, code } = e.getFirstError();
