@@ -30,6 +30,9 @@ import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { CurrencyService } from './services/currency.service';
+import { FacilitaService } from './services/facilita/facilita.service';
+import { FacilitaDepositManager } from './services/facilita/managers/facilita-deposit.manager';
+import { FacilitaWebhookManager } from './services/facilita/managers/facilita-webhook.manager';
 import { DepositFlow } from './services/flow/deposit-flow.service';
 import { KoyweService } from './services/koywe/koywe.service';
 import { KoyweBankAccountManager } from './services/koywe/managers/koywe-bank-account.manager';
@@ -43,9 +46,6 @@ import { LiquidoTokenManager } from './services/liquido/managers/liquido-token.m
 import { LiquidoWebhookManager } from './services/liquido/managers/liquido-webhook.manager';
 import { LiquidoWithdrawalManager } from './services/liquido/managers/liquido-withdrawal.manager';
 import { MainService } from './services/main.service';
-import { PayfuraDepositManager } from './services/payfura/managers/payfura-deposit.manager';
-import { PayfuraWebhookManager } from './services/payfura/managers/payfura-webhook.manager';
-import { PayfuraService } from './services/payfura/payfura.service';
 import { PaymentGatewayWebhooksService } from './services/payment-gateway-webhooks.service';
 import { PaymentGatewayService } from './services/payment-gateway.service';
 import { PrimeAccountManager } from './services/prime_trust/managers/prime-account.manager';
@@ -88,9 +88,9 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PaymentGatewayManager,
     PrimeTrustService,
     KoyweService,
-    PayfuraService,
-    PayfuraDepositManager,
-    PayfuraWebhookManager,
+    FacilitaService,
+    FacilitaDepositManager,
+    FacilitaWebhookManager,
     KoyweDepositManager,
     KoyweBankAccountManager,
     KoyweTokenManager,

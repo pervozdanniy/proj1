@@ -12,7 +12,7 @@ import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 
 @Injectable()
-export class PayfuraWebhookManager {
+export class FacilitaWebhookManager {
   private readonly payfura_url: string;
   private readonly payfura_secret: string;
   constructor(
@@ -22,7 +22,7 @@ export class PayfuraWebhookManager {
     config: ConfigService<ConfigInterface>,
   ) {
     const { payfura_url } = config.get('app');
-    const { secret } = config.get('payfura');
+    const { secret } = config.get('facilita');
     this.payfura_secret = secret;
     this.payfura_url = payfura_url;
   }

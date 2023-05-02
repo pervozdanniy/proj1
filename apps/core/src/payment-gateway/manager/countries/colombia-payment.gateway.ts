@@ -13,8 +13,8 @@ import {
   PaymentMethod,
   WireDepositInterface,
 } from '../../interfaces/payment-gateway.interface';
+import { PayfuraService } from '../../services/facilita/facilita.service';
 import { KoyweService } from '../../services/koywe/koywe.service';
-import { PayfuraService } from '../../services/payfura/payfura.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()

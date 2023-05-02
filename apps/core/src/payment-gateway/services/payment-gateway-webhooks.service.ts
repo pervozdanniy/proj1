@@ -5,9 +5,9 @@ import {
   LiquidoWebhookRequest,
   PayfuraWebhookRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+import { PayfuraService } from './facilita/facilita.service';
 import { KoyweService } from './koywe/koywe.service';
 import { LiquidoService } from './liquido/liquido.service';
-import { PayfuraService } from './payfura/payfura.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
 @Injectable()

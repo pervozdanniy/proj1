@@ -80,7 +80,7 @@ export class WebhooksController {
     return this.paymentGatewayService.koyweWebhooksHandler(payload);
   }
 
-  @Post('/payfura')
+  @Post('/facilita')
   async payfuraHandler(@Body() payload: PayfuraWebhookType) {
     this.logger.log(payload);
 
