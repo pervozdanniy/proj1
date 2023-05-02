@@ -20,6 +20,8 @@ export type AssetToUSDResponse = {
   total_amount: string;
   fee_amount: string;
   unit_count: string;
+
+  trade_id?: string;
 };
 
 export type ContactType = {

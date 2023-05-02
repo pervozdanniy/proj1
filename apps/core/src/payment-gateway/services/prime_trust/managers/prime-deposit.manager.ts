@@ -425,8 +425,23 @@ export class PrimeDepositManager {
       await this.primeBalanceManager.updateAccountBalance(account_id);
 
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
+      const contribution_id = contributionResponse.data.data.id;
 
-      return { contribution_id: contributionResponse.data.data.id };
+      if (process.env.NODE_ENV === 'dev') {
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/contributions/${contribution_id}/sandbox/authorize`,
+          data: null,
+        });
+
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/contributions/${contribution_id}/sandbox/settle`,
+          data: null,
+        });
+      }
+
+      return { contribution_id };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
@@ -440,7 +455,7 @@ export class PrimeDepositManager {
 
   async addDepositParams(request: DepositParamRequest): Promise<DepositResponse> {
     const { id, bank_account_id, funds_transfer_type } = request;
-    await this.checkBankExists(bank_account_id);
+    await this.checkBankExists(id, bank_account_id);
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
     const transferMethod = await this.depositParamsEntityRepository.findOneBy({
       user_id: id,
@@ -465,11 +480,15 @@ export class PrimeDepositManager {
     return { transfer_method_id: transferMethodId };
   }
 
-  async checkBankExists(bank_id: number) {
+  async checkBankExists(user_id: number, bank_id: number) {
     const bank = await this.primeBankAccountManager.getBankAccountById(bank_id);
 
     if (!bank) {
       throw new GrpcException(Status.ABORTED, 'Bank account does`nt exist!', 400);
+    } else {
+      if (bank.user_id !== user_id) {
+        throw new GrpcException(Status.ABORTED, 'Wrong bank!', 400);
+      }
     }
   }
 

@@ -29,7 +29,7 @@ RUN node_modules/.bin/nest build auth
 RUN node_modules/.bin/nest build notifier
 RUN node_modules/.bin/nest build websocket
 RUN node_modules/.bin/nest build api-gateway
-
+RUN node_modules/.bin/nest build sdk-gateway
 
 
 FROM node:18-alpine as prod

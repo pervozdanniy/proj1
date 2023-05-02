@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "outDir": "../../dist/apps/sdk-gateway",
+    "paths": {
+      "~svc/*": ["apps/*"],
+      "~common/*": ["common/*"],
+      "@/*": ["apps/sdk-gateway/src/*"]
+    },
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}

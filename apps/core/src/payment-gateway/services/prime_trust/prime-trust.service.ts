@@ -184,4 +184,8 @@ export class PrimeTrustService {
   failedSocureDocument(request: UserIdRequest) {
     return this.primeKycManager.failedSocureDocument(request);
   }
+
+  contingentHolds(request: AccountIdRequest) {
+    return this.primeBalanceManager.contingentHolds(request);
+  }
 }

@@ -1,19 +1,22 @@
-import { ApiModule } from '@/api/api.module';
-import { SdkModule } from '@/sdk/sdk.module';
 import { Module } from '@nestjs/common';
-import * as process from 'process';
+import { ConfigModule } from '@nestjs/config';
+import configuration from '~common/config/configuration';
+import { AuthModule } from './auth';
+import { CountryModule } from './country/country.module';
 import { HealthModule } from './health/health.module';
+import { NotificationModule } from './notification/notification.module';
+import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: (() => {
-    if (process.env.NODE_ENV === 'dev') {
-      return [SdkModule, ApiModule, HealthModule];
-    }
-    if (process.env.API_TYPE === 'SDK') {
-      return [SdkModule, HealthModule];
-    } else {
-      return [ApiModule, HealthModule];
-    }
-  })(),
+  imports: [
+    ConfigModule.forRoot({ load: [configuration], isGlobal: true }),
+    UserModule,
+    PaymentGatewayModule,
+    AuthModule,
+    CountryModule,
+    NotificationModule,
+    HealthModule,
+  ],
 })
 export class ApiGatewayModule {}
