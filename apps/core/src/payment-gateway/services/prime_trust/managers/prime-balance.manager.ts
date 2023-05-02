@@ -108,7 +108,7 @@ export class PrimeBalanceManager {
   }
 
   async getAccountBalance(id: number): Promise<BalanceAttributes> {
-    const account = await this.primeAccountRepository.findOne({ where: { user_id: id } });
+    const account = await this.primeAccountRepository.findOne({ where: { user_id: id, status: 'opened' } });
     if (!account) {
       return {
         settled: '0',
