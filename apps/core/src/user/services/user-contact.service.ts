@@ -28,9 +28,9 @@ export class UserContactService {
             INSERT INTO user_contact (user_id, phone, contact_id)
             SELECT $${++index}, c.phone, u.id
             FROM contacts c
-            LEFT JOIN users u ON u.phone = c.phone
+            LEFT JOIN users u ON u.phone = c.phone AND u.id != $${++index}
             ON CONFLICT DO NOTHING`;
-      addParams.push(user.id);
+      addParams.push(user.id, user.id);
     }
 
     await this.dataSource.transaction(async (tm) => {
@@ -46,15 +46,5 @@ export class UserContactService {
   async detach(userId: number) {
     await this.userContactRepository.delete({ user_id: userId });
     await this.userContactRepository.delete({ contact_id: userId });
-  }
-
-  list(userId: number) {
-    return this.userContactRepository
-      .createQueryBuilder()
-      .select()
-      .leftJoinAndSelect('user', 'u')
-      .where({ user_id: userId })
-      .andWhere('u.id != :currentUserId', { currentUserId: userId })
-      .getMany();
   }
 }
