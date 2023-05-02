@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import {
   AccountIdRequest,
+  FacilitaWebhookRequest,
   KoyweWebhookRequest,
   LiquidoWebhookRequest,
-  PayfuraWebhookRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { PayfuraService } from './facilita/facilita.service';
+import { FacilitaService } from './facilita/facilita.service';
 import { KoyweService } from './koywe/koywe.service';
 import { LiquidoService } from './liquido/liquido.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
@@ -15,7 +15,7 @@ export class PaymentGatewayWebhooksService {
   constructor(
     private primeTrustService: PrimeTrustService,
     private koyweService: KoyweService,
-    private payfuraService: PayfuraService,
+    private facilitaService: FacilitaService,
     private liquidoService: LiquidoService,
   ) {}
 
@@ -57,8 +57,8 @@ export class PaymentGatewayWebhooksService {
     return this.koyweService.koyweWebhooksHandler(request);
   }
 
-  payfuraWebhooksHandler(request: PayfuraWebhookRequest) {
-    return this.payfuraService.payfuraWebhooksHandler(request);
+  facilitaWebhooksHandler(request: FacilitaWebhookRequest) {
+    return this.facilitaService.facilitaWebhooksHandler(request);
   }
 
   liquidoWebhooksHandler(request: LiquidoWebhookRequest) {

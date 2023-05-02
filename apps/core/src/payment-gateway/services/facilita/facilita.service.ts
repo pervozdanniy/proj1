@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MakeDepositRequest, PayfuraWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
+import { FacilitaWebhookRequest, MakeDepositRequest } from '~common/grpc/interfaces/payment-gateway';
 import { FacilitaDepositManager } from './managers/facilita-deposit.manager';
 import { FacilitaWebhookManager } from './managers/facilita-webhook.manager';
 
@@ -10,8 +10,8 @@ export class FacilitaService {
     private readonly facilitaWebhookManager: FacilitaWebhookManager,
   ) {}
 
-  payfuraWebhooksHandler(request: PayfuraWebhookRequest) {
-    return this.facilitaWebhookManager.payfuraWebhooksHandler(request);
+  facilitaWebhooksHandler(request: FacilitaWebhookRequest) {
+    return this.facilitaWebhookManager.facilitaWebhooksHandler(request);
   }
 
   makeDeposit(request: MakeDepositRequest) {

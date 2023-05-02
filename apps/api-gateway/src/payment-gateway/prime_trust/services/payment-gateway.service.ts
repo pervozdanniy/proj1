@@ -159,7 +159,7 @@ export class PaymentGatewayService implements OnModuleInit {
   }
 
   payfuraHandler(payload: PayfuraWebhookType) {
-    return lastValueFrom(this.paymentGatewayServiceClient.payfuraWebhooksHandler(payload));
+    return lastValueFrom(this.paymentGatewayServiceClient.facilitaWebhooksHandler(payload));
   }
 
   createSocureDocument(payload: SocureDocumentDto) {
