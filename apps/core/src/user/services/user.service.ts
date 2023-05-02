@@ -179,6 +179,8 @@ export class UserService {
       .leftJoinAndSelect(UserDetailsEntity, 'ud', 'u.id = ud.user_id')
       .where('t.user_id = :userId', { userId: request.user_id })
       .andWhere(`t.updated_at >= (NOW() - interval '1 year')`)
+      .groupBy('u.id')
+      .addGroupBy('ud.user_id')
       .limit(request.limit)
       .getRawMany();
   }
