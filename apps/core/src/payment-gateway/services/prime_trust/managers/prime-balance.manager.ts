@@ -5,12 +5,10 @@ import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-htt
 import { BalanceAttributes } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import process from 'process';
-import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
@@ -21,12 +19,9 @@ import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 export class PrimeBalanceManager {
   private readonly prime_trust_url: string;
 
-  private readonly asset: string;
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-
-    private readonly axiosService: HttpService,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -35,9 +30,7 @@ export class PrimeBalanceManager {
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
   ) {
     const { prime_trust_url } = config.get('app');
-    const { short } = config.get('asset');
     this.prime_trust_url = prime_trust_url;
-    this.asset = short;
   }
 
   async updateAccountBalance(id: string): Promise<SuccessResponse> {
@@ -54,17 +47,6 @@ export class PrimeBalanceManager {
     const { user_id } = accountData;
 
     const cacheData = await this.getBalanceInfo(id);
-    const convertData = await lastValueFrom(
-      this.axiosService.get(`https://min-api.cryptocompare.com/data/price?fsym=${this.asset}&tsyms=USD`),
-    );
-
-    cacheData.settled = String((parseFloat(convertData.data['USD']) * parseFloat(cacheData.settled)).toFixed(2));
-    cacheData.hot_balance = String(
-      (parseFloat(convertData.data['USD']) * parseFloat(cacheData.hot_balance)).toFixed(2),
-    );
-    cacheData.cold_balance = String(
-      (parseFloat(convertData.data['USD']) * parseFloat(cacheData.cold_balance)).toFixed(2),
-    );
 
     return this.saveBalance(user_id, cacheData);
   }
@@ -128,7 +110,12 @@ export class PrimeBalanceManager {
   async getAccountBalance(id: number): Promise<BalanceAttributes> {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: id } });
     if (!account) {
-      throw new GrpcException(Status.NOT_FOUND, `Account for this user not exist!`, 400);
+      return {
+        settled: '0',
+        hot_balance: '0',
+        cold_balance: '0',
+        currency_type: '0',
+      };
     }
     await this.updateAccountBalance(account.uuid);
     const balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
@@ -149,11 +136,11 @@ export class PrimeBalanceManager {
           method: 'get',
           url: `${this.prime_trust_url}/v2/contingent-holds/${resource_id}?include=funds-transfer`,
         });
-          await this.httpService.request({
-            method: 'post',
-            url: `${this.prime_trust_url}/v2/funds-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
-            data: null,
-          });
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/funds-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
+          data: null,
+        });
       } catch (e) {
         if (e instanceof PrimeTrustException) {
           const { detail, code } = e.getFirstError();
