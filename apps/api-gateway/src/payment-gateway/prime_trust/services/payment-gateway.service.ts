@@ -19,7 +19,7 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { SocureDocumentDto } from '../dtos/main/socure.document.dto';
-import { KoyweWebhookType, PayfuraWebhookType } from '../webhooks/data';
+import { FacilitaWebhookType, KoyweWebhookType } from '../webhooks/data';
 
 @Injectable()
 export class PaymentGatewayService implements OnModuleInit {
@@ -158,7 +158,7 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getUserAccountStatus({ id }));
   }
 
-  payfuraHandler(payload: PayfuraWebhookType) {
+  payfuraHandler(payload: FacilitaWebhookType) {
     return lastValueFrom(this.paymentGatewayServiceClient.facilitaWebhooksHandler(payload));
   }
 
