@@ -225,14 +225,7 @@ export class PrimeDepositManager {
     }
 
     await this.primeBalanceManager.updateAccountBalance(account_id);
-
-    const notificationPayload = {
-      user_id,
-      title: 'User Contributions',
-      type: 'contributions',
-      description: `Your contribution status for ${contributionResponse['amount']} ${contributionResponse['currency-type']} ${contributionResponse['status']}`,
-    };
-    this.notificationService.createAsync(notificationPayload);
+    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
 
     return { success: true };
   }
