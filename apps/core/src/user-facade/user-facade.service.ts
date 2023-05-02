@@ -20,7 +20,7 @@ export class UserFacadeService {
 
   async updateContacts(payload: UpdateContactsRequestDto): Promise<User> {
     const user = await this.userService.get(payload.user_id);
-    await this.contactService.update(user, payload.contacts);
+    await this.contactService.update(user, payload.contacts.phones);
 
     const updated = await this.userService.get(payload.user_id);
 
@@ -30,7 +30,7 @@ export class UserFacadeService {
   async create({ contacts, ...payload }: CreateRequestDto): Promise<User> {
     const user = await this.userService.create(payload);
     this.contactService
-      .update(user, { new: contacts })
+      .update(user, contacts)
       .catch((error) => this.logger.error('Create user: contacts syncronization failed', error));
 
     /** we can uncomment this part after when registration will be done in mobile because in
@@ -69,7 +69,7 @@ export class UserFacadeService {
     const user = await this.userService.update(payload);
     if (contacts) {
       this.contactService
-        .update(user, contacts)
+        .update(user, contacts.phones)
         .catch((error) => this.logger.error('Update user: contacts syncronization failed', error));
     }
 
