@@ -45,7 +45,7 @@ export interface ConfigInterface {
     domain: string;
     prime_trust_url: string;
     koywe_url: string;
-    payfura_url: string;
+    facilita_url: string;
   };
 
   queues: {
@@ -77,9 +77,9 @@ export interface ConfigInterface {
     api_url: string;
   };
 
-  payfura: {
-    key: string;
-    secret: string;
+  facilita: {
+    username: string;
+    password: string;
   };
 
   sendgrid: {
@@ -161,7 +161,7 @@ export default (): ConfigInterface => ({
     domain: process.env.APP_DOMAIN,
     prime_trust_url: process.env.PRIME_TRUST_URL,
     koywe_url: process.env.KOYWE_URL,
-    payfura_url: process.env.PAYFURA_URL,
+    facilita_url: process.env.FACILITA_URL,
   },
   queues: {
     user_registration: {
@@ -202,9 +202,9 @@ export default (): ConfigInterface => ({
     type: process.env.ASSET_TYPE,
     short: process.env.ASSET_SHORT,
   },
-  payfura: {
-    key: process.env.PAYFURA_KEY,
-    secret: process.env.PAYFURA_SECRET,
+  facilita: {
+    username: process.env.FACILITA_USERNAME,
+    password: process.env.FACILITA_PASSWORD,
   },
   liquido: {
     client_id: process.env.LIQUIDO_ID,

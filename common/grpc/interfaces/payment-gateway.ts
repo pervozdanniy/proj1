@@ -64,7 +64,7 @@ export interface LiquidoWebhookRequest {
   transactionId: string;
 }
 
-export interface PayfuraWebhookRequest {
+export interface FacilitaWebhookRequest {
   orderId: string;
 }
 
@@ -462,7 +462,7 @@ export interface PaymentGatewayServiceClient {
 
   koyweWebhooksHandler(request: KoyweWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
-  payfuraWebhooksHandler(request: PayfuraWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+  facilitaWebhooksHandler(request: FacilitaWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
   liquidoWebhooksHandler(request: LiquidoWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 }
@@ -654,8 +654,8 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  payfuraWebhooksHandler(
-    request: PayfuraWebhookRequest,
+  facilitaWebhooksHandler(
+    request: FacilitaWebhookRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
@@ -705,7 +705,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "updateWithdraw",
       "updateAssetDeposit",
       "koyweWebhooksHandler",
-      "payfuraWebhooksHandler",
+      "facilitaWebhooksHandler",
       "liquidoWebhooksHandler",
     ];
     for (const method of grpcMethods) {

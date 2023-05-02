@@ -14,18 +14,13 @@ import {
   WireDepositInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../services/koywe/koywe.service';
-import { PayfuraService } from '../../services/payfura/payfura.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
 export class ColombiaPaymentGateway
   implements PaymentGatewayInterface, BankInterface, WireDepositInterface, BankWithdrawalInterface
 {
-  constructor(
-    private primeTrustService: PrimeTrustService,
-    private koyweService: KoyweService,
-    private payfuraService: PayfuraService,
-  ) {}
+  constructor(private primeTrustService: PrimeTrustService, private koyweService: KoyweService) {}
 
   getAvailablePaymentMethods(): PaymentMethod[] {
     return ['bank-transfer'];
@@ -44,9 +39,6 @@ export class ColombiaPaymentGateway
     const { type } = request;
     if (type === 'wire') {
       return this.koyweService.createReference(request, { wallet_address, asset_transfer_method_id });
-    }
-    if (type === 'cash') {
-      return this.payfuraService.createReference(request, wallet_address, asset_transfer_method_id);
     }
   }
 

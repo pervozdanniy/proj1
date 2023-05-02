@@ -1,7 +1,7 @@
 import { Body, ClassSerializerInterceptor, Controller, Logger, Post, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
-import { KoyweWebhookType, PayfuraWebhookType, PrimeTrustWebhookType, webhookData } from '../webhooks/data';
+import { FacilitaWebhookType, KoyweWebhookType, PrimeTrustWebhookType, webhookData } from '../webhooks/data';
 
 @ApiTags('Webhooks')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -80,8 +80,8 @@ export class WebhooksController {
     return this.paymentGatewayService.koyweWebhooksHandler(payload);
   }
 
-  @Post('/payfura')
-  async payfuraHandler(@Body() payload: PayfuraWebhookType) {
+  @Post('/facilita')
+  async payfuraHandler(@Body() payload: FacilitaWebhookType) {
     this.logger.log(payload);
 
     return this.paymentGatewayService.payfuraHandler(payload);

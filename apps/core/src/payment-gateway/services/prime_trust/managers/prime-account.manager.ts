@@ -50,7 +50,7 @@ export class PrimeAccountManager {
 
   async createAccount(userDetails: UserEntity): Promise<AccountResponse> {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
-    if (account) {
+    if (account.status !== 'closed') {
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
     }
 
