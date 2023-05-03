@@ -184,22 +184,6 @@ export class PrimeWithdrawalManager {
 
     return { data: JSON.stringify(response) };
   }
-  async checkSettledTrade(trade_id: string, attempt = 1): Promise<boolean> {
-    const tradeResponse = await this.httpService.request({
-      method: 'get',
-      url: `${this.prime_trust_url}/v2/trades/${trade_id}`,
-    });
-
-    if (tradeResponse.data.data.attributes.status !== 'settled') {
-      if (attempt < 5) {
-        await this.checkSettledTrade(trade_id, attempt + 1);
-      } else {
-        return false;
-      }
-    }
-
-    return true;
-  }
 
   async sendWithdrawalRequest(
     { id, amount }: TransferMethodRequest,
@@ -211,16 +195,11 @@ export class PrimeWithdrawalManager {
     if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
       hotStatus = true;
     }
-    const { total_amount, fee_amount, trade_id } = await this.primeFundsTransferManager.convertAssetToUSD(
+    const { total_amount, fee_amount } = await this.primeFundsTransferManager.convertAssetToUSD(
       account_id,
       amount,
       hotStatus,
     );
-
-    const settledTrade = await this.checkSettledTrade(trade_id);
-    if (!settledTrade) {
-      throw new GrpcException(Status.ABORTED, 'Converting error,please try again', 400);
-    }
 
     const formData = {
       data: {
