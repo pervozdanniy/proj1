@@ -277,15 +277,7 @@ export class PrimeWithdrawalManager {
     );
 
     await this.primeBalanceManager.updateAccountBalance(account_id);
-
-    const notificationPayload = {
-      user_id,
-      title: 'User Disbursements',
-      type: 'disbursements',
-      description: `Your disbursements status for ${withdrawResponse['amount']} ${withdrawResponse['currency-type']} ${withdrawResponse['status']}`,
-    };
-
-    await this.notificationService.create(notificationPayload);
+    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
 
     return { success: true };
   }

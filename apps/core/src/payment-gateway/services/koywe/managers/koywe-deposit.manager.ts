@@ -81,6 +81,7 @@ export class KoyweDepositManager {
       wallet_address,
       document.document_number,
     );
+
     const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
     const fee = String(networkFee + koyweFee);
     await this.depositEntityRepository.save(
@@ -113,7 +114,7 @@ export class KoyweDepositManager {
       return { data: JSON.stringify([data]) };
     }
     if (providedAction) {
-      return { data: providedAction };
+      return { data: JSON.stringify({ url: providedAction }) };
     }
   }
 

@@ -4,7 +4,6 @@ import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-t
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { PrimeBalanceManager } from '@/payment-gateway/services/prime_trust/managers/prime-balance.manager';
 import { AssetToUSDResponse, SendFundsResponse, UsDtoAssetResponse } from '@/payment-gateway/types/prime-trust';
-import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -207,39 +206,11 @@ export class PrimeFundsTransferManager {
     };
 
     await this.transferFundsEntityRepository.save(this.transferFundsEntityRepository.create(payload));
-    await this.createTransferFundsNotification(
-      sender_id,
-      `Sending ${payload.amount} ${payload.currency_type} ${payload.status}`,
-    );
-
-    await this.createTransferFundsNotification(
-      receiver_id,
-      `Received ${payload.amount} ${payload.currency_type} ${payload.status}`,
-    );
+    await this.notificationService.sendWs(sender_id, 'balance', 'Balance updated!', 'Balance');
+    await this.notificationService.sendWs(receiver_id, 'balance', 'Balance updated!', 'Balance');
 
     return {
       data: payload,
     };
-  }
-
-  async createTransferFundsNotification(id: number, description: string) {
-    const accountData = await this.primeAccountRepository
-      .createQueryBuilder('a')
-      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
-      .select(['a.uuid as account_id'])
-      .where('a.user_id = :id', { id })
-      .getRawOne();
-    const { account_id } = accountData;
-
-    const balanceData = await this.primeBalanceManager.getBalanceInfo(account_id);
-
-    const notificationPayload = {
-      user_id: id,
-      title: 'Funds Transfer',
-      type: 'transfer_funds',
-      description: `${description}. Your current balance is ${balanceData['settled']} ${balanceData['currency_type']}`,
-    };
-
-    this.notificationService.createAsync(notificationPayload);
   }
 }

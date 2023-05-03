@@ -9,7 +9,6 @@ import {
   PaymentGatewayInterface,
   WireDepositInterface,
 } from '../interfaces/payment-gateway.interface';
-import { ArgentinaPaymentGateway } from './countries/argentina-payment.gateway';
 import { BrazilPaymentGateway } from './countries/brazil-payment.gateway';
 import { ChilePaymentGateway } from './countries/chile-payment.gateway';
 import { ColombiaPaymentGateway } from './countries/colombia-payment.gateway';
@@ -45,8 +44,6 @@ export class PaymentGatewayManager {
         return this.moduleRef.get(USPaymentGateway);
       case 'BR':
         return this.moduleRef.get(BrazilPaymentGateway);
-      case 'AR':
-        return this.moduleRef.get(ArgentinaPaymentGateway);
       case 'CL':
         return this.moduleRef.get(ChilePaymentGateway);
       case 'MX':

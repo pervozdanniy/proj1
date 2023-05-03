@@ -71,8 +71,7 @@ message NullableUser {
 }
 
 message UserContacts {
-  repeated string new = 1;
-  repeated string removed = 2;
+  repeated string phones = 1;
 }
 
 message UpdateRequest {

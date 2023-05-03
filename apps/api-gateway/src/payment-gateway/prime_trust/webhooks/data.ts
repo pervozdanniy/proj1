@@ -33,6 +33,6 @@ export type KoyweWebhookType = {
   signature: string;
 };
 
-export type PayfuraWebhookType = {
+export type FacilitaWebhookType = {
   orderId: string;
 };

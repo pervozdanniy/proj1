@@ -103,11 +103,7 @@ export class CreateRequestDto implements CreateRequest {
 export class ContactsDto implements UserContacts {
   @IsArray()
   @IsPhoneNumber(undefined, { each: true })
-  new: string[];
-
-  @IsArray()
-  @IsPhoneNumber(undefined, { each: true })
-  removed: string[];
+  phones: string[];
 }
 
 export class UpdateRequestDto implements UpdateRequest {

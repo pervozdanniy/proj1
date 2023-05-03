@@ -132,7 +132,10 @@ export class UserService {
       );
     }
 
-    queryBuilder.andWhere('contactDetails.user_id = :user_id', { user_id });
+    queryBuilder
+      .andWhere('contactDetails.user_id = :user_id', { user_id })
+      .andWhere('contactDetails.contact_id != :user_id', { user_id });
+
     queryBuilder.select([
       'u.id as id',
       'u.email as email',
@@ -176,6 +179,8 @@ export class UserService {
       .leftJoinAndSelect(UserDetailsEntity, 'ud', 'u.id = ud.user_id')
       .where('t.user_id = :userId', { userId: request.user_id })
       .andWhere(`t.updated_at >= (NOW() - interval '1 year')`)
+      .groupBy('u.id')
+      .addGroupBy('ud.user_id')
       .limit(request.limit)
       .getRawMany();
   }

@@ -20,11 +20,11 @@ import {
   DocumentResponse,
   ExchangeRequest,
   ExchangeResponse,
+  FacilitaWebhookRequest,
   JsonData,
   KoyweWebhookRequest,
   LiquidoWebhookRequest,
   MakeDepositRequest,
-  PayfuraWebhookRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PaymentMethodsResponse,
@@ -189,8 +189,8 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.createSocureDocument(request);
   }
-  payfuraWebhooksHandler(request: PayfuraWebhookRequest): Promise<SuccessResponse> {
-    return this.webhooksService.payfuraWebhooksHandler(request);
+  facilitaWebhooksHandler(request: FacilitaWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.facilitaWebhooksHandler(request);
   }
 
   liquidoWebhooksHandler(request: LiquidoWebhookRequest): Promise<SuccessResponse> {

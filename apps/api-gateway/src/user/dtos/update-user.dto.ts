@@ -16,17 +16,11 @@ import { SendType } from '~common/constants/user';
 import { UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 
 export class UserContactsDto {
-  @ApiPropertyOptional({ type: String, isArray: true })
-  @IsOptional()
+  @ApiProperty({ type: String, isArray: true })
+  @IsNotEmpty()
   @IsArray()
   @IsPhoneNumber(undefined, { each: true })
-  new: string[];
-
-  @ApiPropertyOptional({ type: String, isArray: true })
-  @IsOptional()
-  @IsArray()
-  @IsPhoneNumber(undefined, { each: true })
-  removed: string[];
+  phones: string[];
 }
 
 export class UserDetails {
