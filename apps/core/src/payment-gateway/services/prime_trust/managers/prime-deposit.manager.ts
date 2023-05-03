@@ -8,7 +8,7 @@ import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-t
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as process from 'process';
@@ -40,6 +40,8 @@ import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 @Injectable()
 export class PrimeDepositManager {
   private readonly prime_trust_url: string;
+
+  private logger = new Logger(PrimeDepositManager.name);
 
   constructor(
     config: ConfigService<ConfigInterface>,
@@ -225,7 +227,8 @@ export class PrimeDepositManager {
     }
 
     await this.primeBalanceManager.updateAccountBalance(account_id);
-    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
+    const x = await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
+    this.logger.debug(user_id, 'balance', x);
 
     return { success: true };
   }

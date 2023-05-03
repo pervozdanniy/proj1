@@ -111,19 +111,19 @@ export class PrimeBalanceManager {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: id, status: 'opened' } });
     if (!account) {
       return {
-        settled: '0',
-        hot_balance: '0',
-        cold_balance: '0',
-        currency_type: '0',
+        settled: '0.00',
+        hot_balance: '0.00',
+        cold_balance: '0.00',
+        currency_type: 'USD',
       };
     }
     await this.updateAccountBalance(account.uuid);
     const balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
 
     return {
-      settled: balance.settled,
-      hot_balance: balance.hot_balance,
-      cold_balance: balance.cold_balance,
+      settled: parseFloat(balance.settled).toFixed(2),
+      hot_balance: parseFloat(balance.hot_balance).toFixed(2),
+      cold_balance: parseFloat(balance.cold_balance).toFixed(2),
       currency_type: balance.currency_type,
     };
   }
