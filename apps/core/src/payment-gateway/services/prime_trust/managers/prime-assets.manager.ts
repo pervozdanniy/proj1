@@ -152,6 +152,7 @@ export class PrimeAssetsManager {
       await this.depositEntityRepository.save(this.depositEntityRepository.create(assetPayload));
     }
     await this.primeBalanceManager.updateAccountBalance(account_id);
+    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
 
     const notificationPayload = {
       user_id,
