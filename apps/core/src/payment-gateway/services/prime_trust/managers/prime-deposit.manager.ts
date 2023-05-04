@@ -1,4 +1,3 @@
-import { NotificationService } from '@/notification/services/notification.service';
 import { BankAccountEntity } from '@/payment-gateway/entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from '@/payment-gateway/entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from '@/payment-gateway/entities/prime_trust/deposit-params.entity';
@@ -44,8 +43,6 @@ export class PrimeDepositManager {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-
-    private readonly notificationService: NotificationService,
 
     private readonly primeBankAccountManager: PrimeBankAccountManager,
 
@@ -223,9 +220,7 @@ export class PrimeDepositManager {
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
     }
-
     await this.primeBalanceManager.updateAccountBalance(account_id);
-    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
 
     return { success: true };
   }
