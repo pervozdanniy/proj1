@@ -32,7 +32,6 @@ import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { SendDocumentDto } from '../dtos/main/send-document.dto';
-import { SocureDocumentDto } from '../dtos/main/socure.document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Prime Trust')
@@ -209,24 +208,6 @@ export class MainController {
   @Get('/available-methods')
   async getAvailablePaymentMethods(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getAvailablePaymentMethods(id);
-  }
-
-  @ApiOperation({ summary: 'Create socure document.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @Post('/create/socure/document')
-  async createSocureDocument(@Body() payload: SocureDocumentDto) {
-    return this.paymentGatewayService.createSocureDocument(payload);
-  }
-
-  @ApiOperation({ summary: 'Send Failed socure document notification.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @Post('/failed/socure/document')
-  async failedSocureDocument(@Body() payload: { id: number }) {
-    return this.paymentGatewayService.failedSocureDocument(payload);
   }
 
   @ApiOperation({ summary: 'Transfer all accounts money to hot wallets.' })

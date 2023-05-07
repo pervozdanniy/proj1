@@ -110,7 +110,6 @@ export type CreateAccountType = {
         'tax-id-number': string;
         'tax-country': string;
         'date-of-birth': string;
-        'socure-document-id'?: string;
         'primary-phone-number': {
           country: string;
           number: string;

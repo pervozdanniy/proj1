@@ -37,6 +37,9 @@ import {
   TransferMethodRequest,
   UploadDocumentRequest,
   UserIdRequest,
+  VeriffHookRequest,
+  VeriffSessionRequest,
+  VeriffSessionResponse,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
@@ -197,7 +200,10 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.webhooksService.liquidoWebhooksHandler(request);
   }
 
-  failedSocureDocument(request: UserIdRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.failedSocureDocument(request);
+  generateVeriffLink(request: VeriffSessionRequest): Promise<VeriffSessionResponse> {
+    return this.paymentGatewayService.generateVeriffLink(request);
+  }
+  veriffHookHandler(request: VeriffHookRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.veriffHookHandler(request);
   }
 }

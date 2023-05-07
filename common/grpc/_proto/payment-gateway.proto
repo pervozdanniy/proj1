@@ -8,6 +8,10 @@ service PaymentGatewayService {
 
   rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
 
+  //veriff
+  rpc GenerateVeriffLink(VeriffSessionRequest) returns (VeriffSessionResponse);
+  rpc VeriffHookHandler(VeriffHookRequest) returns (common.SuccessResponse);
+
 
   rpc GetToken (google.protobuf.Empty) returns (PG_Token);
   rpc GetAvailablePaymentMethods (UserIdRequest) returns (PaymentMethodsResponse);
@@ -20,7 +24,6 @@ service PaymentGatewayService {
   rpc Exchange (ExchangeRequest) returns (ExchangeResponse);
   rpc GetUserAccountStatus (common.IdRequest) returns (AccountStatusResponse);
   rpc CreateSocureDocument(SocureDocumentRequest) returns (common.SuccessResponse);
-  rpc FailedSocureDocument(UserIdRequest) returns (common.SuccessResponse);
   rpc TransferToHotWallet(google.protobuf.Empty) returns (common.SuccessResponse);
 
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
@@ -64,6 +67,35 @@ service DepositFlowService {
   rpc Start(DepositFlowRequest) returns (DepositFlowResponse);
 
   rpc PayWithSelectedResource(DepositNextStepRequest) returns (ContributionResponse);
+}
+
+
+
+
+message VeriffHookRequest {
+  string id = 1;
+  string attemptId = 2;
+  string action = 3;
+}
+
+message VeriffSessionResponse {
+  string status = 1;
+  Verification verification = 2;
+}
+
+message Verification {
+  string id = 1;
+  string url = 2;
+  string vendorData = 3;
+  string host = 4;
+  string status = 5;
+  string sessionToken = 6;
+}
+
+
+message VeriffSessionRequest {
+  uint32 user_id = 1;
+  string type = 2;
 }
 
 message DepositFlowRequest {

@@ -17,6 +17,8 @@ import {
   TransferFundsRequest,
   UploadDocumentRequest,
   UserIdRequest,
+  VeriffHookRequest,
+  VeriffSessionRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { CurrencyService } from './currency.service';
@@ -158,9 +160,6 @@ export class PaymentGatewayService {
 
     return resp;
   }
-  failedSocureDocument(request: UserIdRequest) {
-    return this.primeTrustService.failedSocureDocument(request);
-  }
 
   async createSocureDocument(request: SocureDocumentRequest) {
     const { user_id } = request;
@@ -170,5 +169,13 @@ export class PaymentGatewayService {
     }
 
     return response;
+  }
+
+  generateVeriffLink(request: VeriffSessionRequest) {
+    return this.primeTrustService.generateVeriffLink(request);
+  }
+
+  veriffHookHandler(request: VeriffHookRequest) {
+    return this.primeTrustService.veriffHookHandler(request);
   }
 }

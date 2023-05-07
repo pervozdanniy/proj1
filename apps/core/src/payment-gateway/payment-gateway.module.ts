@@ -56,6 +56,7 @@ import { PrimeFundsTransferManager } from './services/prime_trust/managers/prime
 import { PrimeKycManager } from './services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from './services/prime_trust/managers/prime-token.manager';
 import { PrimeTransactionsManager } from './services/prime_trust/managers/prime-transactions.manager';
+import { PrimeVeriffManager } from './services/prime_trust/managers/prime-veriff-manager';
 import { PrimeWithdrawalManager } from './services/prime_trust/managers/prime-withdrawal.manager';
 import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
 
@@ -120,6 +121,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     LiquidoWithdrawalManager,
     LiquidoWebhookManager,
     DepositFlow,
+    PrimeVeriffManager,
   ],
   controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],
