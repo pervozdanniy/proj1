@@ -7,47 +7,68 @@ export interface TokenResponse {
   skope: string;
 }
 
-export interface CreateEntityResponse {
-  entityId: string;
-}
+type PaymentMethodDirection = 'in' | 'out';
+type PaymentMethodTypeClass = 'card' | 'bank' | 'digitalWallet' | 'emoney' | 'cash';
+type PaymentMethodTypeStatus = 'available' | 'unavailable';
 
-export interface CreateWalletResponse {
+export type GetPaymentMethodsRequest = {
+  country?: string;
+  currency?: string;
+  direction?: PaymentMethodDirection;
+  paymentMethodTypeClass?: PaymentMethodTypeClass;
+  paymentMethodTypeStatus?: PaymentMethodTypeStatus;
+};
+
+type ImageUrl = string;
+type PaymentMethod = {
+  country: string;
+  currency: string;
+  direction: PaymentMethodDirection;
+  fields: Array<{
+    name: string;
+    description: string;
+    regex: string;
+    mandatory: boolean;
+    isUserField: boolean;
+    fieldType: 'input' | 'select';
+    validOptions: string[];
+  }>;
+  imageURL: ImageUrl | null;
+  paymentMethodType: string;
+  paymentMethodTypeClass: PaymentMethodTypeClass;
+  paymentMethodTypeStatus: PaymentMethodTypeStatus;
+  paymentMethodTypeDescription: string;
+  usage: ImageUrl;
+};
+
+export type GetPaymentMethodsResponse = Array<PaymentMethod>;
+
+export type CreateEntityResponse = {
+  entityId: string;
+  [key: string]: any;
+};
+
+export type CreateWalletResponse = {
   entityId: string;
   walletId: string;
   walletStatus: string;
-}
+  [key: string]: any;
+};
 
-export interface AvailablePaymentMethod {
-  country: string;
-  currency: string;
-  directUsage: boolean;
-  direction: 'in' | 'out';
-  fields: Array<{
-    description: string;
-    fieldType: 'input' | 'select';
-    isUserField: boolean;
-    mandatory: boolean;
-    name: string;
-    regex: string;
-    validOptions: string[];
-  }>;
-  imageURL: string | null;
-  paymentMethodType: string;
-  paymentMethodTypeClass: string;
-  paymentMethodTypeDescription: string;
-  paymentMethodTypeStatus: 'available' | 'unavailable';
-  protected: boolean;
-  storable: boolean;
-  usage: string | null;
-}
+export type CreatePaymentMethodRequest = {
+  walletId: string;
+  paymentMethodAlias?: string;
+  paymentMethodType: PaymentMethod['paymentMethodType'];
+  /** @see PaymentMethod.fields */
+  paymentMethodData?: Record<string, string>;
+};
 
-export type GetAvailablePaymentMethodsResponse = Array<AvailablePaymentMethod>;
-
-export interface CreatePaymentMethodResponse {
+export type CreatePaymentMethodResponse = {
   paymentMethodId: string;
-}
+  [key: string]: any;
+};
 
-export interface CreateCardResponse {
+export type CreateCardResponse = {
   cardIdentifier: string;
   entityId: string;
   status: string;
@@ -57,4 +78,58 @@ export interface CreateCardResponse {
   brand: string;
   currency: string;
   paymentMethodReference: string;
-}
+  [key: string]: any;
+};
+
+export type TransactionRequest = {
+  country: string;
+  amount: number;
+  currency: string;
+  paymentMethod: {
+    type: string;
+    data: Record<string, string>;
+  };
+};
+
+export type TransactionResponse = {
+  type: 'withdrawal' | string;
+  amount: number;
+  currency: string;
+  transactionStatus:
+    | 'initial'
+    | 'finished'
+    | 'error'
+    | 'conciliate'
+    | 'reverted'
+    | 'reserved'
+    | 'cancelled'
+    | 'secondStepInitial'
+    | 'pending'
+    | 'pendingExpired'
+    | 'ongoingExpired'
+    | 'pendingRejected'
+    | 'conciliateReversal'
+    | 'waiting'
+    | 'reverting'
+    | 'processingPayment';
+  transactionReference: string;
+  requiredAction: {
+    actionType: 'paymentcode' | string;
+    data: {
+      additionalInformation: Array<{
+        key: string;
+        value: string;
+      }>;
+      code: string;
+    };
+    expirationDate: string;
+    relatedPaymentMethodData: {
+      paymentMethodType: string;
+      paymentMethodTypeClass: string;
+      paymentMethodTypeCountry: string;
+      paymentMethodTypeDescription: string;
+    };
+    status: 'active' | 'confirmed' | 'cancelled' | 'expired';
+  };
+  [key: string]: any;
+};
