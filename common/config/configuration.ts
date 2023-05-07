@@ -68,7 +68,12 @@ export interface ConfigInterface {
     client_id: string;
     secret: string;
   };
-
+  inswitch: {
+    url: string;
+    apiKey: string;
+    username: string;
+    password: string;
+  };
   liquido: {
     client_id: string;
     secret: string;
@@ -212,5 +217,11 @@ export default (): ConfigInterface => ({
     x_api_key: process.env.LIQUIDO_X_API_KEY,
     api_url: process.env.LIQUIDO_API_URL,
     auth_url: process.env.LIQUIDO_AUTH_URL,
+  },
+  inswitch: {
+    url: process.env.INSWITCH_API_URL,
+    apiKey: process.env.INSWITCH_API_KEY,
+    username: process.env.INSWITCH_USERNAME,
+    password: process.env.INSWITCH_PASSWORD,
   },
 });
