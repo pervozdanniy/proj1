@@ -5,12 +5,14 @@ import {
   CheckIfUniqueRequest,
   ContactsResponse,
   NullableUser,
+  RecepientsRequest,
+  RecepientsResponse,
   SearchContactRequest,
   UserServiceController,
   UserServiceControllerMethods,
-  VerifyRequest,
 } from '~common/grpc/interfaces/core';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
+import { FindBySocialIdDto } from '../user/dto/find-by-social-id.dto';
 import { FindRequestDto } from '../user/dto/find.request.dto';
 import { IdRequestDto } from '../user/dto/id-request.dto';
 import { CreateRequestDto, UpdateContactsRequestDto, UpdateRequestDto } from '../user/dto/user-request.dto';
@@ -33,7 +35,7 @@ export class UserFacadeController implements UserServiceController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async updateContacts(payload: UpdateContactsRequestDto): Promise<User> {
     const user = await this.userService.get(payload.user_id);
-    await this.contactService.update(user, payload.contacts);
+    await this.contactService.update(user, payload.contacts.phones);
 
     const updated = await this.userService.get(payload.user_id);
 
@@ -48,6 +50,16 @@ export class UserFacadeController implements UserServiceController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async findByLogin(payload: FindRequestDto): Promise<NullableUser> {
     const user = await this.userService.findByLogin(payload);
+    if (user) {
+      return { user: plainToInstance(UserResponseDto, user) };
+    }
+
+    return {};
+  }
+
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async findBySocialId(payload: FindBySocialIdDto): Promise<NullableUser> {
+    const user = await this.userService.findBySocialId(payload);
     if (user) {
       return { user: plainToInstance(UserResponseDto, user) };
     }
@@ -77,7 +89,7 @@ export class UserFacadeController implements UserServiceController {
     const user = await this.userService.update(payload);
     if (contacts) {
       this.contactService
-        .update(user, contacts)
+        .update(user, contacts.phones)
         .catch((error) => this.logger.error('Update user: contacts syncronization failed', error));
     }
 
@@ -90,10 +102,13 @@ export class UserFacadeController implements UserServiceController {
     return { success };
   }
 
-  async verifySocure(payload: VerifyRequest): Promise<SuccessResponse> {
-    return this.userService.verifySocure(payload);
-  }
   getContacts(request: SearchContactRequest): Promise<ContactsResponse> {
     return this.userService.getContacts(request);
+  }
+
+  async getLatestRecepients(request: RecepientsRequest): Promise<RecepientsResponse> {
+    const recepients = await this.userService.getLatestRecepients(request);
+
+    return { recepients };
   }
 }

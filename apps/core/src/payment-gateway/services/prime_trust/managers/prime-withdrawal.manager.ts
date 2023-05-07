@@ -10,9 +10,11 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import process from 'process';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
+import { Providers } from '~common/enum/providers';
 import {
   AccountIdRequest,
   JsonData,
@@ -51,7 +53,7 @@ export class PrimeWithdrawalManager {
 
   async addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
     const { id, bank_account_id, funds_transfer_type } = request;
-    await this.checkBankExists(bank_account_id);
+    await this.checkBankExists(id, bank_account_id);
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
     const transferMethod = await this.withdrawalParamsEntityRepository.findOneBy({
       user_id: id,
@@ -152,6 +154,7 @@ export class PrimeWithdrawalManager {
         param_id: withdrawalParams.id,
         fee,
         type: 'withdrawal',
+        provider: Providers.PRIME_TRUST,
       }),
     );
 
@@ -171,12 +174,32 @@ export class PrimeWithdrawalManager {
       disbursement_authorization: fundsResponse.relationships['disbursement-authorization'],
     };
 
+    if (process.env.NODE_ENV === 'dev') {
+      await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/disbursement-authorizations/${response.disbursement_authorization.data.id}/sandbox/verify-owner`,
+        data: null,
+      });
+    }
+
     return { data: JSON.stringify(response) };
   }
 
-  async sendWithdrawalRequest(request: TransferMethodRequest, account_id: string, funds_transfer_method_id: string) {
-    const { amount } = request;
-    const { total_amount, fee_amount } = await this.primeFundsTransferManager.convertAssetToUSD(account_id, amount);
+  async sendWithdrawalRequest(
+    { id, amount }: TransferMethodRequest,
+    account_id: string,
+    funds_transfer_method_id: string,
+  ) {
+    let hotStatus = false;
+    const balance = await this.primeBalanceManager.getAccountBalance(id);
+    if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
+      hotStatus = true;
+    }
+    const { total_amount, fee_amount } = await this.primeFundsTransferManager.convertAssetToUSD(
+      account_id,
+      amount,
+      hotStatus,
+    );
 
     const formData = {
       data: {
@@ -220,9 +243,6 @@ export class PrimeWithdrawalManager {
     if (!withdrawData) {
       return { success: false };
     }
-
-    const { user_id } = withdrawData;
-
     const withdrawResponse = await this.getWithdrawInfo(resource_id);
 
     await this.withdrawalEntityRepository.update(
@@ -233,15 +253,6 @@ export class PrimeWithdrawalManager {
     );
 
     await this.primeBalanceManager.updateAccountBalance(account_id);
-
-    const notificationPayload = {
-      user_id,
-      title: 'User Disbursements',
-      type: 'disbursements',
-      description: `Your disbursements status for ${withdrawResponse['amount']} ${withdrawResponse['currency-type']} ${withdrawResponse['status']}`,
-    };
-
-    await this.notificationService.create(notificationPayload);
 
     return { success: true };
   }
@@ -265,10 +276,14 @@ export class PrimeWithdrawalManager {
     }
   }
 
-  async checkBankExists(bank_id: number) {
+  async checkBankExists(user_id: number, bank_id: number) {
     const bank = await this.primeBankAccountManager.getBankAccountById(bank_id);
     if (!bank) {
       throw new GrpcException(Status.ABORTED, 'Bank account does`nt exist!', 400);
+    } else {
+      if (bank.user_id !== user_id) {
+        throw new GrpcException(Status.ABORTED, 'Wrong bank!', 400);
+      }
     }
   }
 }

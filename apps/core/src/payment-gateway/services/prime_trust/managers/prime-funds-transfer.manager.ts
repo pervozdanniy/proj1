@@ -1,10 +1,8 @@
-import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { PrimeBalanceManager } from '@/payment-gateway/services/prime_trust/managers/prime-balance.manager';
 import { AssetToUSDResponse, SendFundsResponse, UsDtoAssetResponse } from '@/payment-gateway/types/prime-trust';
-import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -23,9 +21,6 @@ export class PrimeFundsTransferManager {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-
-    private readonly notificationService: NotificationService,
-
     private readonly primeBalanceManager: PrimeBalanceManager,
 
     @InjectRepository(PrimeTrustAccountEntity)
@@ -88,7 +83,7 @@ export class PrimeFundsTransferManager {
     }
   }
 
-  async convertAssetToUSD(account_id: string, amount: string): Promise<AssetToUSDResponse> {
+  async convertAssetToUSD(account_id: string, amount: string, hotStatus: boolean): Promise<AssetToUSDResponse> {
     const formData = {
       data: {
         type: 'quotes',
@@ -97,26 +92,34 @@ export class PrimeFundsTransferManager {
           'asset-id': this.asset_id,
           'transaction-type': 'sell',
           amount,
+          hot: hotStatus,
         },
       },
     };
+
     try {
-      const quoteResponse = await this.httpService.request({
+      const createQuoteResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/quotes`,
         data: formData,
       });
 
-      const executeResponse = await this.httpService.request({
+      await this.httpService.request({
         method: 'post',
-        url: `${this.prime_trust_url}/v2/quotes/${quoteResponse.data.data.id}/execute`,
+        url: `${this.prime_trust_url}/v2/quotes/${createQuoteResponse.data.data.id}/execute`,
         data: null,
       });
 
+      const quoteResponse = await this.httpService.request({
+        method: 'get',
+        url: `${this.prime_trust_url}/v2/quotes/${createQuoteResponse.data.data.id}`,
+      });
+
       return {
-        total_amount: executeResponse.data.data.attributes['total-amount'],
-        unit_count: executeResponse.data.data.attributes['unit-count'],
-        fee_amount: executeResponse.data.data.attributes['fee-amount'],
+        trade_id: quoteResponse.data.data.attributes['trade-id'],
+        total_amount: quoteResponse.data.data.attributes['total-amount'],
+        unit_count: quoteResponse.data.data.attributes['unit-count'],
+        fee_amount: quoteResponse.data.data.attributes['fee-amount'],
       };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
@@ -129,7 +132,12 @@ export class PrimeFundsTransferManager {
     }
   }
 
-  async sendFunds(fromAccountId: string, toAccountId: string, unit_count: string): Promise<SendFundsResponse> {
+  async sendFunds(
+    fromAccountId: string,
+    toAccountId: string,
+    unit_count: string,
+    hotStatus: boolean,
+  ): Promise<SendFundsResponse> {
     try {
       const formData = {
         data: {
@@ -139,7 +147,7 @@ export class PrimeFundsTransferManager {
             'asset-id': this.asset_id,
             'from-account-id': fromAccountId,
             'to-account-id': toAccountId,
-            reference: 'For Trade Settlement',
+            'hot-transfer': hotStatus,
           },
         },
       };
@@ -174,7 +182,12 @@ export class PrimeFundsTransferManager {
 
     const { unit_count, fee_amount } = await this.convertUSDtoAsset(fromAccountId, amount, true);
 
-    const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count);
+    const balance = await this.primeBalanceManager.getAccountBalance(sender_id);
+    let hotStatus = false;
+    if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
+      hotStatus = true;
+    }
+    const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count, hotStatus);
 
     const payload = {
       fee: fee_amount,
@@ -189,39 +202,11 @@ export class PrimeFundsTransferManager {
     };
 
     await this.transferFundsEntityRepository.save(this.transferFundsEntityRepository.create(payload));
-    await this.createTransferFundsNotification(
-      sender_id,
-      `Sending ${payload.amount} ${payload.currency_type} ${payload.status}`,
-    );
-
-    await this.createTransferFundsNotification(
-      receiver_id,
-      `Received ${payload.amount} ${payload.currency_type} ${payload.status}`,
-    );
+    await this.primeBalanceManager.updateAccountBalance(fromAccountId);
+    await this.primeBalanceManager.updateAccountBalance(toAccountId);
 
     return {
       data: payload,
     };
-  }
-
-  async createTransferFundsNotification(id: number, description: string) {
-    const accountData = await this.primeAccountRepository
-      .createQueryBuilder('a')
-      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
-      .select(['a.uuid as account_id'])
-      .where('a.user_id = :id', { id })
-      .getRawOne();
-    const { account_id } = accountData;
-
-    const balanceData = await this.primeBalanceManager.getBalanceInfo(account_id);
-
-    const notificationPayload = {
-      user_id: id,
-      title: 'Funds Transfer',
-      type: 'transfer_funds',
-      description: `${description}. Your current balance is ${balanceData['settled']} ${balanceData['currency-type']}`,
-    };
-
-    this.notificationService.createAsync(notificationPayload);
   }
 }

@@ -9,6 +9,8 @@ import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 
+export type KoywePaymentMethod = 'KHIPU' | 'WIRECL';
+
 @Injectable()
 export class KoyweMainManager {
   private readonly koywe_url: string;
@@ -39,13 +41,20 @@ export class KoyweMainManager {
     }
   }
 
-  async getPaymentMethodId(currency_type: string): Promise<string> {
+  async getPaymentMethodId(currency: string, paymentMethod: KoywePaymentMethod = 'WIRECL'): Promise<string> {
     const clientId = await this.redis.get('koywe_client_id');
     const paymentMethodResponse = await lastValueFrom(
-      this.httpService.get(`${this.koywe_url}/payment-providers?symbol=${currency_type}&clientId=${clientId}`),
+      this.httpService.get(`${this.koywe_url}/payment-providers?symbol=${currency}&clientId=${clientId}`),
     );
 
     //temporary solution,must be changed
-    return paymentMethodResponse.data[0]._id;
+    let id: string = null;
+    paymentMethodResponse.data.forEach((method: { _id: string; name: string }) => {
+      if (method.name === paymentMethod) {
+        id = method._id;
+      }
+    });
+
+    return id;
   }
 }

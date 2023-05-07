@@ -1,0 +1,43 @@
+<div id="credit-card-target"></div>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/javascript" src="https://sandbox.bootstrapper.primetrust-cdn.com/bootstrap.js" defer></script>
+<!-- this is our code to handle initialization -->
+<script type="text/javascript">
+
+    document.addEventListener('pt.bootstrap.ready', function() {
+        var initializeEvent = new CustomEvent('pt.bootstrap.initialize', {
+            detail: {
+                app: 'credit-card',
+                target: document.getElementById('credit-card-target'),
+                resourceTokenHash: "{{token}}"
+            }
+        });
+
+        document.dispatchEvent(initializeEvent);
+    });
+
+    document.addEventListener("pt.app.ready", function() {
+        // the credit card UI has been loaded and is ready to use
+    });
+
+    document.addEventListener("pt.app.verified", function(e) {
+        // the user has successfully added their credit card information to the linked contact
+        // e.detail is an object containing the keys: "contactId", "fundsTransferMethodId"
+        const url = '/deposit/credit_card/verify';
+        let data = {
+            contact_id:e.detail.contactId,
+            transfer_method_id:e.detail.fundsTransferMethodId,
+            resource_id:"{{resource_id}}"
+        }
+        console.log(data);
+        axios.post(url,data)
+                .then(response => {
+                    const data = response.data;
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+    });
+</script>

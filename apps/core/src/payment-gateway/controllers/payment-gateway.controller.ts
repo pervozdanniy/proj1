@@ -18,14 +18,19 @@ import {
   DepositParamsResponse,
   DepositResponse,
   DocumentResponse,
+  ExchangeRequest,
+  ExchangeResponse,
+  FacilitaWebhookRequest,
   JsonData,
   KoyweWebhookRequest,
+  LiquidoWebhookRequest,
   MakeDepositRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PaymentMethodsResponse,
   PG_Token,
   SearchTransactionRequest,
+  SocureDocumentRequest,
   TransactionResponse,
   TransferFundsRequest,
   TransferFundsResponse,
@@ -70,6 +75,14 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   updateAccount(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.webhooksService.updateAccount(request);
+  }
+
+  updateContact(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.webhooksService.updateContact(request);
+  }
+
+  contingentHolds(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.webhooksService.contingentHolds(request);
   }
   documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.webhooksService.documentCheck(request);
@@ -144,6 +157,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   getContact({ id }: UserIdRequest): Promise<ContactResponse> {
     return this.paymentGatewayService.getContact(id);
   }
+
   createCreditCardResource({ id }: UserIdRequest): Promise<CreditCardResourceResponse> {
     return this.paymentGatewayService.createCreditCardResource(id);
   }
@@ -164,5 +178,26 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
   createAgreement(request: AgreementRequest): Promise<UserAgreement> {
     return this.paymentGatewayService.createAgreement(request);
+  }
+
+  exchange(request: ExchangeRequest): Promise<ExchangeResponse> {
+    return this.paymentGatewayService.exchange(request);
+  }
+  transferToHotWallet(): Promise<SuccessResponse> {
+    return this.paymentGatewayService.transferToHotWallet();
+  }
+  createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.createSocureDocument(request);
+  }
+  facilitaWebhooksHandler(request: FacilitaWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.facilitaWebhooksHandler(request);
+  }
+
+  liquidoWebhooksHandler(request: LiquidoWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.liquidoWebhooksHandler(request);
+  }
+
+  failedSocureDocument(request: UserIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.failedSocureDocument(request);
   }
 }

@@ -15,12 +15,11 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import {
   BankDepositInterface,
-  BankInterface,
+  BankWithdrawalInterface,
   CreditCardInterface,
   PaymentGatewayInterface,
-  PaymentMethods,
+  PaymentMethod,
   WireDepositInterface,
-  WithdrawalInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
@@ -28,23 +27,27 @@ import { PrimeTrustService } from '../../services/prime_trust/prime-trust.servic
 export class USPaymentGateway
   implements
     PaymentGatewayInterface,
-    BankInterface,
     WireDepositInterface,
     CreditCardInterface,
     BankDepositInterface,
-    WithdrawalInterface
+    BankWithdrawalInterface
 {
   private primeTrustService: PrimeTrustService;
 
   constructor(primeTrustService: PrimeTrustService) {
     this.primeTrustService = primeTrustService;
   }
+
   addBank(request: BankAccountParams): Promise<BankAccountParams> {
     return this.primeTrustService.addBankAccountParams(request);
   }
 
-  createCreditCardResource(id: number): Promise<CreditCardResourceResponse> {
-    return this.primeTrustService.createCreditCardResource(id);
+  createCreditCardResource(userId: number): Promise<CreditCardResourceResponse> {
+    return this.primeTrustService.createCreditCardResource(userId);
+  }
+
+  verifyCreditCard(resource_id: string, transfer_method_id: string): Promise<SuccessResponse> {
+    return this.primeTrustService.verifyCreditCard(resource_id, transfer_method_id);
   }
 
   getAvailableBanks(country: string): Promise<BanksInfoResponse> {
@@ -63,11 +66,7 @@ export class USPaymentGateway
     return this.primeTrustService.addDepositParams(request);
   }
 
-  verifyCreditCard(resource_id: string): Promise<SuccessResponse> {
-    return this.primeTrustService.verifyCreditCard(resource_id);
-  }
-
-  getAvailablePaymentMethods(): PaymentMethods[] {
+  getAvailablePaymentMethods(): PaymentMethod[] {
     return ['bank-transfer', 'credit-card'];
   }
 

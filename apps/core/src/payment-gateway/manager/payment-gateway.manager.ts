@@ -3,12 +3,17 @@ import { ModuleRef } from '@nestjs/core';
 import {
   BankDepositInterface,
   BankInterface,
+  BankWithdrawalInterface,
   CreditCardInterface,
+  DepositInterface,
   PaymentGatewayInterface,
   WireDepositInterface,
-  WithdrawalInterface,
 } from '../interfaces/payment-gateway.interface';
+import { BrazilPaymentGateway } from './countries/brazil-payment.gateway';
 import { ChilePaymentGateway } from './countries/chile-payment.gateway';
+import { ColombiaPaymentGateway } from './countries/colombia-payment.gateway';
+import { MexicoPaymentGateway } from './countries/mexico-payment.gateway';
+import { PeruPaymentGateway } from './countries/peru-payment.gateway';
 import { USPaymentGateway } from './countries/us-payment.gateway';
 
 export const hasBank = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & BankInterface =>
@@ -18,12 +23,15 @@ export const hasCreditCard = <T extends PaymentGatewayInterface>(gateway: T): ga
   gateway.getAvailablePaymentMethods().includes('credit-card');
 
 export const hasBankDeposit = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & BankDepositInterface =>
-  'makeDeposit' in gateway && 'setDepositParams' in gateway;
+  hasBank(gateway) && hasDeposit(gateway) && 'setDepositParams' in gateway;
 
 export const hasWireTransfer = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & WireDepositInterface =>
   'createReference' in gateway;
 
-export const hasWithdrawal = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & WithdrawalInterface =>
+export const hasDeposit = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & DepositInterface =>
+  'makeDeposit' in gateway;
+
+export const hasWithdrawal = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & BankWithdrawalInterface =>
   'makeWithdrawal' in gateway;
 
 @Injectable()
@@ -34,11 +42,16 @@ export class PaymentGatewayManager {
     switch (type) {
       case 'US':
         return this.moduleRef.get(USPaymentGateway);
+      case 'BR':
+        return this.moduleRef.get(BrazilPaymentGateway);
       case 'CL':
-      case 'MX':
-      case 'CO':
-      case 'PE':
         return this.moduleRef.get(ChilePaymentGateway);
+      case 'MX':
+        return this.moduleRef.get(MexicoPaymentGateway);
+      case 'CO':
+        return this.moduleRef.get(ColombiaPaymentGateway);
+      case 'PE':
+        return this.moduleRef.get(PeruPaymentGateway);
       default:
         throw new Error(`Unsupported country: "${type}"`);
     }

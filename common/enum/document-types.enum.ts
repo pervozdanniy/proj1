@@ -19,6 +19,10 @@ export enum DepositTypes {
   WIRE = 'wire',
 
   ACH = 'ach',
+
+  CREDIT_CARD = 'credit_card',
+
+  CASH = 'cash',
 }
 
 export enum AchCheckType {

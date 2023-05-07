@@ -134,7 +134,7 @@ export class PrimeAssetsManager {
     );
     const convertedAmount = parseFloat(convertData.data['USD']) * parseFloat(assetResponse['unit-count']);
     let type;
-    convertedAmount < 0 ? (type = 'pre_withdrawal') : (type = 'deposit');
+    convertedAmount < 0 ? (type = 'withdrawal') : (type = 'deposit');
     const amount = String(convertedAmount.toFixed(2));
 
     if (existedDeposit) {
@@ -152,6 +152,7 @@ export class PrimeAssetsManager {
       await this.depositEntityRepository.save(this.depositEntityRepository.create(assetPayload));
     }
     await this.primeBalanceManager.updateAccountBalance(account_id);
+    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
 
     const notificationPayload = {
       user_id,
@@ -196,6 +197,7 @@ export class PrimeAssetsManager {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
     const { account_id, contact_id } = accountData;
+
     const createTransferMethodData = {
       data: {
         type: 'asset-transfer-methods',
@@ -206,8 +208,7 @@ export class PrimeAssetsManager {
           'account-id': account_id,
           'wallet-address': wallet,
           'transfer-direction': 'outgoing',
-          'single-use': true,
-          'asset-transfer-type': 'bitcoin',
+          'single-use': false,
         },
       },
     };
@@ -217,6 +218,11 @@ export class PrimeAssetsManager {
     const convertedAmount = parseFloat(convertData.data[`${this.asset}`]) * parseFloat(beforeAmount);
 
     const amount = String(convertedAmount.toFixed(2));
+    let hotStatus = false;
+    const balance = await this.primeBalanceManager.getAccountBalance(id);
+    if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
+      hotStatus = true;
+    }
     try {
       const assetTransferMethodResponse = await this.httpService.request({
         method: 'post',
@@ -236,9 +242,11 @@ export class PrimeAssetsManager {
             'unit-count': amount,
             'account-id': account_id,
             'contact-id': contact_id,
+            'hot-transfer': hotStatus,
           },
         },
       };
+
       const makeWithdrawalResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/asset-disbursements?include=asset-transfer-method,asset-transfer`,

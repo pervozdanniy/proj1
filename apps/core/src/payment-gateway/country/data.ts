@@ -4,6 +4,8 @@ export const countriesData: CountryData = {
   MX: { code: 'MEX', currency_type: 'MXN', dial_code: '+52' },
   CO: { code: 'COL', currency_type: 'COP', dial_code: '+57' },
   PE: { code: 'PER', currency_type: 'PEN', dial_code: '+51' },
+  BR: { code: 'BRA', currency_type: 'BRL', dial_code: '+55' },
+  AR: { code: 'ARG', currency_type: 'ARS', dial_code: '+54' },
 };
 
 export type CountryData = {

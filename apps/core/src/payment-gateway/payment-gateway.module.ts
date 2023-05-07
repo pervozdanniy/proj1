@@ -7,24 +7,33 @@ import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { CountryModule } from '../country/country.module';
+import { DepositFlowController } from './controllers/deposit-flow.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
+import { DepositFlowEntity } from './entities/flow/deposit.entity';
 import { InswitchAccountEntity } from './entities/inswitch/inswitch-account.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
-import { ContributionEntity } from './entities/prime_trust/contribution.entity';
 import { DepositParamsEntity } from './entities/prime_trust/deposit-params.entity';
 import { PrimeTrustAccountEntity } from './entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from './entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
-import { WithdrawalEntity } from './entities/prime_trust/withdrawal.entity';
+import { SocureDocumentEntity } from './entities/socure-document.entity';
 import { TransfersEntity } from './entities/transfers.entity';
+import { BrazilPaymentGateway } from './manager/countries/brazil-payment.gateway';
 import { ChilePaymentGateway } from './manager/countries/chile-payment.gateway';
+import { ColombiaPaymentGateway } from './manager/countries/colombia-payment.gateway';
+import { MexicoPaymentGateway } from './manager/countries/mexico-payment.gateway';
+import { PeruPaymentGateway } from './manager/countries/peru-payment.gateway';
 import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { CurrencyService } from './services/currency.service';
+import { FacilitaService } from './services/facilita/facilita.service';
+import { FacilitaDepositManager } from './services/facilita/managers/facilita-deposit.manager';
+import { FacilitaWebhookManager } from './services/facilita/managers/facilita-webhook.manager';
+import { DepositFlow } from './services/flow/deposit-flow.service';
 import { InswitchApiService } from './services/inswitch/api.service';
 import { InswitchService } from './services/inswitch/inswitch.service';
 import { KoyweService } from './services/koywe/koywe.service';
@@ -34,6 +43,10 @@ import { KoyweMainManager } from './services/koywe/managers/koywe-main.manager';
 import { KoyweTokenManager } from './services/koywe/managers/koywe-token.manager';
 import { KoyweWebhookManager } from './services/koywe/managers/koywe-webhook.manager';
 import { KoyweWithdrawalManager } from './services/koywe/managers/koywe-withdrawal.manager';
+import { LiquidoService } from './services/liquido/liquido.service';
+import { LiquidoTokenManager } from './services/liquido/managers/liquido-token.manager';
+import { LiquidoWebhookManager } from './services/liquido/managers/liquido-webhook.manager';
+import { LiquidoWithdrawalManager } from './services/liquido/managers/liquido-withdrawal.manager';
 import { MainService } from './services/main.service';
 import { PaymentGatewayWebhooksService } from './services/payment-gateway-webhooks.service';
 import { PaymentGatewayService } from './services/payment-gateway.service';
@@ -61,14 +74,14 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       PrimeTrustKycDocumentEntity,
       PrimeTrustBalanceEntity,
       WithdrawalParamsEntity,
-      WithdrawalEntity,
       NotificationEntity,
-      ContributionEntity,
       CardResourceEntity,
       TransfersEntity,
       BankAccountEntity,
       DepositParamsEntity,
       InswitchAccountEntity,
+      SocureDocumentEntity,
+      DepositFlowEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
   ],
@@ -78,6 +91,9 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PaymentGatewayManager,
     PrimeTrustService,
     KoyweService,
+    FacilitaService,
+    FacilitaDepositManager,
+    FacilitaWebhookManager,
     KoyweDepositManager,
     KoyweBankAccountManager,
     KoyweTokenManager,
@@ -98,11 +114,20 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PrimeAssetsManager,
     USPaymentGateway,
     ChilePaymentGateway,
+    PeruPaymentGateway,
+    MexicoPaymentGateway,
+    BrazilPaymentGateway,
+    ColombiaPaymentGateway,
     CurrencyService,
     InswitchApiService,
     InswitchService,
+    LiquidoService,
+    LiquidoTokenManager,
+    LiquidoWithdrawalManager,
+    LiquidoWebhookManager,
+    DepositFlow,
   ],
-  controllers: [PaymentGatewayController],
+  controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],
 })
 export class PaymentGatewayModule {}

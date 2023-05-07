@@ -1,14 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { AccountIdRequest, KoyweWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
+import {
+  AccountIdRequest,
+  FacilitaWebhookRequest,
+  KoyweWebhookRequest,
+  LiquidoWebhookRequest,
+} from '~common/grpc/interfaces/payment-gateway';
+import { FacilitaService } from './facilita/facilita.service';
 import { KoyweService } from './koywe/koywe.service';
+import { LiquidoService } from './liquido/liquido.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
 @Injectable()
 export class PaymentGatewayWebhooksService {
-  constructor(private primeTrustService: PrimeTrustService, private koyweService: KoyweService) {}
+  constructor(
+    private primeTrustService: PrimeTrustService,
+    private koyweService: KoyweService,
+    private facilitaService: FacilitaService,
+    private liquidoService: LiquidoService,
+  ) {}
 
   updateAccount(request: AccountIdRequest) {
     return this.primeTrustService.updateAccount(request.id);
+  }
+
+  updateContact(request: AccountIdRequest) {
+    return this.primeTrustService.updateContact(request);
   }
 
   documentCheck(request: AccountIdRequest) {
@@ -39,5 +55,17 @@ export class PaymentGatewayWebhooksService {
 
   koyweWebhooksHandler(request: KoyweWebhookRequest) {
     return this.koyweService.koyweWebhooksHandler(request);
+  }
+
+  facilitaWebhooksHandler(request: FacilitaWebhookRequest) {
+    return this.facilitaService.facilitaWebhooksHandler(request);
+  }
+
+  liquidoWebhooksHandler(request: LiquidoWebhookRequest) {
+    return this.liquidoService.liquidoWebhooksHandler(request);
+  }
+
+  contingentHolds(request: AccountIdRequest) {
+    return this.primeTrustService.contingentHolds(request);
   }
 }

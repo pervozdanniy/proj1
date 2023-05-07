@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsEmail,
   IsEnum,
   IsInt,
   IsISO31661Alpha2,
@@ -15,7 +16,7 @@ import {
 import { SendType, UserSourceEnum } from '~common/constants/user';
 import { CreateRequest, UpdateContactsRequest, UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 
-export class UserDetails {
+export class UserDetailsDto {
   @IsString()
   @IsOptional()
   first_name?: string;
@@ -59,6 +60,10 @@ export class UserDetails {
   @IsString()
   @IsOptional()
   avatar?: string;
+
+  @IsString()
+  @IsOptional()
+  apartment?: string;
 }
 
 export class CreateRequestDto implements CreateRequest {
@@ -81,10 +86,13 @@ export class CreateRequestDto implements CreateRequest {
   @IsOptional()
   source?: UserSourceEnum;
 
-  @ValidateNested()
-  @Type(() => UserDetails)
   @IsOptional()
-  details?: UserDetails;
+  social_id?: string;
+
+  @ValidateNested()
+  @Type(() => UserDetailsDto)
+  @IsOptional()
+  details?: UserDetailsDto;
 
   @IsOptional()
   @IsArray()
@@ -95,11 +103,7 @@ export class CreateRequestDto implements CreateRequest {
 export class ContactsDto implements UserContacts {
   @IsArray()
   @IsPhoneNumber(undefined, { each: true })
-  new: string[];
-
-  @IsArray()
-  @IsPhoneNumber(undefined, { each: true })
-  removed: string[];
+  phones: string[];
 }
 
 export class UpdateRequestDto implements UpdateRequest {
@@ -112,7 +116,11 @@ export class UpdateRequestDto implements UpdateRequest {
   username?: string;
 
   @IsOptional()
-  @IsInt()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
   country_code?: string;
 
   @IsOptional()
@@ -128,9 +136,9 @@ export class UpdateRequestDto implements UpdateRequest {
   password?: string;
 
   @ValidateNested()
-  @Type(() => UserDetails)
+  @Type(() => UserDetailsDto)
   @IsOptional()
-  details?: UserDetails;
+  details?: UserDetailsDto;
 
   @ValidateNested()
   @Type(() => ContactsDto)

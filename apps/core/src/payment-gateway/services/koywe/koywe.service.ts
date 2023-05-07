@@ -6,7 +6,7 @@ import {
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { KoyweBankAccountManager } from './managers/koywe-bank-account.manager';
-import { KoyweDepositManager } from './managers/koywe-deposit.manager';
+import { KoyweDepositManager, KoyweReferenceParams } from './managers/koywe-deposit.manager';
 import { KoyweWebhookManager } from './managers/koywe-webhook.manager';
 import { KoyweWithdrawalManager } from './managers/koywe-withdrawal.manager';
 
@@ -19,8 +19,8 @@ export class KoyweService {
     private readonly koyweWebhookManager: KoyweWebhookManager,
   ) {}
 
-  createReference(request: CreateReferenceRequest, wallet_address: string, asset_transfer_method_id: string) {
-    return this.koyweDepositManager.createReference(request, wallet_address, asset_transfer_method_id);
+  createReference(request: CreateReferenceRequest, params: KoyweReferenceParams) {
+    return this.koyweDepositManager.createReference(request, params);
   }
 
   getBanksInfo(code: string) {

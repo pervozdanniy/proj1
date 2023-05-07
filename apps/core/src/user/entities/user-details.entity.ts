@@ -25,12 +25,6 @@ export class UserDetailsEntity {
   @Column('varchar', { length: 50, nullable: true })
   date_of_birth: string;
 
-  @Column('boolean', { default: false })
-  socure_verify: boolean;
-
-  @Column('varchar', { length: 50, nullable: true })
-  document_uuid: string;
-
   @Column({
     type: 'integer',
     default: SendType.UNRECOGNIZED,
@@ -39,6 +33,9 @@ export class UserDetailsEntity {
 
   @Column('integer', { nullable: true })
   postal_code: number;
+
+  @Column('character varying', { length: 50, nullable: true })
+  apartment?: string;
 
   @Column('integer', { nullable: true })
   tax_id_number: number;

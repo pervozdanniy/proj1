@@ -1,11 +1,18 @@
 import { Transform, Type } from 'class-transformer';
-import { User, UserAgreement } from '~common/grpc/interfaces/common';
+import { User, UserAgreement, UserDocument } from '~common/grpc/interfaces/common';
+import { UserDetailsDto } from './user-request.dto';
+
+export class UserDocumentDto implements UserDocument {
+  label: string;
+  status: string;
+}
 
 export class UserResponseDto implements User {
   id: number;
   email: string;
   phone: string;
   password: string;
+  country_code: string;
 
   @Type(() => Date)
   @Transform(({ value }) => value?.toString(), { toClassOnly: true })
@@ -23,4 +30,10 @@ export class UserResponseDto implements User {
   contacts: User[];
 
   agreement: UserAgreement;
+
+  @Type(() => UserDetailsDto)
+  details?: UserDetailsDto;
+
+  @Type(() => UserDocumentDto)
+  documents: UserDocumentDto[];
 }

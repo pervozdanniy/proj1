@@ -8,9 +8,12 @@ import {
   BalanceResponse,
   DepositParamRequest,
   DocumentResponse,
+  ExchangeRequest,
+  ExchangeResponse,
   MakeDepositRequest,
   PG_Token,
   SearchTransactionRequest,
+  SocureDocumentRequest,
   TransferFundsRequest,
   UploadDocumentRequest,
   UserIdRequest,
@@ -72,7 +75,11 @@ export class PaymentGatewayService {
       );
       for (const curr in conversions) {
         if (Object.prototype.hasOwnProperty.call(conversions, curr)) {
-          resp.conversions.push({ currency: curr, amount: conversions[curr].toFixed(2) });
+          resp.conversions.push({
+            currency: curr,
+            amount: conversions[curr]['amount'].toFixed(2),
+            rate: conversions[curr]['rate'],
+          });
         }
       }
     }
@@ -80,14 +87,14 @@ export class PaymentGatewayService {
     return resp;
   }
 
-  createCreditCardResource(id: number) {
-    return this.primeTrustService.createCreditCardResource(id);
+  createCreditCardResource(userId: number) {
+    return this.primeTrustService.createCreditCardResource(userId);
   }
 
   verifyCreditCard(request: VerifyCreditCardRequest) {
-    const { resource_id } = request;
+    const { resource_id, transfer_method_id } = request;
 
-    return this.primeTrustService.verifyCreditCard(resource_id);
+    return this.primeTrustService.verifyCreditCard(resource_id, transfer_method_id);
   }
 
   getCreditCards(id: number) {
@@ -129,5 +136,39 @@ export class PaymentGatewayService {
 
   getUserAccountStatus(request: IdRequest) {
     return this.primeTrustService.getUserAccountStatus(request);
+  }
+
+  transferToHotWallet() {
+    return this.primeTrustService.transferToHotWallet();
+  }
+
+  async exchange({ currencies, currency_type }: ExchangeRequest): Promise<ExchangeResponse> {
+    const resp: ExchangeResponse = { currency_type, conversions: [] };
+
+    const rates = await this.currencyService.rates(currency_type, ...currencies);
+
+    for (const curr in rates) {
+      if (Object.prototype.hasOwnProperty.call(rates, curr)) {
+        resp.conversions.push({
+          currency: curr,
+          rate: rates[curr],
+        });
+      }
+    }
+
+    return resp;
+  }
+  failedSocureDocument(request: UserIdRequest) {
+    return this.primeTrustService.failedSocureDocument(request);
+  }
+
+  async createSocureDocument(request: SocureDocumentRequest) {
+    const { user_id } = request;
+    const response = await this.primeTrustService.createSocureDocument(request);
+    if (response.success === true) {
+      await this.createAccount(user_id);
+    }
+
+    return response;
   }
 }

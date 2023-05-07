@@ -45,6 +45,7 @@ export interface ConfigInterface {
     domain: string;
     prime_trust_url: string;
     koywe_url: string;
+    facilita_url: string;
   };
 
   queues: {
@@ -60,11 +61,30 @@ export interface ConfigInterface {
   prime_trust: {
     email: string;
     password: string;
+    socure_sdk: string;
   };
 
   koywe: {
     client_id: string;
     secret: string;
+  };
+  inswitch: {
+    url: string;
+    apiKey: string;
+    username: string;
+    password: string;
+  };
+  liquido: {
+    client_id: string;
+    secret: string;
+    x_api_key: string;
+    auth_url: string;
+    api_url: string;
+  };
+
+  facilita: {
+    username: string;
+    password: string;
   };
 
   sendgrid: {
@@ -146,6 +166,7 @@ export default (): ConfigInterface => ({
     domain: process.env.APP_DOMAIN,
     prime_trust_url: process.env.PRIME_TRUST_URL,
     koywe_url: process.env.KOYWE_URL,
+    facilita_url: process.env.FACILITA_URL,
   },
   queues: {
     user_registration: {
@@ -160,6 +181,7 @@ export default (): ConfigInterface => ({
   prime_trust: {
     email: process.env.PRIME_EMAIL,
     password: process.env.PRIME_PASSWORD,
+    socure_sdk: process.env.SOCURE_SDK,
   },
   sendgrid: {
     email: process.env.SENDGRID_EMAIL,
@@ -184,5 +206,22 @@ export default (): ConfigInterface => ({
     id: process.env.ASSET_ID,
     type: process.env.ASSET_TYPE,
     short: process.env.ASSET_SHORT,
+  },
+  facilita: {
+    username: process.env.FACILITA_USERNAME,
+    password: process.env.FACILITA_PASSWORD,
+  },
+  liquido: {
+    client_id: process.env.LIQUIDO_ID,
+    secret: process.env.LIQUIDO_SECRET,
+    x_api_key: process.env.LIQUIDO_X_API_KEY,
+    api_url: process.env.LIQUIDO_API_URL,
+    auth_url: process.env.LIQUIDO_AUTH_URL,
+  },
+  inswitch: {
+    url: process.env.INSWITCH_API_URL,
+    apiKey: process.env.INSWITCH_API_KEY,
+    username: process.env.INSWITCH_USERNAME,
+    password: process.env.INSWITCH_PASSWORD,
   },
 });

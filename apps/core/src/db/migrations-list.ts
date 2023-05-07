@@ -35,7 +35,23 @@ import { AlterBankAccountTable1677664281088 } from './migrations/1677664281088-A
 import { RemoveCountryEntity1678111485298 } from './migrations/1678111485298-RemoveCountryEntity';
 import { RemoveUsername1678630767390 } from './migrations/1678630767390-RemoveUsername';
 import { AlterUsersTable1679033609244 } from './migrations/1679033609244-AlterUsersTable';
+<<<<<<< HEAD
 import { AddInswitchAccountEntity1680257468360 } from './migrations/1680257468360-AddInswitchAccountENtity';
+=======
+import { AlterTransfersTable1680249255329 } from './migrations/1680249255329-AlterTransfersTable';
+import { CreateKycTable1680787242455 } from './migrations/1680787242455-CreateKycTable';
+import { AlterUserDetailsTable1680870468046 } from './migrations/1680870468046-AlterUserDetailsTable';
+import { AlterSocureTable1681129677815 } from './migrations/1681129677815-AlterSocureTable';
+import { AddApartmentFieldToUserTable1681292485266 } from './migrations/1681292485266-AddApartmentFieldToUserTable';
+import { AddSocialIdInUsersTable1681379332794 } from './migrations/1681379332794-AddSocialIdInUsersTable';
+import { DropUnnecessaryTables1681477268254 } from './migrations/1681477268254-DropUnnecessaryTables';
+import { GenerateRelationsTable1681477802578 } from './migrations/1681477802578-GenerateRelationsTable';
+import { AlterKycDocumentsTable1681553441656 } from './migrations/1681553441656-AlterKycDocumentsTable';
+import { AddHotWalletParams1681741975606 } from './migrations/1681741975606-AddHotWalletParams';
+import { AddDepositFlowEntity1682250487665 } from './migrations/1682250487665-AddDepositFlowEntity';
+import { AddRecourceTypeToDepositFLow1682513214158 } from './migrations/1682513214158-AddRecourceTypeToDepositFLow';
+import { AlterSocureTable1682529569753 } from './migrations/1682529569753-AlterSocureTable';
+>>>>>>> SKOPA-380-inswitch-cards
 
 export default [
   createUserTable1669901299726,
@@ -75,5 +91,21 @@ export default [
   RemoveCountryEntity1678111485298,
   RemoveUsername1678630767390,
   AlterUsersTable1679033609244,
+<<<<<<< HEAD
   AddInswitchAccountEntity1680257468360,
+=======
+  AlterTransfersTable1680249255329,
+  CreateKycTable1680787242455,
+  AlterUserDetailsTable1680870468046,
+  AlterSocureTable1681129677815,
+  AddApartmentFieldToUserTable1681292485266,
+  AddSocialIdInUsersTable1681379332794,
+  DropUnnecessaryTables1681477268254,
+  GenerateRelationsTable1681477802578,
+  AlterKycDocumentsTable1681553441656,
+  AddHotWalletParams1681741975606,
+  AddDepositFlowEntity1682250487665,
+  AddRecourceTypeToDepositFLow1682513214158,
+  AlterSocureTable1682529569753,
+>>>>>>> SKOPA-380-inswitch-cards
 ];

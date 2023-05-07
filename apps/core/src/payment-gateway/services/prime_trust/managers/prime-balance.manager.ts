@@ -1,3 +1,4 @@
+import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
@@ -5,27 +6,24 @@ import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-htt
 import { BalanceAttributes } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { lastValueFrom } from 'rxjs';
+import process from 'process';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { AccountIdRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 
 @Injectable()
 export class PrimeBalanceManager {
   private readonly prime_trust_url: string;
 
-  private readonly asset: string;
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-
-    private readonly axiosService: HttpService,
-
+    private readonly notificationService: NotificationService,
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
 
@@ -33,9 +31,7 @@ export class PrimeBalanceManager {
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
   ) {
     const { prime_trust_url } = config.get('app');
-    const { short } = config.get('asset');
     this.prime_trust_url = prime_trust_url;
-    this.asset = short;
   }
 
   async updateAccountBalance(id: string): Promise<SuccessResponse> {
@@ -52,11 +48,7 @@ export class PrimeBalanceManager {
     const { user_id } = accountData;
 
     const cacheData = await this.getBalanceInfo(id);
-    const convertData = await lastValueFrom(
-      this.axiosService.get(`https://min-api.cryptocompare.com/data/price?fsym=${this.asset}&tsyms=USD`),
-    );
-    const convertedAmount = parseFloat(convertData.data['USD']) * parseFloat(cacheData.settled);
-    cacheData.settled = String(convertedAmount.toFixed(2));
+    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
 
     return this.saveBalance(user_id, cacheData);
   }
@@ -68,14 +60,20 @@ export class PrimeBalanceManager {
         url: `${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-asset-totals`,
       });
       let balance = '0';
+      let cold_balance = '0';
+      let hot_balance = '0';
       if (cacheResponse.data.included.length !== 0) {
         const attributes = cacheResponse.data.included[0].attributes;
         balance = attributes['settled'];
+        cold_balance = attributes['settled-cold'];
+        hot_balance = attributes['settled-hot'];
       }
 
       return {
         settled: balance,
-        'currency-type': 'USD',
+        cold_balance,
+        hot_balance,
+        currency_type: 'USD',
       };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
@@ -92,7 +90,9 @@ export class PrimeBalanceManager {
     const currentBalance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id } });
     const balancePayload = {
       settled: cacheData.settled,
-      currency_type: cacheData['currency-type'],
+      hot_balance: cacheData.hot_balance,
+      cold_balance: cacheData.cold_balance,
+      currency_type: cacheData.currency_type,
     };
 
     if (!currentBalance) {
@@ -109,17 +109,52 @@ export class PrimeBalanceManager {
     return { success: true };
   }
 
-  async getAccountBalance(id: number) {
-    const account = await this.primeAccountRepository.findOne({ where: { user_id: id } });
+  async getAccountBalance(id: number): Promise<BalanceAttributes> {
+    const account = await this.primeAccountRepository.findOne({ where: { user_id: id, status: 'opened' } });
     if (!account) {
-      throw new GrpcException(Status.NOT_FOUND, `Account for this user not exist!`, 400);
+      return {
+        settled: '0.00',
+        hot_balance: '0.00',
+        cold_balance: '0.00',
+        currency_type: 'USD',
+      };
     }
     await this.updateAccountBalance(account.uuid);
     const balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
 
     return {
-      settled: balance.settled,
+      settled: parseFloat(balance.settled).toFixed(2),
+      hot_balance: parseFloat(balance.hot_balance).toFixed(2),
+      cold_balance: parseFloat(balance.cold_balance).toFixed(2),
       currency_type: balance.currency_type,
     };
+  }
+
+  async contingentHolds(request: AccountIdRequest): Promise<SuccessResponse> {
+    const { resource_id, id: account_id } = request;
+    if (process.env.NODE_ENV === 'dev') {
+      try {
+        const contingentHoldsResponse = await this.httpService.request({
+          method: 'get',
+          url: `${this.prime_trust_url}/v2/contingent-holds/${resource_id}?include=funds-transfer`,
+        });
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/funds-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
+          data: null,
+        });
+      } catch (e) {
+        if (e instanceof PrimeTrustException) {
+          const { detail, code } = e.getFirstError();
+
+          throw new GrpcException(code, detail);
+        } else {
+          throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
+        }
+      }
+    }
+    await this.updateAccountBalance(account_id);
+
+    return { success: true };
   }
 }

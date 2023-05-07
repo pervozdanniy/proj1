@@ -1,6 +1,8 @@
 export type BalanceAttributes = {
   settled: string;
-  'currency-type': string;
+  currency_type: string;
+  hot_balance: string;
+  cold_balance: string;
 };
 
 export type SendFundsResponse = {
@@ -18,6 +20,8 @@ export type AssetToUSDResponse = {
   total_amount: string;
   fee_amount: string;
   unit_count: string;
+
+  trade_id?: string;
 };
 
 export type ContactType = {
@@ -51,6 +55,14 @@ export type AccountType = {
   };
 };
 
+export type CardResourceType = {
+  id: string;
+  attributes: {
+    status: string;
+    'funds-transfer-method-id': string;
+  };
+};
+
 export type CipCheckType = {
   id: string;
   type: string;
@@ -78,5 +90,40 @@ export type DocumentCheckType = {
   id: string;
   attributes: {
     status: string;
+  };
+};
+
+export type CreateAccountType = {
+  data: {
+    type: 'account';
+    attributes: {
+      'account-type': string;
+      name: string;
+      'authorized-signature': string;
+      'webhook-config': {
+        url: string;
+      };
+      owner: {
+        'contact-type': 'natural_person';
+        name: string;
+        email: string;
+        'tax-id-number': string;
+        'tax-country': string;
+        'date-of-birth': string;
+        'socure-document-id'?: string;
+        'primary-phone-number': {
+          country: string;
+          number: string;
+          sms: boolean;
+        };
+        'primary-address': {
+          'street-1': string;
+          'postal-code': string;
+          region?: string | null;
+          city: string;
+          country: string;
+        };
+      };
+    };
   };
 };

@@ -17,6 +17,7 @@ export interface Contact {
   phone: string;
   first_name: string;
   last_name: string;
+  avatar?: string | undefined;
 }
 
 export interface SearchContactRequest {
@@ -24,6 +25,15 @@ export interface SearchContactRequest {
   search_after: number;
   limit: number;
   search_term?: string | undefined;
+}
+
+export interface RecepientsRequest {
+  user_id: number;
+  limit: number;
+}
+
+export interface RecepientsResponse {
+  recepients: Contact[];
 }
 
 export interface VerifyRequest {
@@ -37,8 +47,7 @@ export interface NullableUser {
 }
 
 export interface UserContacts {
-  new: string[];
-  removed: string[];
+  phones: string[];
 }
 
 export interface UpdateRequest {
@@ -61,11 +70,16 @@ export interface CreateRequest {
   status?: string | undefined;
   details?: UserDetails | undefined;
   contacts: string[];
+  social_id?: string | undefined;
 }
 
 export interface FindByLoginRequest {
   email?: string | undefined;
   phone?: string | undefined;
+}
+
+export interface FindBySocialIdRequest {
+  social_id: string;
 }
 
 export interface UpdateContactsRequest {
@@ -83,9 +97,9 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface UserServiceClient {
   getById(request: IdRequest, ...rest: any): Observable<User>;
 
-  verifySocure(request: VerifyRequest, ...rest: any): Observable<SuccessResponse>;
-
   findByLogin(request: FindByLoginRequest, ...rest: any): Observable<NullableUser>;
+
+  findBySocialId(request: FindBySocialIdRequest, ...rest: any): Observable<NullableUser>;
 
   create(request: CreateRequest, ...rest: any): Observable<User>;
 
@@ -98,18 +112,20 @@ export interface UserServiceClient {
   checkIfUnique(request: CheckIfUniqueRequest, ...rest: any): Observable<SuccessResponse>;
 
   getContacts(request: SearchContactRequest, ...rest: any): Observable<ContactsResponse>;
+
+  getLatestRecepients(request: RecepientsRequest, ...rest: any): Observable<RecepientsResponse>;
 }
 
 export interface UserServiceController {
   getById(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
 
-  verifySocure(
-    request: VerifyRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
   findByLogin(
     request: FindByLoginRequest,
+    ...rest: any
+  ): Promise<NullableUser> | Observable<NullableUser> | NullableUser;
+
+  findBySocialId(
+    request: FindBySocialIdRequest,
     ...rest: any
   ): Promise<NullableUser> | Observable<NullableUser> | NullableUser;
 
@@ -130,20 +146,26 @@ export interface UserServiceController {
     request: SearchContactRequest,
     ...rest: any
   ): Promise<ContactsResponse> | Observable<ContactsResponse> | ContactsResponse;
+
+  getLatestRecepients(
+    request: RecepientsRequest,
+    ...rest: any
+  ): Promise<RecepientsResponse> | Observable<RecepientsResponse> | RecepientsResponse;
 }
 
 export function UserServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "getById",
-      "verifySocure",
       "findByLogin",
+      "findBySocialId",
       "create",
       "delete",
       "update",
       "updateContacts",
       "checkIfUnique",
       "getContacts",
+      "getLatestRecepients",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

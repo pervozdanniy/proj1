@@ -17,7 +17,11 @@ service PaymentGatewayService {
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
   rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
   rpc GetBalance (BalanceRequest) returns (BalanceResponse);
+  rpc Exchange (ExchangeRequest) returns (ExchangeResponse);
   rpc GetUserAccountStatus (common.IdRequest) returns (AccountStatusResponse);
+  rpc CreateSocureDocument(SocureDocumentRequest) returns (common.SuccessResponse);
+  rpc FailedSocureDocument(UserIdRequest) returns (common.SuccessResponse);
+  rpc TransferToHotWallet(google.protobuf.Empty) returns (common.SuccessResponse);
 
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
@@ -45,11 +49,86 @@ service PaymentGatewayService {
   rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
+  rpc UpdateContact (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
+  rpc ContingentHolds (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
+  rpc FacilitaWebhooksHandler (FacilitaWebhookRequest)   returns (common.SuccessResponse);
+  rpc LiquidoWebhooksHandler (LiquidoWebhookRequest)   returns (common.SuccessResponse);
+}
+
+service DepositFlowService {
+  rpc Start(DepositFlowRequest) returns (DepositFlowResponse);
+
+  rpc PayWithSelectedResource(DepositNextStepRequest) returns (ContributionResponse);
+}
+
+message DepositFlowRequest {
+  uint32 user_id = 1;
+  string amount = 2;
+  string currency = 3;
+  string type = 4;
+}
+
+message DepositFlowResponse {
+  string action = 1;
+  optional uint32 flow_id = 2;
+  oneof data {
+    DepositSelectBankData banks = 3;
+    DepositSelectCardData cards = 4;
+    DepositRedirectData redirect = 5;
+  };
+}
+
+message DepositSelectBankData {
+  repeated BankAccountParams list = 1;
+}
+
+message DepositSelectCardData {
+  repeated CreditCard list = 1;
+}
+
+message DepositRedirectData {
+  string url = 1;
+}
+
+message DepositNextStepRequest {
+  uint32 id = 1;
+  uint32 user_id = 2;
+  oneof data {
+    SelectBankRequest bank = 3;
+    SelectCardRequest card = 4;
+  }
+}
+
+message SelectBankRequest {
+  uint32 id = 1;
+  string transfer_type = 2;
+}
+
+message SelectCardRequest {
+  uint32 id = 1;
+  string cvv = 2;
+}
+
+message SocureDocumentRequest {
+  uint32 user_id = 1;
+  string uuid = 2;
+  string label = 3;
+  string status = 4;
+  string document_number = 5;
+  string expiration_date = 6;
+  string issuing_date = 7;
+}
+
+message LiquidoWebhookRequest {
+  string transactionId = 1;
+}
+message FacilitaWebhookRequest {
+  string orderId = 1;
 }
 
 message AccountStatusResponse {
@@ -89,6 +168,7 @@ message CreateReferenceRequest {
   uint32 id = 1;
   string amount = 2;
   string currency_type = 3;
+  string type = 4;
 }
 
 
@@ -200,7 +280,7 @@ message MakeDepositRequest {
   uint32 id = 1;
   string funds_transfer_method_id = 2;
   string amount = 3;
-  string cvv = 4;
+  optional string cvv = 4;
 }
 
 
@@ -244,7 +324,7 @@ message CreditCardsResponse{
 }
 
 message CreditCard {
-  string id = 1;
+  uint32 id = 1;
   string transfer_method_id = 2;
   string credit_card_bin = 3;
   string credit_card_type = 4;
@@ -256,13 +336,13 @@ message CreditCard {
 }
 
 message VerifyCreditCardRequest {
-  uint32 id = 1;
-  string resource_id = 2;
+  string contact_id = 1;
+  string transfer_method_id = 2;
+  string resource_id = 3;
 }
 
 message CreditCardResourceResponse {
-  string resource_id = 1;
-  string resource_token = 2;
+  string redirect_url = 1;
 }
 
 message Withdrawal {
@@ -303,15 +383,30 @@ message BalanceRequest {
   repeated string currencies = 2;
 }
 
+message ExchangeRequest {
+  string currency_type = 1;
+  repeated string currencies = 2;
+}
+
 message Conversion {
   string currency = 1;
   string amount = 2;
+  optional string rate = 3;
 }
 
 message BalanceResponse {
   string settled = 1;
   string currency_type = 2;
   repeated Conversion conversions = 3;
+}
+message ExchangeResponse {
+  string currency_type = 1;
+  repeated Rates conversions = 3;
+}
+
+message Rates {
+  string currency = 1;
+  optional string rate = 2;
 }
 
 message JsonData {
@@ -321,8 +416,7 @@ message JsonData {
 
 message AccountIdRequest{
   string id = 1;
-  string payment_gateway = 2;
-  optional string resource_id = 3;
+  optional string resource_id = 2;
 }
 
 

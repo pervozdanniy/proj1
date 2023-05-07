@@ -57,13 +57,15 @@ export interface ClientLoginRequest {
 }
 
 export interface RegisterSocialRequest {
+  social_id?: string | undefined;
   email: string;
   phone: string;
   source: string;
 }
 
 export interface SocialsAuthRequest {
-  email: string;
+  social_id?: string | undefined;
+  email?: string | undefined;
   source: string;
 }
 

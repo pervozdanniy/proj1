@@ -9,7 +9,9 @@
 <body>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js" integrity="sha384-/KNQL8Nu5gCHLqwqfQjA689Hhoqgi2S84SNUxC3roTe4EhJ9AfLkp8QiQcU8AMzI" crossorigin="anonymous"></script>
     <script>
-        const socket = io('http://localhost:8001', {extraHeaders: {Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuZC1VdHBXaVFPTmxvUHlaQ2ZJYTZSVXkiLCJpYXQiOjE2Nzk0ODIxMzUsImV4cCI6MTcxMTAzOTczNX0.y-ndSUKfQinKovbI2_96ciGNWU-Giy4Al0a4lgyLr0E'}});
+        const url = 'https://dev-ws.skopadev.com/'
+        // const url = 'http://localhost:8001'
+        const socket = io(url, {extraHeaders: {Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqNXo1Ym13Q0FuNDlpaGtHNndqU2s4eW4iLCJpYXQiOjE2ODI0MjA4MTYsImV4cCI6MTcxMzk3ODQxNn0.MMH9xi7Q9UE2DV2ne1K1kdMkwKa71J8yxWNhc6o945o'}});
         // client-side
         socket.on("connect", () => {
             console.log("connect", socket.id);
@@ -23,6 +25,7 @@
         });
 
         socket.on('notification', (data) => console.log('NOTIFICATION', data))
+        socket.on('socure', (data) => console.log('SOCURE', data))
     </script>
 </body>
 </html>

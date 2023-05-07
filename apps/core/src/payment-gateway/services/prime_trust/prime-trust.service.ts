@@ -10,8 +10,10 @@ import {
   DepositParamRequest,
   MakeDepositRequest,
   SearchTransactionRequest,
+  SocureDocumentRequest,
   TransferFundsRequest,
   TransferMethodRequest,
+  UserIdRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { PrimeAccountManager } from './managers/prime-account.manager';
 import { PrimeAssetsManager } from './managers/prime-assets.manager';
@@ -57,6 +59,10 @@ export class PrimeTrustService {
     return this.primeAccountManager.updateAccount(id);
   }
 
+  updateContact(request: AccountIdRequest) {
+    return this.primeKycManager.updateContact(request);
+  }
+
   createContact(userDetails: UserEntity) {
     return this.primeKycManager.createContact(userDetails);
   }
@@ -96,12 +102,12 @@ export class PrimeTrustService {
     return this.primeDepositManager.updateContribution(request);
   }
 
-  createCreditCardResource(id: number) {
-    return this.primeDepositManager.createCreditCardResource(id);
+  createCreditCardResource(userId: number) {
+    return this.primeDepositManager.createCreditCardResource(userId);
   }
 
-  verifyCreditCard(resource_id: string) {
-    return this.primeDepositManager.verifyCreditCard(resource_id);
+  verifyCreditCard(resource_id: string, transfer_method_id: string) {
+    return this.primeDepositManager.verifyCreditCard(resource_id, transfer_method_id);
   }
 
   getCreditCards(id: number) {
@@ -165,5 +171,21 @@ export class PrimeTrustService {
 
   getUserAccountStatus(request: IdRequest) {
     return this.primeAccountManager.getUserAccountStatus(request);
+  }
+
+  createSocureDocument(request: SocureDocumentRequest) {
+    return this.primeKycManager.createSocureDocument(request);
+  }
+
+  transferToHotWallet() {
+    return this.primeAccountManager.transferToHotWallet();
+  }
+
+  failedSocureDocument(request: UserIdRequest) {
+    return this.primeKycManager.failedSocureDocument(request);
+  }
+
+  contingentHolds(request: AccountIdRequest) {
+    return this.primeBalanceManager.contingentHolds(request);
   }
 }

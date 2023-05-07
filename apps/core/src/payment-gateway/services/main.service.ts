@@ -12,6 +12,12 @@ import { hasBank, hasWireTransfer, hasWithdrawal, PaymentGatewayManager } from '
 export class MainService {
   constructor(private userService: UserService, private paymentGatewayManager: PaymentGatewayManager) {}
 
+  async getPaymentGateway(userId: number) {
+    const userDetails = await this.userService.getUserInfo(userId);
+
+    return this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
+  }
+
   async getAvailablePaymentMethods(id: number) {
     const userDetails = await this.userService.getUserInfo(id);
     const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);

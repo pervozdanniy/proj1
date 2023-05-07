@@ -10,9 +10,9 @@ import public "notification.proto";
 service UserService {
   rpc GetById (common.IdRequest) returns (common.User);
 
-  rpc VerifySocure(VerifyRequest) returns (common.SuccessResponse);
-
   rpc FindByLogin (FindByLoginRequest) returns (NullableUser);
+
+  rpc FindBySocialId (FindBySocialIdRequest) returns (NullableUser);
 
   rpc Create (CreateRequest) returns (common.User);
 
@@ -25,6 +25,8 @@ service UserService {
   rpc CheckIfUnique (CheckIfUniqueRequest) returns (common.SuccessResponse);
 
   rpc GetContacts (SearchContactRequest) returns (ContactsResponse);
+
+  rpc GetLatestRecepients(RecepientsRequest) returns (RecepientsResponse);
 }
 
 message ContactsResponse {
@@ -39,15 +41,23 @@ message Contact {
   string phone = 3;
   string first_name = 4;
   string last_name = 5;
+  optional string avatar = 6;
 }
-
-
 
 message SearchContactRequest {
   uint32 user_id = 1;
   uint32 search_after = 2;
   uint32 limit = 3;
   optional string search_term = 4;
+}
+
+message RecepientsRequest {
+  uint32 user_id = 1;
+  uint32 limit = 2;
+}
+
+message RecepientsResponse {
+  repeated Contact recepients = 1;
 }
 
 message VerifyRequest {
@@ -61,8 +71,7 @@ message NullableUser {
 }
 
 message UserContacts {
-  repeated string new = 1;
-  repeated string removed = 2;
+  repeated string phones = 1;
 }
 
 message UpdateRequest {
@@ -85,6 +94,7 @@ message CreateRequest {
   optional string status = 7;
   optional common.UserDetails details = 8;
   repeated string contacts = 9;
+  optional string social_id = 10;
 }
 
 message FindByLoginRequest {
@@ -92,6 +102,10 @@ message FindByLoginRequest {
     string email = 1;
     string phone = 2;
   }
+}
+
+message FindBySocialIdRequest {
+  string social_id = 1;
 }
 
 message UpdateContactsRequest {

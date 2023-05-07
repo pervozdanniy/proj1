@@ -1,10 +1,9 @@
-import { UserCheckService } from '@/user/services/user-check.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
-import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { ContactsResponse, SearchContactRequest, VerifyRequest } from '~common/grpc/interfaces/core';
+import { Contact, ContactsResponse, SearchContactRequest } from '~common/grpc/interfaces/core';
 import { CountryService } from '../../country/country.service';
+import { FindBySocialIdDto } from '../dto/find-by-social-id.dto';
 import { FindRequestDto } from '../dto/find.request.dto';
 import { CreateRequestDto, UpdateRequestDto } from '../dto/user-request.dto';
 import { UserContactEntity } from '../entities/user-contact.entity';
@@ -18,17 +17,21 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(UserDetailsEntity)
     private userDetailsRepository: Repository<UserDetailsEntity>,
-    private userCheckService: UserCheckService,
     private countryService: CountryService,
   ) {}
 
   get(id: number): Promise<UserEntity> {
-    return this.userRepository.findOneOrFail({ where: { id }, relations: ['details', 'contacts'] });
+    return this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.documents', 'documents')
+      .leftJoinAndSelect('user.details', 'details')
+      .leftJoinAndSelect('user.contacts', 'contacts')
+      .where('user.id = :id', { id })
+      .getOne();
   }
 
   async create({ details, ...userData }: Omit<CreateRequestDto, 'contacts'>): Promise<UserEntity> {
-    const { country_code, source, phone, email } = userData;
-    await this.userCheckService.checkUserData(phone, email);
+    const { country_code, source } = userData;
 
     if (!source) {
       if (country_code === 'US' && details) {
@@ -38,7 +41,9 @@ export class UserService {
 
     const user = await this.userRepository.save(this.userRepository.create(userData));
     if (details) {
-      await this.userDetailsRepository.save(this.userDetailsRepository.create({ user_id: user.id, ...details }));
+      user.details = await this.userDetailsRepository.save(
+        this.userDetailsRepository.create({ user_id: user.id, ...details }),
+      );
     }
 
     return user;
@@ -56,6 +61,10 @@ export class UserService {
 
   findByLogin({ email, phone }: FindRequestDto) {
     return this.userRepository.findOneBy({ email, phone });
+  }
+
+  findBySocialId({ social_id }: FindBySocialIdDto) {
+    return this.userRepository.findOneBy({ social_id });
   }
 
   async delete(id: number) {
@@ -92,19 +101,12 @@ export class UserService {
     return count === 0;
   }
 
-  async verifySocure(payload: VerifyRequest): Promise<SuccessResponse> {
-    const { id, document_uuid, socure_verify } = payload;
-    await this.userDetailsRepository.update({ user_id: id }, { socure_verify, document_uuid });
-
-    return { success: true };
-  }
-
   async getContacts(request: SearchContactRequest): Promise<ContactsResponse> {
     const { user_id, search_after, limit, search_term } = request;
 
     const queryBuilder = this.userRepository
       .createQueryBuilder('u')
-      .leftJoin(UserDetailsEntity, 'd', 'd.user_id = u.id')
+      .leftJoin(UserDetailsEntity, 'ud', 'ud.user_id = u.id')
       .innerJoin(UserContactEntity, 'contactDetails', 'contactDetails.contact_id = u.id');
 
     if (search_after) {
@@ -120,41 +122,66 @@ export class UserService {
             .orWhere('u.phone ILIKE :search_term', {
               search_term: `${search_term}%`,
             })
-            .orWhere('d.first_name ILIKE :search_term', {
+            .orWhere('ud.first_name ILIKE :search_term', {
               search_term: `${search_term}%`,
             })
-            .orWhere('d.last_name ILIKE :search_term', {
+            .orWhere('ud.last_name ILIKE :search_term', {
               search_term: `${search_term}%`,
             });
         }),
       );
     }
 
-    queryBuilder.andWhere('contactDetails.user_id = :user_id', { user_id });
+    queryBuilder
+      .andWhere('contactDetails.user_id = :user_id', { user_id })
+      .andWhere('contactDetails.contact_id != :user_id', { user_id });
 
     queryBuilder.select([
       'u.id as id',
       'u.email as email',
       'u.phone as phone',
-      'd.first_name as first_name',
-      'd.last_name as last_name',
+      'ud.first_name as first_name',
+      'ud.last_name as last_name',
+      'ud.avatar as avatar',
     ]);
 
     let has_more = false;
+    let last_id = 0;
 
     const contacts = await queryBuilder.limit(limit + 1).getRawMany();
 
     if (contacts.length > limit) {
       has_more = true;
       contacts.splice(-1);
+      const { id } = contacts.at(-1);
+      last_id = id;
     }
-
-    const { id: last_id } = contacts.at(-1);
 
     return {
       last_id,
       contacts,
       has_more,
     };
+  }
+
+  getLatestRecepients(request: { user_id: number; limit: number }): Promise<Contact[]> {
+    return this.userRepository
+      .createQueryBuilder('u')
+      .select([
+        'u.id as id',
+        'u.email as email',
+        'u.phone as phone',
+        'ud.first_name as first_name',
+        'ud.last_name as last_name',
+        'ud.avatar as avatar',
+      ])
+      .innerJoin('transfers', 't', 'u.id = t.receiver_id')
+      .leftJoinAndSelect(UserDetailsEntity, 'ud', 'u.id = ud.user_id')
+      .where('t.user_id = :userId', { userId: request.user_id })
+      .andWhere(`t.updated_at >= (NOW() - interval '1 year')`)
+      .groupBy('u.id')
+      .addGroupBy('ud.user_id')
+      .limit(request.limit)
+      .getRawMany();
   }
 }

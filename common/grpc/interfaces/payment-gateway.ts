@@ -6,6 +6,68 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
+export interface DepositFlowRequest {
+  user_id: number;
+  amount: string;
+  currency: string;
+  type: string;
+}
+
+export interface DepositFlowResponse {
+  action: string;
+  flow_id?: number | undefined;
+  banks?: DepositSelectBankData | undefined;
+  cards?: DepositSelectCardData | undefined;
+  redirect?: DepositRedirectData | undefined;
+}
+
+export interface DepositSelectBankData {
+  list: BankAccountParams[];
+}
+
+export interface DepositSelectCardData {
+  list: CreditCard[];
+}
+
+export interface DepositRedirectData {
+  url: string;
+}
+
+export interface DepositNextStepRequest {
+  id: number;
+  user_id: number;
+  bank?: SelectBankRequest | undefined;
+  card?: SelectCardRequest | undefined;
+}
+
+export interface SelectBankRequest {
+  id: number;
+  transfer_type: string;
+}
+
+export interface SelectCardRequest {
+  id: number;
+  cvv: string;
+}
+
+export interface SocureDocumentRequest {
+  user_id: number;
+  uuid: string;
+  label: string;
+  status: string;
+  document_number: string;
+  expiration_date: string;
+  issuing_date: string;
+}
+
+export interface LiquidoWebhookRequest {
+  transactionId: string;
+}
+
+export interface FacilitaWebhookRequest {
+  orderId: string;
+}
+
 export interface AccountStatusResponse {
   status: string;
 }
@@ -42,6 +104,7 @@ export interface CreateReferenceRequest {
   id: number;
   amount: string;
   currency_type: string;
+  type: string;
 }
 
 export interface SearchTransactionRequest {
@@ -148,7 +211,7 @@ export interface MakeDepositRequest {
   id: number;
   funds_transfer_method_id: string;
   amount: string;
-  cvv: string;
+  cvv?: string | undefined;
 }
 
 export interface ContributionResponse {
@@ -190,7 +253,7 @@ export interface CreditCardsResponse {
 }
 
 export interface CreditCard {
-  id: string;
+  id: number;
   transfer_method_id: string;
   credit_card_bin: string;
   credit_card_type: string;
@@ -202,13 +265,13 @@ export interface CreditCard {
 }
 
 export interface VerifyCreditCardRequest {
-  id: number;
+  contact_id: string;
+  transfer_method_id: string;
   resource_id: string;
 }
 
 export interface CreditCardResourceResponse {
-  resource_id: string;
-  resource_token: string;
+  redirect_url: string;
 }
 
 export interface Withdrawal {
@@ -248,9 +311,15 @@ export interface BalanceRequest {
   currencies: string[];
 }
 
+export interface ExchangeRequest {
+  currency_type: string;
+  currencies: string[];
+}
+
 export interface Conversion {
   currency: string;
   amount: string;
+  rate?: string | undefined;
 }
 
 export interface BalanceResponse {
@@ -259,13 +328,22 @@ export interface BalanceResponse {
   conversions: Conversion[];
 }
 
+export interface ExchangeResponse {
+  currency_type: string;
+  conversions: Rates[];
+}
+
+export interface Rates {
+  currency: string;
+  rate?: string | undefined;
+}
+
 export interface JsonData {
   data: string;
 }
 
 export interface AccountIdRequest {
   id: string;
-  payment_gateway: string;
   resource_id?: string | undefined;
 }
 
@@ -318,7 +396,15 @@ export interface PaymentGatewayServiceClient {
 
   getBalance(request: BalanceRequest, ...rest: any): Observable<BalanceResponse>;
 
+  exchange(request: ExchangeRequest, ...rest: any): Observable<ExchangeResponse>;
+
   getUserAccountStatus(request: IdRequest, ...rest: any): Observable<AccountStatusResponse>;
+
+  createSocureDocument(request: SocureDocumentRequest, ...rest: any): Observable<SuccessResponse>;
+
+  failedSocureDocument(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  transferToHotWallet(request: Empty, ...rest: any): Observable<SuccessResponse>;
 
   getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
 
@@ -362,15 +448,23 @@ export interface PaymentGatewayServiceClient {
 
   updateAccount(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
+  updateContact(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
   updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+
+  contingentHolds(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   updateAssetDeposit(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   koyweWebhooksHandler(request: KoyweWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+
+  facilitaWebhooksHandler(request: FacilitaWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+
+  liquidoWebhooksHandler(request: LiquidoWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -416,10 +510,30 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<BalanceResponse> | Observable<BalanceResponse> | BalanceResponse;
 
+  exchange(
+    request: ExchangeRequest,
+    ...rest: any
+  ): Promise<ExchangeResponse> | Observable<ExchangeResponse> | ExchangeResponse;
+
   getUserAccountStatus(
     request: IdRequest,
     ...rest: any
   ): Promise<AccountStatusResponse> | Observable<AccountStatusResponse> | AccountStatusResponse;
+
+  createSocureDocument(
+    request: SocureDocumentRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  failedSocureDocument(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  transferToHotWallet(
+    request: Empty,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   getTransactions(
     request: SearchTransactionRequest,
@@ -505,12 +619,22 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
+  updateContact(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
   updateBalance(
     request: AccountIdRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   updateContribution(
+    request: AccountIdRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  contingentHolds(
     request: AccountIdRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
@@ -529,6 +653,16 @@ export interface PaymentGatewayServiceController {
     request: KoyweWebhookRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  facilitaWebhooksHandler(
+    request: FacilitaWebhookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  liquidoWebhooksHandler(
+    request: LiquidoWebhookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -543,7 +677,11 @@ export function PaymentGatewayServiceControllerMethods() {
       "createContact",
       "uploadDocument",
       "getBalance",
+      "exchange",
       "getUserAccountStatus",
+      "createSocureDocument",
+      "failedSocureDocument",
+      "transferToHotWallet",
       "getTransactions",
       "getBankAccounts",
       "getBanksInfo",
@@ -560,11 +698,15 @@ export function PaymentGatewayServiceControllerMethods() {
       "documentCheck",
       "cipCheck",
       "updateAccount",
+      "updateContact",
       "updateBalance",
       "updateContribution",
+      "contingentHolds",
       "updateWithdraw",
       "updateAssetDeposit",
       "koyweWebhooksHandler",
+      "facilitaWebhooksHandler",
+      "liquidoWebhooksHandler",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
@@ -579,3 +721,38 @@ export function PaymentGatewayServiceControllerMethods() {
 }
 
 export const PAYMENT_GATEWAY_SERVICE_NAME = "PaymentGatewayService";
+
+export interface DepositFlowServiceClient {
+  start(request: DepositFlowRequest, ...rest: any): Observable<DepositFlowResponse>;
+
+  payWithSelectedResource(request: DepositNextStepRequest, ...rest: any): Observable<ContributionResponse>;
+}
+
+export interface DepositFlowServiceController {
+  start(
+    request: DepositFlowRequest,
+    ...rest: any
+  ): Promise<DepositFlowResponse> | Observable<DepositFlowResponse> | DepositFlowResponse;
+
+  payWithSelectedResource(
+    request: DepositNextStepRequest,
+    ...rest: any
+  ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
+}
+
+export function DepositFlowServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = ["start", "payWithSelectedResource"];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("DepositFlowService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("DepositFlowService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
+
+export const DEPOSIT_FLOW_SERVICE_NAME = "DepositFlowService";

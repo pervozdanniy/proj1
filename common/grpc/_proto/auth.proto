@@ -124,15 +124,17 @@ message ClientLoginRequest {
 }
 
 message RegisterSocialRequest {
-  string email = 1;
-  string phone = 2;
-  string source = 3;
+  optional string social_id = 1;
+  string email = 2;
+  string phone = 3;
+  string source = 4;
 }
 
 
 message SocialsAuthRequest {
-  string email = 1;
-  string source = 2;
+  optional string social_id = 1;
+  optional string email = 2;
+  string source = 3;
 }
 
 message TwoFactorSettings {

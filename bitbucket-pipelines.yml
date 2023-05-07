@@ -40,3 +40,41 @@ pipelines:
             - docker push $REGISTRY/$IMAGE:latest
           # delete untagged images
             - aws ecr describe-repositories --output text | awk '{print $5}' | egrep -v '^$' | while read line; do  repo=$(echo $line | sed -e  "s/arn:aws:ecr.*\///g") ; aws ecr list-images --repository-name $repo --filter tagStatus=UNTAGGED --query 'imageIds[*]' --output text | while read imageId; do aws ecr batch-delete-image --repository-name $repo --image-ids imageDigest=$imageId; done; done
+    prod:
+      - step:
+          deployment: Prod
+          services:
+            - docker
+          script:
+          #install awscli
+            - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            - unzip awscliv2.zip
+            - ./aws/install
+          # login aws
+            - aws configure set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
+            - aws configure set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
+          # docker build, tag and push
+            - docker login -u AWS -p $(aws ecr get-login-password --region $AWS_REGION) $REGISTRY
+            - docker build -t $REGISTRY/$IMAGE:latest -f Dockerfile.$ENV .
+            - docker push $REGISTRY/$IMAGE:latest
+          # delete untagged images
+            - aws ecr describe-repositories --output text | awk '{print $5}' | egrep -v '^$' | while read line; do  repo=$(echo $line | sed -e  "s/arn:aws:ecr.*\///g") ; aws ecr list-images --repository-name $repo --filter tagStatus=UNTAGGED --query 'imageIds[*]' --output text | while read imageId; do aws ecr batch-delete-image --repository-name $repo --image-ids imageDigest=$imageId; done; done
+    prod2:
+      - step:
+          deployment: Prod2
+          services:
+            - docker
+          script:
+          #install awscli
+            - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            - unzip awscliv2.zip
+            - ./aws/install
+          # login aws
+            - aws configure set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
+            - aws configure set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
+          # docker build, tag and push
+            - docker login -u AWS -p $(aws ecr get-login-password --region $AWS_REGION) $REGISTRY
+            - docker build -t $REGISTRY/$IMAGE:latest -f Dockerfile.$ENV .
+            - docker push $REGISTRY/$IMAGE:latest
+          # delete untagged images
+            - aws ecr describe-repositories --output text | awk '{print $5}' | egrep -v '^$' | while read line; do  repo=$(echo $line | sed -e  "s/arn:aws:ecr.*\///g") ; aws ecr list-images --repository-name $repo --filter tagStatus=UNTAGGED --query 'imageIds[*]' --output text | while read imageId; do aws ecr batch-delete-image --repository-name $repo --image-ids imageDigest=$imageId; done; done

@@ -33,6 +33,9 @@ export class TransfersEntity {
   type: string;
 
   @Column('character varying', { length: 50, nullable: true })
+  provider: string;
+
+  @Column('character varying', { length: 50, nullable: true })
   amount: string;
 
   @Column('character varying', { length: 50, nullable: true })
