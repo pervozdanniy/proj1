@@ -17,7 +17,7 @@ import {
   DepositParamRequest,
   DepositParamsResponse,
   DepositResponse,
-  DocumentResponse,
+  DocumentCheckResponse,
   ExchangeRequest,
   ExchangeResponse,
   FacilitaWebhookRequest,
@@ -30,12 +30,10 @@ import {
   PaymentMethodsResponse,
   PG_Token,
   SearchTransactionRequest,
-  SocureDocumentRequest,
   TransactionResponse,
   TransferFundsRequest,
   TransferFundsResponse,
   TransferMethodRequest,
-  UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -75,10 +73,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.createContact(id);
   }
 
-  uploadDocument(request: UploadDocumentRequest): Promise<DocumentResponse> {
-    return this.paymentGatewayService.uploadDocument(request);
-  }
-
   updateAccount(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.webhooksService.updateAccount(request);
   }
@@ -89,6 +83,10 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   contingentHolds(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.webhooksService.contingentHolds(request);
+  }
+
+  passVerification(request: UserIdRequest): Promise<DocumentCheckResponse> {
+    return this.paymentGatewayService.passVerification(request);
   }
   documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.webhooksService.documentCheck(request);
@@ -191,9 +189,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
   transferToHotWallet(): Promise<SuccessResponse> {
     return this.paymentGatewayService.transferToHotWallet();
-  }
-  createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.createSocureDocument(request);
   }
   facilitaWebhooksHandler(request: FacilitaWebhookRequest): Promise<SuccessResponse> {
     return this.webhooksService.facilitaWebhooksHandler(request);

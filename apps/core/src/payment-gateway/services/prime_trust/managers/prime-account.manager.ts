@@ -47,6 +47,8 @@ export class PrimeAccountManager {
   async createAccount(userDetails: UserEntity): Promise<AccountResponse> {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
     if (account) {
+      await this.notificationService.sendWs(userDetails.id, 'account', 'Account already exist', 'Account');
+
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
     }
 
@@ -104,7 +106,7 @@ export class PrimeAccountManager {
       //     data: null,
       //   });
       // }
-      // await this.notificationService.sendWs(userDetails.id, 'account', 'Account created successfully!', 'Account');
+      await this.notificationService.sendWs(userDetails.id, 'account', 'Account created successfully!', 'Account');
 
       return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
       //

@@ -7,15 +7,12 @@ import {
   BalanceRequest,
   BalanceResponse,
   DepositParamRequest,
-  DocumentResponse,
   ExchangeRequest,
   ExchangeResponse,
   MakeDepositRequest,
   PG_Token,
   SearchTransactionRequest,
-  SocureDocumentRequest,
   TransferFundsRequest,
-  UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -52,18 +49,6 @@ export class PaymentGatewayService {
 
     return this.primeTrustService.createContact(userDetails);
   }
-
-  async uploadDocument(request: UploadDocumentRequest): Promise<DocumentResponse> {
-    const {
-      file,
-      label,
-      userId: { id },
-    } = request;
-    const userDetails = await this.userService.getUserInfo(id);
-
-    return this.primeTrustService.uploadDocument(userDetails, file, label);
-  }
-
   async getBalance({ user_id, currencies }: BalanceRequest): Promise<BalanceResponse> {
     const balance = await this.primeTrustService.getBalance(user_id);
     const resp: BalanceResponse = { ...balance, conversions: [] };
@@ -160,16 +145,6 @@ export class PaymentGatewayService {
     return resp;
   }
 
-  async createSocureDocument(request: SocureDocumentRequest) {
-    const { user_id } = request;
-    const response = await this.primeTrustService.createSocureDocument(request);
-    if (response.success === true) {
-      await this.createAccount(user_id);
-    }
-
-    return response;
-  }
-
   generateVeriffLink(request: VeriffSessionRequest) {
     return this.primeTrustService.generateVeriffLink(request);
   }
@@ -178,7 +153,16 @@ export class PaymentGatewayService {
     return this.primeTrustService.veriffHookHandler(request);
   }
 
-  veriffWebhookHandler(request: WebhookResponse) {
-    return this.primeTrustService.veriffWebhookHandler(request);
+  async veriffWebhookHandler(request: WebhookResponse): Promise<SuccessResponse> {
+    const { success, user_id } = await this.primeTrustService.veriffWebhookHandler(request);
+    if (success) {
+      await this.createAccount(user_id);
+    }
+
+    return { success };
+  }
+
+  passVerification(request: UserIdRequest) {
+    return this.primeTrustService.passVerification(request);
   }
 }

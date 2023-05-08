@@ -6,7 +6,6 @@ import {
   BankAccountParamsDto,
   BankAccountResponseDto,
   ContactResponseDto,
-  DocumentResponseDto,
   ExchangeResponseDto,
   TokenDto,
   TransactionResponseDto,
@@ -21,17 +20,14 @@ import {
   HttpStatus,
   Post,
   Query,
-  UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { ExchangeDto } from '../dtos/main/exchange.dto';
-import { SendDocumentDto } from '../dtos/main/send-document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Prime Trust')
@@ -72,17 +68,16 @@ export class MainController {
     return this.paymentGatewayService.createAccount({ id });
   }
 
-  //not necessary yet
-  // @ApiBearerAuth()
-  // @ApiOperation({ summary: 'Add New Contact.' })
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  // })
-  // @JwtSessionAuth()
-  // @Post('/contact')
-  // async createContact(@JwtSessionUser() { id }: User) {
-  //   return this.paymentGatewayService.createContact({ id });
-  // }
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Pass verification.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @JwtSessionAuth()
+  @Post('/pass/verification')
+  async passVerification(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.passVerification({ id });
+  }
 
   @ApiOperation({ summary: 'Get Account.' })
   @ApiResponse({
@@ -106,27 +101,6 @@ export class MainController {
   @Get('/contact')
   async getContact(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getContact({ id });
-  }
-
-  @Post('/kyc/upload-document')
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Upload new file.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'The file successfully uploaded.',
-    type: DocumentResponseDto,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadDocument(
-    @JwtSessionUser() { id }: User,
-    @UploadedFile() file: Express.Multer.File,
-    @Body() payload: SendDocumentDto,
-  ) {
-    const { label } = payload;
-
-    return this.paymentGatewayService.uploadDocument({ file, label, userId: { id } });
   }
 
   @ApiOperation({ summary: 'Get Balance.' })

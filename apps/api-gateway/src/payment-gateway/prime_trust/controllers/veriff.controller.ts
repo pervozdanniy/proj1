@@ -3,7 +3,6 @@ import { PaymentGatewayService } from '@/payment-gateway/prime_trust/services/pa
 import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { SocureDocumentDto } from '../dtos/main/socure.document.dto';
 import { VeriffDocumentTypeDto } from '../dtos/veriff/document-type.dto';
 import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
 import { VeriffSessionResponseDto } from '../dtos/veriff/veriff-session-response.dto';
@@ -26,30 +25,37 @@ export class VeriffController {
     return this.paymentGatewayService.generateVeriffLink({ user_id, type });
   }
 
-  @ApiOperation({ summary: 'Create veriff document.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @Post('/create/socure/document')
-  async createSocureDocument(@Body() payload: SocureDocumentDto) {
-    return this.paymentGatewayService.createSocureDocument(payload);
-  }
-
-  @ApiOperation({ summary: 'Submit session id.' })
+  @ApiOperation({ summary: 'Webhook catch' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
   @Post('/webhook')
   async veriffWebhookHandler(@Body() payload: VeriffWebhookDto) {
+    console.log('webhook');
+    console.log(payload);
+
     return this.paymentGatewayService.veriffWebhookHandler(payload);
   }
 
-  @ApiOperation({ summary: 'Submit session id.' })
+  @ApiOperation({ summary: 'Hook catch' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
   @Post('/hook')
   async veriffHookHandler(@Body() payload: VeriffHookDto) {
+    console.log('hook');
+    console.log(payload);
+
     return this.paymentGatewayService.veriffHookHandler(payload);
+  }
+
+  @ApiOperation({ summary: 'Notification after proof address' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @Post('/notification')
+  async veriffNotification(@Body() payload: any) {
+    console.log('notification');
+    console.log(payload);
   }
 }

@@ -20,7 +20,7 @@ export class VeriffDocumentEntity {
   @Column('character varying', { unique: true })
   session_id: string;
 
-  @Column('character varying', { unique: true })
+  @Column('character varying', { unique: true, nullable: true })
   attempt_id: string;
 
   @Column('character varying', { nullable: true })

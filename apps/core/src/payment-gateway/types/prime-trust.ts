@@ -126,3 +126,5 @@ export type CreateAccountType = {
     };
   };
 };
+
+export type Media = { id: string; name: string; sessionId: string; buffer: Buffer; label: string };

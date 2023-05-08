@@ -51,16 +51,6 @@ export interface SelectCardRequest {
   cvv: string;
 }
 
-export interface SocureDocumentRequest {
-  user_id: number;
-  uuid: string;
-  label: string;
-  status: string;
-  document_number: string;
-  expiration_date: string;
-  issuing_date: string;
-}
-
 export interface LiquidoWebhookRequest {
   transactionId: string;
 }
@@ -192,6 +182,10 @@ export interface AccountResponse {
 
 export interface PaymentMethodsResponse {
   methods: string[];
+}
+
+export interface DocumentCheckResponse {
+  data: DocumentResponse[];
 }
 
 export interface DocumentResponse {
@@ -348,21 +342,6 @@ export interface AccountIdRequest {
   resource_id?: string | undefined;
 }
 
-export interface FileData {
-  buffer: Uint8Array;
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  size: number;
-}
-
-export interface UploadDocumentRequest {
-  label: string;
-  file: FileData | undefined;
-  userId: UserIdRequest | undefined;
-}
-
 export interface UserIdRequest {
   id: number;
   resource_id?: number | undefined;
@@ -401,15 +380,13 @@ export interface PaymentGatewayServiceClient {
 
   createContact(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  uploadDocument(request: UploadDocumentRequest, ...rest: any): Observable<DocumentResponse>;
+  passVerification(request: UserIdRequest, ...rest: any): Observable<DocumentCheckResponse>;
 
   getBalance(request: BalanceRequest, ...rest: any): Observable<BalanceResponse>;
 
   exchange(request: ExchangeRequest, ...rest: any): Observable<ExchangeResponse>;
 
   getUserAccountStatus(request: IdRequest, ...rest: any): Observable<AccountStatusResponse>;
-
-  createSocureDocument(request: SocureDocumentRequest, ...rest: any): Observable<SuccessResponse>;
 
   transferToHotWallet(request: Empty, ...rest: any): Observable<SuccessResponse>;
 
@@ -524,10 +501,10 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  uploadDocument(
-    request: UploadDocumentRequest,
+  passVerification(
+    request: UserIdRequest,
     ...rest: any
-  ): Promise<DocumentResponse> | Observable<DocumentResponse> | DocumentResponse;
+  ): Promise<DocumentCheckResponse> | Observable<DocumentCheckResponse> | DocumentCheckResponse;
 
   getBalance(
     request: BalanceRequest,
@@ -543,11 +520,6 @@ export interface PaymentGatewayServiceController {
     request: IdRequest,
     ...rest: any
   ): Promise<AccountStatusResponse> | Observable<AccountStatusResponse> | AccountStatusResponse;
-
-  createSocureDocument(
-    request: SocureDocumentRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   transferToHotWallet(
     request: Empty,
@@ -697,11 +669,10 @@ export function PaymentGatewayServiceControllerMethods() {
       "getAccount",
       "getContact",
       "createContact",
-      "uploadDocument",
+      "passVerification",
       "getBalance",
       "exchange",
       "getUserAccountStatus",
-      "createSocureDocument",
       "transferToHotWallet",
       "getTransactions",
       "getBankAccounts",

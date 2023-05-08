@@ -13,7 +13,6 @@ import {
   SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
-  UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -55,10 +54,6 @@ export class PaymentGatewayService implements OnModuleInit {
 
   createContact(data: UserIdRequest): Promise<SuccessResponse> {
     return lastValueFrom(this.paymentGatewayServiceClient.createContact(data));
-  }
-
-  uploadDocument(data: UploadDocumentRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.uploadDocument(data));
   }
 
   updateWithdraw(data: AccountIdRequest) {

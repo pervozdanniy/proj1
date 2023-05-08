@@ -8,18 +8,15 @@ import {
   HttpStatus,
   Post,
   Query,
-  UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
 import { PaymentGatewayService } from '~svc/sdk-gateway/src/payment-gateway/prime_trust/services/payment-gateway.service';
 import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
-import { SendDocumentDto } from '../dtos/main/send-document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 import {
   AccountResponseDto,
@@ -27,7 +24,6 @@ import {
   BankAccountParamsDto,
   BankAccountResponseDto,
   ContactResponseDto,
-  DocumentResponseDto,
   TokenDto,
   TransactionResponseDto,
 } from '../utils/prime-trust-response.dto';
@@ -105,27 +101,6 @@ export class MainController {
   @Get('/contact')
   async getContact(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getContact({ id });
-  }
-
-  @Post('/kyc/upload-document')
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Upload new file.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'The file successfully uploaded.',
-    type: DocumentResponseDto,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadDocument(
-    @JwtSessionUser() { id }: User,
-    @UploadedFile() file: Express.Multer.File,
-    @Body() payload: SendDocumentDto,
-  ) {
-    const { label } = payload;
-
-    return this.paymentGatewayService.uploadDocument({ file, label, userId: { id } });
   }
 
   @ApiOperation({ summary: 'Get Balance.' })

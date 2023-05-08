@@ -10,9 +10,9 @@ import {
   DepositParamRequest,
   MakeDepositRequest,
   SearchTransactionRequest,
-  SocureDocumentRequest,
   TransferFundsRequest,
   TransferMethodRequest,
+  UserIdRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { VeriffHookRequest, VeriffSessionRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
 import { PrimeAccountManager } from './managers/prime-account.manager';
@@ -67,10 +67,6 @@ export class PrimeTrustService {
 
   createContact(userDetails: UserEntity) {
     return this.primeKycManager.createContact(userDetails);
-  }
-
-  uploadDocument(userDetails: UserEntity, file: any, label: string) {
-    return this.primeKycManager.uploadDocument(userDetails, file, label);
   }
 
   documentCheck(request: AccountIdRequest) {
@@ -179,10 +175,6 @@ export class PrimeTrustService {
     return this.primeAccountManager.transferToHotWallet();
   }
 
-  createSocureDocument(request: SocureDocumentRequest) {
-    return this.primeVeriffManager.createSocureDocument(request);
-  }
-
   contingentHolds(request: AccountIdRequest) {
     return this.primeBalanceManager.contingentHolds(request);
   }
@@ -197,5 +189,9 @@ export class PrimeTrustService {
 
   veriffWebhookHandler(request: WebhookResponse) {
     return this.primeVeriffManager.veriffWebhookHandler(request);
+  }
+
+  passVerification({ id }: UserIdRequest) {
+    return this.primeKycManager.passVerification(id);
   }
 }
