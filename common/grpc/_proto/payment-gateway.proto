@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "common.proto";
+import "veriff.proto";
 import "google/protobuf/empty.proto";
 package skopa.core;
 
@@ -9,8 +10,9 @@ service PaymentGatewayService {
   rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
 
   //veriff
-  rpc GenerateVeriffLink(VeriffSessionRequest) returns (VeriffSessionResponse);
-  rpc VeriffHookHandler(VeriffHookRequest) returns (common.SuccessResponse);
+  rpc GenerateVeriffLink(veriff.VeriffSessionRequest) returns (veriff.VeriffSessionResponse);
+  rpc VeriffHookHandler(veriff.VeriffHookRequest) returns (common.SuccessResponse);
+  rpc VeriffWebhookHandler(veriff.WebhookResponse) returns (common.SuccessResponse);
 
 
   rpc GetToken (google.protobuf.Empty) returns (PG_Token);
@@ -69,34 +71,6 @@ service DepositFlowService {
   rpc PayWithSelectedResource(DepositNextStepRequest) returns (ContributionResponse);
 }
 
-
-
-
-message VeriffHookRequest {
-  string id = 1;
-  string attemptId = 2;
-  string action = 3;
-}
-
-message VeriffSessionResponse {
-  string status = 1;
-  Verification verification = 2;
-}
-
-message Verification {
-  string id = 1;
-  string url = 2;
-  string vendorData = 3;
-  string host = 4;
-  string status = 5;
-  string sessionToken = 6;
-}
-
-
-message VeriffSessionRequest {
-  uint32 user_id = 1;
-  string type = 2;
-}
 
 message DepositFlowRequest {
   uint32 user_id = 1;

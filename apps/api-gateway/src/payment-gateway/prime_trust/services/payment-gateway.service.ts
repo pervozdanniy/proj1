@@ -18,9 +18,10 @@ import {
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { VeriffHookDto } from '../../../user/dtos/veriff/veriff-hook.dto';
 import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { SocureDocumentDto } from '../dtos/main/socure.document.dto';
+import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
+import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
 import { FacilitaWebhookType, KoyweWebhookType } from '../webhooks/data';
 
 @Injectable()
@@ -186,5 +187,9 @@ export class PaymentGatewayService implements OnModuleInit {
 
   veriffHookHandler(data: VeriffHookDto) {
     return lastValueFrom(this.paymentGatewayServiceClient.veriffHookHandler(data));
+  }
+
+  veriffWebhookHandler(data: VeriffWebhookDto) {
+    return lastValueFrom(this.paymentGatewayServiceClient.veriffWebhookHandler(data));
   }
 }

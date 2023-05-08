@@ -8,12 +8,13 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { SocureDocumentRequest } from '~common/grpc/interfaces/payment-gateway';
 import {
-  SocureDocumentRequest,
   VeriffHookRequest,
   VeriffSessionRequest,
   VeriffSessionResponse,
-} from '~common/grpc/interfaces/payment-gateway';
+  WebhookResponse,
+} from '~common/grpc/interfaces/veriff';
 import { UserService } from '../../../../user/services/user.service';
 import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
 
@@ -117,6 +118,12 @@ export class PrimeVeriffManager {
       console.log(this.createHash(i.id));
       console.log(i.url);
     });
+
+    return { success: true };
+  }
+
+  async veriffWebhookHandler({ verification: { id: session_id } }: WebhookResponse): Promise<SuccessResponse> {
+    console.log(session_id);
 
     return { success: true };
   }

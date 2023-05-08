@@ -3,33 +3,9 @@ import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { IdRequest, SuccessResponse, UserAgreement, UserDetails } from "./common";
 import { Empty } from "./google/protobuf/empty";
+import { VeriffHookRequest, VeriffSessionRequest, VeriffSessionResponse, WebhookResponse } from "./veriff";
 
 export const protobufPackage = "skopa.core";
-
-export interface VeriffHookRequest {
-  id: string;
-  attemptId: string;
-  action: string;
-}
-
-export interface VeriffSessionResponse {
-  status: string;
-  verification: Verification | undefined;
-}
-
-export interface Verification {
-  id: string;
-  url: string;
-  vendorData: string;
-  host: string;
-  status: string;
-  sessionToken: string;
-}
-
-export interface VeriffSessionRequest {
-  user_id: number;
-  type: string;
-}
 
 export interface DepositFlowRequest {
   user_id: number;
@@ -411,6 +387,8 @@ export interface PaymentGatewayServiceClient {
 
   veriffHookHandler(request: VeriffHookRequest, ...rest: any): Observable<SuccessResponse>;
 
+  veriffWebhookHandler(request: WebhookResponse, ...rest: any): Observable<SuccessResponse>;
+
   getToken(request: Empty, ...rest: any): Observable<PG_Token>;
 
   getAvailablePaymentMethods(request: UserIdRequest, ...rest: any): Observable<PaymentMethodsResponse>;
@@ -511,6 +489,11 @@ export interface PaymentGatewayServiceController {
 
   veriffHookHandler(
     request: VeriffHookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  veriffWebhookHandler(
+    request: WebhookResponse,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
@@ -707,6 +690,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "createAgreement",
       "generateVeriffLink",
       "veriffHookHandler",
+      "veriffWebhookHandler",
       "getToken",
       "getAvailablePaymentMethods",
       "createAccount",

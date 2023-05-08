@@ -37,11 +37,14 @@ import {
   TransferMethodRequest,
   UploadDocumentRequest,
   UserIdRequest,
+  VerifyCreditCardRequest,
+} from '~common/grpc/interfaces/payment-gateway';
+import {
   VeriffHookRequest,
   VeriffSessionRequest,
   VeriffSessionResponse,
-  VerifyCreditCardRequest,
-} from '~common/grpc/interfaces/payment-gateway';
+  WebhookResponse,
+} from '~common/grpc/interfaces/veriff';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { MainService } from '../services/main.service';
 import { PaymentGatewayWebhooksService } from '../services/payment-gateway-webhooks.service';
@@ -205,5 +208,9 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   }
   veriffHookHandler(request: VeriffHookRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.veriffHookHandler(request);
+  }
+
+  veriffWebhookHandler(request: WebhookResponse): Promise<SuccessResponse> {
+    return this.paymentGatewayService.veriffWebhookHandler(request);
   }
 }

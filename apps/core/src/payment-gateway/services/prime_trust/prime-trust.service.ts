@@ -13,9 +13,8 @@ import {
   SocureDocumentRequest,
   TransferFundsRequest,
   TransferMethodRequest,
-  VeriffHookRequest,
-  VeriffSessionRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+import { VeriffHookRequest, VeriffSessionRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
 import { PrimeAccountManager } from './managers/prime-account.manager';
 import { PrimeAssetsManager } from './managers/prime-assets.manager';
 import { PrimeBalanceManager } from './managers/prime-balance.manager';
@@ -194,5 +193,9 @@ export class PrimeTrustService {
 
   veriffHookHandler(request: VeriffHookRequest) {
     return this.primeVeriffManager.veriffHookHandler(request);
+  }
+
+  veriffWebhookHandler(request: WebhookResponse) {
+    return this.primeVeriffManager.veriffWebhookHandler(request);
   }
 }

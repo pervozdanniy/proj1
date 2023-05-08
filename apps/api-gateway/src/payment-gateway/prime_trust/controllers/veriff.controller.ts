@@ -3,11 +3,11 @@ import { PaymentGatewayService } from '@/payment-gateway/prime_trust/services/pa
 import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { VeriffDocumentTypeDto } from '../../../user/dtos/veriff/document-type.dto';
-import { VeriffHookDto } from '../../../user/dtos/veriff/veriff-hook.dto';
-import { VeriffSessionResponseDto } from '../../../user/dtos/veriff/veriff-session-response.dto';
-import { VeriffWebhookDto } from '../../../user/dtos/veriff/veriff-webhook.dto';
 import { SocureDocumentDto } from '../dtos/main/socure.document.dto';
+import { VeriffDocumentTypeDto } from '../dtos/veriff/document-type.dto';
+import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
+import { VeriffSessionResponseDto } from '../dtos/veriff/veriff-session-response.dto';
+import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
 
 @ApiTags('Veriff KYC')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -41,8 +41,7 @@ export class VeriffController {
   })
   @Post('/webhook')
   async veriffWebhookHandler(@Body() payload: VeriffWebhookDto) {
-    console.log('webhook');
-    console.log(payload);
+    return this.paymentGatewayService.veriffWebhookHandler(payload);
   }
 
   @ApiOperation({ summary: 'Submit session id.' })

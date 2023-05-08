@@ -17,10 +17,9 @@ import {
   TransferFundsRequest,
   UploadDocumentRequest,
   UserIdRequest,
-  VeriffHookRequest,
-  VeriffSessionRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+import { VeriffHookRequest, VeriffSessionRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
 import { CurrencyService } from './currency.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
@@ -177,5 +176,9 @@ export class PaymentGatewayService {
 
   veriffHookHandler(request: VeriffHookRequest) {
     return this.primeTrustService.veriffHookHandler(request);
+  }
+
+  veriffWebhookHandler(request: WebhookResponse) {
+    return this.primeTrustService.veriffWebhookHandler(request);
   }
 }
