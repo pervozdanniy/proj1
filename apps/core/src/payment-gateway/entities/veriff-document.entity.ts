@@ -9,8 +9,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('socure_kyc_documents')
-export class SocureDocumentEntity {
+@Entity('veriff_kyc_documents')
+export class VeriffDocumentEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -18,7 +18,10 @@ export class SocureDocumentEntity {
   user_id: number;
 
   @Column('character varying', { unique: true })
-  uuid: string;
+  session_id: string;
+
+  @Column('character varying', { unique: true })
+  attempt_id: string;
 
   @Column('character varying', { nullable: true })
   issuing_date: string;
@@ -33,13 +36,13 @@ export class SocureDocumentEntity {
   label: string;
 
   @Column('character varying', { nullable: true })
-  documentfront: string;
+  document_front: string;
 
   @Column('character varying', { nullable: true })
-  documentback: string;
+  document_back: string;
 
   @Column('character varying', { nullable: true })
-  profileimage: string;
+  profile_image: string;
 
   @Column('character varying')
   status: string;

@@ -16,7 +16,7 @@ import {
   WebhookResponse,
 } from '~common/grpc/interfaces/veriff';
 import { UserService } from '../../../../user/services/user.service';
-import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
+import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 
 @Injectable()
 export class PrimeVeriffManager {
@@ -30,8 +30,8 @@ export class PrimeVeriffManager {
     private readonly notificationService: NotificationService,
 
     config: ConfigService<ConfigInterface>,
-    @InjectRepository(SocureDocumentEntity)
-    private readonly primeTrustSocureDocumentEntityRepository: Repository<SocureDocumentEntity>,
+    @InjectRepository(VeriffDocumentEntity)
+    private readonly primeTrustSocureDocumentEntityRepository: Repository<VeriffDocumentEntity>,
   ) {
     const { veriff_url } = config.get('app', { infer: true });
     const { api_key, secret } = config.get('veriff', { infer: true });

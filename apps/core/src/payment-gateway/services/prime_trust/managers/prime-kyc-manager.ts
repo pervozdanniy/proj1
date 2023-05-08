@@ -16,7 +16,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountIdRequest, DocumentResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
+import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 
 @Injectable()
 export class PrimeKycManager {
@@ -37,8 +37,8 @@ export class PrimeKycManager {
     @InjectRepository(PrimeTrustKycDocumentEntity)
     private readonly primeTrustKycDocumentEntityRepository: Repository<PrimeTrustKycDocumentEntity>,
 
-    @InjectRepository(SocureDocumentEntity)
-    private readonly primeTrustSocureDocumentEntityRepository: Repository<SocureDocumentEntity>,
+    @InjectRepository(VeriffDocumentEntity)
+    private readonly primeTrustSocureDocumentEntityRepository: Repository<VeriffDocumentEntity>,
   ) {
     const { prime_trust_url } = config.get('app');
     this.prime_trust_url = prime_trust_url;
