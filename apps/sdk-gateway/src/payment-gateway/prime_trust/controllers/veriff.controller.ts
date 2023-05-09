@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { VeriffDocumentTypeDto } from '../dtos/veriff/document-type.dto';
 import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
 import { VeriffSessionResponseDto } from '../dtos/veriff/veriff-session-response.dto';
 import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
@@ -30,8 +29,8 @@ export class VeriffController {
   @ApiOkResponse({ type: VeriffSessionResponseDto })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  link(@JwtSessionUser() { id: user_id }: User, @Body() { type }: VeriffDocumentTypeDto) {
-    return this.paymentGatewayService.generateVeriffLink({ user_id, type });
+  link(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.generateVeriffLink({ id });
   }
 
   @ApiOperation({ summary: 'Webhook catch' })

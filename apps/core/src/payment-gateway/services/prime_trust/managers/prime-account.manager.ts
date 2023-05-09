@@ -1,8 +1,11 @@
+import { CountryService } from '@/country/country.service';
+import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { AccountType, CreateAccountType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
+import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -13,9 +16,6 @@ import { ConfigInterface } from '~common/config/configuration';
 import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import { AccountResponse, AccountStatusResponse, AgreementRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { CountryService } from '../../../../country/country.service';
-import { NotificationService } from '../../../../notification/services/notification.service';
-import { UserService } from '../../../../user/services/user.service';
 import { PrimeTrustBalanceEntity } from '../../../entities/prime_trust/prime-trust-balance.entity';
 import { PrimeKycManager } from './prime-kyc-manager';
 

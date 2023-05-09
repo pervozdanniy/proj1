@@ -6,6 +6,7 @@ import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-t
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { ContactType, DocumentCheckType, DocumentDataType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
+import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -17,7 +18,6 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountIdRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { UserService } from '../../../../user/services/user.service';
 import { PrimeVeriffManager } from './prime-veriff-manager';
 
 @Injectable()
