@@ -13,7 +13,7 @@ import {
   TransferFundsRequest,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { VeriffHookRequest, VeriffSessionRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
+import { VeriffHookRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
 import { PrimeAccountManager } from './managers/prime-account.manager';
 import { PrimeAssetsManager } from './managers/prime-assets.manager';
 import { PrimeBalanceManager } from './managers/prime-balance.manager';
@@ -178,8 +178,8 @@ export class PrimeTrustService {
     return this.primeBalanceManager.contingentHolds(request);
   }
 
-  generateVeriffLink(request: VeriffSessionRequest) {
-    return this.primeVeriffManager.generateVeriffLink(request);
+  generateVeriffLink(id: number) {
+    return this.primeVeriffManager.generateVeriffLink(id);
   }
 
   veriffHookHandler(request: VeriffHookRequest) {

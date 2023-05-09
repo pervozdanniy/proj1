@@ -16,7 +16,7 @@ import {
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { VeriffHookRequest, VeriffSessionRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
+import { VeriffHookRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
 import { CurrencyService } from './currency.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
@@ -145,8 +145,8 @@ export class PaymentGatewayService {
     return resp;
   }
 
-  generateVeriffLink(request: VeriffSessionRequest) {
-    return this.primeTrustService.generateVeriffLink(request);
+  generateVeriffLink(id: number) {
+    return this.primeTrustService.generateVeriffLink(id);
   }
 
   veriffHookHandler(request: VeriffHookRequest) {

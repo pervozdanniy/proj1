@@ -70,9 +70,3 @@ message VeriffSessionVerification {
   string status = 5;
   string sessionToken = 6;
 }
-
-
-message VeriffSessionRequest {
-  uint32 user_id = 1;
-  string type = 2;
-}

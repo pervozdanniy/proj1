@@ -3,7 +3,7 @@ import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { IdRequest, SuccessResponse, UserAgreement, UserDetails } from "./common";
 import { Empty } from "./google/protobuf/empty";
-import { VeriffHookRequest, VeriffSessionRequest, VeriffSessionResponse, WebhookResponse } from "./veriff";
+import { VeriffHookRequest, VeriffSessionResponse, WebhookResponse } from "./veriff";
 
 export const protobufPackage = "skopa.core";
 
@@ -354,7 +354,7 @@ export interface PaymentGatewayServiceClient {
 
   /** veriff */
 
-  generateVeriffLink(request: VeriffSessionRequest, ...rest: any): Observable<VeriffSessionResponse>;
+  generateVeriffLink(request: UserIdRequest, ...rest: any): Observable<VeriffSessionResponse>;
 
   veriffHookHandler(request: VeriffHookRequest, ...rest: any): Observable<SuccessResponse>;
 
@@ -450,7 +450,7 @@ export interface PaymentGatewayServiceController {
   /** veriff */
 
   generateVeriffLink(
-    request: VeriffSessionRequest,
+    request: UserIdRequest,
     ...rest: any
   ): Promise<VeriffSessionResponse> | Observable<VeriffSessionResponse> | VeriffSessionResponse;
 

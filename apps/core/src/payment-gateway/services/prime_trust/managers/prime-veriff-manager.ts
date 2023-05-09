@@ -9,12 +9,7 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import {
-  VeriffHookRequest,
-  VeriffSessionRequest,
-  VeriffSessionResponse,
-  WebhookResponse,
-} from '~common/grpc/interfaces/veriff';
+import { VeriffHookRequest, VeriffSessionResponse, WebhookResponse } from '~common/grpc/interfaces/veriff';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { Media } from '../../../types/prime-trust';
@@ -51,8 +46,8 @@ export class PrimeVeriffManager {
     return xHmacSignature;
   }
 
-  async generateVeriffLink({ user_id, type }: VeriffSessionRequest): Promise<VeriffSessionResponse> {
-    const session = await this.createVeriffSession({ user_id, type });
+  async generateVeriffLink(user_id: number): Promise<VeriffSessionResponse> {
+    const session = await this.createVeriffSession(user_id);
     await this.veriffDocumentEntityRepository.save(
       this.veriffDocumentEntityRepository.create({
         user_id,
@@ -132,7 +127,7 @@ export class PrimeVeriffManager {
     }
   }
 
-  async createVeriffSession({ user_id, type }: VeriffSessionRequest): Promise<VeriffSessionResponse> {
+  async createVeriffSession(user_id: number): Promise<VeriffSessionResponse> {
     const user = await this.userService.getUserInfo(user_id);
     try {
       const headersRequest = {
@@ -148,7 +143,6 @@ export class PrimeVeriffManager {
             dateOfBirth: user.details.date_of_birth,
           },
           document: {
-            type,
             country: user.country_code,
           },
           vendorData: 'Postman test',
