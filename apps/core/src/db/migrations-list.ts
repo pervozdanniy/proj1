@@ -49,6 +49,8 @@ import { AddHotWalletParams1681741975606 } from './migrations/1681741975606-AddH
 import { AddDepositFlowEntity1682250487665 } from './migrations/1682250487665-AddDepositFlowEntity';
 import { AddRecourceTypeToDepositFLow1682513214158 } from './migrations/1682513214158-AddRecourceTypeToDepositFLow';
 import { AlterSocureTable1682529569753 } from './migrations/1682529569753-AlterSocureTable';
+import { CreateVeriffTable1683527562174 } from './migrations/1683527562174-CreateVeriffTable';
+import { AlterVeriffTable1683530145156 } from './migrations/1683530145156-AlterVeriffTable';
 
 export default [
   createUserTable1669901299726,
@@ -102,4 +104,6 @@ export default [
   AddRecourceTypeToDepositFLow1682513214158,
   AlterSocureTable1682529569753,
   AddInswitchAccountEntity1680257468360,
+  CreateVeriffTable1683527562174,
+  AlterVeriffTable1683530145156,
 ];

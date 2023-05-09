@@ -10,11 +10,10 @@ import {
   DepositParamRequest,
   MakeDepositRequest,
   SearchTransactionRequest,
-  SocureDocumentRequest,
   TransferFundsRequest,
   TransferMethodRequest,
-  UserIdRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+import { VeriffHookRequest, VeriffSessionRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
 import { PrimeAccountManager } from './managers/prime-account.manager';
 import { PrimeAssetsManager } from './managers/prime-assets.manager';
 import { PrimeBalanceManager } from './managers/prime-balance.manager';
@@ -24,6 +23,7 @@ import { PrimeFundsTransferManager } from './managers/prime-funds-transfer.manag
 import { PrimeKycManager } from './managers/prime-kyc-manager';
 import { PrimeTokenManager } from './managers/prime-token.manager';
 import { PrimeTransactionsManager } from './managers/prime-transactions.manager';
+import { PrimeVeriffManager } from './managers/prime-veriff-manager';
 import { PrimeWithdrawalManager } from './managers/prime-withdrawal.manager';
 
 @Injectable()
@@ -32,6 +32,7 @@ export class PrimeTrustService {
     private readonly primeTokenManager: PrimeTokenManager,
     private readonly primeAccountManager: PrimeAccountManager,
     private readonly primeKycManager: PrimeKycManager,
+    private readonly primeVeriffManager: PrimeVeriffManager,
     private readonly primeBalanceManager: PrimeBalanceManager,
 
     private readonly primeDepositManager: PrimeDepositManager,
@@ -65,10 +66,6 @@ export class PrimeTrustService {
 
   createContact(userDetails: UserEntity) {
     return this.primeKycManager.createContact(userDetails);
-  }
-
-  uploadDocument(userDetails: UserEntity, file: any, label: string) {
-    return this.primeKycManager.uploadDocument(userDetails, file, label);
   }
 
   documentCheck(request: AccountIdRequest) {
@@ -173,19 +170,23 @@ export class PrimeTrustService {
     return this.primeAccountManager.getUserAccountStatus(request);
   }
 
-  createSocureDocument(request: SocureDocumentRequest) {
-    return this.primeKycManager.createSocureDocument(request);
-  }
-
   transferToHotWallet() {
     return this.primeAccountManager.transferToHotWallet();
   }
 
-  failedSocureDocument(request: UserIdRequest) {
-    return this.primeKycManager.failedSocureDocument(request);
-  }
-
   contingentHolds(request: AccountIdRequest) {
     return this.primeBalanceManager.contingentHolds(request);
+  }
+
+  generateVeriffLink(request: VeriffSessionRequest) {
+    return this.primeVeriffManager.generateVeriffLink(request);
+  }
+
+  veriffHookHandler(request: VeriffHookRequest) {
+    return this.primeVeriffManager.veriffHookHandler(request);
+  }
+
+  veriffWebhookHandler(request: WebhookResponse) {
+    return this.primeVeriffManager.veriffWebhookHandler(request);
   }
 }

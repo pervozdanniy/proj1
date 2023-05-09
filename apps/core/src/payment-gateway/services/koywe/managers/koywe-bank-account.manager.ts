@@ -12,7 +12,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { BankAccountParams, BanksInfoResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
-import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
+import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { KoyweTokenManager } from './koywe-token.manager';
 
 @Injectable()
@@ -26,8 +26,8 @@ export class KoyweBankAccountManager {
     @InjectRepository(BankAccountEntity)
     private readonly bankAccountEntityRepository: Repository<BankAccountEntity>,
 
-    @InjectRepository(SocureDocumentEntity)
-    private readonly documentRepository: Repository<SocureDocumentEntity>,
+    @InjectRepository(VeriffDocumentEntity)
+    private readonly documentRepository: Repository<VeriffDocumentEntity>,
 
     config: ConfigService<ConfigInterface>,
   ) {

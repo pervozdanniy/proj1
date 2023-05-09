@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package skopa.veriff;
+
+
+message Person {
+ optional string gender = 1;
+  optional string idNumber = 2;
+   string lastName = 3;
+   string firstName = 4;
+  optional string citizenship = 5;
+  optional string dateOfBirth = 6;
+  optional string nationality = 7;
+  optional string yearOfBirth = 8;
+  optional string placeOfBirth = 9;
+  optional bool pepSanctionMatch = 10;
+}
+
+message Document {
+  string type = 1;
+  string number = 2;
+  string country = 3;
+  optional string validFrom = 4;
+  optional string validUntil = 5;
+}
+
+message Verification {
+  string id = 1;
+  int32 code = 2;
+  optional Person person = 3;
+  optional string reason = 4;
+  string status = 5;
+  repeated string comments = 6 [packed=false];
+  Document document = 7;
+  optional string reasonCode = 8;
+  string vendorData = 9;
+  string decisionTime = 10;
+  string acceptanceTime = 11;
+  map<string, string> additionalVerifiedData = 12;
+}
+
+message TechnicalData {
+  string ip = 1;
+}
+
+message WebhookResponse {
+  string status = 1;
+  Verification verification = 2;
+  TechnicalData technicalData = 3;
+}
+
+
+
+message VeriffHookRequest {
+  string id = 1;
+  string attemptId = 2;
+  string action = 3;
+}
+
+message VeriffSessionResponse {
+  string status = 1;
+  VeriffSessionVerification verification = 2;
+}
+
+message VeriffSessionVerification {
+  string id = 1;
+  string url = 2;
+  string vendorData = 3;
+  string host = 4;
+  string status = 5;
+  string sessionToken = 6;
+}
+
+
+message VeriffSessionRequest {
+  uint32 user_id = 1;
+  string type = 2;
+}

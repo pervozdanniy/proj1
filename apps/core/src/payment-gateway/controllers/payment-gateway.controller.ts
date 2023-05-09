@@ -17,7 +17,6 @@ import {
   DepositParamRequest,
   DepositParamsResponse,
   DepositResponse,
-  DocumentResponse,
   ExchangeRequest,
   ExchangeResponse,
   FacilitaWebhookRequest,
@@ -30,15 +29,19 @@ import {
   PaymentMethodsResponse,
   PG_Token,
   SearchTransactionRequest,
-  SocureDocumentRequest,
   TransactionResponse,
   TransferFundsRequest,
   TransferFundsResponse,
   TransferMethodRequest,
-  UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+import {
+  VeriffHookRequest,
+  VeriffSessionRequest,
+  VeriffSessionResponse,
+  WebhookResponse,
+} from '~common/grpc/interfaces/veriff';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { MainService } from '../services/main.service';
 import { PaymentGatewayWebhooksService } from '../services/payment-gateway-webhooks.service';
@@ -67,10 +70,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   createContact({ id }: UserIdRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.createContact(id);
-  }
-
-  uploadDocument(request: UploadDocumentRequest): Promise<DocumentResponse> {
-    return this.paymentGatewayService.uploadDocument(request);
   }
 
   updateAccount(request: AccountIdRequest): Promise<SuccessResponse> {
@@ -186,9 +185,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   transferToHotWallet(): Promise<SuccessResponse> {
     return this.paymentGatewayService.transferToHotWallet();
   }
-  createSocureDocument(request: SocureDocumentRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.createSocureDocument(request);
-  }
   facilitaWebhooksHandler(request: FacilitaWebhookRequest): Promise<SuccessResponse> {
     return this.webhooksService.facilitaWebhooksHandler(request);
   }
@@ -197,7 +193,14 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.webhooksService.liquidoWebhooksHandler(request);
   }
 
-  failedSocureDocument(request: UserIdRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.failedSocureDocument(request);
+  generateVeriffLink(request: VeriffSessionRequest): Promise<VeriffSessionResponse> {
+    return this.paymentGatewayService.generateVeriffLink(request);
+  }
+  veriffHookHandler(request: VeriffHookRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.veriffHookHandler(request);
+  }
+
+  veriffWebhookHandler(request: WebhookResponse): Promise<SuccessResponse> {
+    return this.paymentGatewayService.veriffWebhookHandler(request);
   }
 }

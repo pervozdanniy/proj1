@@ -16,7 +16,7 @@ import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/paymen
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
-import { SocureDocumentEntity } from '../../../entities/socure-document.entity';
+import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { KoyweMainManager, KoywePaymentMethod } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
 
@@ -36,8 +36,8 @@ export class KoyweDepositManager {
     private readonly koyweMainManager: KoyweMainManager,
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
-    @InjectRepository(SocureDocumentEntity)
-    private readonly documentRepository: Repository<SocureDocumentEntity>,
+    @InjectRepository(VeriffDocumentEntity)
+    private readonly documentRepository: Repository<VeriffDocumentEntity>,
 
     private userService: UserService,
     config: ConfigService<ConfigInterface>,

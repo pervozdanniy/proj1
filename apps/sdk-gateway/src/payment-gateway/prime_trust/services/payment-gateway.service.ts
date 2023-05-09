@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { VeriffDocumentTypesEnum } from '~common/enum/document-types.enum';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
@@ -13,10 +14,11 @@ import {
   SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
-  UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+import { VeriffHookDto } from '../../../../../api-gateway/src/payment-gateway/prime_trust/dtos/veriff/veriff-hook.dto';
+import { VeriffWebhookDto } from '../../../../../api-gateway/src/payment-gateway/prime_trust/dtos/veriff/veriff-webhook.dto';
 import { KoyweWebhookType } from '../webhooks/data';
 
 @Injectable()
@@ -55,10 +57,6 @@ export class PaymentGatewayService implements OnModuleInit {
 
   createContact(data: UserIdRequest): Promise<SuccessResponse> {
     return lastValueFrom(this.paymentGatewayServiceClient.createContact(data));
-  }
-
-  uploadDocument(data: UploadDocumentRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.uploadDocument(data));
   }
 
   updateWithdraw(data: AccountIdRequest) {
@@ -154,5 +152,17 @@ export class PaymentGatewayService implements OnModuleInit {
 
   contingentHolds(data: AccountIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.contingentHolds(data));
+  }
+
+  generateVeriffLink(data: { user_id: number; type: VeriffDocumentTypesEnum }) {
+    return lastValueFrom(this.paymentGatewayServiceClient.generateVeriffLink(data));
+  }
+
+  veriffHookHandler(data: VeriffHookDto) {
+    return lastValueFrom(this.paymentGatewayServiceClient.veriffHookHandler(data));
+  }
+
+  veriffWebhookHandler(data: VeriffWebhookDto) {
+    return lastValueFrom(this.paymentGatewayServiceClient.veriffWebhookHandler(data));
   }
 }
