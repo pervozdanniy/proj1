@@ -7,6 +7,11 @@ export enum DocumentTypesEnum {
   OTHER = 'other',
 }
 
+export enum VeriffDocumentTypesEnum {
+  PASSPORT = 'PASSPORT',
+  DRIVERS_LICENSE = 'DRIVERS_LICENSE',
+}
+
 export enum WithdrawalTypes {
   WIRE = 'wire',
 

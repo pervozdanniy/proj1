@@ -6,7 +6,6 @@ import {
   BankAccountParamsDto,
   BankAccountResponseDto,
   ContactResponseDto,
-  DocumentResponseDto,
   ExchangeResponseDto,
   TokenDto,
   TransactionResponseDto,
@@ -21,18 +20,14 @@ import {
   HttpStatus,
   Post,
   Query,
-  UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { ExchangeDto } from '../dtos/main/exchange.dto';
-import { SendDocumentDto } from '../dtos/main/send-document.dto';
-import { SocureDocumentDto } from '../dtos/main/socure.document.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Prime Trust')
@@ -73,18 +68,6 @@ export class MainController {
     return this.paymentGatewayService.createAccount({ id });
   }
 
-  //not necessary yet
-  // @ApiBearerAuth()
-  // @ApiOperation({ summary: 'Add New Contact.' })
-  // @ApiResponse({
-  //   status: HttpStatus.CREATED,
-  // })
-  // @JwtSessionAuth()
-  // @Post('/contact')
-  // async createContact(@JwtSessionUser() { id }: User) {
-  //   return this.paymentGatewayService.createContact({ id });
-  // }
-
   @ApiOperation({ summary: 'Get Account.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -107,27 +90,6 @@ export class MainController {
   @Get('/contact')
   async getContact(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getContact({ id });
-  }
-
-  @Post('/kyc/upload-document')
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Upload new file.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'The file successfully uploaded.',
-    type: DocumentResponseDto,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadDocument(
-    @JwtSessionUser() { id }: User,
-    @UploadedFile() file: Express.Multer.File,
-    @Body() payload: SendDocumentDto,
-  ) {
-    const { label } = payload;
-
-    return this.paymentGatewayService.uploadDocument({ file, label, userId: { id } });
   }
 
   @ApiOperation({ summary: 'Get Balance.' })
@@ -209,24 +171,6 @@ export class MainController {
   @Get('/available-methods')
   async getAvailablePaymentMethods(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getAvailablePaymentMethods(id);
-  }
-
-  @ApiOperation({ summary: 'Create socure document.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @Post('/create/socure/document')
-  async createSocureDocument(@Body() payload: SocureDocumentDto) {
-    return this.paymentGatewayService.createSocureDocument(payload);
-  }
-
-  @ApiOperation({ summary: 'Send Failed socure document notification.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @Post('/failed/socure/document')
-  async failedSocureDocument(@Body() payload: { id: number }) {
-    return this.paymentGatewayService.failedSocureDocument(payload);
   }
 
   @ApiOperation({ summary: 'Transfer all accounts money to hot wallets.' })

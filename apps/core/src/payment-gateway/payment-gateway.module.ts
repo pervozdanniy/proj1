@@ -18,8 +18,8 @@ import { PrimeTrustBalanceEntity } from './entities/prime_trust/prime-trust-bala
 import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
-import { SocureDocumentEntity } from './entities/socure-document.entity';
 import { TransfersEntity } from './entities/transfers.entity';
+import { VeriffDocumentEntity } from './entities/veriff-document.entity';
 import { BrazilPaymentGateway } from './manager/countries/brazil-payment.gateway';
 import { ChilePaymentGateway } from './manager/countries/chile-payment.gateway';
 import { ColombiaPaymentGateway } from './manager/countries/colombia-payment.gateway';
@@ -56,6 +56,7 @@ import { PrimeFundsTransferManager } from './services/prime_trust/managers/prime
 import { PrimeKycManager } from './services/prime_trust/managers/prime-kyc-manager';
 import { PrimeTokenManager } from './services/prime_trust/managers/prime-token.manager';
 import { PrimeTransactionsManager } from './services/prime_trust/managers/prime-transactions.manager';
+import { PrimeVeriffManager } from './services/prime_trust/managers/prime-veriff-manager';
 import { PrimeWithdrawalManager } from './services/prime_trust/managers/prime-withdrawal.manager';
 import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
 
@@ -76,7 +77,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       TransfersEntity,
       BankAccountEntity,
       DepositParamsEntity,
-      SocureDocumentEntity,
+      VeriffDocumentEntity,
       DepositFlowEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
@@ -120,6 +121,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     LiquidoWithdrawalManager,
     LiquidoWebhookManager,
     DepositFlow,
+    PrimeVeriffManager,
   ],
   controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],

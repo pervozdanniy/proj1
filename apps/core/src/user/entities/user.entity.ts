@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { UserSourceEnum } from '~common/constants/user';
 import { NotificationEntity } from '../../notification/entities/notification.entity';
-import { SocureDocumentEntity } from '../../payment-gateway/entities/socure-document.entity';
+import { VeriffDocumentEntity } from '../../payment-gateway/entities/veriff-document.entity';
 import { UserDetailsEntity } from './user-details.entity';
 
 @Entity('users')
@@ -72,8 +72,8 @@ export class UserEntity {
   })
   contacts?: UserEntity[];
 
-  @OneToMany(() => SocureDocumentEntity, (document) => document.user)
-  documents?: SocureDocumentEntity[];
+  @OneToMany(() => VeriffDocumentEntity, (document) => document.user)
+  documents?: VeriffDocumentEntity[];
 
-  kyc?: SocureDocumentEntity;
+  kyc?: VeriffDocumentEntity;
 }

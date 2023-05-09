@@ -31,6 +31,7 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import { NotificationService } from '../../../../notification/services/notification.service';
 import { CardResourceType } from '../../../types/prime-trust';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeBankAccountManager } from './prime-bank-account.manager';
@@ -49,6 +50,8 @@ export class PrimeDepositManager {
     private readonly primeBalanceManager: PrimeBalanceManager,
 
     private readonly primeFundsTransferManager: PrimeFundsTransferManager,
+
+    private readonly notificationService: NotificationService,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -220,6 +223,7 @@ export class PrimeDepositManager {
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
     }
+    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
     await this.primeBalanceManager.updateAccountBalance(account_id);
 
     return { success: true };

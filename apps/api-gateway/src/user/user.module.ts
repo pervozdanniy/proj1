@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientsModule } from '@nestjs/microservices';
@@ -11,7 +12,7 @@ import { UserService } from './services/user.service';
 import { UserController } from './user.controller';
 
 @Module({
-  imports: [ClientsModule.registerAsync([asyncClientOptions('core')]), AuthModule],
+  imports: [HttpModule, ClientsModule.registerAsync([asyncClientOptions('core')]), AuthModule],
   controllers: [UserController],
   providers: [
     UserService,

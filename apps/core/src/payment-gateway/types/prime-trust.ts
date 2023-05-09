@@ -110,7 +110,6 @@ export type CreateAccountType = {
         'tax-id-number': string;
         'tax-country': string;
         'date-of-birth': string;
-        'socure-document-id'?: string;
         'primary-phone-number': {
           country: string;
           number: string;
@@ -127,3 +126,5 @@ export type CreateAccountType = {
     };
   };
 };
+
+export type Media = { id: string; name: string; sessionId: string; buffer: Buffer; label: string };

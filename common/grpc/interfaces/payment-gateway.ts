@@ -3,6 +3,7 @@ import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { IdRequest, SuccessResponse, UserAgreement, UserDetails } from "./common";
 import { Empty } from "./google/protobuf/empty";
+import { VeriffHookRequest, VeriffSessionRequest, VeriffSessionResponse, WebhookResponse } from "./veriff";
 
 export const protobufPackage = "skopa.core";
 
@@ -48,16 +49,6 @@ export interface SelectBankRequest {
 export interface SelectCardRequest {
   id: number;
   cvv: string;
-}
-
-export interface SocureDocumentRequest {
-  user_id: number;
-  uuid: string;
-  label: string;
-  status: string;
-  document_number: string;
-  expiration_date: string;
-  issuing_date: string;
 }
 
 export interface LiquidoWebhookRequest {
@@ -191,10 +182,6 @@ export interface AccountResponse {
 
 export interface PaymentMethodsResponse {
   methods: string[];
-}
-
-export interface DocumentResponse {
-  document_id: string;
 }
 
 export interface DepositParamRequest {
@@ -347,21 +334,6 @@ export interface AccountIdRequest {
   resource_id?: string | undefined;
 }
 
-export interface FileData {
-  buffer: Uint8Array;
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  size: number;
-}
-
-export interface UploadDocumentRequest {
-  label: string;
-  file: FileData | undefined;
-  userId: UserIdRequest | undefined;
-}
-
 export interface UserIdRequest {
   id: number;
   resource_id?: number | undefined;
@@ -380,6 +352,14 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface PaymentGatewayServiceClient {
   createAgreement(request: AgreementRequest, ...rest: any): Observable<UserAgreement>;
 
+  /** veriff */
+
+  generateVeriffLink(request: VeriffSessionRequest, ...rest: any): Observable<VeriffSessionResponse>;
+
+  veriffHookHandler(request: VeriffHookRequest, ...rest: any): Observable<SuccessResponse>;
+
+  veriffWebhookHandler(request: WebhookResponse, ...rest: any): Observable<SuccessResponse>;
+
   getToken(request: Empty, ...rest: any): Observable<PG_Token>;
 
   getAvailablePaymentMethods(request: UserIdRequest, ...rest: any): Observable<PaymentMethodsResponse>;
@@ -392,17 +372,11 @@ export interface PaymentGatewayServiceClient {
 
   createContact(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  uploadDocument(request: UploadDocumentRequest, ...rest: any): Observable<DocumentResponse>;
-
   getBalance(request: BalanceRequest, ...rest: any): Observable<BalanceResponse>;
 
   exchange(request: ExchangeRequest, ...rest: any): Observable<ExchangeResponse>;
 
   getUserAccountStatus(request: IdRequest, ...rest: any): Observable<AccountStatusResponse>;
-
-  createSocureDocument(request: SocureDocumentRequest, ...rest: any): Observable<SuccessResponse>;
-
-  failedSocureDocument(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   transferToHotWallet(request: Empty, ...rest: any): Observable<SuccessResponse>;
 
@@ -473,6 +447,23 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<UserAgreement> | Observable<UserAgreement> | UserAgreement;
 
+  /** veriff */
+
+  generateVeriffLink(
+    request: VeriffSessionRequest,
+    ...rest: any
+  ): Promise<VeriffSessionResponse> | Observable<VeriffSessionResponse> | VeriffSessionResponse;
+
+  veriffHookHandler(
+    request: VeriffHookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  veriffWebhookHandler(
+    request: WebhookResponse,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
   getToken(request: Empty, ...rest: any): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
 
   getAvailablePaymentMethods(
@@ -500,11 +491,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  uploadDocument(
-    request: UploadDocumentRequest,
-    ...rest: any
-  ): Promise<DocumentResponse> | Observable<DocumentResponse> | DocumentResponse;
-
   getBalance(
     request: BalanceRequest,
     ...rest: any
@@ -519,16 +505,6 @@ export interface PaymentGatewayServiceController {
     request: IdRequest,
     ...rest: any
   ): Promise<AccountStatusResponse> | Observable<AccountStatusResponse> | AccountStatusResponse;
-
-  createSocureDocument(
-    request: SocureDocumentRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  failedSocureDocument(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   transferToHotWallet(
     request: Empty,
@@ -669,18 +645,18 @@ export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "createAgreement",
+      "generateVeriffLink",
+      "veriffHookHandler",
+      "veriffWebhookHandler",
       "getToken",
       "getAvailablePaymentMethods",
       "createAccount",
       "getAccount",
       "getContact",
       "createContact",
-      "uploadDocument",
       "getBalance",
       "exchange",
       "getUserAccountStatus",
-      "createSocureDocument",
-      "failedSocureDocument",
       "transferToHotWallet",
       "getTransactions",
       "getBankAccounts",

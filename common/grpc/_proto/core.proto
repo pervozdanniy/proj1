@@ -60,12 +60,6 @@ message RecepientsResponse {
   repeated Contact recepients = 1;
 }
 
-message VerifyRequest {
-  uint32 id = 1;
-  bool socure_verify = 2;
-  string document_uuid = 3;
-}
-
 message NullableUser {
   optional common.User user = 1;
 }

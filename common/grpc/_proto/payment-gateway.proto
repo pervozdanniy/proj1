@@ -1,12 +1,18 @@
 syntax = "proto3";
 
 import "common.proto";
+import "veriff.proto";
 import "google/protobuf/empty.proto";
 package skopa.core;
 
 service PaymentGatewayService {
 
   rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
+
+  //veriff
+  rpc GenerateVeriffLink(veriff.VeriffSessionRequest) returns (veriff.VeriffSessionResponse);
+  rpc VeriffHookHandler(veriff.VeriffHookRequest) returns (common.SuccessResponse);
+  rpc VeriffWebhookHandler(veriff.WebhookResponse) returns (common.SuccessResponse);
 
 
   rpc GetToken (google.protobuf.Empty) returns (PG_Token);
@@ -15,12 +21,9 @@ service PaymentGatewayService {
   rpc GetAccount (UserIdRequest) returns (AccountResponse);
   rpc GetContact (UserIdRequest) returns (ContactResponse);
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
-  rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
   rpc GetBalance (BalanceRequest) returns (BalanceResponse);
   rpc Exchange (ExchangeRequest) returns (ExchangeResponse);
   rpc GetUserAccountStatus (common.IdRequest) returns (AccountStatusResponse);
-  rpc CreateSocureDocument(SocureDocumentRequest) returns (common.SuccessResponse);
-  rpc FailedSocureDocument(UserIdRequest) returns (common.SuccessResponse);
   rpc TransferToHotWallet(google.protobuf.Empty) returns (common.SuccessResponse);
 
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
@@ -65,6 +68,7 @@ service DepositFlowService {
 
   rpc PayWithSelectedResource(DepositNextStepRequest) returns (ContributionResponse);
 }
+
 
 message DepositFlowRequest {
   uint32 user_id = 1;
@@ -112,16 +116,6 @@ message SelectBankRequest {
 message SelectCardRequest {
   uint32 id = 1;
   string cvv = 2;
-}
-
-message SocureDocumentRequest {
-  uint32 user_id = 1;
-  string uuid = 2;
-  string label = 3;
-  string status = 4;
-  string document_number = 5;
-  string expiration_date = 6;
-  string issuing_date = 7;
 }
 
 message LiquidoWebhookRequest {
@@ -260,10 +254,6 @@ message PaymentMethodsResponse {
   repeated string methods = 1;
 }
 
-
-message DocumentResponse {
-  string document_id = 1;
-}
 
 message DepositParamRequest{
   uint32 id = 1;
@@ -417,23 +407,6 @@ message JsonData {
 message AccountIdRequest{
   string id = 1;
   optional string resource_id = 2;
-}
-
-
-message FileData  {
-  bytes buffer = 1;
-  string fieldname = 2;
-  string originalname = 3;
-  string encoding = 4;
-  string mimetype = 5;
-  uint32 size = 6;
-}
-
-message UploadDocumentRequest {
-  string label = 1;
-  FileData file = 2;
-  UserIdRequest userId = 3;
-
 }
 
 
