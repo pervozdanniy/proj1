@@ -17,7 +17,6 @@ import {
   DepositParamRequest,
   DepositParamsResponse,
   DepositResponse,
-  DocumentCheckResponse,
   ExchangeRequest,
   ExchangeResponse,
   FacilitaWebhookRequest,
@@ -83,10 +82,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   contingentHolds(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.webhooksService.contingentHolds(request);
-  }
-
-  passVerification(request: UserIdRequest): Promise<DocumentCheckResponse> {
-    return this.paymentGatewayService.passVerification(request);
   }
   documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
     return this.webhooksService.documentCheck(request);

@@ -21,7 +21,6 @@ service PaymentGatewayService {
   rpc GetAccount (UserIdRequest) returns (AccountResponse);
   rpc GetContact (UserIdRequest) returns (ContactResponse);
   rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
-  rpc PassVerification (UserIdRequest) returns (DocumentCheckResponse);
   rpc GetBalance (BalanceRequest) returns (BalanceResponse);
   rpc Exchange (ExchangeRequest) returns (ExchangeResponse);
   rpc GetUserAccountStatus (common.IdRequest) returns (AccountStatusResponse);
@@ -255,14 +254,6 @@ message PaymentMethodsResponse {
   repeated string methods = 1;
 }
 
-
-message DocumentCheckResponse {
-   repeated DocumentResponse data = 1;
-}
-
-message DocumentResponse {
-  string document_id = 1;
-}
 
 message DepositParamRequest{
   uint32 id = 1;

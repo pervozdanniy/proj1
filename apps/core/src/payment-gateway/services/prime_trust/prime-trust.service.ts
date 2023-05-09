@@ -12,7 +12,6 @@ import {
   SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
-  UserIdRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { VeriffHookRequest, VeriffSessionRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
 import { PrimeAccountManager } from './managers/prime-account.manager';
@@ -189,9 +188,5 @@ export class PrimeTrustService {
 
   veriffWebhookHandler(request: WebhookResponse) {
     return this.primeVeriffManager.veriffWebhookHandler(request);
-  }
-
-  passVerification({ id }: UserIdRequest) {
-    return this.primeKycManager.passVerification(id);
   }
 }

@@ -161,8 +161,4 @@ export class PaymentGatewayService {
 
     return { success };
   }
-
-  passVerification(request: UserIdRequest) {
-    return this.primeTrustService.passVerification(request);
-  }
 }

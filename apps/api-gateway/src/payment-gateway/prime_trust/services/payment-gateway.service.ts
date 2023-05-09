@@ -177,8 +177,4 @@ export class PaymentGatewayService implements OnModuleInit {
   veriffWebhookHandler(data: VeriffWebhookDto) {
     return lastValueFrom(this.paymentGatewayServiceClient.veriffWebhookHandler(data));
   }
-
-  passVerification(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.passVerification(data));
-  }
 }

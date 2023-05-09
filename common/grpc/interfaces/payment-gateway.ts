@@ -184,14 +184,6 @@ export interface PaymentMethodsResponse {
   methods: string[];
 }
 
-export interface DocumentCheckResponse {
-  data: DocumentResponse[];
-}
-
-export interface DocumentResponse {
-  document_id: string;
-}
-
 export interface DepositParamRequest {
   id: number;
   bank_account_id: number;
@@ -380,8 +372,6 @@ export interface PaymentGatewayServiceClient {
 
   createContact(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
 
-  passVerification(request: UserIdRequest, ...rest: any): Observable<DocumentCheckResponse>;
-
   getBalance(request: BalanceRequest, ...rest: any): Observable<BalanceResponse>;
 
   exchange(request: ExchangeRequest, ...rest: any): Observable<ExchangeResponse>;
@@ -500,11 +490,6 @@ export interface PaymentGatewayServiceController {
     request: UserIdRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  passVerification(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<DocumentCheckResponse> | Observable<DocumentCheckResponse> | DocumentCheckResponse;
 
   getBalance(
     request: BalanceRequest,
@@ -669,7 +654,6 @@ export function PaymentGatewayServiceControllerMethods() {
       "getAccount",
       "getContact",
       "createContact",
-      "passVerification",
       "getBalance",
       "exchange",
       "getUserAccountStatus",

@@ -1,6 +1,14 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/auth';
 import { PaymentGatewayService } from '@/payment-gateway/prime_trust/services/payment-gateway.service';
-import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  HttpStatus,
+  Logger,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { VeriffDocumentTypeDto } from '../dtos/veriff/document-type.dto';
@@ -15,6 +23,7 @@ import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
   path: 'veriff',
 })
 export class VeriffController {
+  private readonly logger = new Logger(VeriffController.name);
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   @Post('link')
@@ -31,8 +40,7 @@ export class VeriffController {
   })
   @Post('/webhook')
   async veriffWebhookHandler(@Body() payload: VeriffWebhookDto) {
-    console.log('webhook');
-    console.log(payload);
+    this.logger.log(payload);
 
     return this.paymentGatewayService.veriffWebhookHandler(payload);
   }
@@ -43,8 +51,7 @@ export class VeriffController {
   })
   @Post('/hook')
   async veriffHookHandler(@Body() payload: VeriffHookDto) {
-    console.log('hook');
-    console.log(payload);
+    this.logger.log(payload);
 
     return this.paymentGatewayService.veriffHookHandler(payload);
   }
@@ -55,7 +62,6 @@ export class VeriffController {
   })
   @Post('/notification')
   async veriffNotification(@Body() payload: any) {
-    console.log('notification');
-    console.log(payload);
+    this.logger.log(payload);
   }
 }

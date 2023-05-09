@@ -68,17 +68,6 @@ export class MainController {
     return this.paymentGatewayService.createAccount({ id });
   }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Pass verification.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @JwtSessionAuth()
-  @Post('/pass/verification')
-  async passVerification(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.passVerification({ id });
-  }
-
   @ApiOperation({ summary: 'Get Account.' })
   @ApiResponse({
     status: HttpStatus.CREATED,

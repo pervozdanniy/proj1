@@ -4,17 +4,18 @@ import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustKycDocumentEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-kyc-document.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
-import { ContactType, DocumentCheckType, DocumentDataType, FileType } from '@/payment-gateway/types/prime-trust';
+import { ContactType, DocumentCheckType, DocumentDataType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import FormData from 'form-data';
+import process from 'process';
 import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { AccountIdRequest, DocumentCheckResponse } from '~common/grpc/interfaces/payment-gateway';
+import { AccountIdRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { UserService } from '../../../../user/services/user.service';
 import { PrimeVeriffManager } from './prime-veriff-manager';
@@ -127,28 +128,7 @@ export class PrimeKycManager {
     return { success: true };
   }
 
-  async getContactByAccount(account_id: string): Promise<ContactType> {
-    try {
-      const result = await this.httpService.request({
-        method: 'get',
-        url: `${this.prime_trust_url}/v2/accounts/${account_id}?include=contacts`,
-      });
-
-      return result.data.included[0];
-    } catch (e) {
-      this.logger.error(e);
-
-      if (e instanceof PrimeTrustException) {
-        const { detail, code } = e.getFirstError();
-
-        throw new GrpcException(code, detail);
-      } else {
-        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
-      }
-    }
-  }
-
-  async passVerification(user_id: number): Promise<DocumentCheckResponse> {
+  async passVerification(user_id: number) {
     const user = await this.userService.get(user_id);
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id });
 
@@ -166,16 +146,25 @@ export class PrimeKycManager {
           m.label,
           user.country_code,
         );
+        if (process.env.NODE_ENV === 'dev') {
+          await this.verifyDocument(documentCheckResponse.data.id);
+        }
+
         await this.saveDocument(documentResponse.data, user.id, documentCheckResponse.data);
       }
     }
-    const documents = await this.primeTrustKycDocumentEntityRepository
-      .createQueryBuilder('d')
-      .select(['d.kyc_check_uuid as document_id'])
-      .where('d.user_id = :user_id', { user_id })
-      .getRawMany();
+  }
 
-    return { data: documents };
+  async verifyDocument(document_id: string) {
+    try {
+      await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/kyc-document-checks/${document_id}/sandbox/verify`,
+        data: null,
+      });
+    } catch (e) {
+      throw new GrpcException(Status.ABORTED, 'Document verify error,sandbox!', 400);
+    }
   }
 
   async kycDocumentCheck(document_uuid: string, contact_uuid: string, label: string, country_code: string) {
@@ -214,36 +203,6 @@ export class PrimeKycManager {
       }
     }
   }
-
-  async sendDocument(file: FileType, label: string, contact_uuid: string) {
-    const bodyFormData = new FormData();
-    bodyFormData.append('contact-id', contact_uuid);
-    bodyFormData.append('label', label);
-    bodyFormData.append('public', 'false');
-    bodyFormData.append('file', file.buffer, file.originalname);
-
-    try {
-      const result = await this.httpService.request({
-        method: 'post',
-        url: `${this.prime_trust_url}/v2/uploaded-documents`,
-        data: bodyFormData,
-        headers: {
-          ...bodyFormData.getHeaders(),
-        },
-      });
-
-      return result.data;
-    } catch (e) {
-      if (e instanceof PrimeTrustException) {
-        const { detail, code } = e.getFirstError();
-
-        throw new GrpcException(code, detail);
-      } else {
-        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
-      }
-    }
-  }
-
   async saveDocument(documentData: DocumentDataType, user_id: number, documentCheckResponse: DocumentCheckType) {
     try {
       await this.primeTrustKycDocumentEntityRepository.save(
@@ -325,18 +284,20 @@ export class PrimeKycManager {
         ...contact,
         ...data,
       });
-      let status = false;
-      if (data.identity_documents_verified) {
-        status = true;
-      }
 
       const notificationPayload = {
         user_id,
         title: 'User Documents',
         type: 'kyc_document_checks',
-        description: `Documents verification ${status}`,
+        description: `Documents verification ${documentData.data.attributes.status}`,
       };
       this.notificationService.createAsync(notificationPayload);
+      await this.notificationService.sendWs(
+        user_id,
+        'kyc',
+        JSON.stringify({ status: documentData.data.attributes.status }),
+        'Document',
+      );
 
       return { success: true };
     } catch (e) {
@@ -351,21 +312,11 @@ export class PrimeKycManager {
   }
 
   async cipCheck(id: string, resource_id: string): Promise<SuccessResponse> {
-    const accountData = await this.primeAccountRepository
-      .createQueryBuilder('a')
-      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
-      .leftJoinAndSelect('a.contact', 'c')
-      .select(['c.uuid as contact_id'])
-      .where('a.uuid = :id', { id })
-      .getRawOne();
-
-    const { contact_id } = accountData;
-
     const cipResponse = await this.getCipCheckInfo(resource_id);
 
     if (process.env.NODE_ENV === 'dev') {
       // approve cip for development
-      if (cipResponse.status === 'pending') {
+      if (cipResponse.data.attributes.status === 'pending') {
         await this.httpService.request({
           method: 'post',
           url: `${this.prime_trust_url}/v2/cip-checks/${resource_id}/sandbox/approve`,
@@ -375,7 +326,7 @@ export class PrimeKycManager {
     }
 
     if (cipResponse.status === 'approved') {
-      await this.updateContact({ id, resource_id: contact_id });
+      await this.updateContact({ id, resource_id: cipResponse.included[0].id });
     }
 
     return { success: true };
@@ -385,10 +336,10 @@ export class PrimeKycManager {
     try {
       const cipResponse = await this.httpService.request({
         method: 'get',
-        url: `${this.prime_trust_url}/v2/cip-checks/${cip_check_id}`,
+        url: `${this.prime_trust_url}/v2/cip-checks/${cip_check_id}?include=contact`,
       });
 
-      return cipResponse.data.data.attributes;
+      return cipResponse.data;
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
@@ -411,8 +362,10 @@ export class PrimeKycManager {
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ uuid: contactData.data.id });
     if (account) {
       if (!contact) {
-        await this.saveContact(contactData.data, account.user_id);
-        await this.notificationService.sendWs(account.user_id, 'contact', 'Contact created successfully!');
+        const { success } = await this.saveContact(contactData.data, account.user_id);
+        if (success) {
+          await this.passVerification(account.user_id);
+        }
       } else {
         const collectedData = this.collectContactData(contactData.data);
         await this.primeTrustContactEntityRepository.update({ uuid: resource_id }, collectedData);

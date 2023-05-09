@@ -1,3 +1,4 @@
+import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
@@ -15,7 +16,6 @@ import {
   WebhookResponse,
 } from '~common/grpc/interfaces/veriff';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { UserService } from '../../../../user/services/user.service';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { Media } from '../../../types/prime-trust';
 
@@ -65,7 +65,12 @@ export class PrimeVeriffManager {
   }
 
   async getMedia(user_id: number): Promise<Media[]> {
-    const session = await this.veriffDocumentEntityRepository.findOneBy({ user_id, status: 'approved' });
+    const session = await this.veriffDocumentEntityRepository
+      .createQueryBuilder('d')
+      .where('d.user_id = :user_id', { user_id })
+      .andWhere('d.status = :status', { status: 'approved' })
+      .orderBy('d.created_at', 'DESC')
+      .getOne();
     if (session) {
       const attemptId = session.attempt_id;
       try {
@@ -123,7 +128,7 @@ export class PrimeVeriffManager {
 
       return mediaResponse.data;
     } catch (e) {
-      console.log(e.message);
+      throw new GrpcException(Status.ABORTED, 'Veriff buffer error!', 400);
     }
   }
 

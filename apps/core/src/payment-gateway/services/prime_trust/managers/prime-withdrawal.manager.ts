@@ -243,6 +243,7 @@ export class PrimeWithdrawalManager {
     if (!withdrawData) {
       return { success: false };
     }
+
     const withdrawResponse = await this.getWithdrawInfo(resource_id);
 
     await this.withdrawalEntityRepository.update(
@@ -251,7 +252,8 @@ export class PrimeWithdrawalManager {
         status: withdrawResponse['status'],
       },
     );
-
+    const { user_id } = withdrawData;
+    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
     await this.primeBalanceManager.updateAccountBalance(account_id);
 
     return { success: true };
