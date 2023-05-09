@@ -1,3 +1,4 @@
+import { NotificationService } from '@/notification/services/notification.service';
 import { BankAccountEntity } from '@/payment-gateway/entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from '@/payment-gateway/entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from '@/payment-gateway/entities/prime_trust/deposit-params.entity';
@@ -31,7 +32,6 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
-import { NotificationService } from '../../../../notification/services/notification.service';
 import { CardResourceType } from '../../../types/prime-trust';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeBankAccountManager } from './prime-bank-account.manager';
