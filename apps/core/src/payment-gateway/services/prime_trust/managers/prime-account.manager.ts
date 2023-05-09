@@ -17,6 +17,7 @@ import { CountryService } from '../../../../country/country.service';
 import { NotificationService } from '../../../../notification/services/notification.service';
 import { UserService } from '../../../../user/services/user.service';
 import { PrimeTrustBalanceEntity } from '../../../entities/prime_trust/prime-trust-balance.entity';
+import { PrimeKycManager } from './prime-kyc-manager';
 
 @Injectable()
 export class PrimeAccountManager {
@@ -30,7 +31,7 @@ export class PrimeAccountManager {
 
     private readonly notificationService: NotificationService,
 
-    // private readonly primeKycManager: PrimeKycManager,
+    private readonly primeKycManager: PrimeKycManager,
 
     private countryService: CountryService,
 
@@ -97,7 +98,7 @@ export class PrimeAccountManager {
 
       //create contact after creating account
       const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
-
+      await this.primeKycManager.passVerification(account.user_id, accountResponse.data.data.id);
       // account open from development
       // if (process.env.NODE_ENV === 'dev') {
       //   await this.httpService.request({
