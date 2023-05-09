@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { VeriffDocumentTypesEnum } from '~common/enum/document-types.enum';
 import { InjectGrpc } from '~common/grpc/helpers';
 import {
   AccountIdRequest,
@@ -166,7 +165,7 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.contingentHolds(data));
   }
 
-  generateVeriffLink(data: { user_id: number; type: VeriffDocumentTypesEnum }) {
+  generateVeriffLink(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.generateVeriffLink(data));
   }
 
