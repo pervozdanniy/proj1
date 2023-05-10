@@ -2,7 +2,6 @@ import { UserService } from '@/user/services/user.service';
 import { Injectable } from '@nestjs/common';
 import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
-  AccountIdRequest,
   AccountResponse,
   AgreementRequest,
   BalanceRequest,
@@ -161,9 +160,5 @@ export class PaymentGatewayService {
     }
 
     return { success };
-  }
-
-  createAssetHandler(request: AccountIdRequest) {
-    return this.primeTrustService.createAssetHandler(request);
   }
 }

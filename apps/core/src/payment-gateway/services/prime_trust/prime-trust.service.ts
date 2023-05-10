@@ -189,8 +189,4 @@ export class PrimeTrustService {
   veriffWebhookHandler(request: WebhookResponse) {
     return this.primeVeriffManager.veriffWebhookHandler(request);
   }
-
-  createAssetHandler(request: AccountIdRequest) {
-    return this.primeAssetsManager.createAssetHandler(request);
-  }
 }

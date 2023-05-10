@@ -296,20 +296,4 @@ export class PrimeAssetsManager {
       }
     }
   }
-
-  async createAssetHandler({ resource_id }: AccountIdRequest): Promise<SuccessResponse> {
-    if (process.env.NODE_ENV === 'dev') {
-      try {
-        await this.httpService.request({
-          method: 'post',
-          url: `${this.prime_trust_url}/v2/asset-transfers/${resource_id}/sandbox/settle`,
-          data: null,
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    }
-
-    return { success: true };
-  }
 }
