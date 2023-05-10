@@ -8,6 +8,7 @@ import { createHmac } from 'crypto';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
+import { DocumentTypesEnum } from '~common/enum/document-types.enum';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { VeriffHookRequest, VeriffSessionResponse, WebhookResponse } from '~common/grpc/interfaces/veriff';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
@@ -88,9 +89,14 @@ export class PrimeVeriffManager {
         const mediaUrls = await Promise.all(
           mediaResponse.data.images.map(async (i: Media) => {
             if (!i.name.includes('pre')) {
+              let label = session.label.toLowerCase();
+              if (session.label === 'ID_CARD') {
+                label = DocumentTypesEnum.GOVERNMENT_ID;
+              }
+
               return {
                 id: i.id,
-                label: session.label.toLowerCase(),
+                label,
                 name: i.name,
                 session_id: i.sessionId,
                 buffer: await this.getBuffer(i.id),
@@ -186,21 +192,21 @@ export class PrimeVeriffManager {
     verification: { id: session_id, status, document },
   }: WebhookResponse): Promise<{ success: boolean; user_id: number }> {
     const session = await this.veriffDocumentEntityRepository.findOneBy({ session_id });
+    await this.veriffDocumentEntityRepository.update(
+      { session_id },
+      {
+        document_number: document.number,
+        issuing_date: document.validFrom,
+        expiration_date: document.validUntil,
+        label: document.type,
+        status,
+      },
+    );
+    let success = false;
     if (status === 'approved') {
-      await this.veriffDocumentEntityRepository.update(
-        { session_id },
-        {
-          document_number: document.number,
-          issuing_date: document.validFrom,
-          expiration_date: document.validUntil,
-          label: document.type,
-          status,
-        },
-      );
-
-      return { success: true, user_id: session.user_id };
-    } else {
-      return { success: false, user_id: session.user_id };
+      success = true;
     }
+
+    return { success, user_id: session.user_id };
   }
 }
