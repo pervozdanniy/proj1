@@ -46,7 +46,6 @@ export class KoyweDepositManager {
     const { koywe_url } = config.get('app');
     const { short } = config.get('asset');
     this.asset = short;
-    this.asset = 'USDC Polygon';
     this.koywe_url = koywe_url;
   }
 

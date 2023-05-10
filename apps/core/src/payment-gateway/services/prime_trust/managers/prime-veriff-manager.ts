@@ -47,6 +47,10 @@ export class PrimeVeriffManager {
   }
 
   async generateVeriffLink(user_id: number): Promise<VeriffSessionResponse> {
+    const approvedSession = await this.veriffDocumentEntityRepository.findOneBy({ user_id, status: 'approved' });
+    if (approvedSession) {
+      throw new GrpcException(Status.ABORTED, 'User already have approved document!', 400);
+    }
     const session = await this.createVeriffSession(user_id);
     await this.veriffDocumentEntityRepository.save(
       this.veriffDocumentEntityRepository.create({
