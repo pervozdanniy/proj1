@@ -129,7 +129,6 @@ export class PrimeBalanceManager {
 
   async contingentHolds(request: AccountIdRequest): Promise<SuccessResponse> {
     const { resource_id, id: account_id } = request;
-    console.log(resource_id);
     if (process.env.NODE_ENV === 'dev') {
       try {
         const contingentHoldsResponse = await this.httpService.request({
@@ -156,8 +155,6 @@ export class PrimeBalanceManager {
 
           throw new GrpcException(code, detail);
         } else {
-          console.log(e);
-
           throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
         }
       }
