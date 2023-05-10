@@ -11,6 +11,7 @@ import { DepositFlowController } from './controllers/deposit-flow.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
 import { InswitchAccountEntity } from './entities/inswitch/inswitch-account.entity';
+import { InswitchCardEntity } from './entities/inswitch/inswitch-card.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from './entities/prime_trust/deposit-params.entity';
@@ -81,6 +82,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       BankAccountEntity,
       DepositParamsEntity,
       InswitchAccountEntity,
+      InswitchCardEntity,
       VeriffDocumentEntity,
       DepositFlowEntity,
     ]),

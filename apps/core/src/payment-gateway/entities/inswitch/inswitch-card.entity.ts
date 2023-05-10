@@ -8,7 +8,7 @@ export enum CardType {
 @Entity('inswitch_card')
 export class InswitchCardEntity {
   @PrimaryColumn({ generated: false, type: 'uuid' })
-  id: string;
+  reference: string;
 
   @Column('integer')
   account_id: number;

@@ -68,17 +68,38 @@ export type CreatePaymentMethodResponse = {
   [key: string]: any;
 };
 
-export type CreateCardResponse = {
+export type CreateCardRequest = {
+  entity: string;
+  paymentMethodReference: string;
+  productId: string;
+} & ({ type: 'virtual' } | { type: 'physical'; cardholderName: string; initialPin: string });
+
+export type CardResponse = {
   cardIdentifier: string;
   entityId: string;
-  status: string;
+  status: 'created' | 'ordered' | 'assigned' | 'active' | 'reserved' | 'cancelled' | 'blocked';
   issueDate: string;
   type: string;
   productId: string;
   brand: string;
   currency: string;
   paymentMethodReference: string;
+  maskedPan: string;
+  last4: string;
   [key: string]: any;
+};
+
+export type ExtendedCardResponse = CardResponse & {
+  expanded_card_info?: {
+    cardInfoEncrypted: boolean;
+    pan: string;
+    cvv: string;
+  };
+};
+
+export type CardsListResponse = {
+  totalCount: number;
+  cards: CardResponse[];
 };
 
 export type TransactionRequest = {

@@ -36,7 +36,6 @@ import { RemoveCountryEntity1678111485298 } from './migrations/1678111485298-Rem
 import { RemoveUsername1678630767390 } from './migrations/1678630767390-RemoveUsername';
 import { AlterUsersTable1679033609244 } from './migrations/1679033609244-AlterUsersTable';
 import { AlterTransfersTable1680249255329 } from './migrations/1680249255329-AlterTransfersTable';
-import { AddInswitchAccountEntity1680257468360 } from './migrations/1680257468360-AddInswitchAccountEntity';
 import { CreateKycTable1680787242455 } from './migrations/1680787242455-CreateKycTable';
 import { AlterUserDetailsTable1680870468046 } from './migrations/1680870468046-AlterUserDetailsTable';
 import { AlterSocureTable1681129677815 } from './migrations/1681129677815-AlterSocureTable';
@@ -51,6 +50,7 @@ import { AddRecourceTypeToDepositFLow1682513214158 } from './migrations/16825132
 import { AlterSocureTable1682529569753 } from './migrations/1682529569753-AlterSocureTable';
 import { CreateVeriffTable1683527562174 } from './migrations/1683527562174-CreateVeriffTable';
 import { AlterVeriffTable1683530145156 } from './migrations/1683530145156-AlterVeriffTable';
+import { AddInswitchCardsAndAccountsEntities1683650125085 } from './migrations/1683650125085-AddInswitchCardsAndAccountsEntities';
 
 export default [
   createUserTable1669901299726,
@@ -103,7 +103,7 @@ export default [
   AddDepositFlowEntity1682250487665,
   AddRecourceTypeToDepositFLow1682513214158,
   AlterSocureTable1682529569753,
-  AddInswitchAccountEntity1680257468360,
   CreateVeriffTable1683527562174,
   AlterVeriffTable1683530145156,
+  AddInswitchCardsAndAccountsEntities1683650125085,
 ];
