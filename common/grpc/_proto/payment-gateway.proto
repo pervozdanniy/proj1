@@ -57,6 +57,7 @@ service PaymentGatewayService {
   rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
   rpc ContingentHolds (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
+  rpc CreateAssetHandler (AccountIdRequest) returns (common.SuccessResponse);
   rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
   rpc FacilitaWebhooksHandler (FacilitaWebhookRequest)   returns (common.SuccessResponse);

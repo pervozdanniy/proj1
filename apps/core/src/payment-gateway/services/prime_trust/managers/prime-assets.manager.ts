@@ -9,6 +9,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import process from 'process';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
@@ -197,6 +198,12 @@ export class PrimeAssetsManager {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
     const { account_id, contact_id } = accountData;
+    const convertData = await lastValueFrom(
+      this.axiosService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${this.asset}`),
+    );
+    const convertedAmount = parseFloat(convertData.data[`${this.asset}`]) * parseFloat(beforeAmount);
+
+    const amount = String(convertedAmount.toFixed(2));
 
     const createTransferMethodData = {
       data: {
@@ -207,17 +214,14 @@ export class PrimeAssetsManager {
           'contact-id': contact_id,
           'account-id': account_id,
           'wallet-address': wallet,
+          'unit-count': amount,
           'transfer-direction': 'outgoing',
+          'asset-transfer-type': 'ethereum',
           'single-use': false,
         },
       },
     };
-    const convertData = await lastValueFrom(
-      this.axiosService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${this.asset}`),
-    );
-    const convertedAmount = parseFloat(convertData.data[`${this.asset}`]) * parseFloat(beforeAmount);
 
-    const amount = String(convertedAmount.toFixed(2));
     let hotStatus = false;
     const balance = await this.primeBalanceManager.getAccountBalance(id);
     if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
@@ -273,6 +277,14 @@ export class PrimeAssetsManager {
         disbursement_authorization: assetData.relationships['disbursement-authorization'],
       };
 
+      if (process.env.NODE_ENV === 'dev') {
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/disbursement-authorizations/${response.disbursement_authorization.data.id}/sandbox/verify-owner`,
+          data: null,
+        });
+      }
+
       return { data: JSON.stringify(response) };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
@@ -283,5 +295,21 @@ export class PrimeAssetsManager {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
     }
+  }
+
+  async createAssetHandler({ resource_id }: AccountIdRequest): Promise<SuccessResponse> {
+    if (process.env.NODE_ENV === 'dev') {
+      try {
+        await this.httpService.request({
+          method: 'post',
+          url: `${this.prime_trust_url}/v2/asset-transfers/${resource_id}/sandbox/settle`,
+          data: null,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    return { success: true };
   }
 }

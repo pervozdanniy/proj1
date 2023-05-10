@@ -198,4 +198,8 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   veriffWebhookHandler(request: WebhookResponse): Promise<SuccessResponse> {
     return this.paymentGatewayService.veriffWebhookHandler(request);
   }
+
+  createAssetHandler(request: AccountIdRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.createAssetHandler(request);
+  }
 }

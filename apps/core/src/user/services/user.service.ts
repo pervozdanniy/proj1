@@ -23,7 +23,7 @@ export class UserService {
   get(id: number): Promise<UserEntity> {
     return this.userRepository
       .createQueryBuilder('user')
-      .innerJoinAndSelect('user.documents', 'documents', 'documents.status = :status', { status: 'approved' })
+      .leftJoinAndSelect('user.documents', 'documents', 'documents.status = :status', { status: 'approved' })
       .leftJoinAndSelect('user.details', 'details')
       .leftJoinAndSelect('user.contacts', 'contacts')
       .where('user.id = :id', { id })
