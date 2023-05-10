@@ -145,8 +145,6 @@ export class KoyweWithdrawalManager {
 
       return result.data;
     } catch (e) {
-      console.log(e);
-
       throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
     }
   }
