@@ -69,10 +69,6 @@ export class WebhooksController {
       }
     }
 
-    if (resource_type === 'asset_transfers' && action === 'create') {
-      return this.paymentGatewayService.createAssetHandler(sendData);
-    }
-
     const match = webhookData.find((e) => e === resource_type);
     if (!match) {
       this.logger.error(`Webhook ${resource_type} not found!`);

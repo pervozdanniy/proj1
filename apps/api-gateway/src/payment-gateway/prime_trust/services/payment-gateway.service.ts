@@ -176,8 +176,4 @@ export class PaymentGatewayService implements OnModuleInit {
   veriffWebhookHandler(data: VeriffWebhookDto) {
     return lastValueFrom(this.paymentGatewayServiceClient.veriffWebhookHandler(data));
   }
-
-  createAssetHandler(data: AccountIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.createAssetHandler(data));
-  }
 }
