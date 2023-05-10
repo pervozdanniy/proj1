@@ -24,7 +24,7 @@ export class InswitchService implements OnApplicationBootstrap {
     // return this.issueCard(9).catch((error) => console.error(error.response.data));
   }
 
-  async registerIfNotRegistered(user: any) {
+  async registerIfNotRegistered(user: UserEntity) {
     const count = await this.accountRepo.countBy({ user_id: user.id });
     if (count > 0) {
       return;
