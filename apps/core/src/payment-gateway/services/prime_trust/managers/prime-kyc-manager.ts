@@ -6,6 +6,7 @@ import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-t
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { ContactType, DocumentCheckType, DocumentDataType } from '@/payment-gateway/types/prime-trust';
 import { UserEntity } from '@/user/entities/user.entity';
+import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -17,7 +18,6 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountIdRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { UserService } from '../../../../user/services/user.service';
 import { PrimeVeriffManager } from './prime-veriff-manager';
 
 @Injectable()
@@ -128,21 +128,17 @@ export class PrimeKycManager {
     return { success: true };
   }
 
-  async passVerification(user_id: number) {
+  async passVerification(user_id: number, account_id: string) {
     const user = await this.userService.get(user_id);
-    const contact = await this.primeTrustContactEntityRepository.findOneBy({ user_id });
-
-    if (contact.identity_confirmed && contact.identity_documents_verified) {
-      throw new GrpcException(Status.ABORTED, 'User already passed verification!', 400);
-    }
+    const contact = await this.getContactByAccount(account_id);
 
     const mediaFiles = await this.primeVeriffManager.getMedia(user.id);
     for (const m of mediaFiles) {
-      const documentResponse = await this.send(m.buffer, m.name + '.jpg', `${m.name}  ${m.label}`, contact.uuid);
+      const documentResponse = await this.send(m.buffer, m.name + '.jpg', `${m.name}  ${m.label}`, contact.id);
       if (m.name === 'document-front' || m.name === 'document-back') {
         const documentCheckResponse = await this.kycDocumentCheck(
           documentResponse.data.id,
-          contact.uuid,
+          contact.id,
           m.label,
           user.country_code,
         );
@@ -205,20 +201,17 @@ export class PrimeKycManager {
   }
   async saveDocument(documentData: DocumentDataType, user_id: number, documentCheckResponse: DocumentCheckType) {
     try {
-      await this.primeTrustKycDocumentEntityRepository.save(
-        this.primeTrustKycDocumentEntityRepository.create({
-          user_id,
-          uuid: documentData.id,
-          file_url: documentData.attributes['file-url'],
-          extension: documentData.attributes['extension'],
-          label: documentData.attributes['label'],
-          kyc_check_uuid: documentCheckResponse.id,
-          status: documentCheckResponse.attributes.status,
-        }),
-      );
+      const payload = {
+        user_id,
+        uuid: documentData.id,
+        file_url: documentData.attributes['file-url'],
+        extension: documentData.attributes['extension'],
+        label: documentData.attributes['label'],
+        kyc_check_uuid: documentCheckResponse.id,
+        status: documentCheckResponse.attributes.status,
+      };
+      await this.primeTrustKycDocumentEntityRepository.save(this.primeTrustKycDocumentEntityRepository.create(payload));
     } catch (e) {
-      this.logger.error(e.message);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
@@ -252,17 +245,7 @@ export class PrimeKycManager {
         const document = await this.primeTrustKycDocumentEntityRepository.findOneBy({
           kyc_check_uuid: documentData.data.id,
         });
-        if (!document) {
-          await this.primeTrustKycDocumentEntityRepository.save(
-            this.primeTrustKycDocumentEntityRepository.create({
-              user_id,
-              uuid: documentData.data.attributes['socure-reference-id'],
-              label: documentData.data.attributes['kyc-document-type'],
-              kyc_check_uuid: documentData.data.id,
-              status: documentData.data.attributes.status,
-            }),
-          );
-        } else {
+        if (document) {
           await this.primeTrustKycDocumentEntityRepository.update(
             { kyc_check_uuid: documentData.data.id },
             {
@@ -362,10 +345,7 @@ export class PrimeKycManager {
     const contact = await this.primeTrustContactEntityRepository.findOneBy({ uuid: contactData.data.id });
     if (account) {
       if (!contact) {
-        const { success } = await this.saveContact(contactData.data, account.user_id);
-        if (success) {
-          await this.passVerification(account.user_id);
-        }
+        await this.saveContact(contactData.data, account.user_id);
       } else {
         const collectedData = this.collectContactData(contactData.data);
         await this.primeTrustContactEntityRepository.update({ uuid: resource_id }, collectedData);
@@ -376,14 +356,19 @@ export class PrimeKycManager {
     //   method: 'get',
     //   url: `${this.prime_trust_url}/v2/uploaded-documents?contact.id=${contactData.data.id}`,
     // });
-    //
-    // const payload: any = {};
-    // let uuid;
+
     // for (const u of contactUploadedImagesResponse.data.data) {
-    //   uuid = u.attributes.label.split('_')[0];
-    //   payload[`${u.attributes.description}`] = u.attributes['file-url'];
+    //   await this.primeTrustKycDocumentEntityRepository.save(
+    //     this.primeTrustKycDocumentEntityRepository.create({
+    //       user_id: account.user_id,
+    //       uuid: u.id,
+    //       file_url: u.attributes['file-url'],
+    //       extension: u.attributes['extension'],
+    //       label: u.attributes['label'],
+    //       status: u.attributes.status,
+    //     }),
+    //   );
     // }
-    // await this.veriffDocumentEntityRepository.update({ uuid }, payload);
 
     return { success: true };
   }
@@ -424,5 +409,14 @@ export class PrimeKycManager {
     });
 
     return contactData.data;
+  }
+
+  private async getContactByAccount(account_id: string): Promise<ContactType> {
+    const contactData = await this.httpService.request({
+      method: 'get',
+      url: `${this.prime_trust_url}/v2/accounts/${account_id}?include=contacts`,
+    });
+
+    return contactData.data.included[0];
   }
 }

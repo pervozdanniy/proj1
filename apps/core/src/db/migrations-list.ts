@@ -50,6 +50,7 @@ import { AddRecourceTypeToDepositFLow1682513214158 } from './migrations/16825132
 import { AlterSocureTable1682529569753 } from './migrations/1682529569753-AlterSocureTable';
 import { CreateVeriffTable1683527562174 } from './migrations/1683527562174-CreateVeriffTable';
 import { AlterVeriffTable1683530145156 } from './migrations/1683530145156-AlterVeriffTable';
+import { AlterKYCTable1683640068661 } from './migrations/1683640068661-AlterKYCTable';
 import { AddInswitchCardsAndAccountsEntities1683650125085 } from './migrations/1683650125085-AddInswitchCardsAndAccountsEntities';
 
 export default [
@@ -106,4 +107,5 @@ export default [
   CreateVeriffTable1683527562174,
   AlterVeriffTable1683530145156,
   AddInswitchCardsAndAccountsEntities1683650125085,
+  AlterKYCTable1683640068661,
 ];

@@ -12,7 +12,7 @@ service PaymentGatewayService {
   rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
 
   //veriff
-  rpc GenerateVeriffLink(veriff.VeriffSessionRequest) returns (veriff.VeriffSessionResponse);
+  rpc GenerateVeriffLink(UserIdRequest) returns (veriff.VeriffSessionResponse);
   rpc VeriffHookHandler(veriff.VeriffHookRequest) returns (common.SuccessResponse);
   rpc VeriffWebhookHandler(veriff.WebhookResponse) returns (common.SuccessResponse);
 

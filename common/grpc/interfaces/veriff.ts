@@ -73,9 +73,4 @@ export interface VeriffSessionVerification {
   sessionToken: string;
 }
 
-export interface VeriffSessionRequest {
-  user_id: number;
-  type: string;
-}
-
 export const SKOPA_VERIFF_PACKAGE_NAME = "skopa.veriff";

@@ -4,6 +4,7 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import Redis from 'ioredis';
@@ -15,6 +16,7 @@ import { TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData, CountryData } from '../../../country/data';
+import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { KoyweCreateOrder, KoyweQuote } from '../../../types/koywe';
 import { KoyweMainManager } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
@@ -32,6 +34,8 @@ export class KoyweWithdrawalManager {
     @InjectRepository(BankAccountEntity)
     private readonly bankAccountEntityRepository: Repository<BankAccountEntity>,
 
+    @InjectRepository(VeriffDocumentEntity)
+    private readonly documentRepository: Repository<VeriffDocumentEntity>,
     @InjectRepository(TransfersEntity)
     private readonly withdrawalEntityRepository: Repository<TransfersEntity>,
     @InjectRedis() private readonly redis: Redis,
@@ -41,7 +45,6 @@ export class KoyweWithdrawalManager {
     const { koywe_url } = config.get('app');
     const { short } = config.get('asset');
     this.asset = short;
-    this.asset = 'USDC Polygon';
     this.koywe_url = koywe_url;
   }
 
@@ -68,7 +71,16 @@ export class KoyweWithdrawalManager {
 
     const amount = String(convertedAmount.toFixed(2));
     const { quoteId } = await this.createQuote(amount, currency_type);
-    const { orderId, providedAddress } = await this.createOrder(quoteId, email, bank.account_uuid);
+    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
+    if (!document) {
+      throw new ConflictException('KYC is not completed');
+    }
+    const { orderId, providedAddress } = await this.createOrder(
+      quoteId,
+      email,
+      bank.account_uuid,
+      document.document_number,
+    );
     const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
     const fee = String(networkFee + koyweFee);
     await this.withdrawalEntityRepository.save(
@@ -107,15 +119,22 @@ export class KoyweWithdrawalManager {
     }
   }
 
-  async createOrder(quoteId: string, email: string, bank_id: string): Promise<KoyweCreateOrder> {
+  async createOrder(
+    quoteId: string,
+    email: string,
+    bank_id: string,
+    documentNumber: string,
+  ): Promise<KoyweCreateOrder> {
     try {
       const token = await this.redis.get('koywe_token');
       const formData = {
         destinationAddress: bank_id,
         quoteId,
         email,
-        metadata: 'Deposit funds',
+        metadata: 'Withdraw funds',
+        documentNumber,
       };
+
       const headersRequest = {
         Authorization: `Bearer ${token}`,
       };

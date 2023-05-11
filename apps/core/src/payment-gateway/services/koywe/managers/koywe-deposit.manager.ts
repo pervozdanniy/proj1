@@ -46,7 +46,6 @@ export class KoyweDepositManager {
     const { koywe_url } = config.get('app');
     const { short } = config.get('asset');
     this.asset = short;
-    this.asset = 'USDC Polygon';
     this.koywe_url = koywe_url;
   }
 
@@ -71,7 +70,7 @@ export class KoyweDepositManager {
 
     const { quoteId } = await this.createQuote({ amount, currency: currency_type, method: transferParams.method });
 
-    const document = await this.documentRepository.findOneBy({ user_id: id });
+    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }

@@ -1,5 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { PrimeTrustContactEntity } from './prime-trust-contact.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('prime_kyc_documents')
 export class PrimeTrustKycDocumentEntity {
@@ -29,8 +28,4 @@ export class PrimeTrustKycDocumentEntity {
 
   @Column('character varying', { nullable: true })
   extension: string;
-
-  @ManyToOne(() => PrimeTrustContactEntity)
-  @JoinColumn({ name: 'user_id' })
-  contact: PrimeTrustContactEntity;
 }

@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { VeriffDocumentTypesEnum } from '~common/enum/document-types.enum';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
@@ -17,8 +16,8 @@ import {
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { VeriffHookDto } from '../../../../../api-gateway/src/payment-gateway/prime_trust/dtos/veriff/veriff-hook.dto';
-import { VeriffWebhookDto } from '../../../../../api-gateway/src/payment-gateway/prime_trust/dtos/veriff/veriff-webhook.dto';
+import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
+import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
 import { KoyweWebhookType } from '../webhooks/data';
 
 @Injectable()
@@ -154,7 +153,7 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.contingentHolds(data));
   }
 
-  generateVeriffLink(data: { user_id: number; type: VeriffDocumentTypesEnum }) {
+  generateVeriffLink(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.generateVeriffLink(data));
   }
 
