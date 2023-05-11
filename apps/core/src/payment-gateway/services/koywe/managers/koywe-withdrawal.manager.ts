@@ -71,7 +71,7 @@ export class KoyweWithdrawalManager {
 
     const amount = String(convertedAmount.toFixed(2));
     const { quoteId } = await this.createQuote(amount, currency_type);
-    const document = await this.documentRepository.findOneBy({ user_id: id });
+    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
