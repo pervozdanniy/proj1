@@ -9,7 +9,7 @@ import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 
-export type KoywePaymentMethod = 'KHIPU' | 'WIRECL';
+export type KoywePaymentMethod = 'KHIPU' | 'WIRECL' | 'PALOMMA';
 
 @Injectable()
 export class KoyweMainManager {
