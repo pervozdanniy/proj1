@@ -55,7 +55,7 @@ export class KoyweBankAccountManager {
     const { country_code, email } = await this.userService.getUserInfo(id);
     const { code, currency_type } = countriesData[country_code];
 
-    const document = await this.documentRepository.findOneBy({ user_id: id });
+    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
