@@ -158,15 +158,6 @@ export class PrimeWithdrawalManager {
       }),
     );
 
-    const notificationPayload = {
-      user_id: id,
-      title: 'User Disbursements',
-      type: 'disbursements',
-      description: `Your disbursements status for ${amount} ${fundsResponse.attributes['currency-type']} ${fundsResponse.attributes['status']}`,
-    };
-
-    this.notificationService.createAsync(notificationPayload);
-
     const response = {
       id: fundsResponse.relationships['funds-transfer'].data.id,
       type: fundsResponse.relationships['funds-transfer'].data.type,

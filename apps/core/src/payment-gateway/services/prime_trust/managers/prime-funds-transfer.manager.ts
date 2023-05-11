@@ -12,6 +12,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import {NotificationService} from "../../../../notification/services/notification.service";
 
 @Injectable()
 export class PrimeFundsTransferManager {
@@ -22,6 +23,8 @@ export class PrimeFundsTransferManager {
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
     private readonly primeBalanceManager: PrimeBalanceManager,
+
+    private readonly notificationService: NotificationService,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -203,7 +206,9 @@ export class PrimeFundsTransferManager {
 
     await this.transferFundsEntityRepository.save(this.transferFundsEntityRepository.create(payload));
     await this.primeBalanceManager.updateAccountBalance(fromAccountId);
+    await this.notificationService.sendWs(sender_id, 'balance', 'Balance updated!', 'Balance');
     await this.primeBalanceManager.updateAccountBalance(toAccountId);
+    await this.notificationService.sendWs(receiver_id, 'balance', 'Balance updated!', 'Balance');
 
     return {
       data: payload,
