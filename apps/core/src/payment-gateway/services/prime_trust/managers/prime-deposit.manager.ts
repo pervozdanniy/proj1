@@ -414,7 +414,6 @@ export class PrimeDepositManager {
         contributionPayload['param_type'] = 'credit_card';
         contributionPayload['param_id'] = cardResource.id;
       }
-      await this.primeBalanceManager.updateAccountBalance(account_id);
 
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
       const contribution_id = contributionResponse.data.data.id;

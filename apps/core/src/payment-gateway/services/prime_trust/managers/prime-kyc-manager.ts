@@ -268,13 +268,6 @@ export class PrimeKycManager {
         ...data,
       });
 
-      const notificationPayload = {
-        user_id,
-        title: 'User Documents',
-        type: 'kyc_document_checks',
-        description: `Documents verification ${documentData.data.attributes.status}`,
-      };
-      this.notificationService.createAsync(notificationPayload);
       await this.notificationService.sendWs(
         user_id,
         'kyc',
