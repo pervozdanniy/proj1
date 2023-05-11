@@ -214,10 +214,9 @@ export class PrimeAssetsManager {
           'contact-id': contact_id,
           'account-id': account_id,
           'wallet-address': wallet,
-          'unit-count': amount,
           'transfer-direction': 'outgoing',
           'asset-transfer-type': 'ethereum',
-          'single-use': false,
+          'single-use': true,
         },
       },
     };

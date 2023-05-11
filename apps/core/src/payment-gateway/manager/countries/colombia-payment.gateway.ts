@@ -38,7 +38,11 @@ export class ColombiaPaymentGateway
     const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
     const { type } = request;
     if (type === 'wire') {
-      return this.koyweService.createReference(request, { wallet_address, asset_transfer_method_id });
+      return this.koyweService.createReference(request, {
+        wallet_address,
+        asset_transfer_method_id,
+        method: 'PALOMMA',
+      });
     }
   }
 
