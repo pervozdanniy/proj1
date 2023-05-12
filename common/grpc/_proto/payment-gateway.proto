@@ -9,6 +9,10 @@ service PaymentGatewayService {
 
   rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
 
+  //link
+  rpc LinkSession (UserIdRequest) returns (LinkSessionResponse);
+  rpc SaveCustomer (LinkCustomerRequest) returns (common.SuccessResponse);
+
   //veriff
   rpc GenerateVeriffLink(UserIdRequest) returns (veriff.VeriffSessionResponse);
   rpc VeriffHookHandler(veriff.VeriffHookRequest) returns (common.SuccessResponse);
@@ -69,6 +73,14 @@ service DepositFlowService {
   rpc PayWithSelectedResource(DepositNextStepRequest) returns (ContributionResponse);
 }
 
+message LinkSessionResponse {
+   string sessionKey = 1;
+}
+
+message LinkCustomerRequest {
+  string customerId = 1;
+  string sessionId = 2;
+}
 
 message DepositFlowRequest {
   uint32 user_id = 1;

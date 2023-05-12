@@ -22,6 +22,8 @@ import {
   FacilitaWebhookRequest,
   JsonData,
   KoyweWebhookRequest,
+  LinkCustomerRequest,
+  LinkSessionResponse,
   LiquidoWebhookRequest,
   MakeDepositRequest,
   PaymentGatewayServiceController,
@@ -197,5 +199,13 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   veriffWebhookHandler(request: WebhookResponse): Promise<SuccessResponse> {
     return this.paymentGatewayService.veriffWebhookHandler(request);
+  }
+
+  linkSession(request: UserIdRequest): Promise<LinkSessionResponse> {
+    return this.paymentGatewayService.linkSession(request);
+  }
+
+  saveCustomer(request: LinkCustomerRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.saveCustomer(request);
   }
 }

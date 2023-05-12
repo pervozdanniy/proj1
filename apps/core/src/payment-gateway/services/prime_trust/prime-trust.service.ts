@@ -8,6 +8,7 @@ import {
   BankAccountParams,
   CreateReferenceRequest,
   DepositParamRequest,
+  LinkCustomerRequest,
   MakeDepositRequest,
   SearchTransactionRequest,
   TransferFundsRequest,
@@ -21,6 +22,7 @@ import { PrimeBankAccountManager } from './managers/prime-bank-account.manager';
 import { PrimeDepositManager } from './managers/prime-deposit.manager';
 import { PrimeFundsTransferManager } from './managers/prime-funds-transfer.manager';
 import { PrimeKycManager } from './managers/prime-kyc-manager';
+import { PrimeLinkManager } from './managers/prime-link-manager';
 import { PrimeTokenManager } from './managers/prime-token.manager';
 import { PrimeTransactionsManager } from './managers/prime-transactions.manager';
 import { PrimeVeriffManager } from './managers/prime-veriff-manager';
@@ -46,6 +48,8 @@ export class PrimeTrustService {
     private readonly primeTransactionsManager: PrimeTransactionsManager,
 
     private readonly primeAssetsManager: PrimeAssetsManager,
+
+    private readonly primeLinkManager: PrimeLinkManager,
   ) {}
 
   getToken() {
@@ -188,5 +192,13 @@ export class PrimeTrustService {
 
   veriffWebhookHandler(request: WebhookResponse) {
     return this.primeVeriffManager.veriffWebhookHandler(request);
+  }
+
+  linkSession(id: number) {
+    return this.primeLinkManager.linkSession(id);
+  }
+
+  saveCustomer(request: LinkCustomerRequest) {
+    return this.primeLinkManager.saveCustomer(request);
   }
 }

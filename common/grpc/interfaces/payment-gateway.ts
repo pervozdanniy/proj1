@@ -7,6 +7,15 @@ import { VeriffHookRequest, VeriffSessionResponse, WebhookResponse } from "./ver
 
 export const protobufPackage = "skopa.core";
 
+export interface LinkSessionResponse {
+  sessionKey: string;
+}
+
+export interface LinkCustomerRequest {
+  customerId: string;
+  sessionId: string;
+}
+
 export interface DepositFlowRequest {
   user_id: number;
   amount: string;
@@ -352,6 +361,12 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface PaymentGatewayServiceClient {
   createAgreement(request: AgreementRequest, ...rest: any): Observable<UserAgreement>;
 
+  /** link */
+
+  linkSession(request: UserIdRequest, ...rest: any): Observable<LinkSessionResponse>;
+
+  saveCustomer(request: LinkCustomerRequest, ...rest: any): Observable<SuccessResponse>;
+
   /** veriff */
 
   generateVeriffLink(request: UserIdRequest, ...rest: any): Observable<VeriffSessionResponse>;
@@ -446,6 +461,18 @@ export interface PaymentGatewayServiceController {
     request: AgreementRequest,
     ...rest: any
   ): Promise<UserAgreement> | Observable<UserAgreement> | UserAgreement;
+
+  /** link */
+
+  linkSession(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<LinkSessionResponse> | Observable<LinkSessionResponse> | LinkSessionResponse;
+
+  saveCustomer(
+    request: LinkCustomerRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   /** veriff */
 
@@ -645,6 +672,8 @@ export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "createAgreement",
+      "linkSession",
+      "saveCustomer",
       "generateVeriffLink",
       "veriffHookHandler",
       "veriffWebhookHandler",

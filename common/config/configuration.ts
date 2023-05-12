@@ -47,6 +47,7 @@ export interface ConfigInterface {
     koywe_url: string;
     facilita_url: string;
     veriff_url: string;
+    link_url: string;
   };
 
   queues: {
@@ -85,6 +86,12 @@ export interface ConfigInterface {
   veriff: {
     api_key: string;
     secret: string;
+  };
+
+  link: {
+    client_id: string;
+    secret_key: string;
+    merchant_id: string;
   };
 
   sendgrid: {
@@ -168,6 +175,7 @@ export default (): ConfigInterface => ({
     koywe_url: process.env.KOYWE_URL,
     facilita_url: process.env.FACILITA_URL,
     veriff_url: process.env.VERIFF_BASE_URL,
+    link_url: process.env.LINK_URL,
   },
   queues: {
     user_registration: {
@@ -221,5 +229,10 @@ export default (): ConfigInterface => ({
     x_api_key: process.env.LIQUIDO_X_API_KEY,
     api_url: process.env.LIQUIDO_API_URL,
     auth_url: process.env.LIQUIDO_AUTH_URL,
+  },
+  link: {
+    merchant_id: process.env.LINK_MERCHANT_ID,
+    client_id: process.env.LINK_CLIENT_ID,
+    secret_key: process.env.LINK_SECRET_KEY,
   },
 });
