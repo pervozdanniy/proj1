@@ -7,6 +7,19 @@ import { VeriffHookRequest, VeriffSessionResponse, WebhookResponse } from "./ver
 
 export const protobufPackage = "skopa.core";
 
+export interface PrimeWebhookRequest {
+  id: string;
+  account_id: string;
+  action: string;
+  data: ChangesData | undefined;
+  resource_id: string;
+  resource_type: string;
+}
+
+export interface ChangesData {
+  changes: string[];
+}
+
 export interface LinkSessionResponse {
   sessionKey: string;
 }
@@ -375,17 +388,9 @@ export interface PaymentGatewayServiceClient {
 
   veriffWebhookHandler(request: WebhookResponse, ...rest: any): Observable<SuccessResponse>;
 
-  getToken(request: Empty, ...rest: any): Observable<PG_Token>;
-
   getAvailablePaymentMethods(request: UserIdRequest, ...rest: any): Observable<PaymentMethodsResponse>;
 
-  createAccount(request: UserIdRequest, ...rest: any): Observable<AccountResponse>;
-
-  getAccount(request: UserIdRequest, ...rest: any): Observable<AccountResponse>;
-
   getContact(request: UserIdRequest, ...rest: any): Observable<ContactResponse>;
-
-  createContact(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
 
   getBalance(request: BalanceRequest, ...rest: any): Observable<BalanceResponse>;
 
@@ -399,27 +404,17 @@ export interface PaymentGatewayServiceClient {
 
   /** banks */
 
-  getBankAccounts(request: UserIdRequest, ...rest: any): Observable<BankAccountsResponse>;
-
   getBanksInfo(request: UserIdRequest, ...rest: any): Observable<BanksInfoResponse>;
 
   addBankAccountParams(request: BankAccountParams, ...rest: any): Observable<BankAccountParams>;
 
   /** deposit funds */
 
-  createReference(request: CreateReferenceRequest, ...rest: any): Observable<JsonData>;
-
-  addDepositParams(request: DepositParamRequest, ...rest: any): Observable<DepositResponse>;
-
-  getDepositParams(request: UserIdRequest, ...rest: any): Observable<DepositParamsResponse>;
-
   createCreditCardResource(request: UserIdRequest, ...rest: any): Observable<CreditCardResourceResponse>;
 
   verifyCreditCard(request: VerifyCreditCardRequest, ...rest: any): Observable<SuccessResponse>;
 
   makeDeposit(request: MakeDepositRequest, ...rest: any): Observable<ContributionResponse>;
-
-  getCreditCards(request: UserIdRequest, ...rest: any): Observable<CreditCardsResponse>;
 
   /** transfer funds */
 
@@ -429,25 +424,7 @@ export interface PaymentGatewayServiceClient {
 
   makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<JsonData>;
 
-  /** webhooks */
-
-  documentCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  cipCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateAccount(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateContact(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  contingentHolds(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateAssetDeposit(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+  primeWebhooksHandler(request: PrimeWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
   koyweWebhooksHandler(request: KoyweWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
@@ -491,32 +468,15 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  getToken(request: Empty, ...rest: any): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
-
   getAvailablePaymentMethods(
     request: UserIdRequest,
     ...rest: any
   ): Promise<PaymentMethodsResponse> | Observable<PaymentMethodsResponse> | PaymentMethodsResponse;
 
-  createAccount(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<AccountResponse> | Observable<AccountResponse> | AccountResponse;
-
-  getAccount(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<AccountResponse> | Observable<AccountResponse> | AccountResponse;
-
   getContact(
     request: UserIdRequest,
     ...rest: any
   ): Promise<ContactResponse> | Observable<ContactResponse> | ContactResponse;
-
-  createContact(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   getBalance(
     request: BalanceRequest,
@@ -545,11 +505,6 @@ export interface PaymentGatewayServiceController {
 
   /** banks */
 
-  getBankAccounts(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<BankAccountsResponse> | Observable<BankAccountsResponse> | BankAccountsResponse;
-
   getBanksInfo(
     request: UserIdRequest,
     ...rest: any
@@ -561,18 +516,6 @@ export interface PaymentGatewayServiceController {
   ): Promise<BankAccountParams> | Observable<BankAccountParams> | BankAccountParams;
 
   /** deposit funds */
-
-  createReference(request: CreateReferenceRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
-
-  addDepositParams(
-    request: DepositParamRequest,
-    ...rest: any
-  ): Promise<DepositResponse> | Observable<DepositResponse> | DepositResponse;
-
-  getDepositParams(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<DepositParamsResponse> | Observable<DepositParamsResponse> | DepositParamsResponse;
 
   createCreditCardResource(
     request: UserIdRequest,
@@ -589,11 +532,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
 
-  getCreditCards(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<CreditCardsResponse> | Observable<CreditCardsResponse> | CreditCardsResponse;
-
   /** transfer funds */
 
   transferFunds(
@@ -605,50 +543,8 @@ export interface PaymentGatewayServiceController {
 
   makeWithdrawal(request: TransferMethodRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
 
-  /** webhooks */
-
-  documentCheck(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  cipCheck(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateAccount(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateContact(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateBalance(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateContribution(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  contingentHolds(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateWithdraw(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateAssetDeposit(
-    request: AccountIdRequest,
+  primeWebhooksHandler(
+    request: PrimeWebhookRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
@@ -677,38 +573,21 @@ export function PaymentGatewayServiceControllerMethods() {
       "generateVeriffLink",
       "veriffHookHandler",
       "veriffWebhookHandler",
-      "getToken",
       "getAvailablePaymentMethods",
-      "createAccount",
-      "getAccount",
       "getContact",
-      "createContact",
       "getBalance",
       "exchange",
       "getUserAccountStatus",
       "transferToHotWallet",
       "getTransactions",
-      "getBankAccounts",
       "getBanksInfo",
       "addBankAccountParams",
-      "createReference",
-      "addDepositParams",
-      "getDepositParams",
       "createCreditCardResource",
       "verifyCreditCard",
       "makeDeposit",
-      "getCreditCards",
       "transferFunds",
       "makeWithdrawal",
-      "documentCheck",
-      "cipCheck",
-      "updateAccount",
-      "updateContact",
-      "updateBalance",
-      "updateContribution",
-      "contingentHolds",
-      "updateWithdraw",
-      "updateAssetDeposit",
+      "primeWebhooksHandler",
       "koyweWebhooksHandler",
       "facilitaWebhooksHandler",
       "liquidoWebhooksHandler",

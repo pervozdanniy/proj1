@@ -1,24 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { DepositTypes } from '~common/enum/document-types.enum';
-
-export class CreateReferenceDto {
-  @ApiProperty({ enum: Object.values(DepositTypes) })
-  @IsEnum(DepositTypes)
-  @Type(() => String)
-  readonly type: DepositTypes;
-
-  @ApiProperty({ example: '1000' })
-  @IsString()
-  @IsNotEmpty()
-  amount: string;
-
-  @ApiProperty({ example: 'USD' })
-  @IsString()
-  @IsNotEmpty()
-  currency_type: string;
-}
+import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 
 export class AttributesData {
   @ApiProperty({ example: '1000' })

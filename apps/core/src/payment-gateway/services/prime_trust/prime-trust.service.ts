@@ -60,7 +60,7 @@ export class PrimeTrustService {
     return this.primeAccountManager.createAccount(userDetails);
   }
 
-  updateAccount(id: string) {
+  updateAccount({ id }: AccountIdRequest) {
     return this.primeAccountManager.updateAccount(id);
   }
 
@@ -75,7 +75,7 @@ export class PrimeTrustService {
   documentCheck(request: AccountIdRequest) {
     return this.primeKycManager.documentCheck(request);
   }
-  cipCheck(id: string, resource_id: string) {
+  cipCheck({ id, resource_id }: AccountIdRequest) {
     return this.primeKycManager.cipCheck(id, resource_id);
   }
 
@@ -83,7 +83,7 @@ export class PrimeTrustService {
     return this.primeDepositManager.createReference(request);
   }
 
-  async updateAccountBalance(id: string) {
+  async updateBalance({ id }: AccountIdRequest) {
     return this.primeBalanceManager.updateAccountBalance(id);
   }
 
