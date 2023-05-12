@@ -14,9 +14,9 @@ import { ClientController } from '~svc/auth/src/client/client.controller';
 import { ClientService } from '~svc/auth/src/client/client.service';
 import { AuthClient } from '~svc/auth/src/entities/auth_client.entity';
 import { RefreshTokenEntity } from '~svc/auth/src/entities/refresh-token.entity';
-import refreshTokenRepoFactory from '../../__mocks/refresh-token.respository';
 import authClientRepoFactory from './auth-client.repository';
 import testConfig from './configuration';
+import refreshTokenRepoFactory from './refresh-token.respository';
 
 export default async (config: ConfigService<ConfigInterface>) => {
   const auth = await Test.createTestingModule({
