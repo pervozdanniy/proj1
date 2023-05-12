@@ -1,6 +1,5 @@
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
 import { UserSourceEnum } from '~common/constants/user';
 import { AuthData, RegisterSocialRequest, SocialsAuthRequest } from '~common/grpc/interfaces/auth';
 import { SessionProxy } from '~common/session';
@@ -18,11 +17,10 @@ export class ApiSocialsService {
   ) {}
 
   async loginSocials({ social_id, source, email }: SocialsAuthRequest, session: SessionProxy) {
-    const { user } = await firstValueFrom(
+    const user =
       source !== UserSourceEnum.Api && social_id
-        ? this.userService.findBySocialId({ social_id })
-        : this.userService.findByLogin({ email }),
-    );
+        ? await this.authService.findBySocialId(social_id)
+        : await this.authService.findByLogin({ email });
 
     if (user) {
       if (user.source === source) {

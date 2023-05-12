@@ -68,6 +68,12 @@ export class AuthService implements OnModuleInit {
     return user;
   }
 
+  async findBySocialId(socialId: string) {
+    const { user } = await firstValueFrom(this.userService.findBySocialId({ social_id: socialId }));
+
+    return user;
+  }
+
   async findUser(id: number) {
     return firstValueFrom(this.userService.getById({ id }));
   }
