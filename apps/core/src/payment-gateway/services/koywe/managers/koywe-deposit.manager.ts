@@ -1,4 +1,4 @@
-import { KoyweCreateOrder, KoyweQuote, ReferenceData } from '@/payment-gateway/types/koywe';
+import { KoyweCreateOrder, KoyweQuote } from '@/payment-gateway/types/koywe';
 import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -12,7 +12,7 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
-import { CreateReferenceRequest, DepositRedirectData, JsonData } from '~common/grpc/interfaces/payment-gateway';
+import { CreateReferenceRequest, DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
