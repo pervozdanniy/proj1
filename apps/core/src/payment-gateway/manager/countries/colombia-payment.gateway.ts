@@ -3,6 +3,7 @@ import {
   BankAccountParams,
   BanksInfoResponse,
   CreateReferenceRequest,
+  DepositRedirectData,
   JsonData,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -11,14 +12,14 @@ import {
   BankWithdrawalInterface,
   PaymentGatewayInterface,
   PaymentMethod,
-  WireDepositInterface,
+  RedirectDepositInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../services/koywe/koywe.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
 export class ColombiaPaymentGateway
-  implements PaymentGatewayInterface, BankInterface, WireDepositInterface, BankWithdrawalInterface
+  implements PaymentGatewayInterface, BankInterface, RedirectDepositInterface, BankWithdrawalInterface
 {
   constructor(private primeTrustService: PrimeTrustService, private koyweService: KoyweService) {}
 
@@ -34,7 +35,7 @@ export class ColombiaPaymentGateway
     return this.koyweService.getBanksInfo(country);
   }
 
-  async createReference(request: CreateReferenceRequest): Promise<JsonData> {
+  async createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData> {
     const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
     const { type } = request;
     if (type === 'wire') {
@@ -48,7 +49,7 @@ export class ColombiaPaymentGateway
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     const { id, amount } = request;
-    const wallet = await this.koyweService.makeWithdrawal(request);
+    const { wallet } = await this.koyweService.makeWithdrawal(request);
 
     return await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
   }

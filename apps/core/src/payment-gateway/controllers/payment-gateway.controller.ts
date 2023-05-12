@@ -191,6 +191,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   generateVeriffLink({ id }: UserIdRequest): Promise<VeriffSessionResponse> {
     return this.paymentGatewayService.generateVeriffLink(id);
   }
+
   veriffHookHandler(request: VeriffHookRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.veriffHookHandler(request);
   }

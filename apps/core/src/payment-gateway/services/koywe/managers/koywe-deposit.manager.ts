@@ -12,7 +12,7 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
-import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
+import { CreateReferenceRequest, DepositRedirectData, JsonData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
@@ -52,23 +52,19 @@ export class KoyweDepositManager {
   async createReference(
     depositParams: CreateReferenceRequest,
     transferParams: KoyweReferenceParams,
-  ): Promise<JsonData> {
-    const { amount: beforeConvertAmount, id } = depositParams;
-    const { wallet_address, asset_transfer_method_id } = transferParams;
+  ): Promise<DepositRedirectData> {
+    const { amount, id } = depositParams;
+    const { wallet_address, method } = transferParams;
 
     const userDetails = await this.userService.getUserInfo(id);
     await this.koyweTokenManager.getToken(userDetails.email);
     const { currency_type } = countriesData[userDetails.country_code];
 
-    const convertData = await lastValueFrom(
-      this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${currency_type}`),
-    );
-
-    const convertedAmount = parseFloat(beforeConvertAmount) * parseFloat(convertData.data[currency_type]);
-
-    const amount = String(convertedAmount.toFixed(2));
-
-    const { quoteId } = await this.createQuote({ amount, currency: currency_type, method: transferParams.method });
+    const quote = await this.createQuote({
+      amount,
+      currency: currency_type,
+      method,
+    });
 
     const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
     if (!document) {
@@ -76,45 +72,51 @@ export class KoyweDepositManager {
     }
 
     const { orderId, providedAddress, providedAction } = await this.createOrder(
-      quoteId,
+      quote.quoteId,
       userDetails.email,
       wallet_address,
       document.document_number,
     );
 
-    const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
-    const fee = String(networkFee + koyweFee);
+    const totalFee = quote.networkFee + quote.koyweFee;
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
         user_id: id,
         uuid: orderId,
         type: 'deposit',
-        amount,
+        amount: quote.amountIn.toFixed(2),
         provider: Providers.KOYWE,
         currency_type,
-        status: status.toLowerCase(),
-        fee,
+        status: 'waiting',
+        fee: totalFee.toFixed(2),
       }),
     );
+    const info = {
+      amount: quote.amountIn,
+      currency: currency_type,
+      rate: quote.exchangeRate,
+      fee: totalFee,
+    };
     if (providedAddress) {
-      const parts = providedAddress.split('\n');
+      throw new ConflictException('Invalid flow params');
+      // const parts = providedAddress.split('\n');
 
-      const data: ReferenceData = {
-        name: parts[0],
-        account_number: parts[1],
-        tax_id: parts[2],
-        bank: parts[3],
-        email: parts[4],
-        amount,
-        currency_type,
-        asset_transfer_method_id,
-        wallet_address,
-      };
+      // const paymentData: ReferenceData = {
+      //   name: parts[0],
+      //   account_number: parts[1],
+      //   tax_id: parts[2],
+      //   bank: parts[3],
+      //   email: parts[4],
+      //   amount: quote.amountIn.toFixed(2),
+      //   currency_type,
+      //   asset_transfer_method_id,
+      //   wallet_address,
+      // };
 
-      return { data: JSON.stringify([data]) };
+      // return { data: JSON.stringify({ paymentData, info }) };
     }
     if (providedAction) {
-      return { data: JSON.stringify({ url: providedAction }) };
+      return { url: providedAction, info };
     }
   }
 
@@ -125,7 +127,7 @@ export class KoyweDepositManager {
       const formData = {
         symbolIn: params.currency,
         symbolOut: this.asset,
-        amountIn: params.amount,
+        amountOut: params.amount,
         paymentMethodId,
         executable: true,
       };

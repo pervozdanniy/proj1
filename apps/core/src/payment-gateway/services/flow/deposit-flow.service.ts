@@ -11,7 +11,7 @@ import {
   hasBankDeposit,
   hasCreditCard,
   hasDeposit,
-  hasWireTransfer,
+  hasRedirectDeposit,
   PaymentGatewayManager,
 } from '../../manager/payment-gateway.manager';
 
@@ -68,8 +68,8 @@ export class DepositFlow {
         };
       }
 
-      if (hasWireTransfer(paymentGateway)) {
-        const resp = await paymentGateway.createReference({
+      if (hasRedirectDeposit(paymentGateway)) {
+        const redirect = await paymentGateway.createRedirectReference({
           id: userDetails.id,
           amount: payload.amount,
           currency_type: payload.currency,
@@ -78,7 +78,7 @@ export class DepositFlow {
 
         return {
           action: 'redirect',
-          redirect: { url: resp.data },
+          redirect,
         };
       }
     }

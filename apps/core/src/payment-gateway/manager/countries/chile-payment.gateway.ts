@@ -3,6 +3,7 @@ import {
   BankAccountParams,
   BanksInfoResponse,
   CreateReferenceRequest,
+  DepositRedirectData,
   JsonData,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -11,16 +12,24 @@ import {
   BankWithdrawalInterface,
   PaymentGatewayInterface,
   PaymentMethod,
-  WireDepositInterface,
+  RedirectDepositInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../services/koywe/koywe.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
 export class ChilePaymentGateway
-  implements PaymentGatewayInterface, BankInterface, WireDepositInterface, BankWithdrawalInterface
+  implements PaymentGatewayInterface, BankInterface, RedirectDepositInterface, BankWithdrawalInterface
 {
   constructor(private primeTrustService: PrimeTrustService, private koyweService: KoyweService) {}
+
+  async createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData> {
+    const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
+    const { type } = request;
+    if (type === 'wire') {
+      return this.koyweService.createReference(request, { wallet_address, asset_transfer_method_id, method: 'KHIPU' });
+    }
+  }
 
   getAvailablePaymentMethods(): PaymentMethod[] {
     return ['bank-transfer'];
@@ -34,17 +43,9 @@ export class ChilePaymentGateway
     return this.koyweService.getBanksInfo(country);
   }
 
-  async createReference(request: CreateReferenceRequest): Promise<JsonData> {
-    const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
-    const { type } = request;
-    if (type === 'wire') {
-      return this.koyweService.createReference(request, { wallet_address, asset_transfer_method_id, method: 'KHIPU'});
-    }
-  }
-
   async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
     const { id, amount } = request;
-    const wallet = await this.koyweService.makeWithdrawal(request);
+    const { wallet } = await this.koyweService.makeWithdrawal(request);
 
     return await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
   }

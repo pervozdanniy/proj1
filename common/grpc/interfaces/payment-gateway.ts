@@ -32,6 +32,14 @@ export interface DepositSelectCardData {
 
 export interface DepositRedirectData {
   url: string;
+  info: DepositInfo | undefined;
+}
+
+export interface DepositInfo {
+  amount: number;
+  currency: string;
+  rate: number;
+  fee: number;
 }
 
 export interface DepositNextStepRequest {

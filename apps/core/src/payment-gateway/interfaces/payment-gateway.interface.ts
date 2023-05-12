@@ -7,6 +7,7 @@ import {
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositParamRequest,
+  DepositRedirectData,
   DepositResponse,
   JsonData,
   MakeDepositRequest,
@@ -23,6 +24,10 @@ export interface BankInterface {
   addBank(request: BankAccountParams): Promise<BankAccountParams>;
 
   getAvailableBanks(country: string): Promise<BanksInfoResponse>;
+}
+
+export interface RedirectDepositInterface {
+  createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData>;
 }
 
 export interface WireDepositInterface {

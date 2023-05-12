@@ -48,8 +48,8 @@ export class KoyweWithdrawalManager {
     this.koywe_url = koywe_url;
   }
 
-  async makeWithdrawal(request: TransferMethodRequest): Promise<string> {
-    const { id, bank_account_id, amount: beforeConvertAmount } = request;
+  async makeWithdrawal(request: TransferMethodRequest) {
+    const { id, bank_account_id, amount } = request;
     const { country_code, email } = await this.userService.getUserInfo(id);
     const bank = await this.bankAccountEntityRepository.findOneBy({
       user_id: id,
@@ -63,26 +63,18 @@ export class KoyweWithdrawalManager {
 
     const countries: CountryData = countriesData;
     const { currency_type } = countries[country_code];
-
-    const convertData = await lastValueFrom(
-      this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${this.asset}`),
-    );
-    const convertedAmount = parseFloat(beforeConvertAmount) * parseFloat(convertData.data[`${this.asset}`]);
-
-    const amount = String(convertedAmount.toFixed(2));
-    const { quoteId } = await this.createQuote(amount, currency_type);
+    const quote = await this.createQuote(amount, currency_type);
     const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
     const { orderId, providedAddress } = await this.createOrder(
-      quoteId,
+      quote.quoteId,
       email,
       bank.account_uuid,
       document.document_number,
     );
-    const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
-    const fee = String(networkFee + koyweFee);
+    const totalFee = quote.networkFee + quote.koyweFee;
     await this.withdrawalEntityRepository.save(
       this.withdrawalEntityRepository.create({
         user_id: id,
@@ -91,12 +83,18 @@ export class KoyweWithdrawalManager {
         provider: Providers.KOYWE,
         amount,
         currency_type: 'USD',
-        status: status.toLowerCase(),
-        fee,
+        status: 'waiting',
+        fee: totalFee.toFixed(2),
       }),
     );
+    const info = {
+      amount: quote.amountIn,
+      currency: currency_type,
+      rate: quote.exchangeRate,
+      fee: totalFee,
+    };
 
-    return providedAddress;
+    return { wallet: providedAddress, info };
   }
 
   async createQuote(amount: string, currency_type: string): Promise<KoyweQuote> {

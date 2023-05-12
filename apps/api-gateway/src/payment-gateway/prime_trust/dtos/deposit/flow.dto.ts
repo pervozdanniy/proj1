@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsNotEmpty, IsNumberString, IsString, Length } from 'class-validator';
 
 export enum PaymentType {
@@ -72,13 +73,31 @@ class BankParamsDto {
   routing_number?: string;
 }
 
+class DepositInfo {
+  @ApiProperty()
+  amount: number;
+
+  @ApiProperty()
+  currency: string;
+
+  @ApiProperty()
+  rate: number;
+
+  @ApiProperty()
+  fee: number;
+}
 class RedirectDto {
   @ApiProperty()
   url: string;
+
+  @Type(() => DepositInfo)
+  @ApiProperty({ type: DepositInfo })
+  info: DepositInfo;
 }
 
 class SelectBankDto {
   @ApiProperty({ type: BankParamsDto, isArray: true })
+  @Type(() => BankParamsDto)
   banks: BankParamsDto[];
 }
 
