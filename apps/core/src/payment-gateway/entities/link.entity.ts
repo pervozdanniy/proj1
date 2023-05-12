@@ -20,7 +20,7 @@ export class LinkEntity {
   @Column('character varying', { unique: true })
   session_id: string;
 
-  @Column('character varying', { unique: true, nullable: true })
+  @Column('character varying', { nullable: true })
   customer_id: string;
 
   @Column('character varying')

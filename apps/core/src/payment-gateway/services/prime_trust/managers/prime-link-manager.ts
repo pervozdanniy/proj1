@@ -8,7 +8,13 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { LinkCustomerRequest, LinkSessionResponse, Token_Data } from '~common/grpc/interfaces/payment-gateway';
+import {
+  LinkCustomerRequest,
+  LinkSessionResponse,
+  LinkTransferData,
+  Token_Data,
+} from '~common/grpc/interfaces/payment-gateway';
+import { generateRandomString } from '~common/helpers';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '../../../../notification/services/notification.service';
 import { LinkEntity } from '../../../entities/link.entity';
@@ -17,7 +23,9 @@ import { LinkEntity } from '../../../entities/link.entity';
 export class PrimeLinkManager {
   private readonly url: string;
   private readonly client_id: string;
-  private readonly secret_key;
+  private readonly secret_key: string;
+
+  private readonly merchant_id: string;
 
   constructor(
     private userService: UserService,
@@ -30,10 +38,11 @@ export class PrimeLinkManager {
     config: ConfigService<ConfigInterface>,
   ) {
     const { link_url } = config.get('app', { infer: true });
-    const { client_id, secret_key } = config.get('link', { infer: true });
+    const { client_id, secret_key, merchant_id } = config.get('link', { infer: true });
     this.url = link_url;
     this.client_id = client_id;
     this.secret_key = secret_key;
+    this.merchant_id = merchant_id;
   }
 
   async getToken(): Promise<Token_Data> {
@@ -103,7 +112,6 @@ export class PrimeLinkManager {
     );
 
     const link = await this.linkEntityRepository.findOneBy({ session_id: sessionId });
-
     await this.linkEntityRepository.update(
       { session_id: sessionId },
       { customer_id: customerId, status: accountResult.data.accountDetails.accountStatus.toLowerCase() },
@@ -112,5 +120,45 @@ export class PrimeLinkManager {
     await this.notificationService.sendWs(link.user_id, 'link', 'Bank account linked!');
 
     return { success: true };
+  }
+
+  async sendAmount(user_id: number, amount: string, currency: string): Promise<LinkTransferData> {
+    const { token } = await this.getToken();
+    const headersRequest = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+
+    const link = await this.linkEntityRepository
+      .createQueryBuilder('l')
+      .where('l.user_id = :user_id', { user_id })
+      .orderBy('l.created_at', 'DESC')
+      .getOne();
+
+    const formData = {
+      source: {
+        id: link.customer_id,
+        type: 'CUSTOMER',
+      },
+      destination: {
+        id: this.merchant_id,
+        type: 'MERCHANT',
+      },
+      amount: {
+        currency: currency,
+        value: amount,
+      },
+      requestKey: generateRandomString(),
+    };
+
+    try {
+      const paymentResponse = await lastValueFrom(
+        this.httpService.post(`${this.url}/v1/payments`, formData, { headers: headersRequest }),
+      );
+
+      return { paymentId: paymentResponse.data.paymentId, paymentStatus: paymentResponse.data.paymentStatus };
+    } catch (e) {
+      throw new GrpcException(Status.INVALID_ARGUMENT, 'Payment error!', 400);
+    }
   }
 }

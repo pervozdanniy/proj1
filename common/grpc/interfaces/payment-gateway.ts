@@ -36,12 +36,18 @@ export interface DepositFlowRequest {
   type: string;
 }
 
+export interface LinkTransferData {
+  paymentId: string;
+  paymentStatus: string;
+}
+
 export interface DepositFlowResponse {
   action: string;
   flow_id?: number | undefined;
   banks?: DepositSelectBankData | undefined;
   cards?: DepositSelectCardData | undefined;
   redirect?: DepositRedirectData | undefined;
+  link_transfer?: LinkTransferData | undefined;
 }
 
 export interface DepositSelectBankData {

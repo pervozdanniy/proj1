@@ -85,6 +85,10 @@ message DepositFlowRequest {
   string currency = 3;
   string type = 4;
 }
+message LinkTransferData {
+  string paymentId = 1;
+  string paymentStatus = 2;
+}
 
 message DepositFlowResponse {
   string action = 1;
@@ -93,8 +97,10 @@ message DepositFlowResponse {
     DepositSelectBankData banks = 3;
     DepositSelectCardData cards = 4;
     DepositRedirectData redirect = 5;
+    LinkTransferData link_transfer = 6;
   };
 }
+
 
 message DepositSelectBankData {
   repeated BankAccountParams list = 1;

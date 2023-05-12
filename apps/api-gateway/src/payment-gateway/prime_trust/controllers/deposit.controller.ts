@@ -48,8 +48,6 @@ export class DepositController {
   @JwtSessionAuth({ requireKYC: true })
   @Post('/credit_card/resource')
   async createCreditCardResource(@JwtSessionUser() { id }: User) {
-    console.log('ok');
-
     return this.paymentGatewayService.createCreditCardResource({ id });
   }
 
