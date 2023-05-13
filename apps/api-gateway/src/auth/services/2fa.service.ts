@@ -93,18 +93,18 @@ export class TwoFactorService implements OnModuleInit {
     return firstValueFrom(this.authClient.resend({ method }, metadata));
   }
 
-  async validateAuthResponse({ access_token, verify }: AuthData) {
+  async validateAuthResponse({ verify, ...tokens }: AuthData) {
     if (verify) {
       throw new HttpException(
         {
           message: `${verify.type} verification required`,
-          access_token: access_token,
           methods: verify.methods,
+          ...tokens,
         },
         HttpStatus.PRECONDITION_REQUIRED,
       );
     }
 
-    return { access_token };
+    return tokens;
   }
 }

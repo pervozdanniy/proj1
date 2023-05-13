@@ -36,14 +36,22 @@ export class AuthService implements OnModuleInit {
     return this.auth2FA.validateAuthResponse(resp);
   }
 
-  async closeAccount(sessionId: string) {
+  closeAccount(sessionId: string) {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 
-    return this.authClient.closeAccount({}, metadata);
+    return firstValueFrom(this.authClient.closeAccount({}, metadata));
   }
 
-  async openAccount(payload: IdRequest) {
-    return this.authClient.openAccount(payload);
+  openAccount(payload: IdRequest) {
+    return firstValueFrom(this.authClient.openAccount(payload));
+  }
+
+  validateToken(token: string) {
+    return firstValueFrom(this.authClient.validate({ token }));
+  }
+
+  refreshToken(token: string) {
+    return firstValueFrom(this.authClient.refresh({ token }));
   }
 }

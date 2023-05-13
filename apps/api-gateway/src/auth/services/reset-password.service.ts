@@ -3,19 +3,19 @@ import { ConflictException, HttpException, HttpStatus, Injectable, OnModuleInit 
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { AuthServiceClient } from '~common/grpc/interfaces/auth';
+import { ResetPasswordServiceClient } from '~common/grpc/interfaces/auth';
 import { ChangePasswordTypeDto } from '../dto/change-password-type.dto';
 import { ChangePasswordDto } from '../dto/change-password.dto';
 import { ResetPasswordFinishDto, ResetPasswordStartDto, ResetPasswordVerifyDto } from '../dto/reset-password.dto';
 
 @Injectable()
 export class ResetPasswordService implements OnModuleInit {
-  private authClient: AuthServiceClient;
+  private authClient: ResetPasswordServiceClient;
 
   constructor(@InjectGrpc('auth') private readonly auth: ClientGrpc) {}
 
   onModuleInit() {
-    this.authClient = this.auth.getService('AuthService');
+    this.authClient = this.auth.getService('ResetPasswordService');
   }
 
   start(payload: ResetPasswordStartDto) {

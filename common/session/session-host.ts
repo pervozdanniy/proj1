@@ -5,12 +5,20 @@ import { RedisStore } from './redis.store';
 
 export type SessionProxy<T = SessionInterface> = SessionHost<T> & T;
 
+export type ProxyOptions = {
+  maxAge?: number;
+};
+
 export const sessionProxyFactory = <T extends Record<PropertyKey, unknown>>(
   store: RedisStore,
   id: string,
   data?: string,
+  options: ProxyOptions = {},
 ): SessionProxy<T> => {
   const host = new SessionHost(store, id, data);
+  if (options.maxAge) {
+    host.maxAge = options.maxAge;
+  }
 
   return new Proxy(host, {
     get(_target, p) {
@@ -44,8 +52,9 @@ export const sessionProxyFactory = <T extends Record<PropertyKey, unknown>>(
 export class SessionHost<T extends Record<string, any> = Record<PropertyKey, unknown>> {
   private origHash: string;
   private data: T;
-
   private logger = new Logger(SessionHost.name);
+
+  public maxAge = 24 * 60 * 60;
 
   constructor(private readonly store: RedisStore, private sessionId: string, data?: string) {
     if (data) {
@@ -80,6 +89,10 @@ export class SessionHost<T extends Record<string, any> = Record<PropertyKey, unk
     const data = await this.store.get(this.sessionId);
     this.origHash = this.hash(data);
     this.data = JSON.parse(data);
+  }
+
+  touch() {
+    return this.store.touch(this.sessionId, this.maxAge);
   }
 
   async save(force = false) {

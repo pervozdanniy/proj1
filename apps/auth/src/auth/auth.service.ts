@@ -1,15 +1,15 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { Injectable, Logger, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import bcrypt from 'bcrypt';
 import { firstValueFrom } from 'rxjs';
-import { SessionProxy } from '~common/grpc-session';
+import { SessionProxy, SessionService } from '~common/grpc-session';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { RegisterStartRequest } from '~common/grpc/interfaces/auth';
 import { User } from '~common/grpc/interfaces/common';
 import { CreateRequest, UpdateRequest, UserServiceClient } from '~common/grpc/interfaces/core';
 import { NotifierServiceClient, NotifyRequest, SendType } from '~common/grpc/interfaces/notifier';
 import { AgreementRequest, PaymentGatewayServiceClient } from '~common/grpc/interfaces/payment-gateway';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -21,7 +21,8 @@ export class AuthService implements OnModuleInit {
   constructor(
     @InjectGrpc('notifier') private readonly notifierClient: ClientGrpc,
     @InjectGrpc('core') private readonly coreClient: ClientGrpc,
-    private readonly jwt: JwtService,
+    private readonly token: TokenService,
+    private readonly session: SessionService,
   ) {}
 
   onModuleInit() {
@@ -49,6 +50,12 @@ export class AuthService implements OnModuleInit {
     return null;
   }
 
+  async findByLogin(payload: { email?: string; phone?: string }) {
+    const { user } = await firstValueFrom(this.userService.findByLogin(payload));
+
+    return user;
+  }
+
   async findByEmail(email: string) {
     const { user } = await firstValueFrom(this.userService.findByLogin({ email }));
 
@@ -57,6 +64,12 @@ export class AuthService implements OnModuleInit {
 
   async findByPhone(phone: string) {
     const { user } = await firstValueFrom(this.userService.findByLogin({ phone }));
+
+    return user;
+  }
+
+  async findBySocialId(socialId: string) {
+    const { user } = await firstValueFrom(this.userService.findBySocialId({ social_id: socialId }));
 
     return user;
   }
@@ -99,7 +112,22 @@ export class AuthService implements OnModuleInit {
   }
 
   generateToken(sessionId: string) {
-    return this.jwt.signAsync({ sub: sessionId });
+    return this.token.generatePair(sessionId);
+  }
+
+  async refreshToken(refreshToken: string) {
+    const sessionId = await this.token.extractSessionId(refreshToken);
+    const proxy = await this.session.get(sessionId);
+    const valid = await proxy.touch();
+    if (!valid) {
+      throw new UnauthorizedException('Session expired');
+    }
+
+    return this.token.refresh(refreshToken);
+  }
+
+  validateToken(accessToken: string) {
+    return this.token.extractSessionId(accessToken);
   }
 
   async getUserById(id: number) {

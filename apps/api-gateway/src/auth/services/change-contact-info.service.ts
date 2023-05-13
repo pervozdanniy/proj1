@@ -3,16 +3,16 @@ import { ConflictException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { AuthServiceClient } from '~common/grpc/interfaces/auth';
+import { ContactInfoServiceClient } from '~common/grpc/interfaces/auth';
 import { ChangeContactVerifyDto } from '../dto/change-contact-info.dto';
 
 export class ChangeContactInfoService implements OnModuleInit {
-  private authClient: AuthServiceClient;
+  private authClient: ContactInfoServiceClient;
 
   constructor(@InjectGrpc('auth') private readonly auth: ClientGrpc) {}
 
   onModuleInit() {
-    this.authClient = this.auth.getService('AuthService');
+    this.authClient = this.auth.getService('ContactInfoService');
   }
 
   start(payload: { email?: string; phone?: string }, sessionId: string) {
