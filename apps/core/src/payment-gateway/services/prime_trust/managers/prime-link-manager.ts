@@ -14,10 +14,10 @@ import {
   LinkTransferData,
   Token_Data,
 } from '~common/grpc/interfaces/payment-gateway';
-import { generateRandomString } from '~common/helpers';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '../../../../notification/services/notification.service';
 import { LinkEntity } from '../../../entities/link.entity';
+import uid from "uid-safe";
 
 @Injectable()
 export class PrimeLinkManager {
@@ -134,6 +134,7 @@ export class PrimeLinkManager {
       .where('l.user_id = :user_id', { user_id })
       .orderBy('l.created_at', 'DESC')
       .getOne();
+    const id = await uid(18);
 
     const formData = {
       source: {
@@ -148,7 +149,7 @@ export class PrimeLinkManager {
         currency: currency,
         value: amount,
       },
-      requestKey: generateRandomString(),
+      requestKey: id,
     };
 
     try {

@@ -30,16 +30,3 @@ export const createDate = () => {
 
   return formattedDate;
 };
-
-export const generateRandomString = () => {
-  const timestamp = Date.now().toString();
-  let randomString = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  for (let i = 0; i < 10; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    randomString += characters[randomIndex];
-  }
-
-  return `${timestamp}_${randomString}`;
-};
