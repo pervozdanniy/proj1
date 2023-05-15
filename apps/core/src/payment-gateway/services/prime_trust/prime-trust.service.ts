@@ -162,7 +162,7 @@ export class PrimeTrustService {
     return this.primeBankAccountManager.getBanksInfo(country);
   }
 
-  async makeAssetWithdrawal(request: AssetWithdrawalRequest) {
+  makeAssetWithdrawal(request: AssetWithdrawalRequest) {
     return this.primeAssetsManager.makeAssetWithdrawal(request);
   }
 
