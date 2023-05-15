@@ -41,10 +41,9 @@ service PaymentGatewayService {
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
 
   //withdrawal
-  rpc MakeWithdrawal (TransferMethodRequest) returns (JsonData);
+  rpc MakeWithdrawal (TransferMethodRequest) returns (TransferInfo);
 
   //webhooks
-
   rpc PrimeWebhooksHandler (PrimeWebhookRequest)   returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
   rpc FacilitaWebhooksHandler (FacilitaWebhookRequest)   returns (common.SuccessResponse);
@@ -112,14 +111,14 @@ message DepositSelectCardData {
 
 message DepositRedirectData {
   string url = 1;
-  DepositInfo info = 2;
+  TransferInfo info = 2;
 }
 
-message DepositInfo {
-  double amount = 1;
+message TransferInfo {
+  string amount = 1;
   string currency = 2;
-  double rate = 3;
-  double fee = 4;
+  string fee = 3;
+  optional string rate = 4;
 }
 
 message DepositNextStepRequest {

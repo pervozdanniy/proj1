@@ -17,7 +17,7 @@ import { WithdrawalTypes } from '~common/enum/document-types.enum';
 import { Providers } from '~common/enum/providers';
 import {
   AccountIdRequest,
-  JsonData,
+  TransferInfo,
   TransferMethodRequest,
   WithdrawalParams,
   WithdrawalResponse,
@@ -115,6 +115,7 @@ export class PrimeWithdrawalManager {
 
       return fundsResponse.data.data.id;
     } catch (e) {
+      this.checkBankExists;
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
@@ -125,24 +126,23 @@ export class PrimeWithdrawalManager {
     }
   }
 
-  async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
-    const { id, bank_account_id, funds_transfer_type, amount } = request;
+  async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
+    const { id, bank_account_id, funds_transfer_type } = request;
     const { transfer_method_id: funds_transfer_method_id } = await this.addWithdrawalParams({
       id,
       bank_account_id,
       funds_transfer_type,
     });
+
     const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
     const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({
       uuid: funds_transfer_method_id,
     });
-
-    const { funds: fundsResponse, fee } = await this.sendWithdrawalRequest(
-      request,
-      account.uuid,
-      funds_transfer_method_id,
-    );
-
+    const {
+      funds: fundsResponse,
+      fee,
+      amount,
+    } = await this.sendWithdrawalRequest(request, account.uuid, funds_transfer_method_id);
     await this.withdrawalEntityRepository.save(
       this.withdrawalEntityRepository.create({
         user_id: id,
@@ -157,7 +157,6 @@ export class PrimeWithdrawalManager {
         provider: Providers.PRIME_TRUST,
       }),
     );
-
     const response = {
       id: fundsResponse.relationships['funds-transfer'].data.id,
       type: fundsResponse.relationships['funds-transfer'].data.type,
@@ -173,7 +172,11 @@ export class PrimeWithdrawalManager {
       });
     }
 
-    return { data: JSON.stringify(response) };
+    return {
+      amount,
+      fee,
+      currency: fundsResponse.attributes['currency-type'],
+    };
   }
 
   async sendWithdrawalRequest(
@@ -210,7 +213,7 @@ export class PrimeWithdrawalManager {
         data: formData,
       });
 
-      return { funds: fundsResponse.data.data, fee: fee_amount };
+      return { funds: fundsResponse.data.data, fee: fee_amount, amount: total_amount };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();

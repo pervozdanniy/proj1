@@ -92,10 +92,10 @@ export class KoyweDepositManager {
       }),
     );
     const info = {
-      amount: quote.amountIn,
+      amount: quote.amountIn.toFixed(2),
       currency: currency_type,
-      rate: quote.exchangeRate,
-      fee: totalFee,
+      rate: quote.exchangeRate.toFixed(4),
+      fee: totalFee.toFixed(2),
     };
     if (providedAddress) {
       throw new ConflictException('Invalid flow params');

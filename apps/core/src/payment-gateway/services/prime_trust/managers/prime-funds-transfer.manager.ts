@@ -107,22 +107,17 @@ export class PrimeFundsTransferManager {
         data: formData,
       });
 
-      await this.httpService.request({
+      const quoteResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/quotes/${createQuoteResponse.data.data.id}/execute`,
         data: null,
       });
 
-      const quoteResponse = await this.httpService.request({
-        method: 'get',
-        url: `${this.prime_trust_url}/v2/quotes/${createQuoteResponse.data.data.id}`,
-      });
-
       return {
         trade_id: quoteResponse.data.data.attributes['trade-id'],
-        total_amount: quoteResponse.data.data.attributes['total-amount'],
-        unit_count: quoteResponse.data.data.attributes['unit-count'],
-        fee_amount: quoteResponse.data.data.attributes['fee-amount'],
+        total_amount: quoteResponse.data.data.attributes['total-amount'].toFixed(2),
+        unit_count: quoteResponse.data.data.attributes['unit-count'].toFixed(2),
+        fee_amount: quoteResponse.data.data.attributes['fee-amount'].toFixed(4),
       };
     } catch (e) {
       if (e instanceof PrimeTrustException) {

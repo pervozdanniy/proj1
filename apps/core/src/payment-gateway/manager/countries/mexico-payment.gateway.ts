@@ -3,8 +3,8 @@ import {
   BankAccountParams,
   BanksInfoResponse,
   ContributionResponse,
-  JsonData,
   MakeDepositRequest,
+  TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import {
@@ -47,10 +47,10 @@ export class MexicoPaymentGateway
     return this.facilitaService.makeDeposit(request);
   }
 
-  async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
+  async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
     const { id, amount } = request;
     const wallet = await this.liquidoService.makeWithdrawal(request);
 
-    return await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
+    return this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
   }
 }

@@ -4,7 +4,7 @@ import {
   BanksInfoResponse,
   CreateReferenceRequest,
   DepositRedirectData,
-  JsonData,
+  TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import {
@@ -47,10 +47,11 @@ export class ColombiaPaymentGateway
     }
   }
 
-  async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
+  async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
     const { id, amount } = request;
-    const { wallet } = await this.koyweService.makeWithdrawal(request);
+    const { wallet, info } = await this.koyweService.makeWithdrawal(request);
+    await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
 
-    return await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
+    return info;
   }
 }

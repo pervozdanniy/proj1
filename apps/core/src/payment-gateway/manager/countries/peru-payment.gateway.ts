@@ -4,7 +4,7 @@ import {
   BanksInfoResponse,
   CreateReferenceRequest,
   DepositRedirectData,
-  JsonData,
+  TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import {
@@ -43,7 +43,7 @@ export class PeruPaymentGateway
     }
   }
 
-  async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
+  async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
     const { id, amount } = request;
     const { wallet } = await this.koyweService.makeWithdrawal(request);
 

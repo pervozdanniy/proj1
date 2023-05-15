@@ -74,7 +74,7 @@ export class KoyweWithdrawalManager {
       bank.account_uuid,
       document.document_number,
     );
-    const totalFee = quote.networkFee + quote.koyweFee;
+    const totalFee = (quote.networkFee + quote.koyweFee) * quote.exchangeRate;
     await this.withdrawalEntityRepository.save(
       this.withdrawalEntityRepository.create({
         user_id: id,
@@ -88,10 +88,10 @@ export class KoyweWithdrawalManager {
       }),
     );
     const info = {
-      amount: quote.amountIn,
+      amount: quote.amountOut.toFixed(2),
       currency: currency_type,
-      rate: quote.exchangeRate,
-      fee: totalFee,
+      rate: quote.exchangeRate.toFixed(4),
+      fee: totalFee.toFixed(2),
     };
 
     return { wallet: providedAddress, info };

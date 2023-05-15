@@ -11,6 +11,7 @@ import {
   DepositResponse,
   JsonData,
   MakeDepositRequest,
+  TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 
@@ -51,5 +52,5 @@ export interface DepositInterface {
 }
 
 export interface BankWithdrawalInterface extends BankInterface {
-  makeWithdrawal(request: TransferMethodRequest): Promise<JsonData>;
+  makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo>;
 }

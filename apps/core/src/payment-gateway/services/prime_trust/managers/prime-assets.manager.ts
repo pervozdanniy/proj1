@@ -5,7 +5,7 @@ import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-t
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import process from 'process';
@@ -16,7 +16,7 @@ import {
   AccountIdRequest,
   AssetWithdrawalRequest,
   CreateReferenceRequest,
-  JsonData,
+  TransferInfo,
   WalletResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { createDate } from '~common/helpers';
@@ -29,6 +29,8 @@ export class PrimeAssetsManager {
   private readonly prime_trust_url: string;
   private readonly asset_id: string;
   private readonly asset_type: string;
+
+  private readonly logger = new Logger(PrimeAssetsManager.name);
 
   constructor(
     config: ConfigService<ConfigInterface>,
@@ -163,7 +165,7 @@ export class PrimeAssetsManager {
     }
   }
 
-  async makeAssetWithdrawal(request: AssetWithdrawalRequest): Promise<JsonData> {
+  async makeAssetWithdrawal(request: AssetWithdrawalRequest): Promise<TransferInfo> {
     const { id, amount, wallet } = request;
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
@@ -202,27 +204,24 @@ export class PrimeAssetsManager {
         },
       });
       const transferMethodId = assetTransferMethodResponse.data.data.id;
-
-      const makeWithdrawalData = {
-        data: {
-          type: 'asset-disbursements',
-          attributes: {
-            'asset-id': this.asset_id,
-            'asset-transfer': {
-              'asset-transfer-method-id': transferMethodId,
-            },
-            'unit-count': amount,
-            'account-id': account_id,
-            'contact-id': contact_id,
-            'hot-transfer': hotStatus,
-          },
-        },
-      };
-
       const makeWithdrawalResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/asset-disbursements?include=asset-transfer-method,asset-transfer`,
-        data: makeWithdrawalData,
+        data: {
+          data: {
+            type: 'asset-disbursements',
+            attributes: {
+              'asset-id': this.asset_id,
+              'asset-transfer': {
+                'asset-transfer-method-id': transferMethodId,
+              },
+              'unit-count': amount,
+              'account-id': account_id,
+              'contact-id': contact_id,
+              'hot-transfer': hotStatus,
+            },
+          },
+        },
       });
 
       let asset_transfer_id: string;
@@ -237,23 +236,22 @@ export class PrimeAssetsManager {
         url: `${this.prime_trust_url}/v2/asset-transfers/${asset_transfer_id}?include=disbursement-authorization`,
       });
       const assetData = getAssetInfo.data.data;
-
-      const response = {
+      this.logger.debug('Asset Withdrawal', {
         id: assetData.id,
         type: assetData.type,
         attributes: assetData.attributes,
         disbursement_authorization: assetData.relationships['disbursement-authorization'],
-      };
+      });
 
       if (process.env.NODE_ENV === 'dev') {
         await this.httpService.request({
           method: 'post',
-          url: `${this.prime_trust_url}/v2/disbursement-authorizations/${response.disbursement_authorization.data.id}/sandbox/verify-owner`,
+          url: `${this.prime_trust_url}/v2/disbursement-authorizations/${assetData.relationships['disbursement-authorization'].data.id}/sandbox/verify-owner`,
           data: null,
         });
       }
 
-      return { data: JSON.stringify(response) };
+      return { amount, currency: 'USD', fee: '0' };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();

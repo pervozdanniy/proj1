@@ -11,6 +11,7 @@ import {
   DepositResponse,
   JsonData,
   MakeDepositRequest,
+  TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import {
@@ -77,7 +78,7 @@ export class USPaymentGateway
     return this.primeTrustService.createReference(request);
   }
 
-  makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
+  makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
     return this.primeTrustService.makeWithdrawal(request);
   }
 }
