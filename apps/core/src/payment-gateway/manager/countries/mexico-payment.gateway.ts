@@ -3,7 +3,8 @@ import {
   BankAccountParams,
   BanksInfoResponse,
   CreateReferenceRequest,
-  JsonData,
+  DepositRedirectData,
+  TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import {
@@ -40,17 +41,17 @@ export class MexicoPaymentGateway
     return this.koyweService.getBanksInfo(country);
   }
 
-  async createReference(request: CreateReferenceRequest): Promise<JsonData> {
+  async createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData> {
     const { type } = request;
     if (type === 'cash') {
       return this.liquidoService.createCashPayment(request);
     }
   }
 
-  async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
+  async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
     const { id, amount } = request;
     const wallet = await this.liquidoService.makeWithdrawal(request);
 
-    return await this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
+    return this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
   }
 }

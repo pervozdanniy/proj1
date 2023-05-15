@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsNotEmpty, IsNumberString, IsString, Length, ValidateIf } from 'class-validator';
 
 export enum PaymentType {
@@ -41,13 +42,13 @@ export class PayWithBankRequestDto extends PayWithResourceDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsInt()
-  @ValidateIf((obj: { bankId: string; customerId: string }) => !obj.customerId)
+  @ValidateIf((obj: PayWithBankRequestDto) => !obj.customerId)
   bankId?: number;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  @ValidateIf((obj: { bankId: string; customerId: string }) => !obj.bankId)
+  @ValidateIf((obj: PayWithBankRequestDto) => !obj.bankId)
   customerId?: string;
 
   @ApiProperty({ enum: Object.values(TranferType) })
@@ -90,13 +91,31 @@ class BankParamsDto {
   routing_number?: string;
 }
 
+class DepositInfo {
+  @ApiProperty()
+  amount: number;
+
+  @ApiProperty()
+  currency: string;
+
+  @ApiProperty()
+  rate: number;
+
+  @ApiProperty()
+  fee: number;
+}
 class RedirectDto {
   @ApiProperty()
   url: string;
+
+  @Type(() => DepositInfo)
+  @ApiProperty({ type: DepositInfo })
+  info: DepositInfo;
 }
 
 class SelectBankDto {
   @ApiProperty({ type: BankParamsDto, isArray: true })
+  @Type(() => BankParamsDto)
   banks: BankParamsDto[];
 }
 

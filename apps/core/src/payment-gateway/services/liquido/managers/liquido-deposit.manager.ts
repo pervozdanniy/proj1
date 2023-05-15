@@ -9,7 +9,7 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
-import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
+import { CreateReferenceRequest, DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
@@ -38,7 +38,7 @@ export class LiquidoDepositManager {
     this.domain = domain;
   }
 
-  async createCashPayment({ id, amount: beforeConvertAmount }: CreateReferenceRequest): Promise<JsonData> {
+  async createCashPayment({ id, amount: beforeConvertAmount }: CreateReferenceRequest): Promise<DepositRedirectData> {
     const { token } = await this.liquidoTokenManager.getToken();
     const userDetails = await this.userService.getUserInfo(id);
     const { currency_type } = countriesData[userDetails.country_code];
@@ -80,7 +80,10 @@ export class LiquidoDepositManager {
         this.httpService.post(`${this.api_url}/v2/cashier/payment-link/`, formData, { headers: headersRequest }),
       );
 
-      return { data: result.data.paymentLink };
+      return {
+        url: result.data.paymentLink,
+        info: { amount: String(amount), rate: '', fee: '', currency: currency_type },
+      };
     } catch (e) {
       this.logger.error(e.response.data);
 

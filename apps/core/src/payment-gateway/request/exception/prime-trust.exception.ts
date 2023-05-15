@@ -5,6 +5,7 @@ type PrimeTrustError = {
   detail: string;
   title: string;
   code: number;
+  source?: { pointer: string };
 };
 
 export class PrimeTrustException extends Error {
@@ -17,12 +18,13 @@ export class PrimeTrustException extends Error {
   }
 
   getFirstError() {
-    if (this.errors[0].detail === 'Initiator has insufficient funds') {
+    const error = this.errors[0];
+    if (error.detail === 'Initiator has insufficient funds') {
       this.code = Status.ALREADY_EXISTS;
     }
 
     return {
-      detail: this.errors[0].detail,
+      detail: `${error.source?.pointer} ${error.detail}`,
       code: this.code,
     };
   }

@@ -8,10 +8,9 @@ import { CardResourceEntity } from '../../entities/prime_trust/card-resource.ent
 import { PaymentMethod } from '../../interfaces/payment-gateway.interface';
 import {
   hasBankDeposit,
-  hasCash,
   hasCreditCard,
   hasDeposit,
-  hasWireTransfer,
+  hasRedirectDeposit,
   PaymentGatewayManager,
 } from '../../manager/payment-gateway.manager';
 import { PrimeLinkManager } from '../prime_trust/managers/prime-link-manager';
@@ -29,7 +28,7 @@ export class DepositFlow {
     private cardsRepo: Repository<CardResourceEntity>,
   ) {}
 
-  async start(payload: { amount: string; currency: string; user_id: number; type: PaymentMethod }) {
+  async start(payload: { amount: string; currency: string; user_id: number; type?: PaymentMethod }) {
     const userDetails = await this.userService.getUserInfo(payload.user_id);
     const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
 
@@ -68,8 +67,8 @@ export class DepositFlow {
         };
       }
 
-      if (hasWireTransfer(paymentGateway)) {
-        const resp = await paymentGateway.createReference({
+      if (hasRedirectDeposit(paymentGateway)) {
+        const redirect = await paymentGateway.createRedirectReference({
           id: userDetails.id,
           amount: payload.amount,
           currency_type: payload.currency,
@@ -78,14 +77,14 @@ export class DepositFlow {
 
         return {
           action: 'redirect',
-          redirect: { url: resp.data },
+          redirect,
         };
       }
     }
 
     if (payload.type === 'cash') {
-      if (hasCash(paymentGateway)) {
-        const resp = await paymentGateway.createReference({
+      if (hasRedirectDeposit(paymentGateway)) {
+        const redirect = await paymentGateway.createRedirectReference({
           id: userDetails.id,
           amount: payload.amount,
           currency_type: payload.currency,
@@ -94,7 +93,7 @@ export class DepositFlow {
 
         return {
           action: 'redirect',
-          redirect: { url: resp.data },
+          redirect,
         };
       }
     }

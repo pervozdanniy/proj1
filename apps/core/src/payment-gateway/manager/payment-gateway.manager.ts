@@ -8,6 +8,7 @@ import {
   CreditCardInterface,
   DepositInterface,
   PaymentGatewayInterface,
+  RedirectDepositInterface,
   WireDepositInterface,
 } from '../interfaces/payment-gateway.interface';
 import { BrazilPaymentGateway } from './countries/brazil-payment.gateway';
@@ -31,6 +32,10 @@ export const hasBankDeposit = <T extends PaymentGatewayInterface>(gateway: T): g
 
 export const hasWireTransfer = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & WireDepositInterface =>
   'createReference' in gateway;
+
+export const hasRedirectDeposit = <T extends PaymentGatewayInterface>(
+  gateway: T,
+): gateway is T & RedirectDepositInterface => 'createRedirectReference' in gateway;
 
 export const hasDeposit = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & DepositInterface =>
   'makeDeposit' in gateway;

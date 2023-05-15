@@ -7,9 +7,11 @@ import {
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositParamRequest,
+  DepositRedirectData,
   DepositResponse,
   JsonData,
   MakeDepositRequest,
+  TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 
@@ -25,12 +27,16 @@ export interface BankInterface {
   getAvailableBanks(country: string): Promise<BanksInfoResponse>;
 }
 
+export interface RedirectDepositInterface {
+  createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData>;
+}
+
 export interface WireDepositInterface {
   createReference(request: CreateReferenceRequest): Promise<JsonData>;
 }
 
 export interface CashDepositInterface {
-  createReference(request: CreateReferenceRequest): Promise<JsonData>;
+  createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData>;
 }
 
 export interface CreditCardInterface {
@@ -50,5 +56,5 @@ export interface DepositInterface {
 }
 
 export interface BankWithdrawalInterface extends BankInterface {
-  makeWithdrawal(request: TransferMethodRequest): Promise<JsonData>;
+  makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo>;
 }

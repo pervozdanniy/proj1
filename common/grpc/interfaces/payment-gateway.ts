@@ -60,6 +60,14 @@ export interface DepositSelectCardData {
 
 export interface DepositRedirectData {
   url: string;
+  info: TransferInfo | undefined;
+}
+
+export interface TransferInfo {
+  amount: string;
+  currency: string;
+  fee: string;
+  rate?: string | undefined;
 }
 
 export interface DepositNextStepRequest {
@@ -423,7 +431,9 @@ export interface PaymentGatewayServiceClient {
 
   /** withdrawal */
 
-  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<JsonData>;
+  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<TransferInfo>;
+
+  /** webhooks */
 
   primeWebhooksHandler(request: PrimeWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
@@ -530,7 +540,12 @@ export interface PaymentGatewayServiceController {
 
   /** withdrawal */
 
-  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
+  makeWithdrawal(
+    request: TransferMethodRequest,
+    ...rest: any
+  ): Promise<TransferInfo> | Observable<TransferInfo> | TransferInfo;
+
+  /** webhooks */
 
   primeWebhooksHandler(
     request: PrimeWebhookRequest,

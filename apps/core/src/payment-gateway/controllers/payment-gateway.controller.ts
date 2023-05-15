@@ -8,24 +8,22 @@ import {
   BanksInfoResponse,
   ContactResponse,
   ContributionResponse,
-  CreateReferenceRequest,
   CreditCardResourceResponse,
   ExchangeRequest,
   ExchangeResponse,
   FacilitaWebhookRequest,
-  JsonData,
   KoyweWebhookRequest,
   LiquidoWebhookRequest,
   MakeDepositRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PaymentMethodsResponse,
-  PG_Token,
   PrimeWebhookRequest,
   SearchTransactionRequest,
   TransactionResponse,
   TransferFundsRequest,
   TransferFundsResponse,
+  TransferInfo,
   TransferMethodRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
@@ -49,23 +47,15 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.mainService.getAvailablePaymentMethods(id);
   }
 
-  getToken(): Promise<PG_Token> {
-    return this.paymentGatewayService.getToken();
-  }
-
   primeWebhooksHandler(request: PrimeWebhookRequest): Promise<SuccessResponse> {
     return this.webhooksService.primeWebhooksHandler(request);
-  }
-
-  createReference(request: CreateReferenceRequest): Promise<JsonData> {
-    return this.mainService.createReference(request);
   }
 
   getBalance(request: BalanceRequest): Promise<BalanceResponse> {
     return this.paymentGatewayService.getBalance(request);
   }
 
-  makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
+  makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
     return this.mainService.makeWithdrawal(request);
   }
 
@@ -88,6 +78,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
     return this.paymentGatewayService.makeDeposit(request);
   }
+
   getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {
     return this.paymentGatewayService.getTransactions(request);
   }
@@ -107,6 +98,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   getUserAccountStatus(request: IdRequest): Promise<AccountStatusResponse> {
     return this.paymentGatewayService.getUserAccountStatus(request);
   }
+
   createAgreement(request: AgreementRequest): Promise<UserAgreement> {
     return this.paymentGatewayService.createAgreement(request);
   }
@@ -128,6 +120,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   generateVeriffLink({ id }: UserIdRequest): Promise<VeriffSessionResponse> {
     return this.paymentGatewayService.generateVeriffLink(id);
   }
+
   veriffHookHandler(request: VeriffHookRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.veriffHookHandler(request);
   }
