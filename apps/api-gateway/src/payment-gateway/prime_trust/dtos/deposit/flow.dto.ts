@@ -61,6 +61,14 @@ export class PayWithCardRequestDto extends PayWithResourceDto {
   cvv: string;
 }
 
+class LinkTransferDto {
+  @ApiProperty({ example: '7cf894ac0-9e0c-806b-8b76-74d5ba51b6b' })
+  paymentId: string;
+
+  @ApiProperty({ example: 'AUTHORIZED' })
+  paymentStatus: string;
+}
+
 class BankParamsDto {
   @ApiProperty({ example: 'Test Test' })
   bank_account_name: string;
@@ -94,4 +102,7 @@ export class DepositStartResponseDto {
 
   @ApiPropertyOptional({ type: RedirectDto })
   redirect?: RedirectDto;
+
+  @ApiPropertyOptional({ type: LinkTransferDto })
+  link_transfer?: LinkTransferDto;
 }

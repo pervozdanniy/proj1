@@ -114,7 +114,7 @@ export class KoyweDepositManager {
       return { data: JSON.stringify([data]) };
     }
     if (providedAction) {
-      return { data: JSON.stringify({ url: providedAction }) };
+      return { data: providedAction };
     }
   }
 
