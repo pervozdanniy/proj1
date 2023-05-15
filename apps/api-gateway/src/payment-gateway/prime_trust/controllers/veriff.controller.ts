@@ -7,16 +7,16 @@ import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
 import { VeriffSessionResponseDto } from '../dtos/veriff/veriff-session-response.dto';
 import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
 
-@ApiTags('Veriff KYC')
+@ApiTags('KYC')
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
-  path: 'veriff',
+  path: 'kyc',
 })
 export class VeriffController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
-  @Post('link')
+  @Post('/link')
   @ApiOkResponse({ type: VeriffSessionResponseDto })
   @ApiBearerAuth()
   @JwtSessionAuth()
