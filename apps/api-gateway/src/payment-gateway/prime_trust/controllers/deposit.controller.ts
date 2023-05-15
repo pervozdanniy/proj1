@@ -109,4 +109,13 @@ export class DepositController {
   payWithCard(@Body() payload: PayWithCardRequestDto, @JwtSessionUser() { id }: User) {
     return this.depositService.payWithCard(payload, id);
   }
+
+  @ApiOperation({ summary: 'Select card for deposit' })
+  @ApiCreatedResponse({ type: SettleFundsDto })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Post('/pay-with-cash')
+  payWithCash(@Body() payload: PayWithCardRequestDto, @JwtSessionUser() { id }: User) {
+    return this.depositService.payWithCard(payload, id);
+  }
 }

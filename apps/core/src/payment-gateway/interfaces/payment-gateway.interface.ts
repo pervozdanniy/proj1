@@ -29,6 +29,10 @@ export interface WireDepositInterface {
   createReference(request: CreateReferenceRequest): Promise<JsonData>;
 }
 
+export interface CashDepositInterface {
+  createReference(request: CreateReferenceRequest): Promise<JsonData>;
+}
+
 export interface CreditCardInterface {
   verifyCreditCard(resource_id: string, transfer_method_id: string): Promise<SuccessResponse>;
 

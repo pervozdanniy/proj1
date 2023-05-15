@@ -8,6 +8,7 @@ import { CardResourceEntity } from '../../entities/prime_trust/card-resource.ent
 import { PaymentMethod } from '../../interfaces/payment-gateway.interface';
 import {
   hasBankDeposit,
+  hasCash,
   hasCreditCard,
   hasDeposit,
   hasWireTransfer,
@@ -65,6 +66,22 @@ export class DepositFlow {
           amount: payload.amount,
           currency_type: payload.currency,
           type: 'wire',
+        });
+
+        return {
+          action: 'redirect',
+          redirect: { url: resp.data },
+        };
+      }
+    }
+
+    if (payload.type === 'cash') {
+      if (hasCash(paymentGateway)) {
+        const resp = await paymentGateway.createReference({
+          id: userDetails.id,
+          amount: payload.amount,
+          currency_type: payload.currency,
+          type: 'cash',
         });
 
         return {

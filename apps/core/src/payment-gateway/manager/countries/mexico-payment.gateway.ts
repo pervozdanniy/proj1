@@ -2,37 +2,34 @@ import { Injectable } from '@nestjs/common';
 import {
   BankAccountParams,
   BanksInfoResponse,
-  ContributionResponse,
+  CreateReferenceRequest,
   JsonData,
-  MakeDepositRequest,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import {
   BankInterface,
   BankWithdrawalInterface,
-  DepositInterface,
+  CashDepositInterface,
   PaymentGatewayInterface,
   PaymentMethod,
 } from '../../interfaces/payment-gateway.interface';
-import { FacilitaService } from '../../services/facilita/facilita.service';
 import { KoyweService } from '../../services/koywe/koywe.service';
 import { LiquidoService } from '../../services/liquido/liquido.service';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
 export class MexicoPaymentGateway
-  implements PaymentGatewayInterface, BankInterface, DepositInterface, BankWithdrawalInterface
+  implements PaymentGatewayInterface, BankInterface, CashDepositInterface, BankWithdrawalInterface
 {
   constructor(
     private primeTrustService: PrimeTrustService,
     private koyweService: KoyweService,
-    private facilitaService: FacilitaService,
 
     private liquidoService: LiquidoService,
   ) {}
 
   getAvailablePaymentMethods(): PaymentMethod[] {
-    return ['bank-transfer'];
+    return ['bank-transfer', 'cash'];
   }
 
   addBank(request: BankAccountParams): Promise<BankAccountParams> {
@@ -43,8 +40,11 @@ export class MexicoPaymentGateway
     return this.koyweService.getBanksInfo(country);
   }
 
-  makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
-    return this.facilitaService.makeDeposit(request);
+  async createReference(request: CreateReferenceRequest): Promise<JsonData> {
+    const { type } = request;
+    if (type === 'cash') {
+      return this.liquidoService.createCashPayment(request);
+    }
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {

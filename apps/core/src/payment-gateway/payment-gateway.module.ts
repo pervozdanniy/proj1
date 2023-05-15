@@ -42,6 +42,7 @@ import { KoyweTokenManager } from './services/koywe/managers/koywe-token.manager
 import { KoyweWebhookManager } from './services/koywe/managers/koywe-webhook.manager';
 import { KoyweWithdrawalManager } from './services/koywe/managers/koywe-withdrawal.manager';
 import { LiquidoService } from './services/liquido/liquido.service';
+import { LiquidoDepositManager } from './services/liquido/managers/liquido-deposit.manager';
 import { LiquidoTokenManager } from './services/liquido/managers/liquido-token.manager';
 import { LiquidoWebhookManager } from './services/liquido/managers/liquido-webhook.manager';
 import { LiquidoWithdrawalManager } from './services/liquido/managers/liquido-withdrawal.manager';
@@ -126,6 +127,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     DepositFlow,
     PrimeVeriffManager,
     PrimeLinkManager,
+    LiquidoDepositManager,
   ],
   controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],
