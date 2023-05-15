@@ -1,96 +1,37 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/auth';
 import { PaymentGatewayService } from '@/payment-gateway/prime_trust/services/payment-gateway.service';
 import {
-  AccountResponseDto,
   BalanceResponseDto,
   BankAccountParamsDto,
   BankAccountResponseDto,
-  ContactResponseDto,
   ExchangeResponseDto,
-  TokenDto,
   TransactionResponseDto,
 } from '@/payment-gateway/prime_trust/utils/prime-trust-response.dto';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
   Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
-  HttpCode,
   HttpStatus,
   Post,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import Redis from 'ioredis';
 import { User } from '~common/grpc/interfaces/common';
 import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
-@ApiTags('Prime Trust')
+@ApiTags('Payment Gateway')
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
-  path: 'prime_trust',
+  path: 'payment_gateway',
 })
 export class MainController {
-  constructor(@InjectRedis() private readonly redis: Redis, private paymentGatewayService: PaymentGatewayService) {}
-
-  @ApiOperation({ summary: 'Get Token.' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: TokenDto,
-  })
-  @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @Post('/token')
-  async getToken() {
-    const {
-      data: { token },
-    } = await this.paymentGatewayService.getToken();
-    await this.redis.set('prime_token', token);
-
-    return { token };
-  }
-
-  @ApiOperation({ summary: 'Create Account.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @Post('/account')
-  async createAccount(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.createAccount({ id });
-  }
-
-  @ApiOperation({ summary: 'Get Account.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: AccountResponseDto,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @Get('/account')
-  async getAccount(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getAccount({ id });
-  }
-
-  @ApiOperation({ summary: 'Get Contact.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: ContactResponseDto,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @Get('/contact')
-  async getContact(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getContact({ id });
-  }
+  constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   @ApiOperation({ summary: 'Get Balance.' })
   @ApiResponse({
@@ -114,18 +55,6 @@ export class MainController {
   @Post('/exchange')
   async exchange(@Body() payload: ExchangeDto) {
     return this.paymentGatewayService.exchange(payload);
-  }
-
-  @ApiOperation({ summary: 'Get Bank Accounts.' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: BankAccountResponseDto,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @Get('/banks/account')
-  async getBankAccounts(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getBankAccounts({ id });
   }
 
   @ApiOperation({ summary: 'Get Banks information from user country.' })

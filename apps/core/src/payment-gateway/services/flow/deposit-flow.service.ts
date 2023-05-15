@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { DepositNextStepRequest } from '~common/grpc/interfaces/payment-gateway';
 import { UserService } from '~svc/core/src/user/services/user.service';
 import { DepositFlowEntity, DepositResourceType } from '../../entities/flow/deposit.entity';
-import { BankAccountEntity } from '../../entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from '../../entities/prime_trust/card-resource.entity';
 import { PaymentMethod } from '../../interfaces/payment-gateway.interface';
 import {
@@ -14,16 +13,17 @@ import {
   hasRedirectDeposit,
   PaymentGatewayManager,
 } from '../../manager/payment-gateway.manager';
+import { PrimeLinkManager } from '../prime_trust/managers/prime-link-manager';
 
 @Injectable()
 export class DepositFlow {
   constructor(
     private userService: UserService,
     private paymentGatewayManager: PaymentGatewayManager,
+    private primeLinkManager: PrimeLinkManager,
     @InjectRepository(DepositFlowEntity)
     private depositFlowRepo: Repository<DepositFlowEntity>,
-    @InjectRepository(BankAccountEntity)
-    private banksRepo: Repository<BankAccountEntity>,
+
     @InjectRepository(CardResourceEntity)
     private cardsRepo: Repository<CardResourceEntity>,
   ) {}
@@ -51,20 +51,11 @@ export class DepositFlow {
 
     if (payload.type === 'bank-transfer') {
       if (hasBankDeposit(paymentGateway)) {
-        const { identifiers } = await this.depositFlowRepo.insert({
-          user_id: payload.user_id,
-          currency: payload.currency,
-          amount: payload.amount,
-          country_code: userDetails.country_code,
-          resource_type: DepositResourceType.Bank,
-        });
-
-        const list = await this.banksRepo.findBy({ user_id: payload.user_id });
+        const link_transfer = await this.primeLinkManager.sendAmount(payload.user_id, payload.amount, payload.currency);
 
         return {
-          flow_id: identifiers[0].id,
-          action: 'select-bank',
-          banks: { list },
+          action: 'link_transfer',
+          link_transfer,
         };
       }
 

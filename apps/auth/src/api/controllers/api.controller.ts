@@ -1,31 +1,21 @@
 import { status } from '@grpc/grpc-js';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
-import { GrpcSession, GrpcSessionAuth, RegisterSessionInterface, SessionProxy } from '~common/grpc-session';
+import { GrpcSession, GrpcSessionAuth, SessionProxy } from '~common/grpc-session';
 import {
-  ApproveAgreementRequest,
   AuthData,
   AuthServiceController,
   AuthServiceControllerMethods,
-  ChangeOldPasswordRequest,
-  ChangePasswordStartRequest,
-  CreateAgreementRequest,
-  RegisterFinishRequest,
   RegisterSocialRequest,
-  RegisterStartRequest,
-  ResetPasswordFinishRequest,
   SocialsAuthRequest,
-  TwoFactorCode,
-  TwoFactorVerificationResponse,
-  Verification,
+  TokenRequest,
+  TokenValidateResponse,
 } from '~common/grpc/interfaces/auth';
-import { IdRequest, SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
+import { IdRequest, SuccessResponse, User } from '~common/grpc/interfaces/common';
 import { Empty } from '~common/grpc/interfaces/google/protobuf/empty';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { ChangeContactInfoDto } from '../dto/change-contact-info.dto';
 import { LoginRequestDto } from '../dto/login.dto';
-import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { AuthApiService } from '../services/api.service';
 import { ApiSocialsService } from '../services/api.socials.service';
 
@@ -33,40 +23,6 @@ import { ApiSocialsService } from '../services/api.socials.service';
 @AuthServiceControllerMethods()
 export class AuthApiController implements AuthServiceController {
   constructor(private readonly authService: AuthApiService, private readonly socialAuthService: ApiSocialsService) {}
-
-  registerStart(@Payload() request: RegisterStartRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
-    return this.authService.registerStart(request, session);
-  }
-
-  @GrpcSessionAuth({ allowUnauthorized: true })
-  registerVerify(
-    @Payload() request: TwoFactorCode,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<TwoFactorVerificationResponse> {
-    return this.authService.registerVerify(request, session);
-  }
-
-  createAgreement(
-    @Payload() request: CreateAgreementRequest,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<UserAgreement> {
-    return this.authService.createAgreement(request, session);
-  }
-
-  approveAgreement(
-    @Payload() request: ApproveAgreementRequest,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<SuccessResponse> {
-    return this.authService.approveAgreement(request, session);
-  }
-
-  @GrpcSessionAuth({ allowUnauthorized: true })
-  registerFinish(
-    @Payload() request: RegisterFinishRequest,
-    @GrpcSession() session: SessionProxy<RegisterSessionInterface>,
-  ): Promise<User> {
-    return this.authService.registerFinish(request, session);
-  }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async login(@Payload() req: LoginRequestDto, @GrpcSession() session: SessionProxy) {
@@ -76,6 +32,16 @@ export class AuthApiController implements AuthServiceController {
     }
 
     return this.authService.login(user, session);
+  }
+
+  refresh({ token }: TokenRequest): Promise<AuthData> {
+    return this.authService.refresh(token);
+  }
+
+  async validate({ token }: TokenRequest): Promise<TokenValidateResponse> {
+    const sessionId = await this.authService.validate(token);
+
+    return { session_id: sessionId };
   }
 
   loginSocials(@Payload() request: SocialsAuthRequest, @GrpcSession() session: SessionProxy): Promise<AuthData> {
@@ -91,57 +57,11 @@ export class AuthApiController implements AuthServiceController {
     return this.authService.logout(session);
   }
 
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  resetPasswordStart(@Payload() request: ResetPasswordDto, @GrpcSession() session: SessionProxy): Promise<AuthData> {
-    return this.authService.resetPasswordStart(request, session);
-  }
-
-  @GrpcSessionAuth({ allowUnauthorized: true })
-  resetPasswordVerify(
-    @Payload() request: TwoFactorCode,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<TwoFactorVerificationResponse> {
-    return this.authService.resetPasswordVerify(request, session);
-  }
-
-  @GrpcSessionAuth()
-  async resetPasswordFinish(
-    @Payload() request: ResetPasswordFinishRequest,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<SuccessResponse> {
-    return this.authService.resetPasswordFinish(request.password, session);
-  }
-
-  changeOldPassword(
-    @Payload() request: ChangeOldPasswordRequest,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<SuccessResponse> {
-    return this.authService.changeOldPassword(request, session);
-  }
-
-  changePasswordStart(
-    @Payload() request: ChangePasswordStartRequest,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<Verification> {
-    return this.authService.changePasswordStart(request, session);
-  }
-
   closeAccount(@GrpcSession() session: SessionProxy): Promise<User> {
     return this.authService.closeAccount(session);
   }
 
   openAccount(@Payload() request: IdRequest): Promise<User> {
     return this.authService.openAccount(request);
-  }
-
-  changeContactInfoStart(@Payload() request: ChangeContactInfoDto, @GrpcSession() session: SessionProxy): Verification {
-    return this.authService.changeContactStart(request, session);
-  }
-
-  changeContactInfoVerify(
-    @Payload() request: TwoFactorCode,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<TwoFactorVerificationResponse> {
-    return this.authService.changeContactVerify(request, session);
   }
 }

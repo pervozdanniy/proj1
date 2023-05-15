@@ -3,8 +3,6 @@ import { PaymentGatewayService } from '@/payment-gateway/prime_trust/services/pa
 import {
   ContributionResponseDto,
   CreditCardResourceResponseDto,
-  CreditCardsResponseDto,
-  DepositResponseDto,
   SuccessResponseDto,
 } from '@/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import {
@@ -21,8 +19,6 @@ import {
 import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { CreditCardTokenDto } from '../dtos/deposit/credit-card-token.dto';
-import { CreateReferenceDto } from '../dtos/deposit/deposit-funds.dto';
-import { DepositParamsDto } from '../dtos/deposit/deposit-params.dto';
 import {
   DepositStartResponseDto,
   PayWithBankRequestDto,
@@ -42,37 +38,6 @@ import { DepositService } from '../services/deposit.service';
 })
 export class DepositController {
   constructor(private paymentGatewayService: PaymentGatewayService, private readonly depositService: DepositService) {}
-
-  @ApiOperation({ summary: 'Add Wire transfer reference.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth({ requireKYC: true })
-  @Post('/payment/reference')
-  async createReference(@JwtSessionUser() { id }: User, @Body() payload: CreateReferenceDto) {
-    return this.paymentGatewayService.createReference({ id, ...payload });
-  }
-
-  /**
-   * deposit funds ACH
-   */
-
-  @ApiOperation({ summary: 'Add Bank params for deposit.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: DepositResponseDto,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth({ requireKYC: true })
-  @Post('/params')
-  async addDepositParams(@JwtSessionUser() { id }: User, @Body() payload: DepositParamsDto) {
-    return this.paymentGatewayService.addDepositParams({ id, ...payload });
-  }
-
-  /**
-   * credit card
-   */
 
   @ApiOperation({ summary: 'Create Credit Card Resource.' })
   @ApiResponse({
@@ -106,18 +71,6 @@ export class DepositController {
     return this.paymentGatewayService.verifyCreditCard(payload);
   }
 
-  @ApiOperation({ summary: 'Get Credit Cards.' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: CreditCardsResponseDto,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @Get('/credit_cards')
-  async getCreditCards(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getCreditCards({ id });
-  }
-
   @ApiOperation({ summary: 'Deposit funds by credit card.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -128,17 +81,6 @@ export class DepositController {
   @Post('/make')
   async makeDeposit(@JwtSessionUser() { id }: User, @Body() payload: MakeDepositDto) {
     return this.paymentGatewayService.makeDeposit({ id, ...payload });
-  }
-
-  @ApiOperation({ summary: 'Get Deposit Params' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @Get('/params')
-  async getDepositParams(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getDepositParams({ id });
   }
 
   @ApiOperation({ summary: 'Start deposit flow' })

@@ -10,11 +10,22 @@ service AuthService {
 
   rpc Logout (google.protobuf.Empty) returns (common.SuccessResponse);
 
+  rpc Refresh (TokenRequest) returns (AuthData);
+
+  rpc Validate (TokenRequest) returns (TokenValidateResponse);
+
+
   rpc LoginSocials (SocialsAuthRequest) returns (AuthData);
 
   rpc RegisterSocials (RegisterSocialRequest) returns (AuthData);
+  
 
+  rpc CloseAccount (google.protobuf.Empty) returns (common.User);
 
+  rpc OpenAccount (common.IdRequest) returns (common.User);
+}
+
+service RegisterService {
   rpc RegisterStart (RegisterStartRequest) returns (AuthData);
 
   rpc RegisterVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
@@ -24,8 +35,9 @@ service AuthService {
   rpc ApproveAgreement (ApproveAgreementRequest) returns (common.SuccessResponse);
 
   rpc RegisterFinish (RegisterFinishRequest) returns (common.User);
-  
+}
 
+service ResetPasswordService {
   rpc ResetPasswordStart (ResetPasswordStartRequest) returns (AuthData);
 
   rpc ResetPasswordVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
@@ -35,11 +47,9 @@ service AuthService {
   rpc ChangePasswordStart (ChangePasswordStartRequest) returns (Verification);
 
   rpc ChangeOldPassword (ChangeOldPasswordRequest) returns (common.SuccessResponse);
+}
 
-  rpc CloseAccount (google.protobuf.Empty) returns (common.User);
-
-  rpc OpenAccount (common.IdRequest) returns (common.User);
-
+service ContactInfoService {
   rpc ChangeContactInfoStart (ChangeContactInfoRequest) returns (Verification);
 
   rpc ChangeContactInfoVerify (TwoFactorCode) returns (TwoFactorVerificationResponse);
@@ -71,6 +81,14 @@ service TwoFactorService {
   rpc Resend (TwoFactorSettings) returns (common.SuccessResponse);
 }
 
+message TokenRequest {
+  string token = 1;
+}
+
+message TokenValidateResponse {
+  string session_id = 1;
+}
+
 message ChangeOldPasswordRequest {
   string old_password = 1;
   string new_password = 2;
@@ -92,7 +110,8 @@ message Verification {
 
 message AuthData {
   string access_token = 1;
-  optional Verification verify = 2;
+  optional string refresh_token = 2;
+  optional Verification verify = 3;
 }
 
 message ChangeContactInfoRequest {

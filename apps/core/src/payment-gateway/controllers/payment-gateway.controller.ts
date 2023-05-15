@@ -1,33 +1,31 @@
 import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
-  AccountResponse,
   AccountStatusResponse,
   AgreementRequest,
   BalanceRequest,
   BalanceResponse,
   BankAccountParams,
-  BankAccountsResponse,
   BanksInfoResponse,
   ContactResponse,
   ContributionResponse,
   CreateReferenceRequest,
   CreditCardResourceResponse,
-  CreditCardsResponse,
-  DepositParamRequest,
   DepositParamsResponse,
-  DepositResponse,
   ExchangeRequest,
   ExchangeResponse,
   FacilitaWebhookRequest,
   JsonData,
   KoyweWebhookRequest,
+  LinkCustomerRequest,
+  LinkSessionResponse,
   LiquidoWebhookRequest,
   MakeDepositRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PaymentMethodsResponse,
   PG_Token,
+  PrimeWebhookRequest,
   SearchTransactionRequest,
   TransactionResponse,
   TransferFundsRequest,
@@ -59,39 +57,12 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.getToken();
   }
 
-  createAccount({ id }: UserIdRequest): Promise<AccountResponse> {
-    return this.paymentGatewayService.createAccount(id);
-  }
-
-  createContact({ id }: UserIdRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.createContact(id);
-  }
-
-  updateAccount(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.webhooksService.updateAccount(request);
-  }
-
-  updateContact(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.webhooksService.updateContact(request);
-  }
-
-  contingentHolds(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.webhooksService.contingentHolds(request);
-  }
-  documentCheck(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.webhooksService.documentCheck(request);
-  }
-
-  cipCheck(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.webhooksService.cipCheck(request);
+  primeWebhooksHandler(request: PrimeWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.primeWebhooksHandler(request);
   }
 
   createReference(request: CreateReferenceRequest): Promise<JsonData> {
     return this.mainService.createReference(request);
-  }
-
-  updateBalance(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.webhooksService.updateBalance(request);
   }
 
   getBalance(request: BalanceRequest): Promise<BalanceResponse> {
@@ -102,20 +73,8 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.mainService.makeWithdrawal(request);
   }
 
-  updateWithdraw(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.webhooksService.updateWithdraw(request);
-  }
-
-  updateContribution(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.webhooksService.updateContribution(request);
-  }
-
   verifyCreditCard(request: VerifyCreditCardRequest): Promise<SuccessResponse> {
     return this.paymentGatewayService.verifyCreditCard(request);
-  }
-
-  getCreditCards({ id }: UserIdRequest): Promise<CreditCardsResponse> {
-    return this.paymentGatewayService.getCreditCards(id);
   }
 
   transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
@@ -126,10 +85,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.mainService.addBankAccountParams(request);
   }
 
-  getBankAccounts(request: UserIdRequest): Promise<BankAccountsResponse> {
-    return this.paymentGatewayService.getBankAccounts(request);
-  }
-
   getBanksInfo(request: UserIdRequest): Promise<BanksInfoResponse> {
     return this.mainService.getBanksInfo(request);
   }
@@ -137,15 +92,8 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
     return this.paymentGatewayService.makeDeposit(request);
   }
-
-  addDepositParams(request: DepositParamRequest): Promise<DepositResponse> {
-    return this.paymentGatewayService.addDepositParams(request);
-  }
   getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {
     return this.paymentGatewayService.getTransactions(request);
-  }
-  getAccount({ id }: UserIdRequest): Promise<AccountResponse> {
-    return this.paymentGatewayService.getAccount(id);
   }
 
   getContact({ id }: UserIdRequest): Promise<ContactResponse> {
@@ -198,5 +146,13 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   veriffWebhookHandler(request: WebhookResponse): Promise<SuccessResponse> {
     return this.paymentGatewayService.veriffWebhookHandler(request);
+  }
+
+  linkSession(request: UserIdRequest): Promise<LinkSessionResponse> {
+    return this.paymentGatewayService.linkSession(request);
+  }
+
+  saveCustomer(request: LinkCustomerRequest): Promise<SuccessResponse> {
+    return this.paymentGatewayService.saveCustomer(request);
   }
 }

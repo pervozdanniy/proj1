@@ -9,18 +9,18 @@ service PaymentGatewayService {
 
   rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
 
+  //link
+  rpc LinkSession (UserIdRequest) returns (LinkSessionResponse);
+  rpc SaveCustomer (LinkCustomerRequest) returns (common.SuccessResponse);
+
   //veriff
   rpc GenerateVeriffLink(UserIdRequest) returns (veriff.VeriffSessionResponse);
   rpc VeriffHookHandler(veriff.VeriffHookRequest) returns (common.SuccessResponse);
   rpc VeriffWebhookHandler(veriff.WebhookResponse) returns (common.SuccessResponse);
 
 
-  rpc GetToken (google.protobuf.Empty) returns (PG_Token);
   rpc GetAvailablePaymentMethods (UserIdRequest) returns (PaymentMethodsResponse);
-  rpc CreateAccount (UserIdRequest) returns (AccountResponse);
-  rpc GetAccount (UserIdRequest) returns (AccountResponse);
   rpc GetContact (UserIdRequest) returns (ContactResponse);
-  rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
   rpc GetBalance (BalanceRequest) returns (BalanceResponse);
   rpc Exchange (ExchangeRequest) returns (ExchangeResponse);
   rpc GetUserAccountStatus (common.IdRequest) returns (AccountStatusResponse);
@@ -29,18 +29,13 @@ service PaymentGatewayService {
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
   //banks
-  rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
   rpc GetBanksInfo (UserIdRequest) returns (BanksInfoResponse);
   rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
 
   //deposit funds
-  rpc CreateReference (CreateReferenceRequest) returns (JsonData);
-  rpc AddDepositParams (DepositParamRequest) returns (DepositResponse);
-  rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
   rpc CreateCreditCardResource (UserIdRequest) returns (CreditCardResourceResponse);
   rpc VerifyCreditCard (VerifyCreditCardRequest) returns (common.SuccessResponse);
   rpc MakeDeposit (MakeDepositRequest) returns (ContributionResponse);
-  rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
 
   //transfer funds
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
@@ -49,18 +44,24 @@ service PaymentGatewayService {
   rpc MakeWithdrawal (TransferMethodRequest) returns (JsonData);
 
   //webhooks
-  rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
-  rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateContact (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
-  rpc ContingentHolds (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
+
+  rpc PrimeWebhooksHandler (PrimeWebhookRequest)   returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
   rpc FacilitaWebhooksHandler (FacilitaWebhookRequest)   returns (common.SuccessResponse);
   rpc LiquidoWebhooksHandler (LiquidoWebhookRequest)   returns (common.SuccessResponse);
+}
+
+message PrimeWebhookRequest {
+  string id = 1;
+  string account_id = 2;
+  string action = 3;
+  ChangesData data = 4;
+  string resource_id = 5;
+  string resource_type = 6;
+}
+
+message ChangesData {
+  repeated string changes = 1;
 }
 
 service DepositFlowService {
@@ -69,12 +70,24 @@ service DepositFlowService {
   rpc PayWithSelectedResource(DepositNextStepRequest) returns (ContributionResponse);
 }
 
+message LinkSessionResponse {
+   string sessionKey = 1;
+}
+
+message LinkCustomerRequest {
+  string customerId = 1;
+  string sessionId = 2;
+}
 
 message DepositFlowRequest {
   uint32 user_id = 1;
   string amount = 2;
   string currency = 3;
   string type = 4;
+}
+message LinkTransferData {
+  string paymentId = 1;
+  string paymentStatus = 2;
 }
 
 message DepositFlowResponse {
@@ -84,8 +97,10 @@ message DepositFlowResponse {
     DepositSelectBankData banks = 3;
     DepositSelectCardData cards = 4;
     DepositRedirectData redirect = 5;
+    LinkTransferData link_transfer = 6;
   };
 }
+
 
 message DepositSelectBankData {
   repeated BankAccountParams list = 1;
