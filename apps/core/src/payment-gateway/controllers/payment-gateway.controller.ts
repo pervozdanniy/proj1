@@ -1,6 +1,5 @@
 import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
-  AccountIdRequest,
   AccountStatusResponse,
   AgreementRequest,
   BalanceRequest,
@@ -11,7 +10,6 @@ import {
   ContributionResponse,
   CreateReferenceRequest,
   CreditCardResourceResponse,
-  DepositParamsResponse,
   ExchangeRequest,
   ExchangeResponse,
   FacilitaWebhookRequest,
@@ -102,15 +100,8 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.createCreditCardResource(id);
   }
 
-  getDepositParams(request: UserIdRequest): Promise<DepositParamsResponse> {
-    return this.paymentGatewayService.getDepositParams(request);
-  }
-
   koyweWebhooksHandler(request: KoyweWebhookRequest): Promise<SuccessResponse> {
     return this.webhooksService.koyweWebhooksHandler(request);
-  }
-  updateAssetDeposit(request: AccountIdRequest): Promise<SuccessResponse> {
-    return this.webhooksService.updateAssetDeposit(request);
   }
 
   getUserAccountStatus(request: IdRequest): Promise<AccountStatusResponse> {
