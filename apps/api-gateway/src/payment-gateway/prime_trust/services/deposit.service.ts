@@ -27,12 +27,13 @@ export class DepositService implements OnModuleInit {
     return { flowId: flow_id, ...rest };
   }
 
-  payWithBank(payload: { flowId: number; bankId: number; transferType: string }, userId: number) {
+  payWithBank(payload: { flowId: number; customerId?: string; transferType: string }, userId: number) {
     return firstValueFrom(
       this.flowClient.payWithSelectedResource({
         id: payload.flowId,
         user_id: userId,
-        bank: { id: payload.bankId, transfer_type: payload.transferType },
+        // bank: { id: payload.bankId, transfer_type: payload.transferType },
+        customer: { id: payload.customerId },
       }),
     );
   }

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsNotEmpty, IsNumberString, IsString, Length } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsNumberString, IsString, Length, ValidateIf } from 'class-validator';
 
 export enum PaymentType {
   BankTransfer = 'bank-transfer',
@@ -41,7 +41,14 @@ export class PayWithBankRequestDto extends PayWithResourceDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsInt()
-  bankId: number;
+  @ValidateIf((obj: { bankId: string; customerId: string }) => !obj.customerId)
+  bankId?: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  @ValidateIf((obj: { bankId: string; customerId: string }) => !obj.bankId)
+  customerId?: string;
 
   @ApiProperty({ enum: Object.values(TranferType) })
   @IsEnum(TranferType)
@@ -67,6 +74,9 @@ class LinkTransferDto {
 
   @ApiProperty({ example: 'AUTHORIZED' })
   paymentStatus: string;
+
+  @ApiProperty({ example: 'key' })
+  sessionKey: string;
 }
 
 class BankParamsDto {

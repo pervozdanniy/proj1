@@ -104,14 +104,6 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.veriffWebhookHandler(data));
   }
 
-  linkSession(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.linkSession(data));
-  }
-
-  saveCustomer(data: { customerId: string; sessionId: string }) {
-    return lastValueFrom(this.paymentGatewayServiceClient.saveCustomer(data));
-  }
-
   primeTrustHandler(data: PrimeTrustWebhookType) {
     return lastValueFrom(this.paymentGatewayServiceClient.primeWebhooksHandler(data));
   }

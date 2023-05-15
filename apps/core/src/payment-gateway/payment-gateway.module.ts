@@ -10,7 +10,6 @@ import { CountryModule } from '../country/country.module';
 import { DepositFlowController } from './controllers/deposit-flow.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
-import { LinkEntity } from './entities/link.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from './entities/prime_trust/deposit-params.entity';
@@ -82,7 +81,6 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       DepositParamsEntity,
       VeriffDocumentEntity,
       DepositFlowEntity,
-      LinkEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
   ],

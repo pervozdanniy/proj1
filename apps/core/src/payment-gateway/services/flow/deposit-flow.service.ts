@@ -52,11 +52,19 @@ export class DepositFlow {
 
     if (payload.type === 'bank-transfer') {
       if (hasBankDeposit(paymentGateway)) {
-        const link_transfer = await this.primeLinkManager.sendAmount(payload.user_id, payload.amount, payload.currency);
+        const { identifiers } = await this.depositFlowRepo.insert({
+          user_id: payload.user_id,
+          currency: payload.currency,
+          amount: payload.amount,
+          country_code: userDetails.country_code,
+          resource_type: DepositResourceType.Bank,
+        });
+        const session = await this.primeLinkManager.linkSession(payload.user_id);
 
         return {
           action: 'link_transfer',
-          link_transfer,
+          flow_id: identifiers[0].id,
+          link_transfer: { sessionKey: session.sessionKey },
         };
       }
 
@@ -94,7 +102,7 @@ export class DepositFlow {
     throw new UnauthorizedException('This operation is not permitted in your country');
   }
 
-  async payWithSelectedRecource(payload: DepositNextStepRequest) {
+  async payWithSelectedResource(payload: DepositNextStepRequest) {
     const flow = await this.depositFlowRepo.findOneByOrFail({ id: payload.id });
     if (flow.user_id !== payload.user_id) {
       throw new ForbiddenException();
@@ -105,19 +113,12 @@ export class DepositFlow {
     }
 
     if (flow.resource_type === DepositResourceType.Bank && hasBankDeposit(paymentGateway)) {
-      const resp = await paymentGateway.setDepositParams({
-        id: flow.user_id,
-        bank_account_id: payload.bank.id,
-        funds_transfer_type: payload.bank.transfer_type,
-      });
-      const depositData = await paymentGateway.makeDeposit({
-        id: flow.user_id,
-        funds_transfer_method_id: resp.transfer_method_id,
-        amount: flow.amount,
-      });
+      const link_transfer = await this.primeLinkManager.sendAmount(payload.customer.id, flow.amount, flow.currency);
       await this.depositFlowRepo.delete(payload.id);
 
-      return depositData;
+      return {
+        contribution_id: link_transfer.paymentId,
+      };
     }
 
     if (flow.resource_type === DepositResourceType.Card && hasCreditCard(paymentGateway)) {

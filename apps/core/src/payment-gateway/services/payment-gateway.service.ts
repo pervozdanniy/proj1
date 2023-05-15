@@ -9,7 +9,6 @@ import {
   DepositParamRequest,
   ExchangeRequest,
   ExchangeResponse,
-  LinkCustomerRequest,
   MakeDepositRequest,
   PG_Token,
   SearchTransactionRequest,
@@ -161,13 +160,5 @@ export class PaymentGatewayService {
     }
 
     return { success };
-  }
-
-  linkSession({ id }: UserIdRequest) {
-    return this.primeTrustService.linkSession(id);
-  }
-
-  saveCustomer(request: LinkCustomerRequest) {
-    return this.primeTrustService.saveCustomer(request);
   }
 }

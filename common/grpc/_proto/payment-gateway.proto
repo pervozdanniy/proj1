@@ -9,10 +9,6 @@ service PaymentGatewayService {
 
   rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
 
-  //link
-  rpc LinkSession (UserIdRequest) returns (LinkSessionResponse);
-  rpc SaveCustomer (LinkCustomerRequest) returns (common.SuccessResponse);
-
   //veriff
   rpc GenerateVeriffLink(UserIdRequest) returns (veriff.VeriffSessionResponse);
   rpc VeriffHookHandler(veriff.VeriffHookRequest) returns (common.SuccessResponse);
@@ -75,8 +71,7 @@ message LinkSessionResponse {
 }
 
 message LinkCustomerRequest {
-  string customerId = 1;
-  string sessionId = 2;
+  string id = 1;
 }
 
 message DepositFlowRequest {
@@ -86,8 +81,9 @@ message DepositFlowRequest {
   string type = 4;
 }
 message LinkTransferData {
-  string paymentId = 1;
-  string paymentStatus = 2;
+  optional string paymentId = 1;
+  optional string paymentStatus = 2;
+  optional string sessionKey = 3;
 }
 
 message DepositFlowResponse {
@@ -120,6 +116,7 @@ message DepositNextStepRequest {
   oneof data {
     SelectBankRequest bank = 3;
     SelectCardRequest card = 4;
+    LinkCustomerRequest customer = 5;
   }
 }
 

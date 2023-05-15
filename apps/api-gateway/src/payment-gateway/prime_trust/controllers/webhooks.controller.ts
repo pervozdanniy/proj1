@@ -1,5 +1,13 @@
-import { Body, ClassSerializerInterceptor, Controller, Logger, Post, UseInterceptors } from '@nestjs/common';
-import { ApiExcludeController, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  HttpStatus,
+  Logger,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
+import { ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { EventPayload, FacilitaWebhookType, KoyweWebhookType, PrimeTrustWebhookType } from '../webhooks/data';
 
@@ -36,6 +44,15 @@ export class WebhooksController {
 
   @Post('/liquido')
   async liquidoHandler(@Body() payload: EventPayload) {
+    this.logger.log(payload);
+  }
+
+  @ApiOperation({ summary: 'Catch webhooks.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+  })
+  @Post('/link')
+  async linkHandler(@Body() payload: any) {
     this.logger.log(payload);
   }
 }
