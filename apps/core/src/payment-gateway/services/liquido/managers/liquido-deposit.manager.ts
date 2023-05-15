@@ -1,6 +1,7 @@
 import { UserService } from '@/user/services/user.service';
+import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,13 +10,16 @@ import { Repository } from 'typeorm';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { CreateReferenceRequest, JsonData } from '~common/grpc/interfaces/payment-gateway';
+import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
 @Injectable()
 export class LiquidoDepositManager {
+  private readonly logger = new Logger(LiquidoDepositManager.name);
   private readonly api_url: string;
+  private readonly domain: string;
   private readonly x_api_key: string;
   constructor(
     config: ConfigService<ConfigInterface>,
@@ -27,9 +31,11 @@ export class LiquidoDepositManager {
 
     private userService: UserService,
   ) {
+    const { domain } = config.get('app', { infer: true });
     const { x_api_key, api_url } = config.get('liquido', { infer: true });
     this.x_api_key = x_api_key;
     this.api_url = api_url;
+    this.domain = domain;
   }
 
   async createCashPayment({ id, amount: beforeConvertAmount }: CreateReferenceRequest): Promise<JsonData> {
@@ -65,7 +71,7 @@ export class LiquidoDepositManager {
       email: userDetails.email,
       phone: userDetails.phone,
       documentId: document.document_number,
-      callbackUrl: 'https://5f73-141-136-86-201.ngrok-free.app/webhook/liquido',
+      callbackUrl: `${this.domain}/webhook/liquido`,
       description: 'this is a test payment',
     };
 
@@ -76,7 +82,9 @@ export class LiquidoDepositManager {
 
       return { data: result.data.paymentLink };
     } catch (e) {
-      console.log(e.response.data);
+      this.logger.error(e.response.data);
+
+      throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
     }
   }
 }
