@@ -24,11 +24,11 @@ import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
-@ApiTags('Prime Trust')
+@ApiTags('Payment Gateway')
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
-  path: 'prime_trust',
+  path: 'payment_gateway',
 })
 export class MainController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}

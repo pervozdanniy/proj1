@@ -12,10 +12,11 @@ import {
   Query,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 
 @ApiTags('Link')
+@ApiExcludeController()
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
