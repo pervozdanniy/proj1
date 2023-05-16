@@ -9,11 +9,14 @@ import { GrpcSessionMiddleware } from '~common/grpc-session';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { SessionService } from '~common/session';
 import { AuthService } from '~svc/auth/src/auth/auth.service';
+import { TokenService } from '~svc/auth/src/auth/token.service';
 import { ClientController } from '~svc/auth/src/client/client.controller';
 import { ClientService } from '~svc/auth/src/client/client.service';
 import { AuthClient } from '~svc/auth/src/entities/auth_client.entity';
+import { RefreshTokenEntity } from '~svc/auth/src/entities/refresh-token.entity';
 import authClientRepoFactory from './auth-client.repository';
 import testConfig from './configuration';
+import refreshTokenRepoFactory from './refresh-token.respository';
 
 export default async (config: ConfigService<ConfigInterface>) => {
   const auth = await Test.createTestingModule({
@@ -26,6 +29,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
       GrpcSessionMiddleware,
       ClientService,
       AuthService,
+      TokenService,
       { provide: JwtService, useValue: { signAsync: jest.fn().mockResolvedValue('mock_jwt') } },
       {
         provide: SessionService,
@@ -37,6 +41,7 @@ export default async (config: ConfigService<ConfigInterface>) => {
         },
       },
       { provide: getRepositoryToken(AuthClient), useFactory: authClientRepoFactory },
+      { provide: getRepositoryToken(RefreshTokenEntity), useFactory: refreshTokenRepoFactory },
     ],
   }).compile();
 

@@ -6,6 +6,14 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.auth";
 
+export interface TokenRequest {
+  token: string;
+}
+
+export interface TokenValidateResponse {
+  session_id: string;
+}
+
 export interface ChangeOldPasswordRequest {
   old_password: string;
   new_password: string;
@@ -27,6 +35,7 @@ export interface Verification {
 
 export interface AuthData {
   access_token: string;
+  refresh_token?: string | undefined;
   verify?: Verification | undefined;
 }
 
@@ -141,10 +150,67 @@ export interface AuthServiceClient {
 
   logout(request: Empty, ...rest: any): Observable<SuccessResponse>;
 
+  refresh(request: TokenRequest, ...rest: any): Observable<AuthData>;
+
+  validate(request: TokenRequest, ...rest: any): Observable<TokenValidateResponse>;
+
   loginSocials(request: SocialsAuthRequest, ...rest: any): Observable<AuthData>;
 
   registerSocials(request: RegisterSocialRequest, ...rest: any): Observable<AuthData>;
 
+  closeAccount(request: Empty, ...rest: any): Observable<User>;
+
+  openAccount(request: IdRequest, ...rest: any): Observable<User>;
+}
+
+export interface AuthServiceController {
+  login(request: AuthRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  logout(request: Empty, ...rest: any): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  refresh(request: TokenRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  validate(
+    request: TokenRequest,
+    ...rest: any
+  ): Promise<TokenValidateResponse> | Observable<TokenValidateResponse> | TokenValidateResponse;
+
+  loginSocials(request: SocialsAuthRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  registerSocials(request: RegisterSocialRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
+
+  closeAccount(request: Empty, ...rest: any): Promise<User> | Observable<User> | User;
+
+  openAccount(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
+}
+
+export function AuthServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = [
+      "login",
+      "logout",
+      "refresh",
+      "validate",
+      "loginSocials",
+      "registerSocials",
+      "closeAccount",
+      "openAccount",
+    ];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
+
+export const AUTH_SERVICE_NAME = "AuthService";
+
+export interface RegisterServiceClient {
   registerStart(request: RegisterStartRequest, ...rest: any): Observable<AuthData>;
 
   registerVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
@@ -154,35 +220,9 @@ export interface AuthServiceClient {
   approveAgreement(request: ApproveAgreementRequest, ...rest: any): Observable<SuccessResponse>;
 
   registerFinish(request: RegisterFinishRequest, ...rest: any): Observable<User>;
-
-  resetPasswordStart(request: ResetPasswordStartRequest, ...rest: any): Observable<AuthData>;
-
-  resetPasswordVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
-
-  resetPasswordFinish(request: ResetPasswordFinishRequest, ...rest: any): Observable<SuccessResponse>;
-
-  changePasswordStart(request: ChangePasswordStartRequest, ...rest: any): Observable<Verification>;
-
-  changeOldPassword(request: ChangeOldPasswordRequest, ...rest: any): Observable<SuccessResponse>;
-
-  closeAccount(request: Empty, ...rest: any): Observable<User>;
-
-  openAccount(request: IdRequest, ...rest: any): Observable<User>;
-
-  changeContactInfoStart(request: ChangeContactInfoRequest, ...rest: any): Observable<Verification>;
-
-  changeContactInfoVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
 }
 
-export interface AuthServiceController {
-  login(request: AuthRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
-
-  logout(request: Empty, ...rest: any): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  loginSocials(request: SocialsAuthRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
-
-  registerSocials(request: RegisterSocialRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
-
+export interface RegisterServiceController {
   registerStart(request: RegisterStartRequest, ...rest: any): Promise<AuthData> | Observable<AuthData> | AuthData;
 
   registerVerify(
@@ -201,7 +241,44 @@ export interface AuthServiceController {
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   registerFinish(request: RegisterFinishRequest, ...rest: any): Promise<User> | Observable<User> | User;
+}
 
+export function RegisterServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = [
+      "registerStart",
+      "registerVerify",
+      "createAgreement",
+      "approveAgreement",
+      "registerFinish",
+    ];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("RegisterService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("RegisterService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
+
+export const REGISTER_SERVICE_NAME = "RegisterService";
+
+export interface ResetPasswordServiceClient {
+  resetPasswordStart(request: ResetPasswordStartRequest, ...rest: any): Observable<AuthData>;
+
+  resetPasswordVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
+
+  resetPasswordFinish(request: ResetPasswordFinishRequest, ...rest: any): Observable<SuccessResponse>;
+
+  changePasswordStart(request: ChangePasswordStartRequest, ...rest: any): Observable<Verification>;
+
+  changeOldPassword(request: ChangeOldPasswordRequest, ...rest: any): Observable<SuccessResponse>;
+}
+
+export interface ResetPasswordServiceController {
   resetPasswordStart(
     request: ResetPasswordStartRequest,
     ...rest: any
@@ -226,11 +303,38 @@ export interface AuthServiceController {
     request: ChangeOldPasswordRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+}
 
-  closeAccount(request: Empty, ...rest: any): Promise<User> | Observable<User> | User;
+export function ResetPasswordServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = [
+      "resetPasswordStart",
+      "resetPasswordVerify",
+      "resetPasswordFinish",
+      "changePasswordStart",
+      "changeOldPassword",
+    ];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("ResetPasswordService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("ResetPasswordService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
 
-  openAccount(request: IdRequest, ...rest: any): Promise<User> | Observable<User> | User;
+export const RESET_PASSWORD_SERVICE_NAME = "ResetPasswordService";
 
+export interface ContactInfoServiceClient {
+  changeContactInfoStart(request: ChangeContactInfoRequest, ...rest: any): Observable<Verification>;
+
+  changeContactInfoVerify(request: TwoFactorCode, ...rest: any): Observable<TwoFactorVerificationResponse>;
+}
+
+export interface ContactInfoServiceController {
   changeContactInfoStart(
     request: ChangeContactInfoRequest,
     ...rest: any
@@ -242,41 +346,22 @@ export interface AuthServiceController {
   ): Promise<TwoFactorVerificationResponse> | Observable<TwoFactorVerificationResponse> | TwoFactorVerificationResponse;
 }
 
-export function AuthServiceControllerMethods() {
+export function ContactInfoServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = [
-      "login",
-      "logout",
-      "loginSocials",
-      "registerSocials",
-      "registerStart",
-      "registerVerify",
-      "createAgreement",
-      "approveAgreement",
-      "registerFinish",
-      "resetPasswordStart",
-      "resetPasswordVerify",
-      "resetPasswordFinish",
-      "changePasswordStart",
-      "changeOldPassword",
-      "closeAccount",
-      "openAccount",
-      "changeContactInfoStart",
-      "changeContactInfoVerify",
-    ];
+    const grpcMethods: string[] = ["changeContactInfoStart", "changeContactInfoVerify"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
+      GrpcMethod("ContactInfoService", method)(constructor.prototype[method], method, descriptor);
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
+      GrpcStreamMethod("ContactInfoService", method)(constructor.prototype[method], method, descriptor);
     }
   };
 }
 
-export const AUTH_SERVICE_NAME = "AuthService";
+export const CONTACT_INFO_SERVICE_NAME = "ContactInfoService";
 
 export interface ClientServiceClient {
   create(request: ClientCreateRequest, ...rest: any): Observable<AuthClient>;

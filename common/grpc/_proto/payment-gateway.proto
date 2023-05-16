@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "common.proto";
+import "veriff.proto";
 import "google/protobuf/empty.proto";
 package skopa.core;
 
@@ -8,62 +9,72 @@ service PaymentGatewayService {
 
   rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
 
+  //link
+  rpc LinkSession (UserIdRequest) returns (LinkSessionResponse);
+  rpc SaveCustomer (LinkCustomerRequest) returns (common.SuccessResponse);
 
-  rpc GetToken (google.protobuf.Empty) returns (PG_Token);
+  //veriff
+  rpc GenerateVeriffLink(UserIdRequest) returns (veriff.VeriffSessionResponse);
+  rpc VeriffHookHandler(veriff.VeriffHookRequest) returns (common.SuccessResponse);
+  rpc VeriffWebhookHandler(veriff.WebhookResponse) returns (common.SuccessResponse);
+
+
   rpc GetAvailablePaymentMethods (UserIdRequest) returns (PaymentMethodsResponse);
-  rpc CreateAccount (UserIdRequest) returns (AccountResponse);
-  rpc GetAccount (UserIdRequest) returns (AccountResponse);
   rpc GetContact (UserIdRequest) returns (ContactResponse);
-  rpc CreateContact (UserIdRequest) returns (common.SuccessResponse);
-  rpc UploadDocument (UploadDocumentRequest) returns (DocumentResponse);
   rpc GetBalance (BalanceRequest) returns (BalanceResponse);
   rpc Exchange (ExchangeRequest) returns (ExchangeResponse);
   rpc GetUserAccountStatus (common.IdRequest) returns (AccountStatusResponse);
-  rpc CreateSocureDocument(SocureDocumentRequest) returns (common.SuccessResponse);
-  rpc FailedSocureDocument(UserIdRequest) returns (common.SuccessResponse);
   rpc TransferToHotWallet(google.protobuf.Empty) returns (common.SuccessResponse);
 
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
   //banks
-  rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
   rpc GetBanksInfo (UserIdRequest) returns (BanksInfoResponse);
   rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
 
   //deposit funds
-  rpc CreateReference (CreateReferenceRequest) returns (JsonData);
-  rpc AddDepositParams (DepositParamRequest) returns (DepositResponse);
-  rpc GetDepositParams (UserIdRequest) returns (DepositParamsResponse);
   rpc CreateCreditCardResource (UserIdRequest) returns (CreditCardResourceResponse);
   rpc VerifyCreditCard (VerifyCreditCardRequest) returns (common.SuccessResponse);
-  rpc MakeDeposit (MakeDepositRequest) returns (ContributionResponse);
-  rpc GetCreditCards (UserIdRequest) returns (CreditCardsResponse);
 
   //transfer funds
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
 
   //withdrawal
-  rpc MakeWithdrawal (TransferMethodRequest) returns (JsonData);
+  rpc MakeWithdrawal (TransferMethodRequest) returns (TransferInfo);
 
   //webhooks
-  rpc DocumentCheck (AccountIdRequest) returns (common.SuccessResponse);
-  rpc CipCheck (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateAccount (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateContact (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateBalance (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateContribution (AccountIdRequest) returns (common.SuccessResponse);
-  rpc ContingentHolds (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateWithdraw (AccountIdRequest) returns (common.SuccessResponse);
-  rpc UpdateAssetDeposit (AccountIdRequest) returns (common.SuccessResponse);
+  rpc PrimeWebhooksHandler (PrimeWebhookRequest)   returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
   rpc FacilitaWebhooksHandler (FacilitaWebhookRequest)   returns (common.SuccessResponse);
   rpc LiquidoWebhooksHandler (LiquidoWebhookRequest)   returns (common.SuccessResponse);
 }
 
+message PrimeWebhookRequest {
+  string id = 1;
+  string account_id = 2;
+  string action = 3;
+  ChangesData data = 4;
+  string resource_id = 5;
+  string resource_type = 6;
+}
+
+message ChangesData {
+  repeated string changes = 1;
+}
+
 service DepositFlowService {
   rpc Start(DepositFlowRequest) returns (DepositFlowResponse);
 
-  rpc PayWithSelectedResource(DepositNextStepRequest) returns (ContributionResponse);
+  rpc PayWithSelectedResource(DepositNextStepRequest) returns (TransferInfo);
+}
+
+message LinkSessionResponse {
+   string sessionKey = 1;
+}
+
+message LinkCustomerRequest {
+  string customerId = 1;
+  string sessionId = 2;
 }
 
 message DepositFlowRequest {
@@ -71,6 +82,10 @@ message DepositFlowRequest {
   string amount = 2;
   string currency = 3;
   string type = 4;
+}
+message LinkTransferData {
+  string paymentId = 1;
+  string paymentStatus = 2;
 }
 
 message DepositFlowResponse {
@@ -80,8 +95,10 @@ message DepositFlowResponse {
     DepositSelectBankData banks = 3;
     DepositSelectCardData cards = 4;
     DepositRedirectData redirect = 5;
+    LinkTransferData link_transfer = 6;
   };
 }
+
 
 message DepositSelectBankData {
   repeated BankAccountParams list = 1;
@@ -93,6 +110,14 @@ message DepositSelectCardData {
 
 message DepositRedirectData {
   string url = 1;
+  TransferInfo info = 2;
+}
+
+message TransferInfo {
+  string amount = 1;
+  string currency = 2;
+  string fee = 3;
+  optional string rate = 4;
 }
 
 message DepositNextStepRequest {
@@ -112,16 +137,6 @@ message SelectBankRequest {
 message SelectCardRequest {
   uint32 id = 1;
   string cvv = 2;
-}
-
-message SocureDocumentRequest {
-  uint32 user_id = 1;
-  string uuid = 2;
-  string label = 3;
-  string status = 4;
-  string document_number = 5;
-  string expiration_date = 6;
-  string issuing_date = 7;
 }
 
 message LiquidoWebhookRequest {
@@ -261,10 +276,6 @@ message PaymentMethodsResponse {
 }
 
 
-message DocumentResponse {
-  string document_id = 1;
-}
-
 message DepositParamRequest{
   uint32 id = 1;
   uint32 bank_account_id = 2;
@@ -273,19 +284,6 @@ message DepositParamRequest{
 
 message DepositResponse{
   string transfer_method_id = 1;
-}
-
-
-message MakeDepositRequest {
-  uint32 id = 1;
-  string funds_transfer_method_id = 2;
-  string amount = 3;
-  optional string cvv = 4;
-}
-
-
-message ContributionResponse {
- string contribution_id = 1;
 }
 
 message BankAccountParams{
@@ -417,23 +415,6 @@ message JsonData {
 message AccountIdRequest{
   string id = 1;
   optional string resource_id = 2;
-}
-
-
-message FileData  {
-  bytes buffer = 1;
-  string fieldname = 2;
-  string originalname = 3;
-  string encoding = 4;
-  string mimetype = 5;
-  uint32 size = 6;
-}
-
-message UploadDocumentRequest {
-  string label = 1;
-  FileData file = 2;
-  UserIdRequest userId = 3;
-
 }
 
 

@@ -4,6 +4,7 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import Redis from 'ioredis';
@@ -15,6 +16,7 @@ import { TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData, CountryData } from '../../../country/data';
+import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { KoyweCreateOrder, KoyweQuote } from '../../../types/koywe';
 import { KoyweMainManager } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
@@ -32,6 +34,8 @@ export class KoyweWithdrawalManager {
     @InjectRepository(BankAccountEntity)
     private readonly bankAccountEntityRepository: Repository<BankAccountEntity>,
 
+    @InjectRepository(VeriffDocumentEntity)
+    private readonly documentRepository: Repository<VeriffDocumentEntity>,
     @InjectRepository(TransfersEntity)
     private readonly withdrawalEntityRepository: Repository<TransfersEntity>,
     @InjectRedis() private readonly redis: Redis,
@@ -44,8 +48,8 @@ export class KoyweWithdrawalManager {
     this.koywe_url = koywe_url;
   }
 
-  async makeWithdrawal(request: TransferMethodRequest): Promise<string> {
-    const { id, bank_account_id, amount: beforeConvertAmount } = request;
+  async makeWithdrawal(request: TransferMethodRequest) {
+    const { id, bank_account_id, amount } = request;
     const { country_code, email } = await this.userService.getUserInfo(id);
     const bank = await this.bankAccountEntityRepository.findOneBy({
       user_id: id,
@@ -59,17 +63,18 @@ export class KoyweWithdrawalManager {
 
     const countries: CountryData = countriesData;
     const { currency_type } = countries[country_code];
-
-    const convertData = await lastValueFrom(
-      this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${this.asset}`),
+    const quote = await this.createQuote(amount, currency_type);
+    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
+    if (!document) {
+      throw new ConflictException('KYC is not completed');
+    }
+    const { orderId, providedAddress } = await this.createOrder(
+      quote.quoteId,
+      email,
+      bank.account_uuid,
+      document.document_number,
     );
-    const convertedAmount = parseFloat(beforeConvertAmount) * parseFloat(convertData.data[`${this.asset}`]);
-
-    const amount = String(convertedAmount.toFixed(2));
-    const { quoteId } = await this.createQuote(amount, currency_type);
-    const { orderId, providedAddress } = await this.createOrder(quoteId, email, bank.account_uuid);
-    const { status, koyweFee, networkFee } = await this.koyweMainManager.getOrderInfo(orderId);
-    const fee = String(networkFee + koyweFee);
+    const totalFee = (quote.networkFee + quote.koyweFee) * quote.exchangeRate;
     await this.withdrawalEntityRepository.save(
       this.withdrawalEntityRepository.create({
         user_id: id,
@@ -78,12 +83,18 @@ export class KoyweWithdrawalManager {
         provider: Providers.KOYWE,
         amount,
         currency_type: 'USD',
-        status: status.toLowerCase(),
-        fee,
+        status: 'waiting',
+        fee: totalFee.toFixed(2),
       }),
     );
+    const info = {
+      amount: quote.amountOut.toFixed(2),
+      currency: currency_type,
+      rate: quote.exchangeRate.toFixed(4),
+      fee: totalFee.toFixed(2),
+    };
 
-    return providedAddress;
+    return { wallet: providedAddress, info };
   }
 
   async createQuote(amount: string, currency_type: string): Promise<KoyweQuote> {
@@ -106,15 +117,22 @@ export class KoyweWithdrawalManager {
     }
   }
 
-  async createOrder(quoteId: string, email: string, bank_id: string): Promise<KoyweCreateOrder> {
+  async createOrder(
+    quoteId: string,
+    email: string,
+    bank_id: string,
+    documentNumber: string,
+  ): Promise<KoyweCreateOrder> {
     try {
       const token = await this.redis.get('koywe_token');
       const formData = {
         destinationAddress: bank_id,
         quoteId,
         email,
-        metadata: 'Deposit funds',
+        metadata: 'Withdraw funds',
+        documentNumber,
       };
+
       const headersRequest = {
         Authorization: `Bearer ${token}`,
       };

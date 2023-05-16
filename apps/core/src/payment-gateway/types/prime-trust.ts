@@ -1,3 +1,19 @@
+export const webhookData: string[] = [
+  'accounts',
+  'kyc_document_checks',
+  'cip_checks',
+  'contributions',
+  'funds_transfers',
+  'disbursements',
+  'aml-checks',
+  'account-cash-transfers',
+  'contacts',
+  'contingent_holds',
+  'disbursement_authorizations',
+  'funds_transfers',
+  'asset_transfers',
+];
+
 export type BalanceAttributes = {
   settled: string;
   currency_type: string;
@@ -110,7 +126,6 @@ export type CreateAccountType = {
         'tax-id-number': string;
         'tax-country': string;
         'date-of-birth': string;
-        'socure-document-id'?: string;
         'primary-phone-number': {
           country: string;
           number: string;
@@ -127,3 +142,5 @@ export type CreateAccountType = {
     };
   };
 };
+
+export type Media = { id: string; name: string; sessionId: string; buffer: Buffer; label: string };

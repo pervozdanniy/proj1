@@ -8,7 +8,7 @@ import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-t
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as process from 'process';
@@ -19,7 +19,6 @@ import { Providers } from '~common/enum/providers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
-  ContributionResponse,
   CreateReferenceRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
@@ -27,11 +26,12 @@ import {
   DepositParamsResponse,
   DepositResponse,
   JsonData,
-  MakeDepositRequest,
+  TransferInfo,
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import { MakeDepositRequest } from '../../../interfaces/payment-gateway.interface';
 import { CardResourceType } from '../../../types/prime-trust';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeBankAccountManager } from './prime-bank-account.manager';
@@ -41,17 +41,19 @@ import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 export class PrimeDepositManager {
   private readonly prime_trust_url: string;
 
+  private readonly logger = new Logger(PrimeDepositManager.name);
+
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-
-    private readonly notificationService: NotificationService,
 
     private readonly primeBankAccountManager: PrimeBankAccountManager,
 
     private readonly primeBalanceManager: PrimeBalanceManager,
 
     private readonly primeFundsTransferManager: PrimeFundsTransferManager,
+
+    private readonly notificationService: NotificationService,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -223,9 +225,8 @@ export class PrimeDepositManager {
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
     }
-
-    await this.primeBalanceManager.updateAccountBalance(account_id);
     await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
+    await this.primeBalanceManager.updateAccountBalance(account_id);
 
     return { success: true };
   }
@@ -359,7 +360,7 @@ export class PrimeDepositManager {
     return { data: cards };
   }
 
-  async makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
+  async makeDeposit(request: MakeDepositRequest): Promise<TransferInfo> {
     const { id, funds_transfer_method_id, amount, cvv } = request;
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
@@ -415,7 +416,6 @@ export class PrimeDepositManager {
         contributionPayload['param_type'] = 'credit_card';
         contributionPayload['param_id'] = cardResource.id;
       }
-      await this.primeBalanceManager.updateAccountBalance(account_id);
 
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
       const contribution_id = contributionResponse.data.data.id;
@@ -433,8 +433,9 @@ export class PrimeDepositManager {
           data: null,
         });
       }
+      this.logger.debug('Make Deposit', contribution_id);
 
-      return { contribution_id };
+      return { fee: '0.00', amount, currency: 'USD' };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();

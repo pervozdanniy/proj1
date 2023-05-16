@@ -17,7 +17,7 @@ import { WithdrawalTypes } from '~common/enum/document-types.enum';
 import { Providers } from '~common/enum/providers';
 import {
   AccountIdRequest,
-  JsonData,
+  TransferInfo,
   TransferMethodRequest,
   WithdrawalParams,
   WithdrawalResponse,
@@ -115,6 +115,7 @@ export class PrimeWithdrawalManager {
 
       return fundsResponse.data.data.id;
     } catch (e) {
+      this.checkBankExists;
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
 
@@ -125,24 +126,23 @@ export class PrimeWithdrawalManager {
     }
   }
 
-  async makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
-    const { id, bank_account_id, funds_transfer_type, amount } = request;
+  async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
+    const { id, bank_account_id, funds_transfer_type } = request;
     const { transfer_method_id: funds_transfer_method_id } = await this.addWithdrawalParams({
       id,
       bank_account_id,
       funds_transfer_type,
     });
+
     const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
     const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({
       uuid: funds_transfer_method_id,
     });
-
-    const { funds: fundsResponse, fee } = await this.sendWithdrawalRequest(
-      request,
-      account.uuid,
-      funds_transfer_method_id,
-    );
-
+    const {
+      funds: fundsResponse,
+      fee,
+      amount,
+    } = await this.sendWithdrawalRequest(request, account.uuid, funds_transfer_method_id);
     await this.withdrawalEntityRepository.save(
       this.withdrawalEntityRepository.create({
         user_id: id,
@@ -157,16 +157,6 @@ export class PrimeWithdrawalManager {
         provider: Providers.PRIME_TRUST,
       }),
     );
-
-    const notificationPayload = {
-      user_id: id,
-      title: 'User Disbursements',
-      type: 'disbursements',
-      description: `Your disbursements status for ${amount} ${fundsResponse.attributes['currency-type']} ${fundsResponse.attributes['status']}`,
-    };
-
-    this.notificationService.createAsync(notificationPayload);
-
     const response = {
       id: fundsResponse.relationships['funds-transfer'].data.id,
       type: fundsResponse.relationships['funds-transfer'].data.type,
@@ -182,23 +172,11 @@ export class PrimeWithdrawalManager {
       });
     }
 
-    return { data: JSON.stringify(response) };
-  }
-  async checkSettledTrade(trade_id: string, attempt = 1): Promise<boolean> {
-    const tradeResponse = await this.httpService.request({
-      method: 'get',
-      url: `${this.prime_trust_url}/v2/trades/${trade_id}`,
-    });
-
-    if (tradeResponse.data.data.attributes.status !== 'settled') {
-      if (attempt < 5) {
-        await this.checkSettledTrade(trade_id, attempt + 1);
-      } else {
-        return false;
-      }
-    }
-
-    return true;
+    return {
+      amount,
+      fee,
+      currency: fundsResponse.attributes['currency-type'],
+    };
   }
 
   async sendWithdrawalRequest(
@@ -211,16 +189,11 @@ export class PrimeWithdrawalManager {
     if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
       hotStatus = true;
     }
-    const { total_amount, fee_amount, trade_id } = await this.primeFundsTransferManager.convertAssetToUSD(
+    const { total_amount, fee_amount } = await this.primeFundsTransferManager.convertAssetToUSD(
       account_id,
       amount,
       hotStatus,
     );
-
-    const settledTrade = await this.checkSettledTrade(trade_id);
-    if (!settledTrade) {
-      throw new GrpcException(Status.ABORTED, 'Converting error,please try again', 400);
-    }
 
     const formData = {
       data: {
@@ -240,7 +213,7 @@ export class PrimeWithdrawalManager {
         data: formData,
       });
 
-      return { funds: fundsResponse.data.data, fee: fee_amount };
+      return { funds: fundsResponse.data.data, fee: fee_amount, amount: total_amount };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
@@ -265,8 +238,6 @@ export class PrimeWithdrawalManager {
       return { success: false };
     }
 
-    const { user_id } = withdrawData;
-
     const withdrawResponse = await this.getWithdrawInfo(resource_id);
 
     await this.withdrawalEntityRepository.update(
@@ -275,9 +246,9 @@ export class PrimeWithdrawalManager {
         status: withdrawResponse['status'],
       },
     );
-
-    await this.primeBalanceManager.updateAccountBalance(account_id);
+    const { user_id } = withdrawData;
     await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
+    await this.primeBalanceManager.updateAccountBalance(account_id);
 
     return { success: true };
   }

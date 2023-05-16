@@ -7,18 +7,17 @@ import {
   BalanceRequest,
   BalanceResponse,
   DepositParamRequest,
-  DocumentResponse,
   ExchangeRequest,
   ExchangeResponse,
-  MakeDepositRequest,
+  LinkCustomerRequest,
   PG_Token,
   SearchTransactionRequest,
-  SocureDocumentRequest,
   TransferFundsRequest,
-  UploadDocumentRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+import { VeriffHookRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
+import { MakeDepositRequest } from '../interfaces/payment-gateway.interface';
 import { CurrencyService } from './currency.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
@@ -51,18 +50,6 @@ export class PaymentGatewayService {
 
     return this.primeTrustService.createContact(userDetails);
   }
-
-  async uploadDocument(request: UploadDocumentRequest): Promise<DocumentResponse> {
-    const {
-      file,
-      label,
-      userId: { id },
-    } = request;
-    const userDetails = await this.userService.getUserInfo(id);
-
-    return this.primeTrustService.uploadDocument(userDetails, file, label);
-  }
-
   async getBalance({ user_id, currencies }: BalanceRequest): Promise<BalanceResponse> {
     const balance = await this.primeTrustService.getBalance(user_id);
     const resp: BalanceResponse = { ...balance, conversions: [] };
@@ -158,17 +145,29 @@ export class PaymentGatewayService {
 
     return resp;
   }
-  failedSocureDocument(request: UserIdRequest) {
-    return this.primeTrustService.failedSocureDocument(request);
+
+  generateVeriffLink(id: number) {
+    return this.primeTrustService.generateVeriffLink(id);
   }
 
-  async createSocureDocument(request: SocureDocumentRequest) {
-    const { user_id } = request;
-    const response = await this.primeTrustService.createSocureDocument(request);
-    if (response.success === true) {
+  veriffHookHandler(request: VeriffHookRequest) {
+    return this.primeTrustService.veriffHookHandler(request);
+  }
+
+  async veriffWebhookHandler(request: WebhookResponse): Promise<SuccessResponse> {
+    const { success, user_id } = await this.primeTrustService.veriffWebhookHandler(request);
+    if (success) {
       await this.createAccount(user_id);
     }
 
-    return response;
+    return { success };
+  }
+
+  linkSession({ id }: UserIdRequest) {
+    return this.primeTrustService.linkSession(id);
+  }
+
+  saveCustomer(request: LinkCustomerRequest) {
+    return this.primeTrustService.saveCustomer(request);
   }
 }

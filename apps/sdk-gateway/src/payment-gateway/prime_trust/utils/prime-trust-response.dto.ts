@@ -13,7 +13,6 @@ import {
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositResponse,
-  DocumentResponse,
   JsonData,
   Token_Data,
   Transaction,
@@ -60,11 +59,6 @@ export class AccountResponseDto implements AccountResponse {
 
   @ApiProperty()
   uuid: string;
-}
-
-export class DocumentResponseDto implements DocumentResponse {
-  @ApiProperty()
-  document_id: string;
 }
 
 class ConversionDto implements Conversion {

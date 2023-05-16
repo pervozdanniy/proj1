@@ -38,6 +38,8 @@ export interface ConfigInterface {
   auth: {
     jwt: {
       secret: string;
+      accessTokenTtl: number;
+      refreshTokenTtl: number;
     };
   };
 
@@ -46,6 +48,8 @@ export interface ConfigInterface {
     prime_trust_url: string;
     koywe_url: string;
     facilita_url: string;
+    veriff_url: string;
+    link_url: string;
   };
 
   queues: {
@@ -61,7 +65,6 @@ export interface ConfigInterface {
   prime_trust: {
     email: string;
     password: string;
-    socure_sdk: string;
   };
 
   koywe: {
@@ -80,6 +83,17 @@ export interface ConfigInterface {
   facilita: {
     username: string;
     password: string;
+  };
+
+  veriff: {
+    api_key: string;
+    secret: string;
+  };
+
+  link: {
+    client_id: string;
+    secret_key: string;
+    merchant_id: string;
   };
 
   sendgrid: {
@@ -154,6 +168,8 @@ export default (): ConfigInterface => ({
   },
   auth: {
     jwt: {
+      accessTokenTtl: parseInt(process.env.AUTH_ACCESS_TOKEN_TTL, 10) || 60 * 60,
+      refreshTokenTtl: parseInt(process.env.AUTH_REFRESH_TOKEN_TTL, 10) || 24 * 60 * 60,
       secret: process.env.AUTH_SECRET ?? 'jwt_sercret',
     },
   },
@@ -162,6 +178,8 @@ export default (): ConfigInterface => ({
     prime_trust_url: process.env.PRIME_TRUST_URL,
     koywe_url: process.env.KOYWE_URL,
     facilita_url: process.env.FACILITA_URL,
+    veriff_url: process.env.VERIFF_BASE_URL,
+    link_url: process.env.LINK_URL,
   },
   queues: {
     user_registration: {
@@ -176,7 +194,6 @@ export default (): ConfigInterface => ({
   prime_trust: {
     email: process.env.PRIME_EMAIL,
     password: process.env.PRIME_PASSWORD,
-    socure_sdk: process.env.SOCURE_SDK,
   },
   sendgrid: {
     email: process.env.SENDGRID_EMAIL,
@@ -206,11 +223,20 @@ export default (): ConfigInterface => ({
     username: process.env.FACILITA_USERNAME,
     password: process.env.FACILITA_PASSWORD,
   },
+  veriff: {
+    api_key: process.env.VERIFF_API_KEY,
+    secret: process.env.VERIFF_SECRET,
+  },
   liquido: {
     client_id: process.env.LIQUIDO_ID,
     secret: process.env.LIQUIDO_SECRET,
     x_api_key: process.env.LIQUIDO_X_API_KEY,
     api_url: process.env.LIQUIDO_API_URL,
     auth_url: process.env.LIQUIDO_AUTH_URL,
+  },
+  link: {
+    merchant_id: process.env.LINK_MERCHANT_ID,
+    client_id: process.env.LINK_CLIENT_ID,
+    secret_key: process.env.LINK_SECRET_KEY,
   },
 });

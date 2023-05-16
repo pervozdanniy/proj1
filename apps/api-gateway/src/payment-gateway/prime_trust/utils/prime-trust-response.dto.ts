@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
@@ -7,13 +7,11 @@ import {
   BankAccountParams,
   BankAccountsResponse,
   ContactResponse,
-  ContributionResponse,
   Conversion,
   CreditCard,
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositResponse,
-  DocumentResponse,
   ExchangeResponse,
   Token_Data,
   Transaction,
@@ -68,17 +66,15 @@ export class AccountResponseDto implements AccountResponse {
   uuid: string;
 }
 
-export class DocumentResponseDto implements DocumentResponse {
-  @ApiProperty()
-  document_id: string;
-}
-
 class ConversionDto implements Conversion {
   @ApiProperty()
   currency: string;
 
   @ApiProperty()
   amount: string;
+
+  @ApiPropertyOptional()
+  rate?: string;
 }
 
 export class BalanceResponseDto implements BalanceResponse {
@@ -162,11 +158,6 @@ export class CreditCardsResponseDto implements CreditCardsResponse {
   data: CreditCard[];
 }
 
-export class ContributionResponseDto implements ContributionResponse {
-  @ApiProperty()
-  contribution_id: string;
-}
-
 export class FundsDto implements TransferFunds {
   @ApiProperty()
   amount: string;
@@ -212,10 +203,13 @@ export class TransactionResponseDto implements TransactionResponse {
   @Type(() => TransactionDto)
   transactions: TransactionDto[];
 }
-
-export class JsonDataDto {
+export class TransferInfoDto {
   @ApiProperty()
-  data: string;
+  fee: string;
+
+  @ApiProperty({ type: ConversionDto })
+  @Type(() => ConversionDto)
+  conversion: ConversionDto;
 }
 
 export class TokenDto implements Token_Data {

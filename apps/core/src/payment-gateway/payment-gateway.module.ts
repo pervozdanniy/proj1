@@ -10,6 +10,7 @@ import { CountryModule } from '../country/country.module';
 import { DepositFlowController } from './controllers/deposit-flow.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
+import { LinkEntity } from './entities/link.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from './entities/prime_trust/deposit-params.entity';
@@ -18,8 +19,8 @@ import { PrimeTrustBalanceEntity } from './entities/prime_trust/prime-trust-bala
 import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
-import { SocureDocumentEntity } from './entities/socure-document.entity';
 import { TransfersEntity } from './entities/transfers.entity';
+import { VeriffDocumentEntity } from './entities/veriff-document.entity';
 import { BrazilPaymentGateway } from './manager/countries/brazil-payment.gateway';
 import { ChilePaymentGateway } from './manager/countries/chile-payment.gateway';
 import { ColombiaPaymentGateway } from './manager/countries/colombia-payment.gateway';
@@ -54,8 +55,10 @@ import { PrimeBankAccountManager } from './services/prime_trust/managers/prime-b
 import { PrimeDepositManager } from './services/prime_trust/managers/prime-deposit.manager';
 import { PrimeFundsTransferManager } from './services/prime_trust/managers/prime-funds-transfer.manager';
 import { PrimeKycManager } from './services/prime_trust/managers/prime-kyc-manager';
+import { PrimeLinkManager } from './services/prime_trust/managers/prime-link-manager';
 import { PrimeTokenManager } from './services/prime_trust/managers/prime-token.manager';
 import { PrimeTransactionsManager } from './services/prime_trust/managers/prime-transactions.manager';
+import { PrimeVeriffManager } from './services/prime_trust/managers/prime-veriff-manager';
 import { PrimeWithdrawalManager } from './services/prime_trust/managers/prime-withdrawal.manager';
 import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
 
@@ -76,8 +79,9 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       TransfersEntity,
       BankAccountEntity,
       DepositParamsEntity,
-      SocureDocumentEntity,
+      VeriffDocumentEntity,
       DepositFlowEntity,
+      LinkEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
   ],
@@ -120,6 +124,8 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     LiquidoWithdrawalManager,
     LiquidoWebhookManager,
     DepositFlow,
+    PrimeVeriffManager,
+    PrimeLinkManager,
   ],
   controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],

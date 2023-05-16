@@ -4,7 +4,7 @@ import { HttpStatus } from '@nestjs/common/enums';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
-import { AuthServiceClient } from '~common/grpc/interfaces/auth';
+import { RegisterServiceClient } from '~common/grpc/interfaces/auth';
 import {
   ChangeAgreementStatusDto,
   CreateAgreementRequestDto,
@@ -15,12 +15,12 @@ import {
 
 @Injectable()
 export class RegistrationService implements OnModuleInit {
-  private authClient: AuthServiceClient;
+  private authClient: RegisterServiceClient;
 
   constructor(@InjectGrpc('auth') private readonly auth: ClientGrpc) {}
 
   onModuleInit() {
-    this.authClient = this.auth.getService('AuthService');
+    this.authClient = this.auth.getService('RegisterService');
   }
 
   start(payload: RegistrationStartRequestDto) {

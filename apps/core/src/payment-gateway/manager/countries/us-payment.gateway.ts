@@ -3,20 +3,20 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   BankAccountParams,
   BanksInfoResponse,
-  ContributionResponse,
   CreateReferenceRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositParamRequest,
   DepositResponse,
   JsonData,
-  MakeDepositRequest,
+  TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import {
   BankDepositInterface,
   BankWithdrawalInterface,
   CreditCardInterface,
+  MakeDepositRequest,
   PaymentGatewayInterface,
   PaymentMethod,
   WireDepositInterface,
@@ -58,7 +58,7 @@ export class USPaymentGateway
     return this.primeTrustService.getCreditCards(id);
   }
 
-  makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
+  makeDeposit(request: MakeDepositRequest): Promise<TransferInfo> {
     return this.primeTrustService.makeDeposit(request);
   }
 
@@ -77,7 +77,7 @@ export class USPaymentGateway
     return this.primeTrustService.createReference(request);
   }
 
-  makeWithdrawal(request: TransferMethodRequest): Promise<JsonData> {
+  makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
     return this.primeTrustService.makeWithdrawal(request);
   }
 }

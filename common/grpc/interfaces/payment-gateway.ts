@@ -3,8 +3,31 @@ import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { IdRequest, SuccessResponse, UserAgreement, UserDetails } from "./common";
 import { Empty } from "./google/protobuf/empty";
+import { VeriffHookRequest, VeriffSessionResponse, WebhookResponse } from "./veriff";
 
 export const protobufPackage = "skopa.core";
+
+export interface PrimeWebhookRequest {
+  id: string;
+  account_id: string;
+  action: string;
+  data: ChangesData | undefined;
+  resource_id: string;
+  resource_type: string;
+}
+
+export interface ChangesData {
+  changes: string[];
+}
+
+export interface LinkSessionResponse {
+  sessionKey: string;
+}
+
+export interface LinkCustomerRequest {
+  customerId: string;
+  sessionId: string;
+}
 
 export interface DepositFlowRequest {
   user_id: number;
@@ -13,12 +36,18 @@ export interface DepositFlowRequest {
   type: string;
 }
 
+export interface LinkTransferData {
+  paymentId: string;
+  paymentStatus: string;
+}
+
 export interface DepositFlowResponse {
   action: string;
   flow_id?: number | undefined;
   banks?: DepositSelectBankData | undefined;
   cards?: DepositSelectCardData | undefined;
   redirect?: DepositRedirectData | undefined;
+  link_transfer?: LinkTransferData | undefined;
 }
 
 export interface DepositSelectBankData {
@@ -31,6 +60,14 @@ export interface DepositSelectCardData {
 
 export interface DepositRedirectData {
   url: string;
+  info: TransferInfo | undefined;
+}
+
+export interface TransferInfo {
+  amount: string;
+  currency: string;
+  fee: string;
+  rate?: string | undefined;
 }
 
 export interface DepositNextStepRequest {
@@ -48,16 +85,6 @@ export interface SelectBankRequest {
 export interface SelectCardRequest {
   id: number;
   cvv: string;
-}
-
-export interface SocureDocumentRequest {
-  user_id: number;
-  uuid: string;
-  label: string;
-  status: string;
-  document_number: string;
-  expiration_date: string;
-  issuing_date: string;
 }
 
 export interface LiquidoWebhookRequest {
@@ -193,10 +220,6 @@ export interface PaymentMethodsResponse {
   methods: string[];
 }
 
-export interface DocumentResponse {
-  document_id: string;
-}
-
 export interface DepositParamRequest {
   id: number;
   bank_account_id: number;
@@ -205,17 +228,6 @@ export interface DepositParamRequest {
 
 export interface DepositResponse {
   transfer_method_id: string;
-}
-
-export interface MakeDepositRequest {
-  id: number;
-  funds_transfer_method_id: string;
-  amount: string;
-  cvv?: string | undefined;
-}
-
-export interface ContributionResponse {
-  contribution_id: string;
 }
 
 export interface BankAccountParams {
@@ -347,21 +359,6 @@ export interface AccountIdRequest {
   resource_id?: string | undefined;
 }
 
-export interface FileData {
-  buffer: Uint8Array;
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  size: number;
-}
-
-export interface UploadDocumentRequest {
-  label: string;
-  file: FileData | undefined;
-  userId: UserIdRequest | undefined;
-}
-
 export interface UserIdRequest {
   id: number;
   resource_id?: number | undefined;
@@ -380,19 +377,23 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface PaymentGatewayServiceClient {
   createAgreement(request: AgreementRequest, ...rest: any): Observable<UserAgreement>;
 
-  getToken(request: Empty, ...rest: any): Observable<PG_Token>;
+  /** link */
+
+  linkSession(request: UserIdRequest, ...rest: any): Observable<LinkSessionResponse>;
+
+  saveCustomer(request: LinkCustomerRequest, ...rest: any): Observable<SuccessResponse>;
+
+  /** veriff */
+
+  generateVeriffLink(request: UserIdRequest, ...rest: any): Observable<VeriffSessionResponse>;
+
+  veriffHookHandler(request: VeriffHookRequest, ...rest: any): Observable<SuccessResponse>;
+
+  veriffWebhookHandler(request: WebhookResponse, ...rest: any): Observable<SuccessResponse>;
 
   getAvailablePaymentMethods(request: UserIdRequest, ...rest: any): Observable<PaymentMethodsResponse>;
 
-  createAccount(request: UserIdRequest, ...rest: any): Observable<AccountResponse>;
-
-  getAccount(request: UserIdRequest, ...rest: any): Observable<AccountResponse>;
-
   getContact(request: UserIdRequest, ...rest: any): Observable<ContactResponse>;
-
-  createContact(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  uploadDocument(request: UploadDocumentRequest, ...rest: any): Observable<DocumentResponse>;
 
   getBalance(request: BalanceRequest, ...rest: any): Observable<BalanceResponse>;
 
@@ -400,17 +401,11 @@ export interface PaymentGatewayServiceClient {
 
   getUserAccountStatus(request: IdRequest, ...rest: any): Observable<AccountStatusResponse>;
 
-  createSocureDocument(request: SocureDocumentRequest, ...rest: any): Observable<SuccessResponse>;
-
-  failedSocureDocument(request: UserIdRequest, ...rest: any): Observable<SuccessResponse>;
-
   transferToHotWallet(request: Empty, ...rest: any): Observable<SuccessResponse>;
 
   getTransactions(request: SearchTransactionRequest, ...rest: any): Observable<TransactionResponse>;
 
   /** banks */
-
-  getBankAccounts(request: UserIdRequest, ...rest: any): Observable<BankAccountsResponse>;
 
   getBanksInfo(request: UserIdRequest, ...rest: any): Observable<BanksInfoResponse>;
 
@@ -418,19 +413,9 @@ export interface PaymentGatewayServiceClient {
 
   /** deposit funds */
 
-  createReference(request: CreateReferenceRequest, ...rest: any): Observable<JsonData>;
-
-  addDepositParams(request: DepositParamRequest, ...rest: any): Observable<DepositResponse>;
-
-  getDepositParams(request: UserIdRequest, ...rest: any): Observable<DepositParamsResponse>;
-
   createCreditCardResource(request: UserIdRequest, ...rest: any): Observable<CreditCardResourceResponse>;
 
   verifyCreditCard(request: VerifyCreditCardRequest, ...rest: any): Observable<SuccessResponse>;
-
-  makeDeposit(request: MakeDepositRequest, ...rest: any): Observable<ContributionResponse>;
-
-  getCreditCards(request: UserIdRequest, ...rest: any): Observable<CreditCardsResponse>;
 
   /** transfer funds */
 
@@ -438,27 +423,11 @@ export interface PaymentGatewayServiceClient {
 
   /** withdrawal */
 
-  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<JsonData>;
+  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Observable<TransferInfo>;
 
   /** webhooks */
 
-  documentCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  cipCheck(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateAccount(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateContact(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateBalance(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateContribution(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  contingentHolds(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateWithdraw(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
-
-  updateAssetDeposit(request: AccountIdRequest, ...rest: any): Observable<SuccessResponse>;
+  primeWebhooksHandler(request: PrimeWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
   koyweWebhooksHandler(request: KoyweWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
@@ -473,37 +442,44 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<UserAgreement> | Observable<UserAgreement> | UserAgreement;
 
-  getToken(request: Empty, ...rest: any): Promise<PG_Token> | Observable<PG_Token> | PG_Token;
+  /** link */
+
+  linkSession(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<LinkSessionResponse> | Observable<LinkSessionResponse> | LinkSessionResponse;
+
+  saveCustomer(
+    request: LinkCustomerRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  /** veriff */
+
+  generateVeriffLink(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<VeriffSessionResponse> | Observable<VeriffSessionResponse> | VeriffSessionResponse;
+
+  veriffHookHandler(
+    request: VeriffHookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  veriffWebhookHandler(
+    request: WebhookResponse,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   getAvailablePaymentMethods(
     request: UserIdRequest,
     ...rest: any
   ): Promise<PaymentMethodsResponse> | Observable<PaymentMethodsResponse> | PaymentMethodsResponse;
 
-  createAccount(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<AccountResponse> | Observable<AccountResponse> | AccountResponse;
-
-  getAccount(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<AccountResponse> | Observable<AccountResponse> | AccountResponse;
-
   getContact(
     request: UserIdRequest,
     ...rest: any
   ): Promise<ContactResponse> | Observable<ContactResponse> | ContactResponse;
-
-  createContact(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  uploadDocument(
-    request: UploadDocumentRequest,
-    ...rest: any
-  ): Promise<DocumentResponse> | Observable<DocumentResponse> | DocumentResponse;
 
   getBalance(
     request: BalanceRequest,
@@ -520,16 +496,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<AccountStatusResponse> | Observable<AccountStatusResponse> | AccountStatusResponse;
 
-  createSocureDocument(
-    request: SocureDocumentRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  failedSocureDocument(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
   transferToHotWallet(
     request: Empty,
     ...rest: any
@@ -541,11 +507,6 @@ export interface PaymentGatewayServiceController {
   ): Promise<TransactionResponse> | Observable<TransactionResponse> | TransactionResponse;
 
   /** banks */
-
-  getBankAccounts(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<BankAccountsResponse> | Observable<BankAccountsResponse> | BankAccountsResponse;
 
   getBanksInfo(
     request: UserIdRequest,
@@ -559,18 +520,6 @@ export interface PaymentGatewayServiceController {
 
   /** deposit funds */
 
-  createReference(request: CreateReferenceRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
-
-  addDepositParams(
-    request: DepositParamRequest,
-    ...rest: any
-  ): Promise<DepositResponse> | Observable<DepositResponse> | DepositResponse;
-
-  getDepositParams(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<DepositParamsResponse> | Observable<DepositParamsResponse> | DepositParamsResponse;
-
   createCreditCardResource(
     request: UserIdRequest,
     ...rest: any
@@ -581,16 +530,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  makeDeposit(
-    request: MakeDepositRequest,
-    ...rest: any
-  ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
-
-  getCreditCards(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<CreditCardsResponse> | Observable<CreditCardsResponse> | CreditCardsResponse;
-
   /** transfer funds */
 
   transferFunds(
@@ -600,52 +539,15 @@ export interface PaymentGatewayServiceController {
 
   /** withdrawal */
 
-  makeWithdrawal(request: TransferMethodRequest, ...rest: any): Promise<JsonData> | Observable<JsonData> | JsonData;
+  makeWithdrawal(
+    request: TransferMethodRequest,
+    ...rest: any
+  ): Promise<TransferInfo> | Observable<TransferInfo> | TransferInfo;
 
   /** webhooks */
 
-  documentCheck(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  cipCheck(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateAccount(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateContact(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateBalance(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateContribution(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  contingentHolds(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateWithdraw(
-    request: AccountIdRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  updateAssetDeposit(
-    request: AccountIdRequest,
+  primeWebhooksHandler(
+    request: PrimeWebhookRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
@@ -669,41 +571,25 @@ export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "createAgreement",
-      "getToken",
+      "linkSession",
+      "saveCustomer",
+      "generateVeriffLink",
+      "veriffHookHandler",
+      "veriffWebhookHandler",
       "getAvailablePaymentMethods",
-      "createAccount",
-      "getAccount",
       "getContact",
-      "createContact",
-      "uploadDocument",
       "getBalance",
       "exchange",
       "getUserAccountStatus",
-      "createSocureDocument",
-      "failedSocureDocument",
       "transferToHotWallet",
       "getTransactions",
-      "getBankAccounts",
       "getBanksInfo",
       "addBankAccountParams",
-      "createReference",
-      "addDepositParams",
-      "getDepositParams",
       "createCreditCardResource",
       "verifyCreditCard",
-      "makeDeposit",
-      "getCreditCards",
       "transferFunds",
       "makeWithdrawal",
-      "documentCheck",
-      "cipCheck",
-      "updateAccount",
-      "updateContact",
-      "updateBalance",
-      "updateContribution",
-      "contingentHolds",
-      "updateWithdraw",
-      "updateAssetDeposit",
+      "primeWebhooksHandler",
       "koyweWebhooksHandler",
       "facilitaWebhooksHandler",
       "liquidoWebhooksHandler",
@@ -725,7 +611,7 @@ export const PAYMENT_GATEWAY_SERVICE_NAME = "PaymentGatewayService";
 export interface DepositFlowServiceClient {
   start(request: DepositFlowRequest, ...rest: any): Observable<DepositFlowResponse>;
 
-  payWithSelectedResource(request: DepositNextStepRequest, ...rest: any): Observable<ContributionResponse>;
+  payWithSelectedResource(request: DepositNextStepRequest, ...rest: any): Observable<TransferInfo>;
 }
 
 export interface DepositFlowServiceController {
@@ -737,7 +623,7 @@ export interface DepositFlowServiceController {
   payWithSelectedResource(
     request: DepositNextStepRequest,
     ...rest: any
-  ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
+  ): Promise<TransferInfo> | Observable<TransferInfo> | TransferInfo;
 }
 
 export function DepositFlowServiceControllerMethods() {

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsJWT, IsNotEmpty, IsString } from 'class-validator';
 import { AuthRequest } from '~common/grpc/interfaces/auth';
 
 export class AuthRequestDto implements AuthRequest {
@@ -14,4 +14,11 @@ export class AuthRequestDto implements AuthRequest {
   @IsString()
   @ApiProperty()
   password: string;
+}
+
+export class RefreshRequestDto {
+  @IsNotEmpty()
+  @IsJWT()
+  @ApiProperty()
+  token: string;
 }

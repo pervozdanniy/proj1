@@ -36,12 +36,6 @@ export interface RecepientsResponse {
   recepients: Contact[];
 }
 
-export interface VerifyRequest {
-  id: number;
-  socure_verify: boolean;
-  document_uuid: string;
-}
-
 export interface NullableUser {
   user?: User | undefined;
 }

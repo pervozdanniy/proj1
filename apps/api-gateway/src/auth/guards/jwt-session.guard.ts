@@ -57,7 +57,7 @@ export class JwtSessionGuard extends BaseGuard {
         HttpStatus.PRECONDITION_REQUIRED,
       );
     }
-    if (options.forbidSocial && session.user.social !== UserSourceEnum.Api) {
+    if (options.forbidSocial && session.user.source !== UserSourceEnum.Api) {
       throw new ConflictException({ message: `This action unavailable for users were registered via social network!` });
     }
 

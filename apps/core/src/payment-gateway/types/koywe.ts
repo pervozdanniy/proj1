@@ -25,4 +25,9 @@ export type KoyweOrderInfo = {
 
 export type KoyweQuote = {
   quoteId: string;
+  koyweFee: number;
+  networkFee: number;
+  amountIn: number;
+  amountOut: number;
+  exchangeRate: number;
 };

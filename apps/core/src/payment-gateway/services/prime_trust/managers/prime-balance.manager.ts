@@ -22,7 +22,6 @@ export class PrimeBalanceManager {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
 
@@ -111,19 +110,19 @@ export class PrimeBalanceManager {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: id, status: 'opened' } });
     if (!account) {
       return {
-        settled: '0',
-        hot_balance: '0',
-        cold_balance: '0',
-        currency_type: '0',
+        settled: '0.00',
+        hot_balance: '0.00',
+        cold_balance: '0.00',
+        currency_type: 'USD',
       };
     }
     await this.updateAccountBalance(account.uuid);
     const balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
 
     return {
-      settled: balance.settled,
-      hot_balance: balance.hot_balance,
-      cold_balance: balance.cold_balance,
+      settled: parseFloat(balance.settled).toFixed(2),
+      hot_balance: parseFloat(balance.hot_balance).toFixed(2),
+      cold_balance: parseFloat(balance.cold_balance).toFixed(2),
       currency_type: balance.currency_type,
     };
   }
@@ -134,13 +133,22 @@ export class PrimeBalanceManager {
       try {
         const contingentHoldsResponse = await this.httpService.request({
           method: 'get',
-          url: `${this.prime_trust_url}/v2/contingent-holds/${resource_id}?include=funds-transfer`,
+          url: `${this.prime_trust_url}/v2/contingent-holds/${resource_id}?include=funds-transfer,asset-transfer`,
         });
-        await this.httpService.request({
-          method: 'post',
-          url: `${this.prime_trust_url}/v2/funds-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
-          data: null,
-        });
+
+        if (contingentHoldsResponse.data.included[0].type === 'asset-transfers') {
+          await this.httpService.request({
+            method: 'post',
+            url: `${this.prime_trust_url}/v2/asset-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
+            data: null,
+          });
+        } else {
+          await this.httpService.request({
+            method: 'post',
+            url: `${this.prime_trust_url}/v2/funds-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
+            data: null,
+          });
+        }
       } catch (e) {
         if (e instanceof PrimeTrustException) {
           const { detail, code } = e.getFirstError();
