@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DepositNextStepRequest } from '~common/grpc/interfaces/payment-gateway';
+import { DepositNextStepRequest, TransferInfo } from '~common/grpc/interfaces/payment-gateway';
 import { UserService } from '~svc/core/src/user/services/user.service';
 import { DepositFlowEntity, DepositResourceType } from '../../entities/flow/deposit.entity';
 import { CardResourceEntity } from '../../entities/prime_trust/card-resource.entity';
@@ -101,7 +101,7 @@ export class DepositFlow {
     throw new UnauthorizedException('This operation is not permitted in your country');
   }
 
-  async payWithSelectedResource(payload: DepositNextStepRequest) {
+  async payWithSelectedResource(payload: DepositNextStepRequest): Promise<TransferInfo> {
     const flow = await this.depositFlowRepo.findOneByOrFail({ id: payload.id });
     if (flow.user_id !== payload.user_id) {
       throw new ForbiddenException();
@@ -112,11 +112,14 @@ export class DepositFlow {
     }
 
     if (flow.resource_type === DepositResourceType.Bank && hasBankDeposit(paymentGateway)) {
-      const link_transfer = await this.primeLinkManager.sendAmount(payload.customer.id, flow.amount, flow.currency);
+      await this.primeLinkManager.sendAmount(payload.customer.id, flow.amount, flow.currency);
       await this.depositFlowRepo.delete(payload.id);
 
       return {
-        contribution_id: link_transfer.paymentId,
+        amount: flow.amount,
+        currency: flow.currency,
+        rate: '1',
+        fee: '0',
       };
     }
 

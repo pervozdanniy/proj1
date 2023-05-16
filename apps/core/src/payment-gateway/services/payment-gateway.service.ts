@@ -6,10 +6,8 @@ import {
   AgreementRequest,
   BalanceRequest,
   BalanceResponse,
-  DepositParamRequest,
   ExchangeRequest,
   ExchangeResponse,
-  MakeDepositRequest,
   PG_Token,
   SearchTransactionRequest,
   TransferFundsRequest,
@@ -17,6 +15,7 @@ import {
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { VeriffHookRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
+import { MakeDepositRequest } from '../interfaces/payment-gateway.interface';
 import { CurrencyService } from './currency.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
@@ -42,12 +41,6 @@ export class PaymentGatewayService {
 
   createAgreement(request: AgreementRequest): Promise<UserAgreement> {
     return this.primeTrustService.createAgreement(request);
-  }
-
-  async createContact(id: number): Promise<SuccessResponse> {
-    const userDetails = await this.userService.getUserInfo(id);
-
-    return this.primeTrustService.createContact(userDetails);
   }
   async getBalance({ user_id, currencies }: BalanceRequest): Promise<BalanceResponse> {
     const balance = await this.primeTrustService.getBalance(user_id);
@@ -83,16 +76,8 @@ export class PaymentGatewayService {
     return this.primeTrustService.verifyCreditCard(resource_id, transfer_method_id);
   }
 
-  getCreditCards(id: number) {
-    return this.primeTrustService.getCreditCards(id);
-  }
-
   transferFunds(request: TransferFundsRequest) {
     return this.primeTrustService.transferFunds(request);
-  }
-
-  getAccount(id: number) {
-    return this.primeTrustService.getAccount(id);
   }
 
   getContact(id: number) {
@@ -100,14 +85,6 @@ export class PaymentGatewayService {
   }
   getTransactions(request: SearchTransactionRequest) {
     return this.primeTrustService.getTransactions(request);
-  }
-
-  getDepositParams(request: UserIdRequest) {
-    return this.primeTrustService.getDepositParams(request.id);
-  }
-
-  addDepositParams(request: DepositParamRequest) {
-    return this.primeTrustService.addDepositParams(request);
   }
 
   makeDeposit(request: MakeDepositRequest) {

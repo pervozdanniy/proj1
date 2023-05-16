@@ -2,7 +2,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ConfigInterface } from '~common/config/configuration';
-import { ContributionResponse, MakeDepositRequest } from '~common/grpc/interfaces/payment-gateway';
+import { TransferInfo } from '~common/grpc/interfaces/payment-gateway';
+import { MakeDepositRequest } from '../../../interfaces/payment-gateway.interface';
 
 @Injectable()
 export class FacilitaDepositManager {
@@ -24,9 +25,9 @@ export class FacilitaDepositManager {
     this.password = password;
   }
 
-  async makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
+  async makeDeposit(request: MakeDepositRequest): Promise<TransferInfo> {
     this.logger.log(request, this.username, this.password, this.url);
 
-    return { contribution_id: 'some_id' };
+    return { fee: '0', amount: request.amount, currency: 'USD' };
   }
 }
