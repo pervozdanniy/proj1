@@ -80,7 +80,6 @@ export class InswitchApiService {
     } else {
       this.#token = await this.authorize();
     }
-    console.log('TOKEN', this.#token.accessToken);
 
     return `Bearer ${this.#token.accessToken}`;
   }
