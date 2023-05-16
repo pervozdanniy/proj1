@@ -1,11 +1,18 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { User } from '~common/grpc/interfaces/common';
 import { PublicUserDto } from '../../utils/public-user.dto';
 import { JwtSessionAuth, JwtSessionId, JwtSessionUser } from '../decorators/jwt-session.decorators';
 import { TwoFactorRequiredResponseDto } from '../dto/2fa.reponse.dto';
-import { AuthRequestDto } from '../dto/auth.request.dto';
+import { AuthRequestDto, RefreshRequestDto } from '../dto/auth.request.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
 import { OpenAccountRequestDto } from '../dto/open-account.request.dto';
 import { RegisterSocialsUserDto } from '../dto/register-socials-user.dto';
@@ -77,5 +84,16 @@ export class AuthController {
   @Post('account/open')
   openAccount(@Body() { user_id }: OpenAccountRequestDto) {
     return this.authService.openAccount({ id: user_id });
+  }
+
+  @ApiOperation({ summary: 'User account open' })
+  @ApiOkResponse({
+    description: 'New access and refresh token pair',
+    type: AuthResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh')
+  refreshToken(@Body() { token }: RefreshRequestDto) {
+    return this.authService.refreshToken(token);
   }
 }

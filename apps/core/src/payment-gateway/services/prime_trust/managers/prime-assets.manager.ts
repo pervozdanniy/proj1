@@ -5,12 +5,10 @@ import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-t
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
 import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import process from 'process';
-import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
@@ -18,7 +16,7 @@ import {
   AccountIdRequest,
   AssetWithdrawalRequest,
   CreateReferenceRequest,
-  JsonData,
+  TransferInfo,
   WalletResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { createDate } from '~common/helpers';
@@ -31,34 +29,28 @@ export class PrimeAssetsManager {
   private readonly prime_trust_url: string;
   private readonly asset_id: string;
   private readonly asset_type: string;
-  private readonly asset: string;
+
+  private readonly logger = new Logger(PrimeAssetsManager.name);
 
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-
-    private readonly axiosService: HttpService,
-
     private readonly notificationService: NotificationService,
-
     private readonly primeBalanceManager: PrimeBalanceManager,
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
-
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
   ) {
     const { prime_trust_url } = config.get('app');
-    const { id, type, short } = config.get('asset');
+    const { id, type } = config.get('asset');
     this.asset_id = id;
     this.asset_type = type;
     this.prime_trust_url = prime_trust_url;
-    this.asset = short;
   }
 
   async createWallet(depositParams: CreateReferenceRequest): Promise<WalletResponse> {
-    const { id, currency_type, amount } = depositParams;
-
+    const { id, amount } = depositParams;
     const prime_trust_params = await this.primeAccountRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect(PrimeTrustContactEntity, 'c', 'a.user_id = c.user_id')
@@ -67,7 +59,7 @@ export class PrimeAssetsManager {
       .getRawOne();
 
     const { account_id, contact_id } = prime_trust_params;
-    const walletPayload = await this.createAssetTransferMethod(account_id, contact_id, amount, currency_type);
+    const walletPayload = await this.createAssetTransferMethod(account_id, contact_id, amount, 'USD');
 
     return walletPayload;
   }
@@ -130,13 +122,9 @@ export class PrimeAssetsManager {
     const { user_id } = accountData;
     const assetResponse = await this.getAssetResponse(resource_id);
     const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
-    const convertData = await lastValueFrom(
-      this.axiosService.get(`https://min-api.cryptocompare.com/data/price?fsym=${this.asset}&tsyms=USD`),
-    );
-    const convertedAmount = parseFloat(convertData.data['USD']) * parseFloat(assetResponse['unit-count']);
-    let type;
-    convertedAmount < 0 ? (type = 'withdrawal') : (type = 'deposit');
-    const amount = String(convertedAmount.toFixed(2));
+
+    const amount = assetResponse['unit-count'];
+    const type = amount < 0 ? 'withdrawal' : 'deposit';
 
     if (existedDeposit) {
       await this.depositEntityRepository.update({ uuid: resource_id }, { status: assetResponse['status'] });
@@ -154,14 +142,6 @@ export class PrimeAssetsManager {
     }
     await this.primeBalanceManager.updateAccountBalance(account_id);
     await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
-
-    const notificationPayload = {
-      user_id,
-      title: 'User Contributions',
-      type: 'contributions',
-      description: `Your contribution status for ${amount} USD ${assetResponse['status']}`,
-    };
-    this.notificationService.createAsync(notificationPayload);
 
     return { success: true };
   }
@@ -185,8 +165,8 @@ export class PrimeAssetsManager {
     }
   }
 
-  async makeAssetWithdrawal(request: AssetWithdrawalRequest): Promise<JsonData> {
-    const { id, amount: beforeAmount, wallet } = request;
+  async makeAssetWithdrawal(request: AssetWithdrawalRequest): Promise<TransferInfo> {
+    const { id, amount, wallet } = request;
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect(PrimeTrustContactEntity, 'c', 'a.user_id = c.user_id')
@@ -197,64 +177,51 @@ export class PrimeAssetsManager {
     if (!accountData) {
       throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
     }
+
     const { account_id, contact_id } = accountData;
-    const convertData = await lastValueFrom(
-      this.axiosService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${this.asset}`),
-    );
-    const convertedAmount = parseFloat(convertData.data[`${this.asset}`]) * parseFloat(beforeAmount);
-
-    const amount = String(convertedAmount.toFixed(2));
-
-    const createTransferMethodData = {
-      data: {
-        type: 'asset-transfer-methods',
-        attributes: {
-          label: 'Personal Wallet Address',
-          'asset-id': this.asset_id,
-          'contact-id': contact_id,
-          'account-id': account_id,
-          'wallet-address': wallet,
-          'unit-count': amount,
-          'transfer-direction': 'outgoing',
-          'asset-transfer-type': 'ethereum',
-          'single-use': false,
-        },
-      },
-    };
-
-    let hotStatus = false;
     const balance = await this.primeBalanceManager.getAccountBalance(id);
-    if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
-      hotStatus = true;
-    }
+    const hotStatus =
+      parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount);
+
     try {
       const assetTransferMethodResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/asset-transfer-methods`,
-        data: createTransferMethodData,
-      });
-      const transferMethodId = assetTransferMethodResponse.data.data.id;
-
-      const makeWithdrawalData = {
         data: {
-          type: 'asset-disbursements',
-          attributes: {
-            'asset-id': this.asset_id,
-            'asset-transfer': {
-              'asset-transfer-method-id': transferMethodId,
+          data: {
+            type: 'asset-transfer-methods',
+            attributes: {
+              label: 'Personal Wallet Address',
+              'asset-id': this.asset_id,
+              'contact-id': contact_id,
+              'account-id': account_id,
+              'wallet-address': wallet,
+              'transfer-direction': 'outgoing',
+              'asset-transfer-type': 'ethereum',
+              'single-use': true,
             },
-            'unit-count': amount,
-            'account-id': account_id,
-            'contact-id': contact_id,
-            'hot-transfer': hotStatus,
           },
         },
-      };
-
+      });
+      const transferMethodId = assetTransferMethodResponse.data.data.id;
       const makeWithdrawalResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/asset-disbursements?include=asset-transfer-method,asset-transfer`,
-        data: makeWithdrawalData,
+        data: {
+          data: {
+            type: 'asset-disbursements',
+            attributes: {
+              'asset-id': this.asset_id,
+              'asset-transfer': {
+                'asset-transfer-method-id': transferMethodId,
+              },
+              'unit-count': amount,
+              'account-id': account_id,
+              'contact-id': contact_id,
+              'hot-transfer': hotStatus,
+            },
+          },
+        },
       });
 
       let asset_transfer_id: string;
@@ -269,23 +236,22 @@ export class PrimeAssetsManager {
         url: `${this.prime_trust_url}/v2/asset-transfers/${asset_transfer_id}?include=disbursement-authorization`,
       });
       const assetData = getAssetInfo.data.data;
-
-      const response = {
+      this.logger.debug('Asset Withdrawal', {
         id: assetData.id,
         type: assetData.type,
         attributes: assetData.attributes,
         disbursement_authorization: assetData.relationships['disbursement-authorization'],
-      };
+      });
 
       if (process.env.NODE_ENV === 'dev') {
         await this.httpService.request({
           method: 'post',
-          url: `${this.prime_trust_url}/v2/disbursement-authorizations/${response.disbursement_authorization.data.id}/sandbox/verify-owner`,
+          url: `${this.prime_trust_url}/v2/disbursement-authorizations/${assetData.relationships['disbursement-authorization'].data.id}/sandbox/verify-owner`,
           data: null,
         });
       }
 
-      return { data: JSON.stringify(response) };
+      return { amount, currency: 'USD', fee: '0' };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();

@@ -1,3 +1,19 @@
+export const webhookData: string[] = [
+  'accounts',
+  'kyc_document_checks',
+  'cip_checks',
+  'contributions',
+  'funds_transfers',
+  'disbursements',
+  'aml-checks',
+  'account-cash-transfers',
+  'contacts',
+  'contingent_holds',
+  'disbursement_authorizations',
+  'funds_transfers',
+  'asset_transfers',
+];
+
 export type BalanceAttributes = {
   settled: string;
   currency_type: string;

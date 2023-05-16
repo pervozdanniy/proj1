@@ -60,7 +60,6 @@ export class MainService {
   async makeWithdrawal(request: TransferMethodRequest) {
     const userDetails = await this.userService.getUserInfo(request.id);
     const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
-
     if (hasWithdrawal(paymentGateway)) {
       return paymentGateway.makeWithdrawal(request);
     }

@@ -38,6 +38,8 @@ export interface ConfigInterface {
   auth: {
     jwt: {
       secret: string;
+      accessTokenTtl: number;
+      refreshTokenTtl: number;
     };
   };
 
@@ -47,6 +49,7 @@ export interface ConfigInterface {
     koywe_url: string;
     facilita_url: string;
     veriff_url: string;
+    link_url: string;
   };
 
   queues: {
@@ -90,6 +93,12 @@ export interface ConfigInterface {
   veriff: {
     api_key: string;
     secret: string;
+  };
+
+  link: {
+    client_id: string;
+    secret_key: string;
+    merchant_id: string;
   };
 
   sendgrid: {
@@ -164,6 +173,8 @@ export default (): ConfigInterface => ({
   },
   auth: {
     jwt: {
+      accessTokenTtl: parseInt(process.env.AUTH_ACCESS_TOKEN_TTL, 10) || 60 * 60,
+      refreshTokenTtl: parseInt(process.env.AUTH_REFRESH_TOKEN_TTL, 10) || 24 * 60 * 60,
       secret: process.env.AUTH_SECRET ?? 'jwt_sercret',
     },
   },
@@ -173,6 +184,7 @@ export default (): ConfigInterface => ({
     koywe_url: process.env.KOYWE_URL,
     facilita_url: process.env.FACILITA_URL,
     veriff_url: process.env.VERIFF_BASE_URL,
+    link_url: process.env.LINK_URL,
   },
   queues: {
     user_registration: {
@@ -232,5 +244,10 @@ export default (): ConfigInterface => ({
     apiKey: process.env.INSWITCH_API_KEY,
     username: process.env.INSWITCH_USERNAME,
     password: process.env.INSWITCH_PASSWORD,
+  },
+  link: {
+    merchant_id: process.env.LINK_MERCHANT_ID,
+    client_id: process.env.LINK_CLIENT_ID,
+    secret_key: process.env.LINK_SECRET_KEY,
   },
 });

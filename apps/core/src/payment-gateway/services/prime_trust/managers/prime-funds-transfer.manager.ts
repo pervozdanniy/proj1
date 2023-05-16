@@ -12,6 +12,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import { NotificationService } from '../../../../notification/services/notification.service';
 
 @Injectable()
 export class PrimeFundsTransferManager {
@@ -22,6 +23,8 @@ export class PrimeFundsTransferManager {
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
     private readonly primeBalanceManager: PrimeBalanceManager,
+
+    private readonly notificationService: NotificationService,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -104,22 +107,17 @@ export class PrimeFundsTransferManager {
         data: formData,
       });
 
-      await this.httpService.request({
+      const quoteResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/quotes/${createQuoteResponse.data.data.id}/execute`,
         data: null,
       });
 
-      const quoteResponse = await this.httpService.request({
-        method: 'get',
-        url: `${this.prime_trust_url}/v2/quotes/${createQuoteResponse.data.data.id}`,
-      });
-
       return {
         trade_id: quoteResponse.data.data.attributes['trade-id'],
-        total_amount: quoteResponse.data.data.attributes['total-amount'],
-        unit_count: quoteResponse.data.data.attributes['unit-count'],
-        fee_amount: quoteResponse.data.data.attributes['fee-amount'],
+        total_amount: quoteResponse.data.data.attributes['total-amount'].toFixed(2),
+        unit_count: quoteResponse.data.data.attributes['unit-count'].toFixed(2),
+        fee_amount: quoteResponse.data.data.attributes['fee-amount'].toFixed(4),
       };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
@@ -203,7 +201,9 @@ export class PrimeFundsTransferManager {
 
     await this.transferFundsEntityRepository.save(this.transferFundsEntityRepository.create(payload));
     await this.primeBalanceManager.updateAccountBalance(fromAccountId);
+    await this.notificationService.sendWs(sender_id, 'balance', 'Balance updated!', 'Balance');
     await this.primeBalanceManager.updateAccountBalance(toAccountId);
+    await this.notificationService.sendWs(receiver_id, 'balance', 'Balance updated!', 'Balance');
 
     return {
       data: payload,

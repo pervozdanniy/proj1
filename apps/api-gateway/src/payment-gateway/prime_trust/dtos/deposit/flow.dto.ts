@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsNotEmpty, IsNumberString, IsString, Length } from 'class-validator';
+import { TransferInfoDto } from '../../utils/prime-trust-response.dto';
 
 export enum PaymentType {
   BankTransfer = 'bank-transfer',
@@ -61,6 +63,14 @@ export class PayWithCardRequestDto extends PayWithResourceDto {
   cvv: string;
 }
 
+class LinkTransferDto {
+  @ApiProperty({ example: '7cf894ac0-9e0c-806b-8b76-74d5ba51b6b' })
+  paymentId: string;
+
+  @ApiProperty({ example: 'AUTHORIZED' })
+  paymentStatus: string;
+}
+
 class BankParamsDto {
   @ApiProperty({ example: 'Test Test' })
   bank_account_name: string;
@@ -75,10 +85,15 @@ class BankParamsDto {
 class RedirectDto {
   @ApiProperty()
   url: string;
+
+  @Type(() => TransferInfoDto)
+  @ApiProperty({ type: TransferInfoDto })
+  info: TransferInfoDto;
 }
 
 class SelectBankDto {
   @ApiProperty({ type: BankParamsDto, isArray: true })
+  @Type(() => BankParamsDto)
   banks: BankParamsDto[];
 }
 
@@ -94,4 +109,7 @@ export class DepositStartResponseDto {
 
   @ApiPropertyOptional({ type: RedirectDto })
   redirect?: RedirectDto;
+
+  @ApiPropertyOptional({ type: LinkTransferDto })
+  link_transfer?: LinkTransferDto;
 }

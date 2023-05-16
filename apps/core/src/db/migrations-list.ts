@@ -52,6 +52,8 @@ import { CreateVeriffTable1683527562174 } from './migrations/1683527562174-Creat
 import { AlterVeriffTable1683530145156 } from './migrations/1683530145156-AlterVeriffTable';
 import { AlterKYCTable1683640068661 } from './migrations/1683640068661-AlterKYCTable';
 import { AddInswitchCardsAndAccountsEntities1683650125085 } from './migrations/1683650125085-AddInswitchCardsAndAccountsEntities';
+import { CreateLinkTable1683878337424 } from './migrations/1683878337424-CreateLinkTable';
+import { AlterLinksTable1683899714681 } from './migrations/1683899714681-AlterLinksTable';
 
 export default [
   createUserTable1669901299726,
@@ -108,4 +110,6 @@ export default [
   AlterVeriffTable1683530145156,
   AddInswitchCardsAndAccountsEntities1683650125085,
   AlterKYCTable1683640068661,
+  CreateLinkTable1683878337424,
+  AlterLinksTable1683899714681,
 ];

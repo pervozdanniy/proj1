@@ -16,7 +16,18 @@ import { SessionService } from './session.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [SessionService, RedisStore],
+  providers: [
+    RedisStore,
+    {
+      provide: SessionService,
+      useFactory(store: RedisStore, config: ConfigService<ConfigInterface>) {
+        const maxAge = config.get('auth.jwt.refreshTokenTtl', { infer: true });
+
+        return new SessionService(store, { maxAge });
+      },
+      inject: [RedisStore, ConfigService],
+    },
+  ],
   exports: [SessionService],
 })
 export class SessionModule {}

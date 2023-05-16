@@ -12,6 +12,7 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
 import { InswitchAccountEntity } from './entities/inswitch/inswitch-account.entity';
 import { InswitchCardEntity } from './entities/inswitch/inswitch-card.entity';
+import { LinkEntity } from './entities/link.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from './entities/prime_trust/deposit-params.entity';
@@ -58,6 +59,7 @@ import { PrimeBankAccountManager } from './services/prime_trust/managers/prime-b
 import { PrimeDepositManager } from './services/prime_trust/managers/prime-deposit.manager';
 import { PrimeFundsTransferManager } from './services/prime_trust/managers/prime-funds-transfer.manager';
 import { PrimeKycManager } from './services/prime_trust/managers/prime-kyc-manager';
+import { PrimeLinkManager } from './services/prime_trust/managers/prime-link-manager';
 import { PrimeTokenManager } from './services/prime_trust/managers/prime-token.manager';
 import { PrimeTransactionsManager } from './services/prime_trust/managers/prime-transactions.manager';
 import { PrimeVeriffManager } from './services/prime_trust/managers/prime-veriff-manager';
@@ -85,6 +87,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       InswitchCardEntity,
       VeriffDocumentEntity,
       DepositFlowEntity,
+      LinkEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
   ],
@@ -130,6 +133,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     LiquidoWebhookManager,
     DepositFlow,
     PrimeVeriffManager,
+    PrimeLinkManager,
   ],
   controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],

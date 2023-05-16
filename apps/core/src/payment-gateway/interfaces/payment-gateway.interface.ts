@@ -2,16 +2,23 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   BankAccountParams,
   BanksInfoResponse,
-  ContributionResponse,
   CreateReferenceRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositParamRequest,
+  DepositRedirectData,
   DepositResponse,
   JsonData,
-  MakeDepositRequest,
+  TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
+
+export type MakeDepositRequest = {
+  id: number;
+  funds_transfer_method_id: string;
+  amount: string;
+  cvv?: string;
+};
 
 export type PaymentMethod = 'bank-transfer' | 'credit-card' | 'cash';
 
@@ -23,6 +30,10 @@ export interface BankInterface {
   addBank(request: BankAccountParams): Promise<BankAccountParams>;
 
   getAvailableBanks(country: string): Promise<BanksInfoResponse>;
+}
+
+export interface RedirectDepositInterface {
+  createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData>;
 }
 
 export interface WireDepositInterface {
@@ -42,9 +53,9 @@ export interface BankDepositInterface extends BankInterface, DepositInterface {
 }
 
 export interface DepositInterface {
-  makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse>;
+  makeDeposit(request: MakeDepositRequest): Promise<TransferInfo>;
 }
 
 export interface BankWithdrawalInterface extends BankInterface {
-  makeWithdrawal(request: TransferMethodRequest): Promise<JsonData>;
+  makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo>;
 }

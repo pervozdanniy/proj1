@@ -1,10 +1,10 @@
 import { UsePipes, ValidationPipe } from '@nestjs/common';
 import {
-  ContributionResponse,
   DepositFlowResponse,
   DepositFlowServiceController,
   DepositFlowServiceControllerMethods,
   DepositNextStepRequest,
+  TransferInfo,
 } from '~common/grpc/interfaces/payment-gateway';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { DepositFlowStartRequestDto } from '../dto/deposit-flow.dto';
@@ -20,7 +20,7 @@ export class DepositFlowController implements DepositFlowServiceController {
     return this.flow.start(request);
   }
 
-  payWithSelectedResource(request: DepositNextStepRequest): Promise<ContributionResponse> {
+  payWithSelectedResource(request: DepositNextStepRequest): Promise<TransferInfo> {
     return this.flow.payWithSelectedRecource(request);
   }
 }
