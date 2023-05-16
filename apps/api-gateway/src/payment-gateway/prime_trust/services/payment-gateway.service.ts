@@ -15,7 +15,7 @@ import {
 import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
 import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
-import { FacilitaWebhookType, KoyweWebhookType, PrimeTrustWebhookType } from '../webhooks/data';
+import { FacilitaWebhookType, KoyweWebhookType, LiquidoWebhookType, PrimeTrustWebhookType } from '../webhooks/data';
 
 @Injectable()
 export class PaymentGatewayService implements OnModuleInit {
@@ -104,5 +104,11 @@ export class PaymentGatewayService implements OnModuleInit {
 
   primeTrustHandler(data: PrimeTrustWebhookType) {
     return lastValueFrom(this.paymentGatewayServiceClient.primeWebhooksHandler(data));
+  }
+
+  liquidoHandler({ data: { amount, currency, country, email, paymentStatus } }: LiquidoWebhookType) {
+    return lastValueFrom(
+      this.paymentGatewayServiceClient.liquidoWebhooksHandler({ amount, currency, country, email, paymentStatus }),
+    );
   }
 }

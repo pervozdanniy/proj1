@@ -89,7 +89,11 @@ export interface SelectCardRequest {
 }
 
 export interface LiquidoWebhookRequest {
-  transactionId: string;
+  amount: number;
+  currency: string;
+  country: string;
+  email: string;
+  paymentStatus: string;
 }
 
 export interface FacilitaWebhookRequest {

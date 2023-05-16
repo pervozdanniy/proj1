@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
-import { EventPayload, FacilitaWebhookType, KoyweWebhookType, PrimeTrustWebhookType } from '../webhooks/data';
+import { FacilitaWebhookType, KoyweWebhookType, LiquidoWebhookType, PrimeTrustWebhookType } from '../webhooks/data';
 
 @ApiTags('Webhooks')
 @ApiExcludeController()
@@ -45,8 +45,8 @@ export class WebhooksController {
   }
 
   @Post('/liquido')
-  async liquidoHandler(@Body() payload: EventPayload) {
-    this.logger.log(payload);
+  async liquidoHandler(@Body() payload: LiquidoWebhookType) {
+    return this.paymentGatewayService.liquidoHandler(payload);
   }
 
   @ApiOperation({ summary: 'Catch webhooks.' })

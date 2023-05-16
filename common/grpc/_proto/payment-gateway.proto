@@ -138,7 +138,11 @@ message SelectCardRequest {
 }
 
 message LiquidoWebhookRequest {
-  string transactionId = 1;
+  float amount = 1;
+  string currency = 2;
+  string country = 3;
+  string email = 4;
+  string paymentStatus = 5;
 }
 message FacilitaWebhookRequest {
   string orderId = 1;
