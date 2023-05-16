@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import {
   BankAccountParams,
   BanksInfoResponse,
-  ContributionResponse,
-  MakeDepositRequest,
   TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -11,6 +9,7 @@ import {
   BankInterface,
   BankWithdrawalInterface,
   DepositInterface,
+  MakeDepositRequest,
   PaymentGatewayInterface,
   PaymentMethod,
 } from '../../interfaces/payment-gateway.interface';
@@ -43,7 +42,7 @@ export class MexicoPaymentGateway
     return this.koyweService.getBanksInfo(country);
   }
 
-  makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
+  makeDeposit(request: MakeDepositRequest): Promise<TransferInfo> {
     return this.facilitaService.makeDeposit(request);
   }
 

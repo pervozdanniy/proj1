@@ -3,6 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { DepositFlowServiceClient } from '~common/grpc/interfaces/payment-gateway';
+import { TransferInfoDto } from '../utils/prime-trust-response.dto';
 
 @Injectable()
 export class DepositService implements OnModuleInit {
@@ -27,23 +28,47 @@ export class DepositService implements OnModuleInit {
     return { flowId: flow_id, ...rest };
   }
 
-  payWithBank(payload: { flowId: number; bankId: number; transferType: string }, userId: number) {
-    return firstValueFrom(
+  async payWithBank(
+    payload: { flowId: number; bankId: number; transferType: string },
+    userId: number,
+  ): Promise<TransferInfoDto> {
+    const info = await firstValueFrom(
       this.flowClient.payWithSelectedResource({
         id: payload.flowId,
         user_id: userId,
         bank: { id: payload.bankId, transfer_type: payload.transferType },
       }),
     );
+
+    return {
+      fee: info.fee,
+      conversion: {
+        amount: info.amount,
+        currency: info.currency,
+        rate: info.rate,
+      },
+    };
   }
 
-  payWithCard(payload: { flowId: number; cardId: number; cvv: string }, userId: number) {
-    return firstValueFrom(
+  async payWithCard(
+    payload: { flowId: number; cardId: number; cvv: string },
+    userId: number,
+  ): Promise<TransferInfoDto> {
+    const info = await firstValueFrom(
       this.flowClient.payWithSelectedResource({
         id: payload.flowId,
         user_id: userId,
         card: { id: payload.cardId, cvv: payload.cvv },
       }),
     );
+
+    return {
+      fee: info.fee,
+      conversion: {
+        amount: info.amount,
+        currency: info.currency,
+        rate: info.rate,
+      },
+    };
   }
 }

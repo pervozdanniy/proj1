@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { FacilitaWebhookRequest, MakeDepositRequest } from '~common/grpc/interfaces/payment-gateway';
+import { FacilitaWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
+import { MakeDepositRequest } from '../../interfaces/payment-gateway.interface';
 import { FacilitaDepositManager } from './managers/facilita-deposit.manager';
 import { FacilitaWebhookManager } from './managers/facilita-webhook.manager';
 

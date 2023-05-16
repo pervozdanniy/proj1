@@ -35,7 +35,6 @@ service PaymentGatewayService {
   //deposit funds
   rpc CreateCreditCardResource (UserIdRequest) returns (CreditCardResourceResponse);
   rpc VerifyCreditCard (VerifyCreditCardRequest) returns (common.SuccessResponse);
-  rpc MakeDeposit (MakeDepositRequest) returns (ContributionResponse);
 
   //transfer funds
   rpc TransferFunds (TransferFundsRequest) returns (TransferFundsResponse);
@@ -66,7 +65,7 @@ message ChangesData {
 service DepositFlowService {
   rpc Start(DepositFlowRequest) returns (DepositFlowResponse);
 
-  rpc PayWithSelectedResource(DepositNextStepRequest) returns (ContributionResponse);
+  rpc PayWithSelectedResource(DepositNextStepRequest) returns (TransferInfo);
 }
 
 message LinkSessionResponse {
@@ -285,19 +284,6 @@ message DepositParamRequest{
 
 message DepositResponse{
   string transfer_method_id = 1;
-}
-
-
-message MakeDepositRequest {
-  uint32 id = 1;
-  string funds_transfer_method_id = 2;
-  string amount = 3;
-  optional string cvv = 4;
-}
-
-
-message ContributionResponse {
- string contribution_id = 1;
 }
 
 message BankAccountParams{

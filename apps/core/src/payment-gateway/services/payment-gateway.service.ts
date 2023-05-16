@@ -10,7 +10,6 @@ import {
   ExchangeRequest,
   ExchangeResponse,
   LinkCustomerRequest,
-  MakeDepositRequest,
   PG_Token,
   SearchTransactionRequest,
   TransferFundsRequest,
@@ -18,6 +17,7 @@ import {
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { VeriffHookRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
+import { MakeDepositRequest } from '../interfaces/payment-gateway.interface';
 import { CurrencyService } from './currency.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 

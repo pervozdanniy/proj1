@@ -7,7 +7,6 @@ import {
   BankAccountParams,
   BanksInfoResponse,
   ContactResponse,
-  ContributionResponse,
   CreditCardResourceResponse,
   DepositParamsResponse,
   ExchangeRequest,
@@ -17,7 +16,6 @@ import {
   LinkCustomerRequest,
   LinkSessionResponse,
   LiquidoWebhookRequest,
-  MakeDepositRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PaymentMethodsResponse,
@@ -76,10 +74,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   getBanksInfo(request: UserIdRequest): Promise<BanksInfoResponse> {
     return this.mainService.getBanksInfo(request);
-  }
-
-  makeDeposit(request: MakeDepositRequest): Promise<ContributionResponse> {
-    return this.paymentGatewayService.makeDeposit(request);
   }
 
   getTransactions(request: SearchTransactionRequest): Promise<TransactionResponse> {
