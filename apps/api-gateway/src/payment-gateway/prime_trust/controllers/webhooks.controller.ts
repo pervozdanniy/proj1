@@ -23,7 +23,9 @@ export class WebhooksController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
   @Post('/prime_trust')
   async primeTrustHandler(@Body() payload: PrimeTrustWebhookType) {
-    this.logger.log(payload);
+    if (payload.resource_type === 'contingent_holds') {
+      this.logger.log(payload.resource_id);
+    }
 
     return this.paymentGatewayService.primeTrustHandler(payload);
   }

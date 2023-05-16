@@ -143,13 +143,27 @@ export class PrimeBalanceManager {
             data: null,
           });
         } else {
-          await this.httpService.request({
-            method: 'post',
-            url: `${this.prime_trust_url}/v2/funds-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
-            data: null,
-          });
+          if (
+            contingentHoldsResponse.data.data.attributes['hold-type'] === 'disbursement_authorization' &&
+            contingentHoldsResponse.data.data.attributes['status'] === 'cleared'
+          ) {
+            const accountData = await this.httpService.request({
+              method: 'get',
+              url: `${this.prime_trust_url}/v2/accounts/${account_id}?include=funds-transfers`,
+            });
+            accountData.data.included.map(async (f: { id: string; attributes: { status: string } }) => {
+              if (f.attributes.status === 'pending') {
+                await this.httpService.request({
+                  method: 'post',
+                  url: `${this.prime_trust_url}/v2/funds-transfers/${f.id}/sandbox/settle`,
+                  data: null,
+                });
+              }
+            });
+          }
         }
       } catch (e) {
+        console.log(e);
         if (e instanceof PrimeTrustException) {
           const { detail, code } = e.getFirstError();
 
