@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package skopa.core.inswitch;
+
+service CardsService {
+    rpc GetCards (UserIdRequest) returns (CardsList);
+  
+    rpc CreateCard (CreateCardRequest) returns (Card);
+  
+    rpc GetExpandedInfo (CardDetailsRequest) returns (ExpandedCardInfo);
+}
+
+message UserIdRequest {
+    uint32 user_id = 1;
+}
+
+message CardDetailsRequest {
+    string reference = 1;
+    uint32 user_id = 2;
+}
+
+message Card {
+    string reference = 1;
+    bool is_virtual = 2;
+    string currency = 3;
+    string pan = 4;
+}
+
+message CardsList {
+    repeated Card cards = 1;
+}
+
+message ExpandedCardInfo {
+    string cvv = 1;
+    string pan = 2;
+}
+
+message CreateCardRequest {
+    uint32 user_id = 1;
+    bool is_virtual = 2;
+    optional string pin = 3;
+}

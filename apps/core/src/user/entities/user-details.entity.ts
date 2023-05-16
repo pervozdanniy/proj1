@@ -52,4 +52,8 @@ export class UserDetailsEntity {
   @OneToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user?: UserEntity;
+
+  get fullName() {
+    return this.first_name + ' ' + this.last_name;
+  }
 }

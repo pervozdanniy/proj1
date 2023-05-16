@@ -7,7 +7,6 @@ import {
   BankAccountParams,
   BankAccountsResponse,
   ContactResponse,
-  ContributionResponse,
   Conversion,
   CreditCard,
   CreditCardResourceResponse,
@@ -59,6 +58,11 @@ export class AccountResponseDto implements AccountResponse {
 
   @ApiProperty()
   uuid: string;
+}
+
+export class DocumentResponseDto {
+  @ApiProperty()
+  document_id: string;
 }
 
 class ConversionDto implements Conversion {
@@ -139,11 +143,6 @@ export class CreditCardsResponseDto implements CreditCardsResponse {
   @ApiProperty({ type: CreditCardDto, isArray: true })
   @Type(() => CreditCardDto)
   data: CreditCard[];
-}
-
-export class ContributionResponseDto implements ContributionResponse {
-  @ApiProperty()
-  contribution_id: string;
 }
 
 export class FundsDto implements TransferFunds {
