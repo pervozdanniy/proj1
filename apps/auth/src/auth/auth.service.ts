@@ -116,14 +116,14 @@ export class AuthService implements OnModuleInit {
   }
 
   async refreshToken(refreshToken: string) {
-    const sessionId = await this.token.extractSessionId(refreshToken);
+    const { sessionId, tokens } = await this.token.refresh(refreshToken);
     const proxy = await this.session.get(sessionId);
     const valid = await proxy.touch();
     if (!valid) {
       throw new UnauthorizedException('Session expired');
     }
 
-    return this.token.refresh(refreshToken);
+    return tokens;
   }
 
   validateToken(accessToken: string) {

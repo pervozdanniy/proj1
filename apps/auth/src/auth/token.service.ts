@@ -34,25 +34,36 @@ export class TokenService {
   }
 
   async extractSessionId(accessOrRefresh: string) {
-    const payload = await this.#verify(accessOrRefresh, this.config.secret, {});
+    let payload: JwtPayload;
+    try {
+      payload = await this.#verify(accessOrRefresh, this.config.secret, {});
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
 
     return payload.iss ?? payload.sub;
   }
 
   async refresh(refreshToken: string) {
-    const payload = await this.#verify(refreshToken, this.config.secret, {});
+    let payload: JwtPayload;
+    try {
+      payload = await this.#verify(refreshToken, this.config.secret, {});
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
     if (!payload.iss) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
     const { affected } = await this.tokenRepo.delete(payload.sub);
-    if (affected <= 0) {
+    if (affected === 0) {
       await this.tokenRepo.delete({ family: payload.iss });
 
       throw new ForbiddenException('Token was already used');
     }
+    const tokens = await this.generatePair(payload.iss);
 
-    return this.generatePair(payload.iss);
+    return { sessionId: payload.iss, tokens };
   }
 
   async revoke(sessionId: string) {
