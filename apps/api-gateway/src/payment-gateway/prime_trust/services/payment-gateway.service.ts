@@ -4,7 +4,6 @@ import { lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import {
   BankAccountParams,
-  MakeDepositRequest,
   PaymentGatewayServiceClient,
   SearchTransactionRequest,
   TransferFundsRequest,
@@ -53,10 +52,6 @@ export class PaymentGatewayService implements OnModuleInit {
 
   addBankAccountParams(data: BankAccountParams) {
     return lastValueFrom(this.paymentGatewayServiceClient.addBankAccountParams(data));
-  }
-
-  makeDeposit(data: MakeDepositRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.makeDeposit(data));
   }
 
   getTransactions(data: SearchTransactionRequest) {

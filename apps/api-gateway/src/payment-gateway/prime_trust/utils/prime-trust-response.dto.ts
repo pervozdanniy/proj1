@@ -7,7 +7,6 @@ import {
   BankAccountParams,
   BankAccountsResponse,
   ContactResponse,
-  ContributionResponse,
   Conversion,
   CreditCard,
   CreditCardResourceResponse,
@@ -19,7 +18,6 @@ import {
   TransactionResponse,
   TransferFunds,
   TransferFundsResponse,
-  TransferInfo,
 } from '~common/grpc/interfaces/payment-gateway';
 
 export class ContactResponseDto implements ContactResponse {
@@ -74,6 +72,9 @@ class ConversionDto implements Conversion {
 
   @ApiProperty()
   amount: string;
+
+  @ApiPropertyOptional()
+  rate?: string;
 }
 
 export class BalanceResponseDto implements BalanceResponse {
@@ -157,11 +158,6 @@ export class CreditCardsResponseDto implements CreditCardsResponse {
   data: CreditCard[];
 }
 
-export class ContributionResponseDto implements ContributionResponse {
-  @ApiProperty()
-  contribution_id: string;
-}
-
 export class FundsDto implements TransferFunds {
   @ApiProperty()
   amount: string;
@@ -207,16 +203,13 @@ export class TransactionResponseDto implements TransactionResponse {
   @Type(() => TransactionDto)
   transactions: TransactionDto[];
 }
-
-export class TransferInfoDto implements TransferInfo {
-  @ApiProperty()
-  amount: string;
-  @ApiProperty()
-  currency: string;
+export class TransferInfoDto {
   @ApiProperty()
   fee: string;
-  @ApiPropertyOptional()
-  rate?: string;
+
+  @ApiProperty({ type: ConversionDto })
+  @Type(() => ConversionDto)
+  conversion: ConversionDto;
 }
 
 export class TokenDto implements Token_Data {

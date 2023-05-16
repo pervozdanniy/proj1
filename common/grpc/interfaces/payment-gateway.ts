@@ -230,17 +230,6 @@ export interface DepositResponse {
   transfer_method_id: string;
 }
 
-export interface MakeDepositRequest {
-  id: number;
-  funds_transfer_method_id: string;
-  amount: string;
-  cvv?: string | undefined;
-}
-
-export interface ContributionResponse {
-  contribution_id: string;
-}
-
 export interface BankAccountParams {
   id: number;
   bank_account_name: string;
@@ -428,8 +417,6 @@ export interface PaymentGatewayServiceClient {
 
   verifyCreditCard(request: VerifyCreditCardRequest, ...rest: any): Observable<SuccessResponse>;
 
-  makeDeposit(request: MakeDepositRequest, ...rest: any): Observable<ContributionResponse>;
-
   /** transfer funds */
 
   transferFunds(request: TransferFundsRequest, ...rest: any): Observable<TransferFundsResponse>;
@@ -543,11 +530,6 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  makeDeposit(
-    request: MakeDepositRequest,
-    ...rest: any
-  ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
-
   /** transfer funds */
 
   transferFunds(
@@ -605,7 +587,6 @@ export function PaymentGatewayServiceControllerMethods() {
       "addBankAccountParams",
       "createCreditCardResource",
       "verifyCreditCard",
-      "makeDeposit",
       "transferFunds",
       "makeWithdrawal",
       "primeWebhooksHandler",
@@ -630,7 +611,7 @@ export const PAYMENT_GATEWAY_SERVICE_NAME = "PaymentGatewayService";
 export interface DepositFlowServiceClient {
   start(request: DepositFlowRequest, ...rest: any): Observable<DepositFlowResponse>;
 
-  payWithSelectedResource(request: DepositNextStepRequest, ...rest: any): Observable<ContributionResponse>;
+  payWithSelectedResource(request: DepositNextStepRequest, ...rest: any): Observable<TransferInfo>;
 }
 
 export interface DepositFlowServiceController {
@@ -642,7 +623,7 @@ export interface DepositFlowServiceController {
   payWithSelectedResource(
     request: DepositNextStepRequest,
     ...rest: any
-  ): Promise<ContributionResponse> | Observable<ContributionResponse> | ContributionResponse;
+  ): Promise<TransferInfo> | Observable<TransferInfo> | TransferInfo;
 }
 
 export function DepositFlowServiceControllerMethods() {
