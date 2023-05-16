@@ -61,6 +61,11 @@ export class AccountResponseDto implements AccountResponse {
   uuid: string;
 }
 
+export class DocumentResponseDto {
+  @ApiProperty()
+  document_id: string;
+}
+
 class ConversionDto implements Conversion {
   @ApiProperty()
   currency: string;
