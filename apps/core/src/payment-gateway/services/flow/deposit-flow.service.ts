@@ -75,8 +75,6 @@ export class DepositFlow {
           type: 'wire',
         });
 
-        console.log(redirect);
-
         return {
           action: 'redirect',
           redirect,

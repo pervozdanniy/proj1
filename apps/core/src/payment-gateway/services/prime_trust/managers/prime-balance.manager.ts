@@ -163,7 +163,6 @@ export class PrimeBalanceManager {
           }
         }
       } catch (e) {
-        console.log(e);
         if (e instanceof PrimeTrustException) {
           const { detail, code } = e.getFirstError();
 
