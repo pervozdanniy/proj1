@@ -3,6 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { DepositFlowServiceClient } from '~common/grpc/interfaces/payment-gateway';
+import { DepositStartResponseDto } from '../dtos/deposit/flow.dto';
 import { TransferInfoDto } from '../utils/prime-trust-response.dto';
 
 @Injectable()
@@ -16,7 +17,7 @@ export class DepositService implements OnModuleInit {
   }
 
   async start(payload: { amount: string; currency: string; type: string }, userId: number) {
-    const { flow_id, ...rest } = await firstValueFrom(
+    const { flow_id, action, redirect, ...rest } = await firstValueFrom(
       this.flowClient.start({
         user_id: userId,
         amount: payload.amount,
@@ -24,8 +25,22 @@ export class DepositService implements OnModuleInit {
         type: payload.type,
       }),
     );
+    const response: DepositStartResponseDto = { flowId: flow_id, action, ...rest };
+    if (redirect) {
+      response.redirect = {
+        url: redirect.url,
+        info: {
+          fee: redirect.info.fee,
+          conversion: {
+            amount: redirect.info.amount,
+            currency: redirect.info.currency,
+            rate: redirect.info.rate,
+          },
+        },
+      };
+    }
 
-    return { flowId: flow_id, ...rest };
+    return response;
   }
 
   async payWithBank(

@@ -74,7 +74,7 @@ export class DepositController {
   @ApiBearerAuth()
   @JwtSessionAuth()
   @Post('/start')
-  start(@Body() payload: StartDepositFlowDto, @JwtSessionUser() { id }: User) {
+  start(@Body() payload: StartDepositFlowDto, @JwtSessionUser() { id }: User): Promise<DepositStartResponseDto> {
     return this.depositService.start(payload, id);
   }
 
