@@ -8,7 +8,7 @@ import { ChangeContactInfoService } from '../services/change-contact-info.servic
 @ApiTags('Auth')
 @Controller({
   version: '1',
-  path: 'auth/change-contact-info',
+  path: 'auth/change_contact_info',
 })
 export class ChangeContactInfoController {
   constructor(private readonly changeContactInfo: ChangeContactInfoService) {}

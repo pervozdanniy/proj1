@@ -82,7 +82,7 @@ export class DepositController {
   @ApiCreatedResponse({ type: TransferInfoDto })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Post('/pay-with-bank')
+  @Post('/pay_with_bank')
   payWithBank(@Body() payload: PayWithBankRequestDto, @JwtSessionUser() { id }: User): Promise<TransferInfoDto> {
     return this.depositService.payWithBank(payload, id);
   }
@@ -91,7 +91,7 @@ export class DepositController {
   @ApiCreatedResponse({ type: TransferInfoDto })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Post('/pay-with-card')
+  @Post('/pay_with_card')
   payWithCard(@Body() payload: PayWithCardRequestDto, @JwtSessionUser() { id }: User): Promise<TransferInfoDto> {
     return this.depositService.payWithCard(payload, id);
   }

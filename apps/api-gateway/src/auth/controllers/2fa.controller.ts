@@ -60,7 +60,7 @@ export class TwoFactorController {
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
   @JwtSessionAuth({ allowUnverified: true })
   @HttpCode(HttpStatus.OK)
-  @Post('verify-one')
+  @Post('verify_one')
   verifyOne(@Body() payload: TwoFactorVerificationDto, @JwtSessionId() sessionId: string) {
     return this.twoFactor.verifyOne(payload, sessionId);
   }
