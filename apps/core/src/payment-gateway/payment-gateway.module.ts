@@ -7,6 +7,7 @@ import { ClientsModule } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { CountryModule } from '../country/country.module';
+import { UserDetailsEntity } from '../user/entities/user-details.entity';
 import { DepositFlowController } from './controllers/deposit-flow.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
@@ -88,6 +89,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       VeriffDocumentEntity,
       DepositFlowEntity,
       LinkEntity,
+      UserDetailsEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
   ],
