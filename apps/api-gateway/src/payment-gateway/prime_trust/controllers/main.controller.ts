@@ -97,7 +97,7 @@ export class MainController {
   @ApiResponse({ type: [String] })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Get('/available-methods')
+  @Get('/available_methods')
   async getAvailablePaymentMethods(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getAvailablePaymentMethods(id);
   }

@@ -60,7 +60,7 @@ export class UserController {
   @ApiOperation({ summary: 'Get latest user recepients' })
   @ApiOkResponse({ type: LatestRecepientsResponseDto })
   @JwtSessionAuth()
-  @Get('latest-recepients')
+  @Get('latest_recepients')
   getLatestRecepients(
     @Query('limit', new ParseIntPipe()) limit: number,
     @JwtSessionUser() { id }: User,

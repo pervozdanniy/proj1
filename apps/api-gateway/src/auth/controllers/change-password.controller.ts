@@ -22,7 +22,7 @@ import { ResetPasswordService } from '../services/reset-password.service';
 @ApiTags('Auth')
 @Controller({
   version: '1',
-  path: 'auth/change-password',
+  path: 'auth/change_password',
 })
 export class ChangePasswordController {
   constructor(private readonly resetService: ResetPasswordService) {}
