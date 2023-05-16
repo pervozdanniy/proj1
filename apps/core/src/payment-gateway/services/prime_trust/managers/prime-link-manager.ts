@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
+import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
@@ -17,7 +18,6 @@ import {
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { NotificationService } from '../../../../notification/services/notification.service';
 import { LinkEntity } from '../../../entities/link.entity';
-import uid from "uid-safe";
 
 @Injectable()
 export class PrimeLinkManager {
