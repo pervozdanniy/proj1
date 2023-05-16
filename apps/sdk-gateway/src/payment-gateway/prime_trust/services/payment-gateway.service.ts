@@ -31,9 +31,7 @@ export class PaymentGatewayService implements OnModuleInit {
   }
 
   async makeWithdrawal(data: TransferMethodRequest) {
-    const response = await lastValueFrom(this.paymentGatewayServiceClient.makeWithdrawal(data));
-
-    return { data: JSON.parse(response.data) };
+    return lastValueFrom(this.paymentGatewayServiceClient.makeWithdrawal(data));
   }
 
   createCreditCardResource(data: UserIdRequest) {
