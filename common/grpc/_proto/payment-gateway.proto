@@ -11,10 +11,6 @@ service PaymentGatewayService {
 
   rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
 
-  //link
-  rpc LinkSession (UserIdRequest) returns (LinkSessionResponse);
-  rpc SaveCustomer (LinkCustomerRequest) returns (common.SuccessResponse);
-
   //veriff
   rpc GenerateVeriffLink(UserIdRequest) returns (veriff.VeriffSessionResponse);
   rpc VeriffHookHandler(veriff.VeriffHookRequest) returns (common.SuccessResponse);
@@ -75,8 +71,7 @@ message LinkSessionResponse {
 }
 
 message LinkCustomerRequest {
-  string customerId = 1;
-  string sessionId = 2;
+  string id = 1;
 }
 
 message DepositFlowRequest {
@@ -86,8 +81,9 @@ message DepositFlowRequest {
   string type = 4;
 }
 message LinkTransferData {
-  string paymentId = 1;
-  string paymentStatus = 2;
+  optional string paymentId = 1;
+  optional string paymentStatus = 2;
+  optional string sessionKey = 3;
 }
 
 message DepositFlowResponse {
@@ -98,6 +94,7 @@ message DepositFlowResponse {
     DepositSelectCardData cards = 4;
     DepositRedirectData redirect = 5;
     LinkTransferData link_transfer = 6;
+    BankCredentialsData bank_params = 7;
   };
 }
 
@@ -115,6 +112,11 @@ message DepositRedirectData {
   TransferInfo info = 2;
 }
 
+message BankCredentialsData {
+  string bank = 1;
+  TransferInfo info = 2;
+}
+
 message TransferInfo {
   string amount = 1;
   string currency = 2;
@@ -128,6 +130,7 @@ message DepositNextStepRequest {
   oneof data {
     SelectBankRequest bank = 3;
     SelectCardRequest card = 4;
+    LinkCustomerRequest customer = 5;
   }
 }
 
@@ -142,7 +145,12 @@ message SelectCardRequest {
 }
 
 message LiquidoWebhookRequest {
-  string transactionId = 1;
+  float amount = 1;
+  string currency = 2;
+  string country = 3;
+  string email = 4;
+  string paymentStatus = 5;
+  string orderId = 6;
 }
 message FacilitaWebhookRequest {
   string orderId = 1;

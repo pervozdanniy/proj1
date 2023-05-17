@@ -17,7 +17,7 @@ export class DepositService implements OnModuleInit {
   }
 
   async start(payload: { amount: string; currency: string; type: string }, userId: number) {
-    const { flow_id, action, redirect, ...rest } = await firstValueFrom(
+    const { flow_id, action, redirect, bank_params, ...rest } = await firstValueFrom(
       this.flowClient.start({
         user_id: userId,
         amount: payload.amount,
@@ -40,29 +40,31 @@ export class DepositService implements OnModuleInit {
       };
     }
 
+    if (bank_params) {
+      response.bank_params = {
+        bank: bank_params.bank,
+        info: {
+          fee: bank_params.info.fee,
+          conversion: {
+            amount: bank_params.info.amount,
+            currency: bank_params.info.currency,
+            rate: bank_params.info.rate,
+          },
+        },
+      };
+    }
+
     return response;
   }
-
-  async payWithBank(
-    payload: { flowId: number; bankId: number; transferType: string },
-    userId: number,
-  ): Promise<TransferInfoDto> {
-    const info = await firstValueFrom(
+  payWithBank(payload: { flowId: number; customerId?: string; transferType: string }, userId: number) {
+    return firstValueFrom(
       this.flowClient.payWithSelectedResource({
         id: payload.flowId,
         user_id: userId,
-        bank: { id: payload.bankId, transfer_type: payload.transferType },
+        // bank: { id: payload.bankId, transfer_type: payload.transferType },
+        customer: { id: payload.customerId },
       }),
     );
-
-    return {
-      fee: info.fee,
-      conversion: {
-        amount: info.amount,
-        currency: info.currency,
-        rate: info.rate,
-      },
-    };
   }
 
   async payWithCard(

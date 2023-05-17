@@ -3,21 +3,11 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
-import { Repository } from 'typeorm';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
-import { SuccessResponse } from '~common/grpc/interfaces/common';
-import {
-  LinkCustomerRequest,
-  LinkSessionResponse,
-  LinkTransferData,
-  Token_Data,
-} from '~common/grpc/interfaces/payment-gateway';
+import { LinkSessionResponse, LinkTransferData, Token_Data } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { NotificationService } from '../../../../notification/services/notification.service';
-import { LinkEntity } from '../../../entities/link.entity';
 
 @Injectable()
 export class PrimeLinkManager {
@@ -30,10 +20,6 @@ export class PrimeLinkManager {
   constructor(
     private userService: UserService,
     private readonly httpService: HttpService,
-
-    private readonly notificationService: NotificationService,
-    @InjectRepository(LinkEntity)
-    private readonly linkEntityRepository: Repository<LinkEntity>,
 
     config: ConfigService<ConfigInterface>,
   ) {
@@ -89,56 +75,21 @@ export class PrimeLinkManager {
       this.httpService.post(`${this.url}/v1/sessions`, formData, { headers: headersRequest }),
     );
 
-    await this.linkEntityRepository.save(
-      this.linkEntityRepository.create({
-        user_id: id,
-        session_id: result.data.sessionKey,
-        status: 'created',
-      }),
-    );
-
     return { sessionKey: result.data.sessionKey };
   }
 
-  async saveCustomer({ customerId, sessionId }: LinkCustomerRequest): Promise<SuccessResponse> {
+  async sendAmount(customerId: string, amount: string, currency: string): Promise<LinkTransferData> {
     const { token } = await this.getToken();
     const headersRequest = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     };
 
-    const accountResult = await lastValueFrom(
-      this.httpService.get(`${this.url}/public/v1/customers/${customerId}`, { headers: headersRequest }),
-    );
-
-    const link = await this.linkEntityRepository.findOneBy({ session_id: sessionId });
-    await this.linkEntityRepository.update(
-      { session_id: sessionId },
-      { customer_id: customerId, status: accountResult.data.accountDetails.accountStatus.toLowerCase() },
-    );
-
-    await this.notificationService.sendWs(link.user_id, 'link', 'Bank account linked!');
-
-    return { success: true };
-  }
-
-  async sendAmount(user_id: number, amount: string, currency: string): Promise<LinkTransferData> {
-    const { token } = await this.getToken();
-    const headersRequest = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    };
-
-    const link = await this.linkEntityRepository
-      .createQueryBuilder('l')
-      .where('l.user_id = :user_id', { user_id })
-      .orderBy('l.created_at', 'DESC')
-      .getOne();
     const id = await uid(18);
 
     const formData = {
       source: {
-        id: link.customer_id,
+        id: customerId,
         type: 'CUSTOMER',
       },
       destination: {
