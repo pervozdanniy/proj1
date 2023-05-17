@@ -99,9 +99,7 @@ export class KoyweDepositManager {
       fee: totalFee.toFixed(2),
     };
     if (providedAddress) {
-      if (userDetails.country_code === 'MX') {
-        return { info, bank: providedAddress };
-      }
+      return { info, bank: providedAddress };
     }
   }
 
