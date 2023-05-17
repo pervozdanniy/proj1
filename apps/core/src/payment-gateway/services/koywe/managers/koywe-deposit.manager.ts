@@ -152,26 +152,7 @@ export class KoyweDepositManager {
       fee: totalFee.toFixed(2),
     };
     if (providedAddress) {
-      if (userDetails.country_code === 'MX') {
-        return { url: providedAddress, info };
-      }
-
       throw new ConflictException('Invalid flow params');
-      // const parts = providedAddress.split('\n');
-
-      // const paymentData: ReferenceData = {
-      //   name: parts[0],
-      //   account_number: parts[1],
-      //   tax_id: parts[2],
-      //   bank: parts[3],
-      //   email: parts[4],
-      //   amount: quote.amountIn.toFixed(2),
-      //   currency_type,
-      //   asset_transfer_method_id,
-      //   wallet_address,
-      // };
-
-      // return { data: JSON.stringify({ paymentData, info }) };
     }
     if (providedAction) {
       return { url: providedAction, info };
