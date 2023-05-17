@@ -135,6 +135,7 @@ export class KoyweDepositManager {
         paymentMethodId,
         executable: true,
       };
+
       const result = await lastValueFrom(this.httpService.post(`${this.koywe_url}/quotes`, formData));
 
       return result.data;

@@ -9,10 +9,13 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
+import { Providers } from '~common/enum/providers';
 import { CreateReferenceRequest, DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
+import { TransfersEntity } from '../../../entities/transfers.entity';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
+import { CurrencyService } from '../../currency.service';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
 @Injectable()
@@ -26,6 +29,11 @@ export class LiquidoDepositManager {
     private readonly liquidoTokenManager: LiquidoTokenManager,
     private readonly httpService: HttpService,
 
+    private readonly currencyService: CurrencyService,
+
+    @InjectRepository(TransfersEntity)
+    private readonly depositEntityRepository: Repository<TransfersEntity>,
+
     @InjectRepository(VeriffDocumentEntity)
     private readonly documentRepository: Repository<VeriffDocumentEntity>,
 
@@ -38,31 +46,36 @@ export class LiquidoDepositManager {
     this.domain = domain;
   }
 
-  async createCashPayment({ id, amount: beforeConvertAmount }: CreateReferenceRequest): Promise<DepositRedirectData> {
+  async createCashPayment({
+    id,
+    amount: beforeConvertAmount,
+    currency_type: currency,
+  }: CreateReferenceRequest): Promise<DepositRedirectData> {
     const { token } = await this.liquidoTokenManager.getToken();
     const userDetails = await this.userService.getUserInfo(id);
     const { currency_type } = countriesData[userDetails.country_code];
 
-    const convertData = await lastValueFrom(
-      this.httpService.get(`https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${currency_type}`),
+    const convertedAmount = await this.currencyService.convert(
+      parseFloat(beforeConvertAmount),
+      currency,
+      currency_type,
     );
-
-    const convertedAmount = parseFloat(beforeConvertAmount) * parseFloat(convertData.data[currency_type]);
 
     const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
 
-    const amount = parseFloat(convertedAmount.toFixed(2));
+    const amount = parseFloat(convertedAmount[currency_type].amount.toFixed(2));
 
     const headersRequest = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
       'x-api-key': this.x_api_key,
     };
+    const orderId = await uid(18);
     const formData = {
-      orderId: await uid(18),
+      orderId: orderId,
       amount: amount,
       currency: currency_type,
       country: userDetails.country_code,
@@ -80,9 +93,21 @@ export class LiquidoDepositManager {
         this.httpService.post(`${this.api_url}/v2/cashier/payment-link/`, formData, { headers: headersRequest }),
       );
 
+      await this.depositEntityRepository.save(
+        this.depositEntityRepository.create({
+          user_id: id,
+          uuid: orderId,
+          type: 'deposit',
+          amount: beforeConvertAmount,
+          provider: Providers.LIQUIDO,
+          currency_type: currency,
+          status: 'waiting',
+        }),
+      );
+
       return {
         url: result.data.paymentLink,
-        info: { amount: String(amount), rate: convertData.data[currency_type], fee: '0', currency: currency_type },
+        info: { amount: String(amount), rate: convertedAmount[currency_type].rate, fee: '0', currency: currency_type },
       };
     } catch (e) {
       this.logger.error(e.response.data);

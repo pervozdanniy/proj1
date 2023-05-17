@@ -100,6 +100,7 @@ export interface LiquidoWebhookRequest {
   country: string;
   email: string;
   paymentStatus: string;
+  orderId: string;
 }
 
 export interface FacilitaWebhookRequest {

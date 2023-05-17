@@ -101,9 +101,16 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.primeWebhooksHandler(data));
   }
 
-  liquidoHandler({ data: { amount, currency, country, email, paymentStatus } }: LiquidoWebhookType) {
+  liquidoHandler({ data: { amount, currency, country, email, paymentStatus, orderId } }: LiquidoWebhookType) {
     return lastValueFrom(
-      this.paymentGatewayServiceClient.liquidoWebhooksHandler({ amount, currency, country, email, paymentStatus }),
+      this.paymentGatewayServiceClient.liquidoWebhooksHandler({
+        amount,
+        currency,
+        country,
+        email,
+        paymentStatus,
+        orderId,
+      }),
     );
   }
 }

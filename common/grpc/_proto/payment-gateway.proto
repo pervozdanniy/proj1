@@ -148,6 +148,7 @@ message LiquidoWebhookRequest {
   string country = 3;
   string email = 4;
   string paymentStatus = 5;
+  string orderId = 6;
 }
 message FacilitaWebhookRequest {
   string orderId = 1;

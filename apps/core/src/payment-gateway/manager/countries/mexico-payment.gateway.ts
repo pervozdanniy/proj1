@@ -25,7 +25,6 @@ export class MexicoPaymentGateway
   constructor(
     private primeTrustService: PrimeTrustService,
     private koyweService: KoyweService,
-
     private liquidoService: LiquidoService,
   ) {}
 
