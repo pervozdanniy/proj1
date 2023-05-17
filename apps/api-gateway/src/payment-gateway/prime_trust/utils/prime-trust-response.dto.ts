@@ -13,7 +13,6 @@ import {
   CreditCardsResponse,
   DepositResponse,
   ExchangeResponse,
-  Token_Data,
   Transaction,
   TransactionResponse,
   TransferFunds,
@@ -210,9 +209,4 @@ export class TransferInfoDto {
   @ApiProperty({ type: ConversionDto })
   @Type(() => ConversionDto)
   conversion: ConversionDto;
-}
-
-export class TokenDto implements Token_Data {
-  @ApiProperty()
-  token: string;
 }

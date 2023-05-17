@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DepositNextStepRequest, TransferInfo } from '~common/grpc/interfaces/payment-gateway';
+import { DepositFlowResponse, DepositNextStepRequest, TransferInfo } from '~common/grpc/interfaces/payment-gateway';
 import { UserService } from '~svc/core/src/user/services/user.service';
 import { DepositFlowEntity, DepositResourceType } from '../../entities/flow/deposit.entity';
 import { CardResourceEntity } from '../../entities/prime_trust/card-resource.entity';
@@ -28,7 +28,12 @@ export class DepositFlow {
     private cardsRepo: Repository<CardResourceEntity>,
   ) {}
 
-  async start(payload: { amount: string; currency: string; user_id: number; type?: PaymentMethod }) {
+  async start(payload: {
+    amount: string;
+    currency: string;
+    user_id: number;
+    type?: PaymentMethod;
+  }): Promise<DepositFlowResponse> {
     const userDetails = await this.userService.getUserInfo(payload.user_id);
     const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
 
@@ -68,16 +73,29 @@ export class DepositFlow {
       }
 
       if (hasRedirectDeposit(paymentGateway)) {
-        const redirect = await paymentGateway.createRedirectReference({
+        const { url, info } = await paymentGateway.createRedirectReference({
           id: userDetails.id,
           amount: payload.amount,
           currency_type: payload.currency,
           type: 'wire',
         });
 
+        if (userDetails.country_code === 'MX') {
+          return {
+            action: 'pay_with_bank',
+            bank_params: {
+              bank: url,
+              info,
+            },
+          };
+        }
+
         return {
           action: 'redirect',
-          redirect,
+          redirect: {
+            url,
+            info,
+          },
         };
       }
     }

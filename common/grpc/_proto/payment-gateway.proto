@@ -92,6 +92,7 @@ message DepositFlowResponse {
     DepositSelectCardData cards = 4;
     DepositRedirectData redirect = 5;
     LinkTransferData link_transfer = 6;
+    BankCredentialsData bank_params = 7;
   };
 }
 
@@ -106,6 +107,11 @@ message DepositSelectCardData {
 
 message DepositRedirectData {
   string url = 1;
+  TransferInfo info = 2;
+}
+
+message BankCredentialsData {
+  string bank = 1;
   TransferInfo info = 2;
 }
 

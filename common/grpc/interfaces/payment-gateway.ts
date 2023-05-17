@@ -48,6 +48,7 @@ export interface DepositFlowResponse {
   cards?: DepositSelectCardData | undefined;
   redirect?: DepositRedirectData | undefined;
   link_transfer?: LinkTransferData | undefined;
+  bank_params?: BankCredentialsData | undefined;
 }
 
 export interface DepositSelectBankData {
@@ -60,6 +61,11 @@ export interface DepositSelectCardData {
 
 export interface DepositRedirectData {
   url: string;
+  info: TransferInfo | undefined;
+}
+
+export interface BankCredentialsData {
+  bank: string;
   info: TransferInfo | undefined;
 }
 

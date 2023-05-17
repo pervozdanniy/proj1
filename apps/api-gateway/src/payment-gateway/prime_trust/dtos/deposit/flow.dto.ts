@@ -101,6 +101,15 @@ class RedirectDto {
   info: TransferInfoDto;
 }
 
+class BankCredentialsDataDto {
+  @ApiProperty()
+  bank: string;
+
+  @Type(() => TransferInfoDto)
+  @ApiProperty({ type: TransferInfoDto })
+  info: TransferInfoDto;
+}
+
 class SelectBankDto {
   @ApiProperty({ type: BankParamsDto, isArray: true })
   @Type(() => BankParamsDto)
@@ -122,4 +131,7 @@ export class DepositStartResponseDto {
 
   @ApiPropertyOptional({ type: LinkTransferDto })
   link_transfer?: LinkTransferDto;
+
+  @ApiPropertyOptional({ type: BankCredentialsDataDto })
+  bank_params?: BankCredentialsDataDto;
 }

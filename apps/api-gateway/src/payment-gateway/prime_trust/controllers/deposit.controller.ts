@@ -18,6 +18,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
+import { TransferInfo } from '~common/grpc/interfaces/payment-gateway';
 import { CreditCardTokenDto } from '../dtos/deposit/credit-card-token.dto';
 import {
   DepositStartResponseDto,
@@ -83,7 +84,7 @@ export class DepositController {
   @ApiBearerAuth()
   @JwtSessionAuth()
   @Post('/pay-with-bank')
-  payWithBank(@Body() payload: PayWithBankRequestDto, @JwtSessionUser() { id }: User): Promise<TransferInfoDto> {
+  payWithBank(@Body() payload: PayWithBankRequestDto, @JwtSessionUser() { id }: User): Promise<TransferInfo> {
     return this.depositService.payWithBank(payload, id);
   }
 
@@ -93,15 +94,6 @@ export class DepositController {
   @JwtSessionAuth()
   @Post('/pay-with-card')
   payWithCard(@Body() payload: PayWithCardRequestDto, @JwtSessionUser() { id }: User): Promise<TransferInfoDto> {
-    return this.depositService.payWithCard(payload, id);
-  }
-
-  @ApiOperation({ summary: 'Select card for deposit' })
-  @ApiCreatedResponse({ type: SettleFundsDto })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @Post('/pay-with-cash')
-  payWithCash(@Body() payload: PayWithCardRequestDto, @JwtSessionUser() { id }: User) {
     return this.depositService.payWithCard(payload, id);
   }
 }

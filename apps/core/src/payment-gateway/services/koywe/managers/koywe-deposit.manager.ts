@@ -98,6 +98,10 @@ export class KoyweDepositManager {
       fee: totalFee.toFixed(2),
     };
     if (providedAddress) {
+      if (userDetails.country_code === 'MX') {
+        return { url: providedAddress, info };
+      }
+
       throw new ConflictException('Invalid flow params');
       // const parts = providedAddress.split('\n');
 

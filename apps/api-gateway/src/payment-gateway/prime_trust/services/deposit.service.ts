@@ -17,7 +17,7 @@ export class DepositService implements OnModuleInit {
   }
 
   async start(payload: { amount: string; currency: string; type: string }, userId: number) {
-    const { flow_id, action, redirect, ...rest } = await firstValueFrom(
+    const { flow_id, action, redirect, bank_params, ...rest } = await firstValueFrom(
       this.flowClient.start({
         user_id: userId,
         amount: payload.amount,
@@ -35,6 +35,20 @@ export class DepositService implements OnModuleInit {
             amount: redirect.info.amount,
             currency: redirect.info.currency,
             rate: redirect.info.rate,
+          },
+        },
+      };
+    }
+
+    if (bank_params) {
+      response.bank_params = {
+        bank: bank_params.bank,
+        info: {
+          fee: bank_params.info.fee,
+          conversion: {
+            amount: bank_params.info.amount,
+            currency: bank_params.info.currency,
+            rate: bank_params.info.rate,
           },
         },
       };
