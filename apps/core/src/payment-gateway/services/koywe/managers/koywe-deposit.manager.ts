@@ -12,7 +12,11 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
-import { CreateReferenceRequest, DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
+import {
+  BankCredentialsData,
+  CreateReferenceRequest,
+  DepositRedirectData,
+} from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
@@ -49,7 +53,59 @@ export class KoyweDepositManager {
     this.koywe_url = koywe_url;
   }
 
-  async createReference(
+  async createReference(request: CreateReferenceRequest, params: KoyweReferenceParams): Promise<BankCredentialsData> {
+    const { amount, id } = request;
+    const { wallet_address, method } = params;
+
+    const userDetails = await this.userService.getUserInfo(id);
+    await this.koyweTokenManager.getToken(userDetails.email);
+    const { currency_type } = countriesData[userDetails.country_code];
+
+    const quote = await this.createQuote({
+      amount,
+      currency: currency_type,
+      method,
+    });
+
+    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
+    if (!document) {
+      throw new ConflictException('KYC is not completed');
+    }
+
+    const { orderId, providedAddress } = await this.createOrder(
+      quote.quoteId,
+      userDetails.email,
+      wallet_address,
+      document.document_number,
+    );
+
+    const totalFee = quote.networkFee + quote.koyweFee;
+    await this.depositEntityRepository.save(
+      this.depositEntityRepository.create({
+        user_id: id,
+        uuid: orderId,
+        type: 'deposit',
+        amount: quote.amountIn.toFixed(2),
+        provider: Providers.KOYWE,
+        currency_type,
+        status: 'waiting',
+        fee: totalFee.toFixed(2),
+      }),
+    );
+    const info = {
+      amount: quote.amountIn.toFixed(2),
+      currency: currency_type,
+      rate: quote.exchangeRate.toFixed(4),
+      fee: totalFee.toFixed(2),
+    };
+    if (providedAddress) {
+      if (userDetails.country_code === 'MX') {
+        return { info, bank: providedAddress };
+      }
+    }
+  }
+
+  async createRedirectReference(
     depositParams: CreateReferenceRequest,
     transferParams: KoyweReferenceParams,
   ): Promise<DepositRedirectData> {

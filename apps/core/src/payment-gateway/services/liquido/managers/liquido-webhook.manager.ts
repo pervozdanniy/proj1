@@ -64,12 +64,12 @@ export class LiquidoWebhookManager {
           };
           const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
 
-          const { url } = await this.koyweService.createReference(request, {
+          const { bank } = await this.koyweService.createReference(request, {
             wallet_address,
             asset_transfer_method_id,
             method: 'WIREMX',
           });
-          const lines = url.split('\n');
+          const lines = bank.split('\n');
 
           accountNumber = lines[1];
         }

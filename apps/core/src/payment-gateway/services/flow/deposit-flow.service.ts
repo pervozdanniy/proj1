@@ -11,6 +11,7 @@ import {
   hasCreditCard,
   hasDeposit,
   hasRedirectDeposit,
+  hasWireTransfer,
   PaymentGatewayManager,
 } from '../../manager/payment-gateway.manager';
 import { PrimeLinkManager } from '../prime_trust/managers/prime-link-manager';
@@ -80,20 +81,27 @@ export class DepositFlow {
           type: 'wire',
         });
 
-        if (userDetails.country_code === 'MX') {
-          return {
-            action: 'pay_with_bank',
-            bank_params: {
-              bank: url,
-              info,
-            },
-          };
-        }
-
         return {
           action: 'redirect',
           redirect: {
             url,
+            info,
+          },
+        };
+      }
+
+      if (hasWireTransfer(paymentGateway)) {
+        const { bank, info } = await paymentGateway.createReference({
+          id: userDetails.id,
+          amount: payload.amount,
+          currency_type: payload.currency,
+          type: 'wire',
+        });
+
+        return {
+          action: 'pay_with_bank',
+          bank_params: {
+            bank,
             info,
           },
         };

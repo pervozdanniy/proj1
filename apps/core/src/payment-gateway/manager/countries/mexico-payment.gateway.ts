@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   BankAccountParams,
+  BankCredentialsData,
   BanksInfoResponse,
   CreateReferenceRequest,
   DepositRedirectData,
@@ -10,9 +11,10 @@ import {
 import {
   BankInterface,
   BankWithdrawalInterface,
-  CashDepositInterface,
   PaymentGatewayInterface,
   PaymentMethod,
+  RedirectDepositInterface,
+  WireDepositInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../services/koywe/koywe.service';
 import { LiquidoService } from '../../services/liquido/liquido.service';
@@ -20,7 +22,12 @@ import { PrimeTrustService } from '../../services/prime_trust/prime-trust.servic
 
 @Injectable()
 export class MexicoPaymentGateway
-  implements PaymentGatewayInterface, BankInterface, CashDepositInterface, BankWithdrawalInterface
+  implements
+    PaymentGatewayInterface,
+    BankInterface,
+    RedirectDepositInterface,
+    BankWithdrawalInterface,
+    WireDepositInterface
 {
   constructor(
     private primeTrustService: PrimeTrustService,
@@ -40,16 +47,14 @@ export class MexicoPaymentGateway
     return this.koyweService.getBanksInfo(country);
   }
 
-  async createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData> {
-    const { type } = request;
-    if (type === 'cash') {
-      return this.liquidoService.createCashPayment(request);
-    }
-    if (type === 'wire') {
-      const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
+  createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData> {
+    return this.liquidoService.createCashPayment(request);
+  }
 
-      return this.koyweService.createReference(request, { wallet_address, asset_transfer_method_id, method: 'WIREMX' });
-    }
+  async createReference(request: CreateReferenceRequest): Promise<BankCredentialsData> {
+    const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
+
+    return this.koyweService.createReference(request, { wallet_address, asset_transfer_method_id, method: 'WIREMX' });
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
