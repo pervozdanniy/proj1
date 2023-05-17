@@ -3,6 +3,8 @@ syntax = "proto3";
 import "common.proto";
 import "veriff.proto";
 import "google/protobuf/empty.proto";
+import public "inswitch.proto";
+
 package skopa.core;
 
 service PaymentGatewayService {
@@ -41,8 +43,8 @@ service PaymentGatewayService {
   //webhooks
   rpc PrimeWebhooksHandler (PrimeWebhookRequest)   returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
-  rpc FacilitaWebhooksHandler (FacilitaWebhookRequest)   returns (common.SuccessResponse);
-  rpc LiquidoWebhooksHandler (LiquidoWebhookRequest)   returns (common.SuccessResponse);
+  rpc FacilitaWebhooksHandler (FacilitaWebhookRequest) returns (common.SuccessResponse);
+  rpc LiquidoWebhooksHandler (LiquidoWebhookRequest) returns (common.SuccessResponse);
 }
 
 message PrimeWebhookRequest {

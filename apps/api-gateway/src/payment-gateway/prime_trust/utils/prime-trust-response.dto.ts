@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
   AccountResponse,
@@ -17,6 +18,7 @@ import {
   TransactionResponse,
   TransferFunds,
   TransferFundsResponse,
+  TransferInfo,
 } from '~common/grpc/interfaces/payment-gateway';
 
 export class ContactResponseDto implements ContactResponse {
@@ -209,4 +211,26 @@ export class TransferInfoDto {
   @ApiProperty({ type: ConversionDto })
   @Type(() => ConversionDto)
   conversion: ConversionDto;
+}
+
+export class BankTransferInfoDto implements TransferInfo {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  amount: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  currency: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  fee: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  rate?: string;
 }

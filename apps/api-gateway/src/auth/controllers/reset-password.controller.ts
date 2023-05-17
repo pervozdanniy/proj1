@@ -16,7 +16,7 @@ import { ResetPasswordService } from '../services/reset-password.service';
 @ApiTags('Auth')
 @Controller({
   version: '1',
-  path: 'auth/reset-password',
+  path: 'auth/reset_password',
 })
 export class ResetPasswordController {
   constructor(private readonly resetService: ResetPasswordService) {}
