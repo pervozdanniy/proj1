@@ -17,3 +17,7 @@ export type CountryData = {
     dial_code: string;
   };
 };
+
+export type Rates = {
+  [key: string]: number;
+};
