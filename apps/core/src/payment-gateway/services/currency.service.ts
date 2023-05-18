@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
-import { currenciesData } from '../country/data';
+import { ConvertedRates, currenciesData } from '../country/data';
 
 export type CurrencyCode = string;
 
@@ -39,8 +39,8 @@ export class CurrencyService implements OnApplicationBootstrap {
     return this.rates('USD', ...codes);
   }
 
-  async convert(amount: number, currencies: CurrencyCode[]) {
-    const selectedRates: any = {};
+  async convert(amount: number, currencies: CurrencyCode[]): Promise<ConvertedRates> {
+    const selectedRates: ConvertedRates = {};
 
     for (const param of currencies) {
       const rate = this.ratesData.get(param);

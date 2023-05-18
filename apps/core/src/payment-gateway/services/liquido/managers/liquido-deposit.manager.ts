@@ -103,7 +103,12 @@ export class LiquidoDepositManager {
 
       return {
         url: result.data.paymentLink,
-        info: { amount: String(amount), rate: convertedAmount[currency_type].rate, fee: '0', currency: currency_type },
+        info: {
+          amount: String(amount),
+          rate: String(convertedAmount[currency_type].rate),
+          fee: '0',
+          currency: currency_type,
+        },
       };
     } catch (e) {
       this.logger.error(e.response.data);

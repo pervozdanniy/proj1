@@ -20,6 +20,9 @@ export type CountryData = {
   };
 };
 
-export type Rates = {
-  [key: string]: number;
+export type ConvertedRates = {
+  [currency: string]: {
+    amount: string;
+    rate: number;
+  };
 };

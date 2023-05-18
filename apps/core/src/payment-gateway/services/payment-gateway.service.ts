@@ -52,7 +52,7 @@ export class PaymentGatewayService {
           resp.conversions.push({
             currency: curr,
             amount: conversions[curr]['amount'],
-            rate: conversions[curr]['rate'],
+            rate: conversions[curr]['rate'].toString(),
           });
         }
       }
