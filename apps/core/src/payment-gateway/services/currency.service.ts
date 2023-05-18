@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
-import { ratesData } from '../country/data';
+import { currenciesData } from '../country/data';
 
 export type CurrencyCode = string;
 
@@ -13,14 +13,14 @@ export class CurrencyService implements OnApplicationBootstrap {
   private readonly logger = new Logger(CurrencyService.name);
   protected readonly api_key: string;
 
-  private ratesData: Map<string, number>;
+  private ratesData: Map<string, number> = new Map<string, number>();
   constructor(private readonly http: HttpService, config: ConfigService<ConfigInterface>) {
     const { key } = config.get('api_layer', { infer: true });
     this.api_key = key;
   }
 
   async onApplicationBootstrap(): Promise<void> {
-    this.ratesData = await this.ratesUsd(...ratesData);
+    await this.updateRates();
   }
 
   async rates<T extends CurrencyCode[]>(from: CurrencyCode, ...to: T) {
@@ -32,23 +32,22 @@ export class CurrencyService implements OnApplicationBootstrap {
       }),
     );
 
-    const ratesMap = new Map<string, number>(Object.entries(data['rates']) as [string, number][]);
-
-    return ratesMap;
+    return data['rates'];
   }
 
   async ratesUsd<T extends CurrencyCode[]>(...codes: T) {
     return this.rates('USD', ...codes);
   }
 
-  async convert(amount: number, currencies: string[]) {
+  async convert(amount: number, currencies: CurrencyCode[]) {
     const selectedRates: any = {};
 
     for (const param of currencies) {
-      if (this.ratesData.has(param)) {
+      const rate = this.ratesData.get(param);
+      if (rate) {
         selectedRates[param] = {
-          amount: (this.ratesData.get(param) * amount).toFixed(2),
-          rate: this.ratesData.get(param),
+          amount: (rate * amount).toFixed(2),
+          rate,
         };
       }
     }
@@ -56,13 +55,16 @@ export class CurrencyService implements OnApplicationBootstrap {
     return selectedRates;
   }
 
-  async createOrUpdateRates() {
-    this.ratesData = await this.ratesUsd(...ratesData);
+  async updateRates() {
+    const rates: any = await this.ratesUsd(...currenciesData);
+    Object.keys(rates).forEach((key) => {
+      this.ratesData.set(key, rates[key]);
+    });
   }
 
   @Cron('0 0 */2 * * *')
   async handleCron() {
-    await this.createOrUpdateRates();
+    await this.updateRates();
     this.logger.log('Rates updated!');
   }
 }
