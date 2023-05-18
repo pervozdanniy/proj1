@@ -74,7 +74,7 @@ export type GetWalletBalanceResponse = {
   paymentMethodTypeClass: string;
   paymentMethodType: string;
   paymentMethodAlias: string;
-  balances: Array<{ cuurency: string; amount: string }>;
+  balances: Array<{ currency: string; amount: string }>;
 };
 
 export type CreatePaymentMethodRequest = {

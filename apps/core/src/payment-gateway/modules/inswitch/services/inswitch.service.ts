@@ -1,5 +1,5 @@
 import { UserEntity } from '@/user/entities/user.entity';
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { ConflictException, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -26,11 +26,12 @@ export class InswitchService implements OnApplicationBootstrap {
     // return this.issueCard(9).catch((error) => console.error(error.response.data));
   }
 
-  async registerIfNotRegistered(userId: number) {
-    const count = await this.accountRepo.countBy({ user_id: userId });
-    if (count > 0) {
-      return;
+  async accountGetOrCreate(userId: number) {
+    const existing = await this.accountRepo.findOneBy({ user_id: userId });
+    if (existing) {
+      return existing;
     }
+
     const user = await this.userRepo.findOneOrFail({ where: { id: userId }, relations: ['kyc', 'details'] });
     const entityId = await this.api.createEntity({
       firstName: user.details.first_name,
@@ -46,7 +47,8 @@ export class InswitchService implements OnApplicationBootstrap {
       documentCountry: user.kyc.country,
     });
     const walletId = await this.api.createWallet(entityId);
-    await this.accountRepo.insert(
+
+    return this.accountRepo.save(
       this.accountRepo.create({
         user_id: user.id,
         entity_id: entityId,
@@ -65,5 +67,14 @@ export class InswitchService implements OnApplicationBootstrap {
     );
 
     return this.withdrawWallet;
+  }
+
+  async balance(userId: number) {
+    const account = await this.accountGetOrCreate(userId);
+    if (!account || !account.wallet_id) {
+      throw new ConflictException('User has no wallet');
+    }
+
+    return this.api.walletGetBalance(account.wallet_id);
   }
 }

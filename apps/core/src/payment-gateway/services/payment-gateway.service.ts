@@ -22,8 +22,8 @@ import { PrimeTrustService } from './prime_trust/prime-trust.service';
 @Injectable()
 export class PaymentGatewayService {
   constructor(
-    private userService: UserService,
-    private primeTrustService: PrimeTrustService,
+    private readonly userService: UserService,
+    private readonly primeTrustService: PrimeTrustService,
     private readonly currencyService: CurrencyService,
   ) {}
 
