@@ -4,9 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
-import { ConvertedRates, currenciesData } from '../country/data';
-
-export type CurrencyCode = string;
+import { ConvertedRates, currenciesData, CurrencyCode } from '../country/data';
 
 @Injectable()
 export class CurrencyService implements OnApplicationBootstrap {

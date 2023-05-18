@@ -1,5 +1,3 @@
-import { CurrencyCode } from '../services/currency.service';
-
 export const countriesData: CountryData = {
   US: { code: 'USA', currency_type: 'USD', dial_code: '+1' },
   CL: { code: 'CHL', currency_type: 'CLP', dial_code: '+56' },
@@ -9,6 +7,7 @@ export const countriesData: CountryData = {
   BR: { code: 'BRA', currency_type: 'BRL', dial_code: '+55' },
   AR: { code: 'ARG', currency_type: 'ARS', dial_code: '+54' },
 };
+export type CurrencyCode = string;
 
 export const currenciesData: CurrencyCode[] = ['CLP', 'MXN', 'COP', 'PEN', 'BRL', 'ARS'];
 
