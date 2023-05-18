@@ -1,6 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
+import { ConfigInterface } from '~common/config/configuration';
 import { Rates, ratesData } from '../country/data';
 
 export type CurrencyCode = string;
@@ -10,12 +12,13 @@ export class CurrencyService implements OnApplicationBootstrap {
   protected readonly api_key: string;
 
   public ratesData: Rates;
-  constructor(private readonly http: HttpService) {
-    this.api_key = '9OAx3LWiI1deEbZfCGQBjwSPrNE6M3YE';
+  constructor(private readonly http: HttpService, config: ConfigService<ConfigInterface>) {
+    const { key } = config.get('api_layer', { infer: true });
+    this.api_key = key;
   }
 
   async onApplicationBootstrap(): Promise<void> {
-    this.ratesData = await this.rates('USD', ...ratesData);
+    this.ratesData = await this.ratesUsd(...ratesData);
   }
 
   async rates<T extends CurrencyCode[]>(from: CurrencyCode, ...to: T) {
@@ -56,6 +59,6 @@ export class CurrencyService implements OnApplicationBootstrap {
   }
 
   async createOrUpdateRates() {
-    this.ratesData = await this.rates('USD', ...ratesData);
+    this.ratesData = await this.ratesUsd(...ratesData);
   }
 }
