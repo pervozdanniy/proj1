@@ -6,9 +6,11 @@ import { URL } from 'node:url';
 import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
 import {
+  BlockCardRequest,
   CardResponse,
   CardsListResponse,
   CreateCardRequest,
+  CreateEntityRequest,
   CreateEntityResponse,
   CreatePaymentMethodRequest,
   CreatePaymentMethodResponse,
@@ -16,9 +18,11 @@ import {
   ExtendedCardResponse,
   GetPaymentMethodsRequest,
   GetPaymentMethodsResponse,
+  GetWalletBalanceResponse,
   TokenResponse,
   TransactionRequest,
   TransactionResponse,
+  UnblockCardRequest,
 } from './api.interface';
 
 type AuthToken = {
@@ -84,12 +88,35 @@ export class InswitchApiService {
     return `Bearer ${this.#token.accessToken}`;
   }
 
-  async createEntity() {
+  private encodeCardRef(cardReference: string) {
+    return `${encodeURIComponent(`cardId@${cardReference}`)}`;
+  }
+
+  async createEntity(request: CreateEntityRequest) {
     const token = await this.ensureAuth();
     const resp = await lastValueFrom(
       this.http.post<CreateEntityResponse>(
         new URL('entities/1.2/entities', this.baseUrl).toString(),
         {
+          name: {
+            firstName: request.firstName,
+            lastName: request.lastName,
+          },
+          contact: {
+            phoneNumber: request.phone,
+            email: request.email,
+            postalAddress: {
+              addressLine1: request.address,
+              city: request.city,
+              postalCode: request.postalCode,
+              country: request.country,
+            },
+          },
+          idDocuments: {
+            idType: request.documentType,
+            idNumber: request.documentNumber,
+            issuerCountry: request.documentCountry,
+          },
           entityType: 'naturalPerson',
         },
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
@@ -113,6 +140,20 @@ export class InswitchApiService {
     );
 
     return resp.data.walletId;
+  }
+
+  async walletGetBalance(walletId: string) {
+    const token = await this.ensureAuth();
+    const resp = await lastValueFrom(
+      this.http.get<GetWalletBalanceResponse>(
+        new URL(`wallets/1.0/wallets/${walletId}/balance`, this.baseUrl).toString(),
+        {
+          headers: { 'X-User-Bearer': token, apikey: this.apiKey },
+        },
+      ),
+    );
+
+    return resp.data.balances;
   }
 
   async getAvailablePaymentMethods(request: GetPaymentMethodsRequest) {
@@ -161,13 +202,25 @@ export class InswitchApiService {
     const token = await this.ensureAuth();
     await lastValueFrom(
       this.http.put(
-        new URL(`issuing/1.0/issuing/cards/${cardReference}/activateCard`, this.baseUrl).toString(),
+        new URL(`issuing/1.0/issuing/cards/${this.encodeCardRef(cardReference)}/activateCard`, this.baseUrl).toString(),
         {},
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
       ),
     );
+  }
 
-    return true;
+  async deactivateCard(cardReference: string) {
+    const token = await this.ensureAuth();
+    await lastValueFrom(
+      this.http.put(
+        new URL(
+          `issuing/1.0/issuing/cards/${this.encodeCardRef(cardReference)}/deactivateCard`,
+          this.baseUrl,
+        ).toString(),
+        {},
+        { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
+      ),
+    );
   }
 
   async getCards(entityId: string) {
@@ -186,7 +239,7 @@ export class InswitchApiService {
     const token = await this.ensureAuth();
     const resp = await lastValueFrom(
       this.http.get<ExtendedCardResponse>(
-        new URL(`issuing/1.0/issuing/cards/${cardReference}`, this.baseUrl).toString(),
+        new URL(`issuing/1.0/issuing/cards/${this.encodeCardRef(cardReference)}`, this.baseUrl).toString(),
         {
           headers: { 'X-User-Bearer': token, apikey: this.apiKey },
         },
@@ -201,26 +254,49 @@ export class InswitchApiService {
     const token = await this.ensureAuth();
     await lastValueFrom(
       this.http.put(
-        new URL(`issuing/1.0/issuing/cards/${cardReference}/activateCard`, this.baseUrl).toString(),
+        new URL(`issuing/1.0/issuing/cards/${this.encodeCardRef(cardReference)}/activateCard`, this.baseUrl).toString(),
         {},
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
       ),
     );
-
-    return true;
   }
 
+  /** physical only */
   async cardSetPin(cardReference: string, pin: string) {
     const token = await this.ensureAuth();
     await lastValueFrom(
       this.http.put(
-        new URL(`issuing/1.0/issuing/cards/${cardReference}/pin`, this.baseUrl).toString(),
+        new URL(`issuing/1.0/issuing/cards/${this.encodeCardRef(cardReference)}/pin`, this.baseUrl).toString(),
         { pin },
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
       ),
     );
+  }
 
-    return true;
+  async cardBlock(cardReference: string, payload: BlockCardRequest) {
+    const token = await this.ensureAuth();
+    await lastValueFrom(
+      this.http.put(
+        new URL(`issuing/1.0/issuing/cards/${this.encodeCardRef(cardReference)}/blockCard`, this.baseUrl).toString(),
+        payload,
+        {
+          headers: { 'X-User-Bearer': token, apikey: this.apiKey },
+        },
+      ),
+    );
+  }
+
+  async cardUnblock(cardReference: string, payload: UnblockCardRequest) {
+    const token = await this.ensureAuth();
+    await lastValueFrom(
+      this.http.put(
+        new URL(`issuing/1.0/issuing/cards/${this.encodeCardRef(cardReference)}/unblockCard`, this.baseUrl).toString(),
+        payload,
+        {
+          headers: { 'X-User-Bearer': token, apikey: this.apiKey },
+        },
+      ),
+    );
   }
 
   async getWithdrawMethods(country: string) {

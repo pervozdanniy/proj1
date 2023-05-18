@@ -1,20 +1,26 @@
 syntax = "proto3";
 
-package skopa.core.inswitch;
+package skopa.core;
+
+import "google/protobuf/empty.proto";
 
 service CardsService {
-    rpc GetCards (UserIdRequest) returns (CardsList);
+    rpc GetCards (UserId) returns (CardsList);
   
     rpc CreateCard (CreateCardRequest) returns (Card);
   
-    rpc GetExpandedInfo (CardDetailsRequest) returns (ExpandedCardInfo);
+    rpc GetExpandedInfo (CardId) returns (ExpandedCardInfo);
+
+    rpc SetPin (SetPinRequest) returns (google.protobuf.Empty);
+
+    rpc RegenerateCvv (CardId) returns (RegenerateCvvResponse);
 }
 
-message UserIdRequest {
+message UserId {
     uint32 user_id = 1;
 }
 
-message CardDetailsRequest {
+message CardId {
     string reference = 1;
     uint32 user_id = 2;
 }
@@ -23,7 +29,7 @@ message Card {
     string reference = 1;
     bool is_virtual = 2;
     string currency = 3;
-    string pan = 4;
+    optional string pan = 4;
 }
 
 message CardsList {
@@ -39,4 +45,13 @@ message CreateCardRequest {
     uint32 user_id = 1;
     bool is_virtual = 2;
     optional string pin = 3;
+}
+
+message SetPinRequest {
+    CardId card_id = 1;
+    string pin = 2;
+}
+
+message RegenerateCvvResponse {
+    string cvv = 1;
 }

@@ -43,6 +43,20 @@ type PaymentMethod = {
 
 export type GetPaymentMethodsResponse = Array<PaymentMethod>;
 
+export type CreateEntityRequest = {
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  email: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  documentType: 'passport' | 'nationalId';
+  documentNumber: string;
+  documentCountry: string;
+};
+
 export type CreateEntityResponse = {
   entityId: string;
   [key: string]: any;
@@ -53,6 +67,14 @@ export type CreateWalletResponse = {
   walletId: string;
   walletStatus: string;
   [key: string]: any;
+};
+
+export type GetWalletBalanceResponse = {
+  paymentMethodReference: string;
+  paymentMethodTypeClass: string;
+  paymentMethodType: string;
+  paymentMethodAlias: string;
+  balances: Array<{ cuurency: string; amount: string }>;
 };
 
 export type CreatePaymentMethodRequest = {
@@ -77,15 +99,15 @@ export type CreateCardRequest = {
 export type CardResponse = {
   cardIdentifier: string;
   entityId: string;
-  status: 'created' | 'ordered' | 'assigned' | 'active' | 'reserved' | 'cancelled' | 'blocked';
+  status: 'created' | 'ordered' | 'assigned' | 'active' | 'cancelled' | 'blocked';
   issueDate: string;
   type: string;
   productId: string;
   brand: string;
   currency: string;
   paymentMethodReference: string;
-  maskedPan: string;
-  last4: string;
+  maskedPan?: string;
+  last4?: string;
   [key: string]: any;
 };
 
@@ -153,4 +175,28 @@ export type TransactionResponse = {
     status: 'active' | 'confirmed' | 'cancelled' | 'expired';
   };
   [key: string]: any;
+};
+
+export enum BlockCardReason {
+  CardLost = 1,
+  CardStolen = 2,
+  PendingQuery = 3,
+  CardInactive = 5,
+  SuspectedFraud = 7,
+  CardReplaced = 8,
+}
+
+export type BlockCardRequest = {
+  reason: BlockCardReason;
+  description?: string;
+};
+
+export enum UnblockCardReason {
+  ByUser = 1,
+  ByIssuer = 2,
+}
+
+export type UnblockCardRequest = {
+  reason: UnblockCardReason;
+  description?: string;
 };

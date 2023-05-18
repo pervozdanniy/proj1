@@ -56,6 +56,9 @@ export class VeriffDocumentEntity {
   @UpdateDateColumn()
   updated_at: Date;
 
+  @Column('char', { length: 2 })
+  country: string;
+
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;

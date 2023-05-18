@@ -34,6 +34,7 @@ export class BaseGrpcExceptionFilter extends BaseRpcExceptionFilter {
 @Catch()
 export class AllExceptionFilter extends BaseGrpcExceptionFilter {
   catch(exception: any, host: ArgumentsHost): Observable<any> {
+    console.log('WWW', exception.response?.data ?? exception);
     let finalException = exception;
 
     if (exception instanceof HttpException) {

@@ -199,6 +199,7 @@ export class PrimeVeriffManager {
         issuing_date: document.validFrom,
         expiration_date: document.validUntil,
         label: document.type,
+        country: document.country,
         status,
       },
     );
