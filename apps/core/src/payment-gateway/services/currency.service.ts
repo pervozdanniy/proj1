@@ -13,7 +13,7 @@ export class CurrencyService implements OnApplicationBootstrap {
   private readonly logger = new Logger(CurrencyService.name);
   protected readonly api_key: string;
 
-  private ratesData: Map<string, number> = new Map<string, number>();
+  private ratesData: Map<string, number>;
   constructor(private readonly http: HttpService, config: ConfigService<ConfigInterface>) {
     const { key } = config.get('api_layer', { infer: true });
     this.api_key = key;
