@@ -6,7 +6,6 @@ import {
   AgreementRequest,
   BalanceRequest,
   BalanceResponse,
-  DepositParamRequest,
   ExchangeRequest,
   ExchangeResponse,
   LinkCustomerRequest,
@@ -44,27 +43,17 @@ export class PaymentGatewayService {
   createAgreement(request: AgreementRequest): Promise<UserAgreement> {
     return this.primeTrustService.createAgreement(request);
   }
-
-  async createContact(id: number): Promise<SuccessResponse> {
-    const userDetails = await this.userService.getUserInfo(id);
-
-    return this.primeTrustService.createContact(userDetails);
-  }
   async getBalance({ user_id, currencies }: BalanceRequest): Promise<BalanceResponse> {
     const balance = await this.primeTrustService.getBalance(user_id);
     const resp: BalanceResponse = { ...balance, conversions: [] };
 
     if (currencies.length) {
-      const conversions = await this.currencyService.convert(
-        parseFloat(balance.settled),
-        balance.currency_type,
-        ...currencies,
-      );
+      const conversions = await this.currencyService.convert(parseFloat(balance.settled), currencies);
       for (const curr in conversions) {
         if (Object.prototype.hasOwnProperty.call(conversions, curr)) {
           resp.conversions.push({
             currency: curr,
-            amount: conversions[curr]['amount'].toFixed(2),
+            amount: conversions[curr]['amount'],
             rate: conversions[curr]['rate'],
           });
         }
@@ -84,16 +73,8 @@ export class PaymentGatewayService {
     return this.primeTrustService.verifyCreditCard(resource_id, transfer_method_id);
   }
 
-  getCreditCards(id: number) {
-    return this.primeTrustService.getCreditCards(id);
-  }
-
   transferFunds(request: TransferFundsRequest) {
     return this.primeTrustService.transferFunds(request);
-  }
-
-  getAccount(id: number) {
-    return this.primeTrustService.getAccount(id);
   }
 
   getContact(id: number) {
@@ -107,18 +88,8 @@ export class PaymentGatewayService {
     return this.primeTrustService.getDepositParams(request.id);
   }
 
-  addDepositParams(request: DepositParamRequest) {
-    return this.primeTrustService.addDepositParams(request);
-  }
-
   makeDeposit(request: MakeDepositRequest) {
     return this.primeTrustService.makeDeposit(request);
-  }
-
-  async getBankAccounts(request: UserIdRequest) {
-    const userDetails = await this.userService.getUserInfo(request.id);
-
-    return this.primeTrustService.getBankAccounts(request.id, userDetails.country_code);
   }
 
   getUserAccountStatus(request: IdRequest) {

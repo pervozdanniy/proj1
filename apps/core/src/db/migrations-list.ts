@@ -54,6 +54,7 @@ import { AlterKYCTable1683640068661 } from './migrations/1683640068661-AlterKYCT
 import { AddInswitchCardsAndAccountsEntities1683650125085 } from './migrations/1683650125085-AddInswitchCardsAndAccountsEntities';
 import { CreateLinkTable1683878337424 } from './migrations/1683878337424-CreateLinkTable';
 import { AlterLinksTable1683899714681 } from './migrations/1683899714681-AlterLinksTable';
+import { CreateRatesTable1684337666959 } from './migrations/1684337666959-CreateRatesTable';
 
 export default [
   createUserTable1669901299726,
@@ -112,4 +113,5 @@ export default [
   AlterKYCTable1683640068661,
   CreateLinkTable1683878337424,
   AlterLinksTable1683899714681,
+  CreateRatesTable1684337666959,
 ];

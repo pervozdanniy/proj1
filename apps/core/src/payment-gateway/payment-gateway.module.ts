@@ -31,6 +31,8 @@ import { MexicoPaymentGateway } from './manager/countries/mexico-payment.gateway
 import { PeruPaymentGateway } from './manager/countries/peru-payment.gateway';
 import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
+import { RateEntity } from './rate/rate.entity';
+import { RatesUpdateService } from './rate/rates-update.service';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { CurrencyService } from './services/currency.service';
 import { FacilitaService } from './services/facilita/facilita.service';
@@ -74,6 +76,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     NotificationModule,
     CountryModule,
     TypeOrmModule.forFeature([
+      RateEntity,
       PrimeTrustAccountEntity,
       PrimeTrustContactEntity,
       PrimeTrustKycDocumentEntity,
@@ -136,6 +139,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     DepositFlow,
     PrimeVeriffManager,
     PrimeLinkManager,
+    RatesUpdateService,
   ],
   controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],

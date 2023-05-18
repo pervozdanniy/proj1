@@ -8,6 +8,8 @@ export const countriesData: CountryData = {
   AR: { code: 'ARG', currency_type: 'ARS', dial_code: '+54' },
 };
 
+export const ratesData: string[] = ['CLP', 'MXN', 'COP', 'PEN', 'BRL', 'ARS'];
+
 export type CountryData = {
   [code: string]: {
     code: string;
