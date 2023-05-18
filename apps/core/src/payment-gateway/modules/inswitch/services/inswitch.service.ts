@@ -1,5 +1,5 @@
 import { UserEntity } from '@/user/entities/user.entity';
-import { ConflictException, Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -9,7 +9,7 @@ import { InswitchWithdrawEntity, InswitchWithdrawStatus } from '../entities/insw
 import { InswitchApiService } from './api.service';
 
 @Injectable()
-export class InswitchService implements OnApplicationBootstrap {
+export class InswitchService {
   private readonly withdrawWallet: string;
   constructor(
     config: ConfigService<ConfigInterface>,
@@ -19,11 +19,6 @@ export class InswitchService implements OnApplicationBootstrap {
     @InjectRepository(UserEntity) private readonly userRepo: Repository<UserEntity>,
   ) {
     this.withdrawWallet = config.get('inswitch.withdrawWallet', { infer: true });
-  }
-
-  async onApplicationBootstrap() {
-    // await this.registerIfNotRegistered({ id: 9, country_code: 'CL' });
-    // return this.issueCard(9).catch((error) => console.error(error.response.data));
   }
 
   async accountGetOrCreate(userId: number) {

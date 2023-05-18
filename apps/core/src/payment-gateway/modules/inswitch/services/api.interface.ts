@@ -198,5 +198,5 @@ export enum UnblockCardReason {
 
 export type UnblockCardRequest = {
   reason: UnblockCardReason;
-  description?: string;
+  description: string;
 };
