@@ -62,7 +62,7 @@ export class LiquidoDepositManager {
       throw new ConflictException('KYC is not completed');
     }
 
-    const amount = parseFloat(convertedAmount[currency_type].amount);
+    const amount = convertedAmount[currency_type].amount;
 
     const headersRequest = {
       'Content-Type': 'application/json',

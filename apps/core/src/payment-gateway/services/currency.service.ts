@@ -1,17 +1,19 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Cron } from '@nestjs/schedule';
 import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
-import { Rates, ratesData } from '../country/data';
+import { ratesData } from '../country/data';
 
 export type CurrencyCode = string;
 
 @Injectable()
 export class CurrencyService implements OnApplicationBootstrap {
+  private readonly logger = new Logger(CurrencyService.name);
   protected readonly api_key: string;
 
-  public ratesData: Rates;
+  private ratesData: Map<string, number> = new Map<string, number>();
   constructor(private readonly http: HttpService, config: ConfigService<ConfigInterface>) {
     const { key } = config.get('api_layer', { infer: true });
     this.api_key = key;
@@ -30,7 +32,9 @@ export class CurrencyService implements OnApplicationBootstrap {
       }),
     );
 
-    return data['rates'];
+    const ratesMap = new Map<string, number>(Object.entries(data['rates']) as [string, number][]);
+
+    return ratesMap;
   }
 
   async ratesUsd<T extends CurrencyCode[]>(...codes: T) {
@@ -38,20 +42,14 @@ export class CurrencyService implements OnApplicationBootstrap {
   }
 
   async convert(amount: number, currencies: string[]) {
-    if (Object.keys(this.ratesData).length === 0) {
-      await this.createOrUpdateRates();
-    }
-    const rates: Rates = this.ratesData;
     const selectedRates: any = {};
-    for (let i = 0; i < currencies.length; i++) {
-      const param = currencies[i];
-      if (rates.hasOwnProperty(param)) {
-        selectedRates[param] = rates[param];
-      }
-    }
-    for (const curr in selectedRates) {
-      if (Object.prototype.hasOwnProperty.call(rates, curr)) {
-        selectedRates[curr] = { amount: (selectedRates[curr] * amount).toFixed(2), rate: selectedRates[curr] };
+
+    for (const param of currencies) {
+      if (this.ratesData.has(param)) {
+        selectedRates[param] = {
+          amount: (this.ratesData.get(param) * amount).toFixed(2),
+          rate: this.ratesData.get(param),
+        };
       }
     }
 
@@ -60,5 +58,11 @@ export class CurrencyService implements OnApplicationBootstrap {
 
   async createOrUpdateRates() {
     this.ratesData = await this.ratesUsd(...ratesData);
+  }
+
+  @Cron('0 0 */2 * * *')
+  async handleCron() {
+    await this.createOrUpdateRates();
+    this.logger.log('Rates updated!');
   }
 }

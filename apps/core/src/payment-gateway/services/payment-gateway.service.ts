@@ -102,7 +102,7 @@ export class PaymentGatewayService {
       if (Object.prototype.hasOwnProperty.call(rates, curr)) {
         resp.conversions.push({
           currency: curr,
-          rate: rates[curr],
+          rate: rates.get(curr).toString(),
         });
       }
     }
