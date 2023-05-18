@@ -1,7 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Request } from 'express';
 import process from 'process';
 import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
@@ -56,12 +55,12 @@ export class IpqualityScoreService {
     }
   }
 
-  async checkUserData(payload: RegistrationStartRequestDto, request: Request) {
+  async checkUserData(payload: RegistrationStartRequestDto) {
     const { email, phone } = payload;
-    let ipAddress = (request.headers['x-forwarded-for'] || request.connection.remoteAddress).toString();
-    ipAddress = ipAddress.includes(':') ? ipAddress.split(':').slice(-1)[0] : ipAddress;
+    //   let ipAddress = (request.headers['x-forwarded-for'] || request.connection.remoteAddress).toString();
+    //   ipAddress = ipAddress.includes(':') ? ipAddress.split(':').slice(-1)[0] : ipAddress;
     await this.checkEmail(email);
     await this.checkPhone(phone);
-    await this.checkIpAddress(ipAddress);
+    //  await this.checkIpAddress(ipAddress);
   }
 }
