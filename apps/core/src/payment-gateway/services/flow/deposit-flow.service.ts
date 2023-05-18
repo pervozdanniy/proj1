@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DepositNextStepRequest } from '~common/grpc/interfaces/payment-gateway';
+import { DepositFlowResponse, DepositNextStepRequest, TransferInfo } from '~common/grpc/interfaces/payment-gateway';
 import { UserService } from '~svc/core/src/user/services/user.service';
 import { DepositFlowEntity, DepositResourceType } from '../../entities/flow/deposit.entity';
 import { CardResourceEntity } from '../../entities/prime_trust/card-resource.entity';
@@ -11,6 +11,7 @@ import {
   hasCreditCard,
   hasDeposit,
   hasRedirectDeposit,
+  hasWireTransfer,
   PaymentGatewayManager,
 } from '../../manager/payment-gateway.manager';
 import { PrimeLinkManager } from '../prime_trust/managers/prime-link-manager';
@@ -28,7 +29,12 @@ export class DepositFlow {
     private cardsRepo: Repository<CardResourceEntity>,
   ) {}
 
-  async start(payload: { amount: string; currency: string; user_id: number; type: PaymentMethod }) {
+  async start(payload: {
+    amount: string;
+    currency: string;
+    user_id: number;
+    type?: PaymentMethod;
+  }): Promise<DepositFlowResponse> {
     const userDetails = await this.userService.getUserInfo(payload.user_id);
     const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
 
@@ -51,20 +57,64 @@ export class DepositFlow {
 
     if (payload.type === 'bank-transfer') {
       if (hasBankDeposit(paymentGateway)) {
-        const link_transfer = await this.primeLinkManager.sendAmount(payload.user_id, payload.amount, payload.currency);
+        const { identifiers } = await this.depositFlowRepo.insert({
+          user_id: payload.user_id,
+          currency: payload.currency,
+          amount: payload.amount,
+          country_code: userDetails.country_code,
+          resource_type: DepositResourceType.Bank,
+        });
+        const session = await this.primeLinkManager.linkSession(payload.user_id);
 
         return {
           action: 'link_transfer',
-          link_transfer,
+          flow_id: identifiers[0].id,
+          link_transfer: { sessionKey: session.sessionKey },
         };
       }
 
+      if (hasRedirectDeposit(paymentGateway)) {
+        const { url, info } = await paymentGateway.createRedirectReference({
+          id: userDetails.id,
+          amount: payload.amount,
+          currency_type: payload.currency,
+          type: 'wire',
+        });
+
+        return {
+          action: 'redirect',
+          redirect: {
+            url,
+            info,
+          },
+        };
+      }
+
+      if (hasWireTransfer(paymentGateway)) {
+        const { bank, info } = await paymentGateway.createReference({
+          id: userDetails.id,
+          amount: payload.amount,
+          currency_type: payload.currency,
+          type: 'wire',
+        });
+
+        return {
+          action: 'pay_with_bank',
+          bank_params: {
+            bank,
+            info,
+          },
+        };
+      }
+    }
+
+    if (payload.type === 'cash') {
       if (hasRedirectDeposit(paymentGateway)) {
         const redirect = await paymentGateway.createRedirectReference({
           id: userDetails.id,
           amount: payload.amount,
           currency_type: payload.currency,
-          type: 'wire',
+          type: 'cash',
         });
 
         return {
@@ -77,7 +127,7 @@ export class DepositFlow {
     throw new UnauthorizedException('This operation is not permitted in your country');
   }
 
-  async payWithSelectedRecource(payload: DepositNextStepRequest) {
+  async payWithSelectedResource(payload: DepositNextStepRequest): Promise<TransferInfo> {
     const flow = await this.depositFlowRepo.findOneByOrFail({ id: payload.id });
     if (flow.user_id !== payload.user_id) {
       throw new ForbiddenException();
@@ -88,19 +138,15 @@ export class DepositFlow {
     }
 
     if (flow.resource_type === DepositResourceType.Bank && hasBankDeposit(paymentGateway)) {
-      const resp = await paymentGateway.setDepositParams({
-        id: flow.user_id,
-        bank_account_id: payload.bank.id,
-        funds_transfer_type: payload.bank.transfer_type,
-      });
-      const depositData = await paymentGateway.makeDeposit({
-        id: flow.user_id,
-        funds_transfer_method_id: resp.transfer_method_id,
-        amount: flow.amount,
-      });
+      await this.primeLinkManager.sendAmount(payload.customer.id, flow.amount, flow.currency);
       await this.depositFlowRepo.delete(payload.id);
 
-      return depositData;
+      return {
+        amount: flow.amount,
+        currency: flow.currency,
+        rate: '1',
+        fee: '0',
+      };
     }
 
     if (flow.resource_type === DepositResourceType.Card && hasCreditCard(paymentGateway)) {

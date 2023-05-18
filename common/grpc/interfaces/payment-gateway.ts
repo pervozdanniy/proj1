@@ -25,8 +25,7 @@ export interface LinkSessionResponse {
 }
 
 export interface LinkCustomerRequest {
-  customerId: string;
-  sessionId: string;
+  id: string;
 }
 
 export interface DepositFlowRequest {
@@ -37,8 +36,9 @@ export interface DepositFlowRequest {
 }
 
 export interface LinkTransferData {
-  paymentId: string;
-  paymentStatus: string;
+  paymentId?: string | undefined;
+  paymentStatus?: string | undefined;
+  sessionKey?: string | undefined;
 }
 
 export interface DepositFlowResponse {
@@ -48,6 +48,7 @@ export interface DepositFlowResponse {
   cards?: DepositSelectCardData | undefined;
   redirect?: DepositRedirectData | undefined;
   link_transfer?: LinkTransferData | undefined;
+  bank_params?: BankCredentialsData | undefined;
 }
 
 export interface DepositSelectBankData {
@@ -63,6 +64,11 @@ export interface DepositRedirectData {
   info: TransferInfo | undefined;
 }
 
+export interface BankCredentialsData {
+  bank: string;
+  info: TransferInfo | undefined;
+}
+
 export interface TransferInfo {
   amount: string;
   currency: string;
@@ -75,6 +81,7 @@ export interface DepositNextStepRequest {
   user_id: number;
   bank?: SelectBankRequest | undefined;
   card?: SelectCardRequest | undefined;
+  customer?: LinkCustomerRequest | undefined;
 }
 
 export interface SelectBankRequest {
@@ -88,7 +95,12 @@ export interface SelectCardRequest {
 }
 
 export interface LiquidoWebhookRequest {
-  transactionId: string;
+  amount: number;
+  currency: string;
+  country: string;
+  email: string;
+  paymentStatus: string;
+  orderId: string;
 }
 
 export interface FacilitaWebhookRequest {
@@ -377,12 +389,6 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface PaymentGatewayServiceClient {
   createAgreement(request: AgreementRequest, ...rest: any): Observable<UserAgreement>;
 
-  /** link */
-
-  linkSession(request: UserIdRequest, ...rest: any): Observable<LinkSessionResponse>;
-
-  saveCustomer(request: LinkCustomerRequest, ...rest: any): Observable<SuccessResponse>;
-
   /** veriff */
 
   generateVeriffLink(request: UserIdRequest, ...rest: any): Observable<VeriffSessionResponse>;
@@ -441,18 +447,6 @@ export interface PaymentGatewayServiceController {
     request: AgreementRequest,
     ...rest: any
   ): Promise<UserAgreement> | Observable<UserAgreement> | UserAgreement;
-
-  /** link */
-
-  linkSession(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<LinkSessionResponse> | Observable<LinkSessionResponse> | LinkSessionResponse;
-
-  saveCustomer(
-    request: LinkCustomerRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   /** veriff */
 
@@ -571,8 +565,6 @@ export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "createAgreement",
-      "linkSession",
-      "saveCustomer",
       "generateVeriffLink",
       "veriffHookHandler",
       "veriffWebhookHandler",

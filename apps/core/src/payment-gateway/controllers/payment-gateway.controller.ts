@@ -8,13 +8,10 @@ import {
   BanksInfoResponse,
   ContactResponse,
   CreditCardResourceResponse,
-  DepositParamsResponse,
   ExchangeRequest,
   ExchangeResponse,
   FacilitaWebhookRequest,
   KoyweWebhookRequest,
-  LinkCustomerRequest,
-  LinkSessionResponse,
   LiquidoWebhookRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
@@ -88,10 +85,6 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.paymentGatewayService.createCreditCardResource(id);
   }
 
-  getDepositParams(request: UserIdRequest): Promise<DepositParamsResponse> {
-    return this.paymentGatewayService.getDepositParams(request);
-  }
-
   koyweWebhooksHandler(request: KoyweWebhookRequest): Promise<SuccessResponse> {
     return this.webhooksService.koyweWebhooksHandler(request);
   }
@@ -128,13 +121,5 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   veriffWebhookHandler(request: WebhookResponse): Promise<SuccessResponse> {
     return this.paymentGatewayService.veriffWebhookHandler(request);
-  }
-
-  linkSession(request: UserIdRequest): Promise<LinkSessionResponse> {
-    return this.paymentGatewayService.linkSession(request);
-  }
-
-  saveCustomer(request: LinkCustomerRequest): Promise<SuccessResponse> {
-    return this.paymentGatewayService.saveCustomer(request);
   }
 }

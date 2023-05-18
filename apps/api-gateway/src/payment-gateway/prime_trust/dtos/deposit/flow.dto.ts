@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsNotEmpty, IsNumberString, IsString, Length } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsNumberString, IsString, Length, ValidateIf } from 'class-validator';
 import { TransferInfoDto } from '../../utils/prime-trust-response.dto';
 
 export enum PaymentType {
@@ -43,7 +43,14 @@ export class PayWithBankRequestDto extends PayWithResourceDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsInt()
-  bankId: number;
+  @ValidateIf((obj: PayWithBankRequestDto) => !obj.customerId)
+  bankId?: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  @ValidateIf((obj: PayWithBankRequestDto) => !obj.bankId)
+  customerId?: string;
 
   @ApiProperty({ enum: Object.values(TranferType) })
   @IsEnum(TranferType)
@@ -64,11 +71,14 @@ export class PayWithCardRequestDto extends PayWithResourceDto {
 }
 
 class LinkTransferDto {
-  @ApiProperty({ example: '7cf894ac0-9e0c-806b-8b76-74d5ba51b6b' })
-  paymentId: string;
+  @ApiPropertyOptional({ example: '7cf894ac0-9e0c-806b-8b76-74d5ba51b6b' })
+  paymentId?: string;
 
-  @ApiProperty({ example: 'AUTHORIZED' })
-  paymentStatus: string;
+  @ApiPropertyOptional({ example: 'AUTHORIZED' })
+  paymentStatus?: string;
+
+  @ApiPropertyOptional({ example: 'key' })
+  sessionKey?: string;
 }
 
 class BankParamsDto {
@@ -85,6 +95,15 @@ class BankParamsDto {
 class RedirectDto {
   @ApiProperty()
   url: string;
+
+  @Type(() => TransferInfoDto)
+  @ApiProperty({ type: TransferInfoDto })
+  info: TransferInfoDto;
+}
+
+class BankCredentialsDataDto {
+  @ApiProperty()
+  bank: string;
 
   @Type(() => TransferInfoDto)
   @ApiProperty({ type: TransferInfoDto })
@@ -112,4 +131,7 @@ export class DepositStartResponseDto {
 
   @ApiPropertyOptional({ type: LinkTransferDto })
   link_transfer?: LinkTransferDto;
+
+  @ApiPropertyOptional({ type: BankCredentialsDataDto })
+  bank_params?: BankCredentialsDataDto;
 }

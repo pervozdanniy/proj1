@@ -19,8 +19,8 @@ export class KoyweService {
     private readonly koyweWebhookManager: KoyweWebhookManager,
   ) {}
 
-  createReference(request: CreateReferenceRequest, params: KoyweReferenceParams) {
-    return this.koyweDepositManager.createReference(request, params);
+  createRedirectReference(request: CreateReferenceRequest, params: KoyweReferenceParams) {
+    return this.koyweDepositManager.createRedirectReference(request, params);
   }
 
   getBanksInfo(code: string) {
@@ -37,5 +37,9 @@ export class KoyweService {
 
   koyweWebhooksHandler(request: KoyweWebhookRequest) {
     return this.koyweWebhookManager.koyweWebhooksHandler(request);
+  }
+
+  createReference(request: CreateReferenceRequest, params: KoyweReferenceParams) {
+    return this.koyweDepositManager.createReference(request, params);
   }
 }

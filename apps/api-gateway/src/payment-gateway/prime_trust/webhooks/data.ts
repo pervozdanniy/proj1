@@ -20,3 +20,24 @@ export type KoyweWebhookType = {
 export type FacilitaWebhookType = {
   orderId: string;
 };
+
+export type LiquidoWebhookType = {
+  eventType: 'CHARGE_SUCCEEDED';
+  data: {
+    linkId: string;
+    orderId: string;
+    amount: number;
+    currency: string;
+    country: string;
+    paymentStatus: string;
+    redirectUrl: string;
+    callbackUrl: string;
+    finalPaymentMethod: string;
+    finalStatusTimestamp: number;
+    finalStatusTime: string;
+    name: string;
+    email: string;
+    phone: string;
+    documentId: string;
+  };
+};
