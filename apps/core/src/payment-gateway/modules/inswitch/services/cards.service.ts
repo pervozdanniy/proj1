@@ -213,7 +213,10 @@ export class InswitchCardsService {
     if (card.status !== 'active') {
       throw new ConflictException('Only "active" cards can be blocked');
     }
-    await this.api.cardBlock(card.reference, { reason: this.mapGrpcToApiReason(request.reason) });
+    await this.api.cardBlock(card.reference, {
+      reason: this.mapGrpcToApiReason(request.reason),
+      description: 'Blocking requested by the cardholder',
+    });
     await this.cardRepo.update(card.reference, { status: 'blocked' });
   }
 
@@ -222,7 +225,10 @@ export class InswitchCardsService {
     if (card.status !== 'blocked') {
       throw new ConflictException('Your card is not blocked!');
     }
-    await this.api.cardUnblock(card.reference, { reason: UnblockCardReason.ByUser });
+    await this.api.cardUnblock(card.reference, {
+      reason: UnblockCardReason.ByUser,
+      description: 'Unblocking requested by the cardholder',
+    });
     await this.cardRepo.update(card.reference, { status: 'active' });
   }
 
