@@ -13,7 +13,6 @@ import { PaymentGatewayController } from './controllers/payment-gateway.controll
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
 import { InswitchAccountEntity } from './entities/inswitch/inswitch-account.entity';
 import { InswitchCardEntity } from './entities/inswitch/inswitch-card.entity';
-import { LinkEntity } from './entities/link.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from './entities/prime_trust/deposit-params.entity';
@@ -49,6 +48,7 @@ import { KoyweTokenManager } from './services/koywe/managers/koywe-token.manager
 import { KoyweWebhookManager } from './services/koywe/managers/koywe-webhook.manager';
 import { KoyweWithdrawalManager } from './services/koywe/managers/koywe-withdrawal.manager';
 import { LiquidoService } from './services/liquido/liquido.service';
+import { LiquidoDepositManager } from './services/liquido/managers/liquido-deposit.manager';
 import { LiquidoTokenManager } from './services/liquido/managers/liquido-token.manager';
 import { LiquidoWebhookManager } from './services/liquido/managers/liquido-webhook.manager';
 import { LiquidoWithdrawalManager } from './services/liquido/managers/liquido-withdrawal.manager';
@@ -91,7 +91,6 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       InswitchCardEntity,
       VeriffDocumentEntity,
       DepositFlowEntity,
-      LinkEntity,
       UserDetailsEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
@@ -140,6 +139,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PrimeVeriffManager,
     PrimeLinkManager,
     RatesUpdateService,
+    LiquidoDepositManager,
   ],
   controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],

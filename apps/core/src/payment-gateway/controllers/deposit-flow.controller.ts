@@ -21,6 +21,6 @@ export class DepositFlowController implements DepositFlowServiceController {
   }
 
   payWithSelectedResource(request: DepositNextStepRequest): Promise<TransferInfo> {
-    return this.flow.payWithSelectedRecource(request);
+    return this.flow.payWithSelectedResource(request);
   }
 }

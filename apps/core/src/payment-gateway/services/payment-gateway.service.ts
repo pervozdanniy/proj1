@@ -8,11 +8,9 @@ import {
   BalanceResponse,
   ExchangeRequest,
   ExchangeResponse,
-  LinkCustomerRequest,
   PG_Token,
   SearchTransactionRequest,
   TransferFundsRequest,
-  UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { VeriffHookRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
@@ -83,11 +81,6 @@ export class PaymentGatewayService {
   getTransactions(request: SearchTransactionRequest) {
     return this.primeTrustService.getTransactions(request);
   }
-
-  getDepositParams(request: UserIdRequest) {
-    return this.primeTrustService.getDepositParams(request.id);
-  }
-
   makeDeposit(request: MakeDepositRequest) {
     return this.primeTrustService.makeDeposit(request);
   }
@@ -132,13 +125,5 @@ export class PaymentGatewayService {
     }
 
     return { success };
-  }
-
-  linkSession({ id }: UserIdRequest) {
-    return this.primeTrustService.linkSession(id);
-  }
-
-  saveCustomer(request: LinkCustomerRequest) {
-    return this.primeTrustService.saveCustomer(request);
   }
 }

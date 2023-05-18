@@ -1,6 +1,7 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/auth';
 import { PaymentGatewayService } from '@/payment-gateway/prime_trust/services/payment-gateway.service';
 import {
+  BankTransferInfoDto,
   CreditCardResourceResponseDto,
   SuccessResponseDto,
   TransferInfoDto,
@@ -79,11 +80,11 @@ export class DepositController {
   }
 
   @ApiOperation({ summary: 'Select bank for deposit' })
-  @ApiCreatedResponse({ type: TransferInfoDto })
+  @ApiCreatedResponse({ type: BankTransferInfoDto })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Post('/pay_with_bank')
-  payWithBank(@Body() payload: PayWithBankRequestDto, @JwtSessionUser() { id }: User): Promise<TransferInfoDto> {
+  @Post('/pay-with-bank')
+  payWithBank(@Body() payload: PayWithBankRequestDto, @JwtSessionUser() { id }: User): Promise<BankTransferInfoDto> {
     return this.depositService.payWithBank(payload, id);
   }
 

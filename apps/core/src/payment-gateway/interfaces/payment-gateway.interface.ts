@@ -1,6 +1,7 @@
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   BankAccountParams,
+  BankCredentialsData,
   BanksInfoResponse,
   CreateReferenceRequest,
   CreditCardResourceResponse,
@@ -8,7 +9,6 @@ import {
   DepositParamRequest,
   DepositRedirectData,
   DepositResponse,
-  JsonData,
   TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -37,7 +37,7 @@ export interface RedirectDepositInterface {
 }
 
 export interface WireDepositInterface {
-  createReference(request: CreateReferenceRequest): Promise<JsonData>;
+  createReference(request: CreateReferenceRequest): Promise<BankCredentialsData>;
 }
 
 export interface CreditCardInterface {

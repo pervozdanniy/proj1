@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
-  AccountIdRequest,
   FacilitaWebhookRequest,
   KoyweWebhookRequest,
   LiquidoWebhookRequest,
@@ -21,10 +20,6 @@ export class PaymentGatewayWebhooksService {
     private facilitaService: FacilitaService,
     private liquidoService: LiquidoService,
   ) {}
-
-  updateAssetDeposit(request: AccountIdRequest) {
-    return this.primeTrustService.updateAssetDeposit(request);
-  }
 
   koyweWebhooksHandler(request: KoyweWebhookRequest) {
     return this.koyweService.koyweWebhooksHandler(request);

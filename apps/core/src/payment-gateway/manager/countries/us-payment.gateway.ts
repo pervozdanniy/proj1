@@ -3,12 +3,10 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   BankAccountParams,
   BanksInfoResponse,
-  CreateReferenceRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositParamRequest,
   DepositResponse,
-  JsonData,
   TransferInfo,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -19,18 +17,12 @@ import {
   MakeDepositRequest,
   PaymentGatewayInterface,
   PaymentMethod,
-  WireDepositInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
 export class USPaymentGateway
-  implements
-    PaymentGatewayInterface,
-    WireDepositInterface,
-    CreditCardInterface,
-    BankDepositInterface,
-    BankWithdrawalInterface
+  implements PaymentGatewayInterface, CreditCardInterface, BankDepositInterface, BankWithdrawalInterface
 {
   private primeTrustService: PrimeTrustService;
 
@@ -72,9 +64,6 @@ export class USPaymentGateway
 
   addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
     return this.primeTrustService.addBankAccountParams(request);
-  }
-  createReference(request: CreateReferenceRequest): Promise<JsonData> {
-    return this.primeTrustService.createReference(request);
   }
 
   makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
