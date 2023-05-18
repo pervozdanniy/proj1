@@ -26,4 +26,8 @@ export class InswitchCardEntity {
 
   @Column('varchar', { length: 20, nullable: true })
   pan?: string;
+
+  get isVirtual() {
+    return this.type === CardType.Virtual;
+  }
 }

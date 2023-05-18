@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 import FormData from 'form-data';
 import { URL } from 'node:url';
 import { lastValueFrom } from 'rxjs';
@@ -49,6 +50,14 @@ export class InswitchApiService {
     this.authData = { username, password };
   }
 
+  #handleHttpException = (error: any): never => {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new HttpException(error.response.data.errorDescription, error.response.status, error);
+    }
+
+    throw new InternalServerErrorException(error.message);
+  };
+
   private async authorize(refreshToken?: string): Promise<AuthToken> {
     const data = new FormData();
     data.append('grant_type', 'password');
@@ -65,7 +74,7 @@ export class InswitchApiService {
         data,
         { headers: { apikey: this.apiKey } },
       ),
-    );
+    ).catch(this.#handleHttpException);
 
     return {
       accessToken: resp.data.access_token,
@@ -121,7 +130,7 @@ export class InswitchApiService {
         },
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
       ),
-    );
+    ).catch(this.#handleHttpException);
 
     return resp.data.entityId;
   }
@@ -137,7 +146,7 @@ export class InswitchApiService {
         },
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
       ),
-    );
+    ).catch(this.#handleHttpException);
 
     return resp.data.walletId;
   }
@@ -151,7 +160,7 @@ export class InswitchApiService {
           headers: { 'X-User-Bearer': token, apikey: this.apiKey },
         },
       ),
-    );
+    ).catch(this.#handleHttpException);
 
     return resp.data.balances;
   }
@@ -166,7 +175,7 @@ export class InswitchApiService {
           headers: { 'X-User-Bearer': token, apikey: this.apiKey },
         },
       ),
-    );
+    ).catch(this.#handleHttpException);
 
     return resp.data;
   }
@@ -182,7 +191,7 @@ export class InswitchApiService {
         },
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
       ),
-    );
+    ).catch(this.#handleHttpException);
 
     return resp.data.paymentMethodId;
   }
@@ -193,7 +202,7 @@ export class InswitchApiService {
       this.http.post<CardResponse>(new URL('issuing/1.0/issuing/cards', this.baseUrl).toString(), payload, {
         headers: { 'X-User-Bearer': token, apikey: this.apiKey },
       }),
-    );
+    ).catch(this.#handleHttpException);
 
     return resp.data;
   }
@@ -206,7 +215,7 @@ export class InswitchApiService {
         {},
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
       ),
-    );
+    ).catch(this.#handleHttpException);
   }
 
   async deactivateCard(cardReference: string) {
@@ -220,7 +229,7 @@ export class InswitchApiService {
         {},
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
       ),
-    );
+    ).catch(this.#handleHttpException);
   }
 
   async getCards(entityId: string) {
@@ -230,7 +239,7 @@ export class InswitchApiService {
         params: { entityId },
         headers: { 'X-User-Bearer': token, apikey: this.apiKey },
       }),
-    );
+    ).catch(this.#handleHttpException);
 
     return resp.data;
   }
@@ -244,7 +253,7 @@ export class InswitchApiService {
           headers: { 'X-User-Bearer': token, apikey: this.apiKey },
         },
       ),
-    );
+    ).catch(this.#handleHttpException);
 
     return resp.data;
   }
@@ -258,7 +267,7 @@ export class InswitchApiService {
         {},
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
       ),
-    );
+    ).catch(this.#handleHttpException);
   }
 
   /** physical only */
@@ -270,7 +279,7 @@ export class InswitchApiService {
         { pin },
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
       ),
-    );
+    ).catch(this.#handleHttpException);
   }
 
   async cardBlock(cardReference: string, payload: BlockCardRequest) {
@@ -283,7 +292,7 @@ export class InswitchApiService {
           headers: { 'X-User-Bearer': token, apikey: this.apiKey },
         },
       ),
-    );
+    ).catch(this.#handleHttpException);
   }
 
   async cardUnblock(cardReference: string, payload: UnblockCardRequest) {
@@ -296,7 +305,7 @@ export class InswitchApiService {
           headers: { 'X-User-Bearer': token, apikey: this.apiKey },
         },
       ),
-    );
+    ).catch(this.#handleHttpException);
   }
 
   async getWithdrawMethods(country: string) {
@@ -317,7 +326,7 @@ export class InswitchApiService {
         { ...payload, creditParty: paymentMethod, deditParty: { paymentMethodReference: 'wqewqq' } },
         { headers: { 'X-User-Bearer': token, 'X-Callback-URL': this.webhookUrl } },
       ),
-    );
+    ).catch(this.#handleHttpException);
 
     return {
       id: data.transactionReference,

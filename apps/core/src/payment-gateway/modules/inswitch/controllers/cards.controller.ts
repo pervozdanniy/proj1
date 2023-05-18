@@ -1,15 +1,15 @@
 import { UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   Card,
+  CardDetails,
   CardsList,
   CardsServiceController,
   CardsServiceControllerMethods,
-  ExpandedCardInfo,
   RegenerateCvvResponse,
   UserId,
 } from '~common/grpc/interfaces/inswitch';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { CardIdDto, CreateCardDto, SetPinDto } from '../dto/cards.dto';
+import { CardBlockDto, CardIdDto, CreateCardDto, SetPinDto } from '../dto/cards.dto';
 import { InswitchCardsService } from '../services/cards.service';
 
 @RpcController()
@@ -17,20 +17,40 @@ import { InswitchCardsService } from '../services/cards.service';
 export class CardsController implements CardsServiceController {
   constructor(private readonly inswitch: InswitchCardsService) {}
 
-  async getCards({ user_id }: UserId): Promise<CardsList> {
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  activate(request: CardIdDto) {
+    return this.inswitch.activate(request);
+  }
+
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  deactivate(request: CardIdDto) {
+    return this.inswitch.deactivate(request);
+  }
+
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  block(request: CardBlockDto) {
+    return this.inswitch.block(request);
+  }
+
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  unblock(request: CardIdDto) {
+    return this.inswitch.unblock(request);
+  }
+
+  async list({ user_id }: UserId): Promise<CardsList> {
     const cards = await this.inswitch.list(user_id);
 
     return { cards };
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  createCard(request: CreateCardDto): Promise<Card> {
+  issue(request: CreateCardDto): Promise<Card> {
     return this.inswitch.issueCard(request);
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  getExpandedInfo(request: CardIdDto): Promise<ExpandedCardInfo> {
-    return this.inswitch.getExpandedInfo(request);
+  details(request: CardIdDto): Promise<CardDetails> {
+    return this.inswitch.details(request);
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))

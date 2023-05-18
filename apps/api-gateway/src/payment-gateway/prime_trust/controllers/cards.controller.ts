@@ -9,7 +9,14 @@ import {
 } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
-import { CardDetailsDto, CardDto, CardsListDto, IssueCardRequestDto, SetPinDto } from '../dtos/cards/cards.dto';
+import {
+  CardBlockDto,
+  CardDetailsDto,
+  CardDto,
+  CardsListDto,
+  IssueCardRequestDto,
+  SetPinDto,
+} from '../dtos/cards/cards.dto';
 import { CardsService } from '../services/cards.service';
 
 @ApiTags('Cards')
@@ -55,8 +62,44 @@ export class CardsController {
   @ApiNoContentResponse()
   @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Patch(':reference/pin')
+  @Patch(':reference/regenerate_cvv')
   async regenerateCvv(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
     await this.cards.regenerateCvv(reference, id);
+  }
+
+  @ApiOperation({ summary: 'Activate card' })
+  @ApiNoContentResponse()
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':reference/activate')
+  async activate(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
+    await this.cards.activate(reference, id);
+  }
+
+  @ApiOperation({ summary: 'Deactivate card' })
+  @ApiNoContentResponse()
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':reference/activate')
+  async deactivate(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
+    await this.cards.deactivate(reference, id);
+  }
+
+  @ApiOperation({ summary: 'Block card' })
+  @ApiNoContentResponse()
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':reference/block')
+  async block(@Param('reference') reference: string, @Body() { reason }: CardBlockDto, @JwtSessionUser() { id }: User) {
+    await this.cards.block({ reference, reason }, id);
+  }
+
+  @ApiOperation({ summary: 'Unblock card' })
+  @ApiNoContentResponse()
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch(':reference/unblock')
+  async unblock(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
+    await this.cards.unblock(reference, id);
   }
 }

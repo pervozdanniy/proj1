@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsNumberString, MaxLength, ValidateIf } from 'class-validator';
-import { Card, ExpandedCardInfo } from '~common/grpc/interfaces/inswitch';
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumberString, MaxLength, ValidateIf } from 'class-validator';
+import { Card, CardDetails, ExpandedCardInfo } from '~common/grpc/interfaces/inswitch';
 
 export class IssueCardRequestDto {
   @ApiProperty()
@@ -27,6 +27,9 @@ export class CardDto implements Card {
   @ApiProperty()
   currency: string;
 
+  @ApiProperty({ enum: ['ordered', 'assigned', 'blocked', 'active', 'cancelled'] })
+  status: string;
+
   @ApiPropertyOptional()
   pan?: string;
 }
@@ -38,17 +41,55 @@ export class CardsListDto {
 }
 
 export class SetPinDto {
-  @ApiProperty()
+  @ApiProperty({ type: 'string' })
   @IsNotEmpty()
   @IsNumberString()
   @MaxLength(4)
   pin: string;
 }
 
-export class CardDetailsDto implements ExpandedCardInfo {
+class ExpandedInfoDto implements ExpandedCardInfo {
   @ApiProperty()
   cvv: string;
 
   @ApiProperty()
   pan: string;
+}
+
+export class CardDetailsDto implements CardDetails {
+  @ApiProperty()
+  reference: string;
+
+  @ApiProperty()
+  status: string;
+
+  @ApiProperty()
+  issue_date: string;
+
+  @ApiProperty()
+  type: string;
+
+  @ApiProperty()
+  brand: string;
+
+  @ApiProperty()
+  currency: string;
+
+  @ApiPropertyOptional({ type: ExpandedInfoDto })
+  @Type(() => ExpandedInfoDto)
+  expanded?: ExpandedInfoDto;
+}
+
+export enum CardBlockReason {
+  CardLost = 'lost',
+  CardStolen = 'stolen',
+  CardInactive = 'inactive',
+  CardReplaced = 'replaced',
+}
+
+export class CardBlockDto {
+  @ApiProperty({ enum: Object.values(CardBlockReason) })
+  @IsNotEmpty()
+  @IsEnum(CardBlockReason)
+  reason: CardBlockReason;
 }

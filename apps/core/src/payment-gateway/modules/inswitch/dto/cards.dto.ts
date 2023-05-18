@@ -11,10 +11,15 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { CardId, CreateCardRequest, SetPinRequest } from '~common/grpc/interfaces/inswitch';
-import { BlockCardReason } from '../services/api.interface';
+import {
+  BlockCardRequest,
+  BlockReason,
+  CardId,
+  IssueCardRequest,
+  SetPinRequest,
+} from '~common/grpc/interfaces/inswitch';
 
-export class CreateCardDto implements CreateCardRequest {
+export class CreateCardDto implements IssueCardRequest {
   @IsNotEmpty()
   @IsInt()
   user_id: number;
@@ -51,10 +56,10 @@ export class SetPinDto implements SetPinRequest {
   card_id: CardIdDto;
 }
 
-export class CardBlockDto {
+export class CardBlockDto implements BlockCardRequest {
   @IsNotEmpty()
-  @IsEnum(BlockCardReason)
-  reason: BlockCardReason;
+  @IsEnum(BlockReason)
+  reason: BlockReason;
 
   @ValidateNested()
   @Type(() => CardIdDto)

@@ -4,11 +4,11 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { Card, ExpandedCardInfo } from '~common/grpc/interfaces/inswitch';
+import { BlockReason, Card, CardDetails } from '~common/grpc/interfaces/inswitch';
 import { CardBlockDto, CardIdDto, CreateCardDto, SetPinDto } from '../dto/cards.dto';
 import { InswitchAccountEntity } from '../entities/inswitch-account.entity';
 import { CardType, InswitchCardEntity } from '../entities/inswitch-card.entity';
-import { CreateCardRequest, UnblockCardReason } from './api.interface';
+import { BlockCardReason, CreateCardRequest, UnblockCardReason } from './api.interface';
 import { InswitchApiService } from './api.service';
 
 @Injectable()
@@ -39,6 +39,9 @@ export class InswitchCardsService {
     if (reload) {
       const card = await this.api.getCardDetails(entity.reference);
       if (entity.status !== card.status) {
+        entity.status = card.status;
+        entity.pan = card.maskedPan;
+
         return this.cardRepo.save(entity);
       }
     }
@@ -86,6 +89,7 @@ export class InswitchCardsService {
       reference: c.reference,
       is_virtual: c.type === CardType.Virtual,
       currency: c.currency,
+      status: c.status,
       pan: c.pan,
     }));
   }
@@ -136,14 +140,31 @@ export class InswitchCardsService {
       is_virtual: payload.is_virtual,
       pan: entity.pan,
       currency: entity.currency,
+      status: entity.status,
     };
   }
 
-  async getExpandedInfo(request: CardIdDto): Promise<ExpandedCardInfo> {
+  async details(request: CardIdDto): Promise<CardDetails> {
     const card = await this.getCardOrFail(request);
     const details = await this.api.getCardDetails(card.reference);
 
-    return { pan: details.expanded_card_info.pan, cvv: details.expanded_card_info.cvv };
+    const data: CardDetails = {
+      reference: details.cardIdentifier,
+      status: details.status,
+      issue_date: details.issueDate,
+      type: details.type,
+      brand: details.brand,
+      currency: details.currency,
+    };
+
+    if (card.isVirtual && details.expanded_card_info) {
+      data.expanded = {
+        pan: details.expanded_card_info.pan,
+        cvv: details.expanded_card_info.cvv,
+      };
+    }
+
+    return data;
   }
 
   async regenerateCvv(request: CardIdDto): Promise<string> {
@@ -159,20 +180,40 @@ export class InswitchCardsService {
   }
 
   async setPin({ card_id, pin }: SetPinDto) {
-    const card = await this.getCardOrFail(card_id);
-    if (card.type === CardType.Physical) {
-      return this.api.cardSetPin(card_id.reference, pin);
+    const card = await this.getCardOrFail(card_id, true);
+    if (card.status !== 'active') {
+      throw new ConflictException('You can change pin only for active cards');
+    }
+    if (card.type !== CardType.Physical) {
+      throw new ConflictException('This operation is applicalble only to "physical" cards!');
     }
 
-    throw new ConflictException('This operation is applicalble only to "physical" cards!');
+    return this.api.cardSetPin(card_id.reference, pin);
+  }
+
+  private mapGrpcToApiReason(reason: BlockReason): BlockCardReason {
+    switch (reason) {
+      case BlockReason.BR_UNSPECIFIED:
+      case BlockReason.UNRECOGNIZED:
+      default:
+        return BlockCardReason.PendingQuery;
+      case BlockReason.BR_CARD_STOLEN:
+        return BlockCardReason.CardStolen;
+      case BlockReason.BR_CARD_LOST:
+        return BlockCardReason.CardLost;
+      case BlockReason.BR_CARD_INACTIVE:
+        return BlockCardReason.CardInactive;
+      case BlockReason.BR_CARD_REPLACED:
+        return BlockCardReason.CardReplaced;
+    }
   }
 
   async block(request: CardBlockDto) {
     const card = await this.getCardOrFail(request.card_id, true);
-    if (card.status === 'active') {
-      throw new ConflictException('You can block only active cards!');
+    if (card.status !== 'active') {
+      throw new ConflictException('Only "active" cards can be blocked');
     }
-    await this.api.cardBlock(card.reference, { reason: request.reason });
+    await this.api.cardBlock(card.reference, { reason: this.mapGrpcToApiReason(request.reason) });
     await this.cardRepo.update(card.reference, { status: 'blocked' });
   }
 
@@ -188,7 +229,7 @@ export class InswitchCardsService {
   async activate(request: CardIdDto) {
     const card = await this.getCardOrFail(request, true);
     if (card.status !== 'assigned') {
-      throw new ConflictException('Card is not assigned yet or already activated!');
+      throw new ConflictException('Only "assigned" cards can be activated');
     }
     await this.api.activateCard(card.reference);
     await this.cardRepo.update(card.reference, { status: 'active' });
@@ -197,7 +238,7 @@ export class InswitchCardsService {
   async deactivate(request: CardIdDto) {
     const card = await this.getCardOrFail(request, true);
     if (card.status !== 'active') {
-      throw new ConflictException('You can deactivate only active cards!');
+      throw new ConflictException('Only "active" cards can be deativated!');
     }
     await this.api.deactivateCard(card.reference);
     await this.cardRepo.update(card.reference, { status: 'cancelled' });
