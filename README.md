@@ -85,3 +85,21 @@ You'll be able to find them in `common/grpc/interfaces`.
     * GET /cards
     
         List all your issued cards
+
+5. Reset password flow:
+
+    Used for users that can't access their account
+
+    * POST /auth/reset_password/start
+    * POST /auth/reset_password/verify
+        (on local version get code from logs of auth service)
+    * POST /auth/reset_password/finish
+
+6. Change password flow:
+
+    Used by authorized user to change password for future logins
+
+    * POST /auth/change_password/start
+    * POST /auth/change_password/verify
+        (on local version get code from logs of auth service)
+    * POST /auth/change_password/finish
