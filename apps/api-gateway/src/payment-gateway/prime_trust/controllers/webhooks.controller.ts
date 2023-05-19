@@ -23,7 +23,7 @@ export class WebhooksController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
   @Post('/prime_trust')
   async primeTrustHandler(@Body() payload: PrimeTrustWebhookType) {
-    this.logger.log(payload.resource_id);
+    this.logger.log(payload);
 
     return this.paymentGatewayService.primeTrustHandler(payload);
   }
