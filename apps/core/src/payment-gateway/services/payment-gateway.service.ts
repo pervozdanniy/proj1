@@ -11,6 +11,7 @@ import {
   PG_Token,
   SearchTransactionRequest,
   TransferFundsRequest,
+  UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { VeriffHookRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
@@ -83,6 +84,12 @@ export class PaymentGatewayService {
   }
   makeDeposit(request: MakeDepositRequest) {
     return this.primeTrustService.makeDeposit(request);
+  }
+
+  async getBankAccounts(request: UserIdRequest) {
+    const userDetails = await this.userService.getUserInfo(request.id);
+
+    return this.primeTrustService.getBankAccounts(request.id, userDetails.country_code);
   }
 
   getUserAccountStatus(request: IdRequest) {
