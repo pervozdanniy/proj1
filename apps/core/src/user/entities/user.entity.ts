@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
@@ -72,8 +73,19 @@ export class UserEntity {
   })
   contacts?: UserEntity[];
 
-  @OneToMany(() => VeriffDocumentEntity, (document) => document.user)
+  @OneToMany(() => VeriffDocumentEntity, (document) => document.user, {
+    createForeignKeyConstraints: false,
+    eager: false,
+    persistence: false,
+  })
+  @JoinColumn({ name: 'id', referencedColumnName: 'user_id' })
   documents?: VeriffDocumentEntity[];
 
+  @OneToOne(() => VeriffDocumentEntity, (document) => document.user, {
+    createForeignKeyConstraints: false,
+    eager: false,
+    persistence: false,
+  })
+  @JoinColumn({ name: 'id', referencedColumnName: 'user_id' })
   kyc?: VeriffDocumentEntity;
 }

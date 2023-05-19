@@ -1,19 +1,11 @@
-import {
-  Body,
-  ClassSerializerInterceptor,
-  Controller,
-  HttpStatus,
-  Logger,
-  Post,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, HttpStatus, Logger, Post, Req } from '@nestjs/common';
 import { ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { FacilitaWebhookType, KoyweWebhookType, LiquidoWebhookType, PrimeTrustWebhookType } from '../webhooks/data';
 
 @ApiTags('Webhooks')
 @ApiExcludeController()
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
   path: 'webhook',
@@ -23,9 +15,7 @@ export class WebhooksController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
   @Post('/prime_trust')
   async primeTrustHandler(@Body() payload: PrimeTrustWebhookType) {
-    if (payload.resource_type === 'contingent_holds') {
-      this.logger.log(payload.resource_id);
-    }
+    this.logger.log(payload);
 
     return this.paymentGatewayService.primeTrustHandler(payload);
   }
@@ -56,5 +46,10 @@ export class WebhooksController {
   @Post('/link')
   async linkHandler(@Body() payload: any) {
     this.logger.log(payload);
+  }
+
+  @Post('inswitch')
+  async inswitchHandler(@Req() req: Request) {
+    this.logger.debug('INSWITCH', req.body, req.headers);
   }
 }

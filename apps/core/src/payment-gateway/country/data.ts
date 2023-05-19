@@ -7,11 +7,21 @@ export const countriesData: CountryData = {
   BR: { code: 'BRA', currency_type: 'BRL', dial_code: '+55' },
   AR: { code: 'ARG', currency_type: 'ARS', dial_code: '+54' },
 };
+export type CurrencyCode = string;
+
+export const currenciesData: CurrencyCode[] = ['CLP', 'MXN', 'COP', 'PEN', 'BRL', 'ARS'];
 
 export type CountryData = {
   [code: string]: {
     code: string;
     currency_type: string;
     dial_code: string;
+  };
+};
+
+export type ConvertedRates = {
+  [currency: string]: {
+    amount: string;
+    rate: number;
   };
 };

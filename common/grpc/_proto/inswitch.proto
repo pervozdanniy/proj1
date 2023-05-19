@@ -1,20 +1,34 @@
 syntax = "proto3";
 
-package skopa.core.inswitch;
+package skopa.core;
+
+import "google/protobuf/empty.proto";
 
 service CardsService {
-    rpc GetCards (UserIdRequest) returns (CardsList);
+    rpc List (UserId) returns (CardsList);
   
-    rpc CreateCard (CreateCardRequest) returns (Card);
+    rpc Issue (IssueCardRequest) returns (Card);
   
-    rpc GetExpandedInfo (CardDetailsRequest) returns (ExpandedCardInfo);
+    rpc Details (CardId) returns (CardDetails);
+
+    rpc SetPin (SetPinRequest) returns (google.protobuf.Empty);
+
+    rpc RegenerateCvv (CardId) returns (RegenerateCvvResponse);
+
+    rpc Activate (CardId) returns (google.protobuf.Empty);
+
+    rpc Deactivate (CardId) returns (google.protobuf.Empty);
+
+    rpc Block (BlockCardRequest) returns (google.protobuf.Empty);
+
+    rpc Unblock (CardId) returns (google.protobuf.Empty);
 }
 
-message UserIdRequest {
+message UserId {
     uint32 user_id = 1;
 }
 
-message CardDetailsRequest {
+message CardId {
     string reference = 1;
     uint32 user_id = 2;
 }
@@ -23,7 +37,8 @@ message Card {
     string reference = 1;
     bool is_virtual = 2;
     string currency = 3;
-    string pan = 4;
+    string status = 4;
+    optional string pan = 5;
 }
 
 message CardsList {
@@ -35,8 +50,40 @@ message ExpandedCardInfo {
     string pan = 2;
 }
 
-message CreateCardRequest {
+message CardDetails {
+    string reference = 1;
+    string status = 2;
+    string issue_date = 3;
+    string type = 4;
+    string brand = 5;
+    string currency = 6;
+    optional ExpandedCardInfo expanded = 7;
+}
+
+message IssueCardRequest {
     uint32 user_id = 1;
     bool is_virtual = 2;
     optional string pin = 3;
+}
+
+message SetPinRequest {
+    CardId card_id = 1;
+    string pin = 2;
+}
+
+message RegenerateCvvResponse {
+    string cvv = 1;
+}
+
+enum BlockReason {
+    BR_UNSPECIFIED = 0;
+    BR_CARD_LOST = 1;
+    BR_CARD_STOLEN = 2;
+    BR_CARD_INACTIVE = 5;
+    BR_CARD_REPLACED = 8;
+  }
+
+message BlockCardRequest {
+    CardId card_id = 1;
+    BlockReason reason = 2;
 }

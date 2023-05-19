@@ -22,8 +22,8 @@ import { PrimeTrustService } from './prime_trust/prime-trust.service';
 @Injectable()
 export class PaymentGatewayService {
   constructor(
-    private userService: UserService,
-    private primeTrustService: PrimeTrustService,
+    private readonly userService: UserService,
+    private readonly primeTrustService: PrimeTrustService,
     private readonly currencyService: CurrencyService,
   ) {}
 
@@ -47,17 +47,13 @@ export class PaymentGatewayService {
     const resp: BalanceResponse = { ...balance, conversions: [] };
 
     if (currencies.length) {
-      const conversions = await this.currencyService.convert(
-        parseFloat(balance.settled),
-        balance.currency_type,
-        ...currencies,
-      );
+      const conversions = await this.currencyService.convert(parseFloat(balance.settled), currencies);
       for (const curr in conversions) {
         if (Object.prototype.hasOwnProperty.call(conversions, curr)) {
           resp.conversions.push({
             currency: curr,
-            amount: conversions[curr]['amount'].toFixed(2),
-            rate: conversions[curr]['rate'],
+            amount: conversions[curr]['amount'],
+            rate: conversions[curr]['rate'].toString(),
           });
         }
       }
@@ -86,7 +82,6 @@ export class PaymentGatewayService {
   getTransactions(request: SearchTransactionRequest) {
     return this.primeTrustService.getTransactions(request);
   }
-
   makeDeposit(request: MakeDepositRequest) {
     return this.primeTrustService.makeDeposit(request);
   }
@@ -114,7 +109,7 @@ export class PaymentGatewayService {
       if (Object.prototype.hasOwnProperty.call(rates, curr)) {
         resp.conversions.push({
           currency: curr,
-          rate: rates[curr],
+          rate: rates.get(curr).toString(),
         });
       }
     }

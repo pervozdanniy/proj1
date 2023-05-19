@@ -7,16 +7,7 @@ import {
   ExchangeResponseDto,
   TransactionResponseDto,
 } from '@/payment-gateway/prime_trust/utils/prime-trust-response.dto';
-import {
-  Body,
-  ClassSerializerInterceptor,
-  Controller,
-  Get,
-  HttpStatus,
-  Post,
-  Query,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { BalanceRequestDto } from '../dtos/main/balance.dto';
@@ -25,7 +16,6 @@ import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
 
 @ApiTags('Payment Gateway')
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
   path: 'payment_gateway',
@@ -55,6 +45,18 @@ export class MainController {
   @Post('/exchange')
   async exchange(@Body() payload: ExchangeDto) {
     return this.paymentGatewayService.exchange(payload);
+  }
+
+  @ApiOperation({ summary: 'Get Bank Accounts.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: BankAccountResponseDto,
+  })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Get('/banks/account')
+  async getBankAccounts(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getBankAccounts({ id });
   }
 
   @ApiOperation({ summary: 'Get Banks information from user country.' })

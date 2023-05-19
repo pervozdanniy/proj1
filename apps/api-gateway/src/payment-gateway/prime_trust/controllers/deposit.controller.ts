@@ -6,17 +6,7 @@ import {
   SuccessResponseDto,
   TransferInfoDto,
 } from '@/payment-gateway/prime_trust/utils/prime-trust-response.dto';
-import {
-  Body,
-  ClassSerializerInterceptor,
-  Controller,
-  Get,
-  HttpStatus,
-  Post,
-  Query,
-  Render,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Query, Render } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { CreditCardTokenDto } from '../dtos/deposit/credit-card-token.dto';
@@ -30,7 +20,6 @@ import { VerifyCardDto } from '../dtos/deposit/verify-card.dto';
 import { DepositService } from '../services/deposit.service';
 
 @ApiTags('Deposit Funds')
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
   path: 'deposit',
