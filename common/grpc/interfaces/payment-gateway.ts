@@ -413,6 +413,8 @@ export interface PaymentGatewayServiceClient {
 
   /** banks */
 
+  getBankAccounts(request: UserIdRequest, ...rest: any): Observable<BankAccountsResponse>;
+
   getBanksInfo(request: UserIdRequest, ...rest: any): Observable<BanksInfoResponse>;
 
   addBankAccountParams(request: BankAccountParams, ...rest: any): Observable<BankAccountParams>;
@@ -502,6 +504,11 @@ export interface PaymentGatewayServiceController {
 
   /** banks */
 
+  getBankAccounts(
+    request: UserIdRequest,
+    ...rest: any
+  ): Promise<BankAccountsResponse> | Observable<BankAccountsResponse> | BankAccountsResponse;
+
   getBanksInfo(
     request: UserIdRequest,
     ...rest: any
@@ -575,6 +582,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "getUserAccountStatus",
       "transferToHotWallet",
       "getTransactions",
+      "getBankAccounts",
       "getBanksInfo",
       "addBankAccountParams",
       "createCreditCardResource",

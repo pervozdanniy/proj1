@@ -5,6 +5,7 @@ import {
   BalanceRequest,
   BalanceResponse,
   BankAccountParams,
+  BankAccountsResponse,
   BanksInfoResponse,
   ContactResponse,
   CreditCardResourceResponse,
@@ -63,6 +64,10 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
 
   transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
     return this.paymentGatewayService.transferFunds(request);
+  }
+
+  getBankAccounts(request: UserIdRequest): Promise<BankAccountsResponse> {
+    return this.paymentGatewayService.getBankAccounts(request);
   }
 
   addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
