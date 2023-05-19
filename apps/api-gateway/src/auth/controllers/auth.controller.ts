@@ -65,10 +65,11 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'User account close' })
   @JwtSessionAuth()
-  @ApiResponse({
+  @ApiOkResponse({
     description: 'Account closed successfully.',
     type: PublicUserDto,
   })
+  @HttpCode(HttpStatus.OK)
   @Post('account/close')
   closeAccount(@JwtSessionId() sessionId: string) {
     return this.authService.closeAccount(sessionId);
@@ -77,16 +78,17 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'User account open' })
   @JwtSessionAuth()
-  @ApiResponse({
+  @ApiOkResponse({
     description: 'Account opened successfully.',
     type: PublicUserDto,
   })
+  @HttpCode(HttpStatus.OK)
   @Post('account/open')
   openAccount(@Body() { user_id }: OpenAccountRequestDto) {
     return this.authService.openAccount({ id: user_id });
   }
 
-  @ApiOperation({ summary: 'User account open' })
+  @ApiOperation({ summary: 'Refresh tokens via refresh_token' })
   @ApiOkResponse({
     description: 'New access and refresh token pair',
     type: AuthResponseDto,

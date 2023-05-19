@@ -6,10 +6,10 @@ import { asyncClientOptions } from '~common/grpc/helpers';
 import { JwtSessionMiddleware } from '~common/http-session';
 import { CardsController } from './controllers/cards.controller';
 import { DepositController } from './controllers/deposit.controller';
+import { KYCController } from './controllers/kyc.controller';
 import { MainController } from './controllers/main.controller';
 import { SandboxGatewayController } from './controllers/sandbox-gateway.controller';
 import { TransferController } from './controllers/transfer.controller';
-import { VeriffController } from './controllers/veriff.controller';
 import { WebhooksController } from './controllers/webhooks.controller';
 import { WithdrawalController } from './controllers/withdrawal.controller';
 import { CardsService } from './services/cards.service';
@@ -21,7 +21,7 @@ import { SandboxService } from './services/sandbox.service';
   imports: [HttpModule, AuthModule, ClientsModule.registerAsync([asyncClientOptions('core')])],
   controllers: [
     MainController,
-    VeriffController,
+    KYCController,
     DepositController,
     TransferController,
     WithdrawalController,
@@ -37,7 +37,7 @@ export class PrimeTrustModule implements NestModule {
       .apply(JwtSessionMiddleware)
       .forRoutes(
         MainController,
-        VeriffController,
+        KYCController,
         DepositController,
         TransferController,
         WithdrawalController,

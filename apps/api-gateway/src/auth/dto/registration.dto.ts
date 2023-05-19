@@ -24,7 +24,7 @@ export class RegistrationStartRequestDto {
 
   @ApiProperty({ example: '+37495017680' })
   @IsNotEmpty()
-  // @IsPhoneNumber()
+  @IsPhoneNumber()
   phone: string;
 
   @ApiProperty({ example: '12345678' })
@@ -57,7 +57,7 @@ export class ChangeAgreementStatusDto implements ApproveAgreementRequest {
 }
 
 export class RegistrationFinishRequestDto implements RegisterFinishRequest {
-  @ApiPropertyOptional({ type: 'string', isArray: true })
+  @ApiPropertyOptional({ type: 'string', isArray: true, example: '+37495017680' })
   @IsOptional()
   @IsArray()
   @IsPhoneNumber(undefined, { each: true })

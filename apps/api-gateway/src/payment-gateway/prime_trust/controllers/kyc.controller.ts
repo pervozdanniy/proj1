@@ -12,7 +12,7 @@ import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
   version: '1',
   path: 'kyc',
 })
-export class VeriffController {
+export class KYCController {
   constructor(private paymentGatewayService: PaymentGatewayService) {}
 
   @Post('/link')
