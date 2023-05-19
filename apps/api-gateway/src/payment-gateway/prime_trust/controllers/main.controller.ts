@@ -64,7 +64,7 @@ export class MainController {
   })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Get('/bank/account')
+  @Get('/banks/account')
   async getBankAccounts(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getBankAccounts({ id });
   }
