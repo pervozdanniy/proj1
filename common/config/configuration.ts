@@ -76,6 +76,11 @@ export interface ConfigInterface {
     apiKey: string;
     username: string;
     password: string;
+    withdrawWallet: string;
+    cards: {
+      virtualCardProductId?: string;
+      physicalCardProductId?: string;
+    };
   };
   liquido: {
     client_id: string;
@@ -247,6 +252,11 @@ export default (): ConfigInterface => ({
     apiKey: process.env.INSWITCH_API_KEY,
     username: process.env.INSWITCH_USERNAME,
     password: process.env.INSWITCH_PASSWORD,
+    withdrawWallet: process.env.INSWITCH_WITDRAW_WALLET,
+    cards: {
+      virtualCardProductId: process.env.INSWITCH_VIRTUAL_CARD_PRODUCT_ID,
+      physicalCardProductId: process.env.INSWITCH_PHYSICAL_CARD_PRODUCT_ID,
+    },
   },
   link: {
     merchant_id: process.env.LINK_MERCHANT_ID,

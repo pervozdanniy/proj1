@@ -1,6 +1,6 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/auth';
 import { PaymentGatewayService } from '@/payment-gateway/prime_trust/services/payment-gateway.service';
-import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
@@ -8,7 +8,6 @@ import { VeriffSessionResponseDto } from '../dtos/veriff/veriff-session-response
 import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
 
 @ApiTags('KYC')
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
   path: 'kyc',

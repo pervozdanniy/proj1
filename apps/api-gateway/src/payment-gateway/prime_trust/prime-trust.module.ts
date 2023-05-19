@@ -4,6 +4,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { JwtSessionMiddleware } from '~common/http-session';
+import { CardsController } from './controllers/cards.controller';
 import { DepositController } from './controllers/deposit.controller';
 import { MainController } from './controllers/main.controller';
 import { SandboxGatewayController } from './controllers/sandbox-gateway.controller';
@@ -11,6 +12,7 @@ import { TransferController } from './controllers/transfer.controller';
 import { VeriffController } from './controllers/veriff.controller';
 import { WebhooksController } from './controllers/webhooks.controller';
 import { WithdrawalController } from './controllers/withdrawal.controller';
+import { CardsService } from './services/cards.service';
 import { DepositService } from './services/deposit.service';
 import { PaymentGatewayService } from './services/payment-gateway.service';
 import { SandboxService } from './services/sandbox.service';
@@ -25,8 +27,9 @@ import { SandboxService } from './services/sandbox.service';
     WithdrawalController,
     SandboxGatewayController,
     WebhooksController,
+    CardsController,
   ],
-  providers: [PaymentGatewayService, SandboxService, DepositService],
+  providers: [PaymentGatewayService, SandboxService, DepositService, CardsService],
 })
 export class PrimeTrustModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
@@ -39,6 +42,7 @@ export class PrimeTrustModule implements NestModule {
         TransferController,
         WithdrawalController,
         SandboxGatewayController,
+        CardsController,
       );
   }
 }

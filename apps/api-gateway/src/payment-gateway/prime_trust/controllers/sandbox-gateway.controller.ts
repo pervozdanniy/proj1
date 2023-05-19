@@ -1,5 +1,5 @@
 import { SandboxService } from '@/payment-gateway/prime_trust/services/sandbox.service';
-import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Patch, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtSessionAuth } from '~common/http-session';
 import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
@@ -8,7 +8,6 @@ import { WebhookUrlDto } from '../dtos/sandbox/webhook-url.dto';
 @ApiTags('Prime Trust/Sandbox')
 @ApiBearerAuth()
 @ApiExcludeController()
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller({
   version: '1',
   path: 'sandbox',
