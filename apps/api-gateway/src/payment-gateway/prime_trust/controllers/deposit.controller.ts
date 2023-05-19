@@ -72,7 +72,7 @@ export class DepositController {
   @ApiCreatedResponse({ type: BankTransferInfoDto })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Post('/pay-with-bank')
+  @Post('/pay_with_bank')
   payWithBank(@Body() payload: PayWithBankRequestDto, @JwtSessionUser() { id }: User): Promise<BankTransferInfoDto> {
     return this.depositService.payWithBank(payload, id);
   }

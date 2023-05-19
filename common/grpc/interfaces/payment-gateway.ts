@@ -139,13 +139,6 @@ export interface BankInfo {
   transferCode: string;
 }
 
-export interface CreateReferenceRequest {
-  id: number;
-  amount: string;
-  currency_type: string;
-  type: string;
-}
-
 export interface SearchTransactionRequest {
   user_id: number;
   search_after: number;
@@ -374,14 +367,6 @@ export interface AccountIdRequest {
 export interface UserIdRequest {
   id: number;
   resource_id?: number | undefined;
-}
-
-export interface PG_Token {
-  data: Token_Data | undefined;
-}
-
-export interface Token_Data {
-  token: string;
 }
 
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";

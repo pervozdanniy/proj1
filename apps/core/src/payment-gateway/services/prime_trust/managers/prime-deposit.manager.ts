@@ -19,7 +19,6 @@ import { Providers } from '~common/enum/providers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
-  CreateReferenceRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositParamRequest,
@@ -31,7 +30,7 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
-import { MakeDepositRequest } from '../../../interfaces/payment-gateway.interface';
+import { CreateReferenceRequest, MakeDepositRequest } from '../../../interfaces/payment-gateway.interface';
 import { CardResourceType } from '../../../types/prime-trust';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeBankAccountManager } from './prime-bank-account.manager';

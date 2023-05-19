@@ -10,11 +10,12 @@ import { Repository } from 'typeorm';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
-import { CreateReferenceRequest, DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
+import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
 import { TransfersEntity } from '../../../entities/transfers.entity';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
+import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { CurrencyService } from '../../currency.service';
 import { LiquidoTokenManager } from './liquido-token.manager';
 

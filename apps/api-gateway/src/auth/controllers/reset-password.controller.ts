@@ -21,7 +21,7 @@ import { ResetPasswordService } from '../services/reset-password.service';
 export class ResetPasswordController {
   constructor(private readonly resetService: ResetPasswordService) {}
 
-  @ApiOperation({ summary: 'Check if user is unique and start session' })
+  @ApiOperation({ summary: 'Specify user to reset password' })
   @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')

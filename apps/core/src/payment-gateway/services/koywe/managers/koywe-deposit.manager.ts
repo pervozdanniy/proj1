@@ -12,15 +12,12 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
-import {
-  BankCredentialsData,
-  CreateReferenceRequest,
-  DepositRedirectData,
-} from '~common/grpc/interfaces/payment-gateway';
+import { BankCredentialsData, DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
+import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { KoyweMainManager, KoywePaymentMethod } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
 
