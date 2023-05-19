@@ -47,6 +47,18 @@ export class MainController {
     return this.paymentGatewayService.exchange(payload);
   }
 
+  @ApiOperation({ summary: 'Get Bank Accounts.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: BankAccountResponseDto,
+  })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Get('/banks/account')
+  async getBankAccounts(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getBankAccounts({ id });
+  }
+
   @ApiOperation({ summary: 'Get Banks information from user country.' })
   @ApiResponse({
     status: HttpStatus.OK,

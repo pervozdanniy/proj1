@@ -126,6 +126,9 @@ export interface ConfigInterface {
     type: string;
     short: string;
   };
+  api_layer: {
+    key: string;
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -259,5 +262,8 @@ export default (): ConfigInterface => ({
     merchant_id: process.env.LINK_MERCHANT_ID,
     client_id: process.env.LINK_CLIENT_ID,
     secret_key: process.env.LINK_SECRET_KEY,
+  },
+  api_layer: {
+    key: process.env.API_LAYER_KEY,
   },
 });

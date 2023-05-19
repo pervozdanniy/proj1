@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -9,7 +9,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { Request } from 'express';
+//import { Request } from 'express';
 import {
   AgreementResponseDto,
   SuccessResponseDto,
@@ -46,8 +46,8 @@ export class RegistrationController {
   @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')
-  async start(@Body() payload: RegistrationStartRequestDto, @Req() request: Request) {
-    await this.ipqualityScoreService.checkUserData(payload, request);
+  async start(@Body() payload: RegistrationStartRequestDto) {
+    await this.ipqualityScoreService.checkUserData(payload);
 
     return this.registerService.start(payload);
   }

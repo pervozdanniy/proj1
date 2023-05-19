@@ -27,6 +27,7 @@ service PaymentGatewayService {
   rpc GetTransactions (SearchTransactionRequest) returns (TransactionResponse);
 
   //banks
+  rpc GetBankAccounts (UserIdRequest) returns (BankAccountsResponse);
   rpc GetBanksInfo (UserIdRequest) returns (BanksInfoResponse);
   rpc AddBankAccountParams (BankAccountParams) returns (BankAccountParams);
 

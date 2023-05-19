@@ -113,4 +113,8 @@ export class PaymentGatewayService implements OnModuleInit {
       }),
     );
   }
+
+  getBankAccounts(data: UserIdRequest) {
+    return lastValueFrom(this.paymentGatewayServiceClient.getBankAccounts(data));
+  }
 }

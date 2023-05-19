@@ -135,31 +135,35 @@ export class PrimeBalanceManager {
           method: 'get',
           url: `${this.prime_trust_url}/v2/contingent-holds/${resource_id}?include=funds-transfer,asset-transfer`,
         });
-
-        if (contingentHoldsResponse.data.included[0].type === 'asset-transfers') {
-          await this.httpService.request({
-            method: 'post',
-            url: `${this.prime_trust_url}/v2/asset-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
-            data: null,
-          });
-        } else {
-          if (
-            contingentHoldsResponse.data.data.attributes['hold-type'] === 'disbursement_authorization' &&
-            contingentHoldsResponse.data.data.attributes['status'] === 'cleared'
-          ) {
-            const accountData = await this.httpService.request({
-              method: 'get',
-              url: `${this.prime_trust_url}/v2/accounts/${account_id}?include=funds-transfers`,
+        if (
+          contingentHoldsResponse.data.data.attributes['hold-type'] === 'disbursement_authorization' &&
+          contingentHoldsResponse.data.data.attributes['status'] === 'cleared'
+        ) {
+          if (contingentHoldsResponse.data.included[0].type === 'asset-transfers') {
+            await this.httpService.request({
+              method: 'post',
+              url: `${this.prime_trust_url}/v2/asset-transfers/${contingentHoldsResponse.data.included[0].id}/sandbox/settle`,
+              data: null,
             });
-            accountData.data.included.map(async (f: { id: string; attributes: { status: string } }) => {
-              if (f.attributes.status === 'pending') {
-                await this.httpService.request({
-                  method: 'post',
-                  url: `${this.prime_trust_url}/v2/funds-transfers/${f.id}/sandbox/settle`,
-                  data: null,
-                });
-              }
-            });
+          } else {
+            if (
+              contingentHoldsResponse.data.data.attributes['hold-type'] === 'disbursement_authorization' &&
+              contingentHoldsResponse.data.data.attributes['status'] === 'cleared'
+            ) {
+              const accountData = await this.httpService.request({
+                method: 'get',
+                url: `${this.prime_trust_url}/v2/accounts/${account_id}?include=funds-transfers`,
+              });
+              accountData.data.included.map(async (f: { id: string; attributes: { status: string } }) => {
+                if (f.attributes.status === 'pending') {
+                  await this.httpService.request({
+                    method: 'post',
+                    url: `${this.prime_trust_url}/v2/funds-transfers/${f.id}/sandbox/settle`,
+                    data: null,
+                  });
+                }
+              });
+            }
           }
         }
       } catch (e) {
