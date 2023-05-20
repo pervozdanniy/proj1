@@ -7,7 +7,7 @@ import {
   KoyweWebhookType,
   LinkWebhookType,
   LiquidoWebhookType,
-  PrimeTrustWebhookType
+  PrimeTrustWebhookType,
 } from '../webhooks/data';
 
 @ApiTags('Webhooks')

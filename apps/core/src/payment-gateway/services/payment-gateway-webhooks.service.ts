@@ -2,7 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   FacilitaWebhookRequest,
-  KoyweWebhookRequest, LinkWebhookRequest,
+  KoyweWebhookRequest,
+  LinkWebhookRequest,
   LiquidoWebhookRequest,
   PrimeWebhookRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -10,8 +11,8 @@ import { webhookData } from '../types/prime-trust';
 import { FacilitaService } from './facilita/facilita.service';
 import { KoyweService } from './koywe/koywe.service';
 import { LiquidoService } from './liquido/liquido.service';
+import { PrimeLinkManager } from './prime_trust/managers/prime-link-manager';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
-import {PrimeLinkManager} from "./prime_trust/managers/prime-link-manager";
 
 @Injectable()
 export class PaymentGatewayWebhooksService {
@@ -39,7 +40,6 @@ export class PaymentGatewayWebhooksService {
   linkWebhookHandler(request: LinkWebhookRequest) {
     return this.primeLinkManager.linkWebhookHandler(request);
   }
-
 
   async primeWebhooksHandler(payload: PrimeWebhookRequest): Promise<SuccessResponse> {
     const {
