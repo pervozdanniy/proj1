@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {
-  BankAccountParams,
-  CreateReferenceRequest,
-  KoyweWebhookRequest,
-  TransferMethodRequest,
-} from '~common/grpc/interfaces/payment-gateway';
+import { BankAccountParams, KoyweWebhookRequest, TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
+import { CreateReferenceRequest } from '../../interfaces/payment-gateway.interface';
 import { KoyweBankAccountManager } from './managers/koywe-bank-account.manager';
 import { KoyweDepositManager, KoyweReferenceParams } from './managers/koywe-deposit.manager';
 import { KoyweWebhookManager } from './managers/koywe-webhook.manager';

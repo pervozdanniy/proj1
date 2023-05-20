@@ -8,14 +8,12 @@ import {
   BalanceResponse,
   ExchangeRequest,
   ExchangeResponse,
-  PG_Token,
   SearchTransactionRequest,
   TransferFundsRequest,
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { VeriffHookRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
-import { MakeDepositRequest } from '../interfaces/payment-gateway.interface';
 import { CurrencyService } from './currency.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
@@ -27,12 +25,6 @@ export class PaymentGatewayService {
     private readonly currencyService: CurrencyService,
   ) {}
 
-  async getToken(): Promise<PG_Token> {
-    const token = await this.primeTrustService.getToken();
-
-    return { data: token };
-  }
-
   async createAccount(id: number): Promise<AccountResponse> {
     const userDetails = await this.userService.getUserInfo(id);
 
@@ -42,6 +34,7 @@ export class PaymentGatewayService {
   createAgreement(request: AgreementRequest): Promise<UserAgreement> {
     return this.primeTrustService.createAgreement(request);
   }
+
   async getBalance({ user_id, currencies }: BalanceRequest): Promise<BalanceResponse> {
     const balance = await this.primeTrustService.getBalance(user_id);
     const resp: BalanceResponse = { ...balance, conversions: [] };
@@ -79,11 +72,9 @@ export class PaymentGatewayService {
   getContact(id: number) {
     return this.primeTrustService.getContact(id);
   }
+
   getTransactions(request: SearchTransactionRequest) {
     return this.primeTrustService.getTransactions(request);
-  }
-  makeDeposit(request: MakeDepositRequest) {
-    return this.primeTrustService.makeDeposit(request);
   }
 
   async getBankAccounts(request: UserIdRequest) {

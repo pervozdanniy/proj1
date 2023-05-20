@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import {
   BankAccountParams,
   BanksInfoResponse,
-  CreateReferenceRequest,
   DepositRedirectData,
   TransferInfo,
   TransferMethodRequest,
@@ -10,6 +9,7 @@ import {
 import {
   BankInterface,
   BankWithdrawalInterface,
+  CreateReferenceRequest,
   PaymentGatewayInterface,
   PaymentMethod,
   RedirectDepositInterface,
@@ -23,20 +23,18 @@ export class ChilePaymentGateway
 {
   constructor(private primeTrustService: PrimeTrustService, private koyweService: KoyweService) {}
 
-  async createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData> {
-    const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
-    const { type } = request;
-    if (type === 'wire') {
-      return this.koyweService.createRedirectReference(request, {
-        wallet_address,
-        asset_transfer_method_id,
-        method: 'KHIPU',
-      });
-    }
-  }
-
   getAvailablePaymentMethods(): PaymentMethod[] {
     return ['bank-transfer'];
+  }
+
+  async createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData> {
+    const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
+
+    return this.koyweService.createRedirectReference(request, {
+      wallet_address,
+      asset_transfer_method_id,
+      method: 'KHIPU',
+    });
   }
 
   addBank(request: BankAccountParams): Promise<BankAccountParams> {

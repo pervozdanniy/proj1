@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
-import { LinkSessionResponse, LinkTransferData, Token_Data } from '~common/grpc/interfaces/payment-gateway';
+import { LinkSessionResponse, LinkTransferData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 
 @Injectable()
@@ -31,7 +31,7 @@ export class PrimeLinkManager {
     this.merchant_id = merchant_id;
   }
 
-  async getToken(): Promise<Token_Data> {
+  async getToken() {
     try {
       const headersRequest = {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -52,7 +52,7 @@ export class PrimeLinkManager {
 
       return { token: tokenResponse.data.access_token };
     } catch (e) {
-      throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
+      throw new GrpcException(Status.INTERNAL, e.response?.data.message ?? e.message, 400);
     }
   }
 

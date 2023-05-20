@@ -35,7 +35,7 @@ export class MainController {
     return this.paymentGatewayService.getBalance(id, query.currencies);
   }
 
-  @ApiOperation({ summary: 'Exchange course.' })
+  @ApiOperation({ summary: 'Exchange rate.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: ExchangeResponseDto,
@@ -102,16 +102,5 @@ export class MainController {
   @Get('/available_methods')
   async getAvailablePaymentMethods(@JwtSessionUser() { id }: User) {
     return this.paymentGatewayService.getAvailablePaymentMethods(id);
-  }
-
-  @ApiOperation({ summary: 'Transfer all accounts money to hot wallets.' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @Post('/hot_wallet')
-  async transferToHotWallet() {
-    return this.paymentGatewayService.transferToHotWallet();
   }
 }

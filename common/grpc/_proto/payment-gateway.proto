@@ -190,14 +190,6 @@ message BankInfo {
     string transferCode = 4;
 }
 
-message CreateReferenceRequest {
-  uint32 id = 1;
-  string amount = 2;
-  string currency_type = 3;
-  string type = 4;
-}
-
-
 message SearchTransactionRequest {
   uint32 user_id = 1;
   uint32 search_after = 2;
@@ -422,22 +414,12 @@ message JsonData {
   string data = 1;
 }
 
-
 message AccountIdRequest{
   string id = 1;
   optional string resource_id = 2;
 }
 
-
 message UserIdRequest{
   uint32 id = 1;
   optional uint32 resource_id = 2;
-}
-
-message PG_Token {
-  Token_Data data = 1;
-}
-
-message Token_Data {
-  string token = 1;
 }

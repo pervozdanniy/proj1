@@ -1,12 +1,7 @@
 import { UserService } from '@/user/services/user.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import {
-  BankAccountParams,
-  CreateReferenceRequest,
-  TransferMethodRequest,
-  UserIdRequest,
-} from '~common/grpc/interfaces/payment-gateway';
-import { hasBank, hasWireTransfer, hasWithdrawal, PaymentGatewayManager } from '../manager/payment-gateway.manager';
+import { BankAccountParams, TransferMethodRequest, UserIdRequest } from '~common/grpc/interfaces/payment-gateway';
+import { hasBank, hasWithdrawal, PaymentGatewayManager } from '../manager/payment-gateway.manager';
 
 @Injectable()
 export class MainService {
@@ -41,17 +36,6 @@ export class MainService {
 
     if (hasBank(paymentGateway)) {
       return paymentGateway.addBank(request);
-    }
-
-    throw new UnauthorizedException('This operation is not permitted in your country');
-  }
-
-  async createReference(request: CreateReferenceRequest) {
-    const userDetails = await this.userService.getUserInfo(request.id);
-    const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
-
-    if (hasWireTransfer(paymentGateway)) {
-      return paymentGateway.createReference(request);
     }
 
     throw new UnauthorizedException('This operation is not permitted in your country');

@@ -41,7 +41,7 @@ export class ChangeContactInfoController {
   //   return { verify };
   // }
 
-  @ApiOperation({ summary: 'Verify 2FA codes' })
+  @ApiOperation({ summary: 'Verify 2FA codes and accept email change' })
   @ApiBearerAuth()
   @ApiOkResponse({ type: TwoFactorSuccessResponseDto, description: '2FA completed' })
   @Post('verify')
