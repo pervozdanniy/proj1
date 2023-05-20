@@ -9,7 +9,9 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
+import { Providers } from '~common/enum/providers';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { AccountIdRequest, TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { NotificationService } from '../../../../notification/services/notification.service';
@@ -21,6 +23,7 @@ export class PrimeFundsTransferManager {
 
   constructor(
     config: ConfigService<ConfigInterface>,
+
     private readonly httpService: PrimeTrustHttpService,
     private readonly primeBalanceManager: PrimeBalanceManager,
 
@@ -208,5 +211,45 @@ export class PrimeFundsTransferManager {
     return {
       data: payload,
     };
+  }
+
+  async updateFundsTransfer({ resource_id, id: account_id }: AccountIdRequest): Promise<SuccessResponse> {
+    const transferFundsResponse = await this.httpService.request({
+      method: 'get',
+      url: `${this.prime_trust_url}/v2/funds-transfers/${resource_id}`,
+    });
+
+    const cashResponse = await this.httpService.request({
+      method: 'get',
+      url: `${this.prime_trust_url}/v2/accounts/${account_id}?include=account-cash-totals`,
+    });
+    if (
+      cashResponse.data.included[0].attributes.settled === transferFundsResponse.data.data.attributes.amount &&
+      transferFundsResponse.data.data.attributes.amount > 0
+    ) {
+      await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);
+
+      if (account_id === 'd4a538c0-97cb-4de4-b830-d07e4e834009') {
+        const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
+        const linkTransactions = await this.transferFundsEntityRepository.findBy({
+          provider: Providers.LINK,
+          status: 'initiated',
+        });
+
+        linkTransactions.map(async (l) => {
+          await this.transferFunds({
+            sender_id: sender.user_id,
+            receiver_id: l.user_id,
+            amount: l.amount,
+            currency_type: l.currency_type,
+          });
+          await this.transferFundsEntityRepository.update({ id: l.id }, { status: 'settled' });
+        });
+
+        await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);
+      }
+    }
+
+    return { success: true };
   }
 }

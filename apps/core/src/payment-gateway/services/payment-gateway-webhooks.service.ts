@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   FacilitaWebhookRequest,
-  KoyweWebhookRequest,
+  KoyweWebhookRequest, LinkWebhookRequest,
   LiquidoWebhookRequest,
   PrimeWebhookRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -10,6 +11,7 @@ import { FacilitaService } from './facilita/facilita.service';
 import { KoyweService } from './koywe/koywe.service';
 import { LiquidoService } from './liquido/liquido.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
+import {PrimeLinkManager} from "./prime_trust/managers/prime-link-manager";
 
 @Injectable()
 export class PaymentGatewayWebhooksService {
@@ -18,6 +20,7 @@ export class PaymentGatewayWebhooksService {
     private primeTrustService: PrimeTrustService,
     private koyweService: KoyweService,
     private facilitaService: FacilitaService,
+    private primeLinkManager: PrimeLinkManager,
     private liquidoService: LiquidoService,
   ) {}
 
@@ -33,7 +36,12 @@ export class PaymentGatewayWebhooksService {
     return this.liquidoService.liquidoWebhooksHandler(request);
   }
 
-  primeWebhooksHandler(payload: PrimeWebhookRequest) {
+  linkWebhookHandler(request: LinkWebhookRequest) {
+    return this.primeLinkManager.linkWebhookHandler(request);
+  }
+
+
+  async primeWebhooksHandler(payload: PrimeWebhookRequest): Promise<SuccessResponse> {
     const {
       resource_type,
       action,
@@ -74,6 +82,10 @@ export class PaymentGatewayWebhooksService {
     if (resource_type === 'contingent_holds' && action === 'update') {
       return this.primeTrustService.contingentHolds(sendData);
     }
+    if (resource_type === 'funds_transfers' && action === 'update') {
+      return this.primeTrustService.updateFundsTransfer(sendData);
+    }
+
     if (resource_type === 'disbursements' && action === 'update') {
       return this.primeTrustService.updateWithdraw(sendData);
     }
@@ -89,6 +101,8 @@ export class PaymentGatewayWebhooksService {
     const match = webhookData.find((e) => e === resource_type);
     if (!match) {
       this.logger.error(`Webhook ${resource_type} not found!`);
+    } else {
+      return { success: true };
     }
   }
 }

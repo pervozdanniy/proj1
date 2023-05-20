@@ -189,4 +189,8 @@ export class PrimeTrustService {
   veriffWebhookHandler(request: WebhookResponse) {
     return this.primeVeriffManager.veriffWebhookHandler(request);
   }
+
+  updateFundsTransfer(request: AccountIdRequest) {
+    return this.primeFundsTransferManager.updateFundsTransfer(request);
+  }
 }

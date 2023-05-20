@@ -4,4 +4,6 @@ export enum Providers {
   LIQUIDO = 'liquido',
   FACILITA = 'facilita',
   INSWITCH = 'inswith',
+
+  LINK='link'
 }

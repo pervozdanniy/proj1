@@ -12,6 +12,8 @@ export const webhookData: string[] = [
   'disbursement_authorizations',
   'funds_transfers',
   'asset_transfers',
+  'trades',
+  'facilitated_trades',
 ];
 
 export type BalanceAttributes = {

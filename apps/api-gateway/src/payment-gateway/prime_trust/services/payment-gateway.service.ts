@@ -14,7 +14,13 @@ import {
 import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
 import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
-import { FacilitaWebhookType, KoyweWebhookType, LiquidoWebhookType, PrimeTrustWebhookType } from '../webhooks/data';
+import {
+  FacilitaWebhookType,
+  KoyweWebhookType,
+  LinkWebhookType,
+  LiquidoWebhookType,
+  PrimeTrustWebhookType,
+} from '../webhooks/data';
 
 @Injectable()
 export class PaymentGatewayService implements OnModuleInit {
@@ -116,5 +122,9 @@ export class PaymentGatewayService implements OnModuleInit {
 
   getBankAccounts(data: UserIdRequest) {
     return lastValueFrom(this.paymentGatewayServiceClient.getBankAccounts(data));
+  }
+
+  linkHandler({ metadata: { resourceId, resourceType }, eventType }: LinkWebhookType) {
+    return lastValueFrom(this.paymentGatewayServiceClient.linkHandler({ resourceId, eventType, resourceType }));
   }
 }

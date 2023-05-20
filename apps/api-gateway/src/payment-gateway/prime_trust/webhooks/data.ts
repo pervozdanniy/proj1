@@ -41,3 +41,13 @@ export type LiquidoWebhookType = {
     documentId: string;
   };
 };
+
+export type LinkWebhookType = {
+  id: string;
+  creationTime: string;
+  eventType: string;
+  metadata: {
+    resourceId: string;
+    resourceType: string;
+  };
+};

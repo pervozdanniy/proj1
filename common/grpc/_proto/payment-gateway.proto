@@ -46,6 +46,13 @@ service PaymentGatewayService {
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
   rpc FacilitaWebhooksHandler (FacilitaWebhookRequest) returns (common.SuccessResponse);
   rpc LiquidoWebhooksHandler (LiquidoWebhookRequest) returns (common.SuccessResponse);
+  rpc LinkHandler(LinkWebhookRequest) returns (common.SuccessResponse);
+}
+
+message LinkWebhookRequest {
+    string resourceId = 1;
+    string resourceType = 2;
+    string eventType = 3;
 }
 
 message PrimeWebhookRequest {

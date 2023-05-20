@@ -226,6 +226,7 @@ export class PrimeWithdrawalManager {
   }
 
   async updateWithdraw(request: AccountIdRequest) {
+    console.log('withdraw');
     const { resource_id, id: account_id } = request;
     const withdrawData = await this.withdrawalEntityRepository
       .createQueryBuilder('w')

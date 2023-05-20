@@ -138,7 +138,7 @@ export class DepositFlow {
     }
 
     if (flow.resource_type === DepositResourceType.Bank && hasBankDeposit(paymentGateway)) {
-      await this.primeLinkManager.sendAmount(payload.customer.id, flow.amount, flow.currency);
+      await this.primeLinkManager.sendAmount(payload.user_id, payload.customer.id, flow.amount, flow.currency);
       await this.depositFlowRepo.delete(payload.id);
 
       return {
