@@ -54,15 +54,20 @@ export class CurrencyService implements OnApplicationBootstrap {
   }
 
   async updateRates() {
-    const rates: any = await this.ratesUsd(...currenciesData);
+    let rates: Record<string, number>;
+    try {
+      rates = await this.ratesUsd(...currenciesData);
+    } catch (error) {
+      this.logger.error('Rates update failed!', error);
+    }
     Object.keys(rates).forEach((key) => {
       this.ratesData.set(key, rates[key]);
     });
+    this.logger.debug('Rates updated!');
   }
 
   @Cron('0 0 */2 * * *')
   async handleCron() {
     await this.updateRates();
-    this.logger.log('Rates updated!');
   }
 }

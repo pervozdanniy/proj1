@@ -48,9 +48,11 @@ export class ContactResponseDto implements ContactResponse {
 }
 
 export class AgreementResponseDto implements UserAgreement {
+  @ApiProperty({ description: 'HTML page to be shown' })
   content: string;
+
+  @ApiProperty()
   id: string;
-  status: boolean | undefined;
 }
 
 export class AccountResponseDto implements AccountResponse {

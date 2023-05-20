@@ -27,7 +27,7 @@ import { DepositService } from '../services/deposit.service';
 export class DepositController {
   constructor(private paymentGatewayService: PaymentGatewayService, private readonly depositService: DepositService) {}
 
-  @ApiOperation({ summary: 'Create Credit Card Resource.' })
+  @ApiOperation({ summary: 'Initiate card creation widget.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: CreditCardResourceResponseDto,
@@ -39,7 +39,7 @@ export class DepositController {
     return this.paymentGatewayService.createCreditCardResource({ id });
   }
 
-  @ApiOperation({ summary: 'Create Credit Card Resource.' })
+  @ApiOperation({ summary: 'Render credit card creation widget.' })
   @ApiResponse({
     status: HttpStatus.OK,
   })
@@ -49,7 +49,7 @@ export class DepositController {
     return { token, resource_id };
   }
 
-  @ApiOperation({ summary: 'Verify Credit Card.' })
+  @ApiOperation({ summary: 'Verify created credit card.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: SuccessResponseDto,
@@ -72,7 +72,7 @@ export class DepositController {
   @ApiCreatedResponse({ type: BankTransferInfoDto })
   @ApiBearerAuth()
   @JwtSessionAuth()
-  @Post('/pay-with-bank')
+  @Post('/pay_with_bank')
   payWithBank(@Body() payload: PayWithBankRequestDto, @JwtSessionUser() { id }: User): Promise<BankTransferInfoDto> {
     return this.depositService.payWithBank(payload, id);
   }

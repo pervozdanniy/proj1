@@ -8,7 +8,6 @@ import {
   HttpCode,
   HttpStatus,
   MaxFileSizeValidator,
-  Param,
   ParseFilePipe,
   ParseIntPipe,
   Patch,
@@ -22,7 +21,6 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiResponse,
@@ -57,7 +55,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get latest user recepients' })
+  @ApiOperation({ summary: "Get latest user transfers' recepients" })
   @ApiOkResponse({ type: LatestRecepientsResponseDto })
   @JwtSessionAuth()
   @Get('latest_recepients')
@@ -69,23 +67,12 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get authorized user' })
-  @ApiResponse({ status: HttpStatus.OK, type: PublicUserDto })
+  @ApiOperation({ summary: 'Get authorized user info from db' })
+  @ApiResponse({ status: HttpStatus.OK, type: PublicUserWithContactsDto })
   @HttpCode(HttpStatus.OK)
   @JwtSessionAuth()
   @Get('current')
   async getCurrent(@JwtSessionUser() { id }: User) {
-    const user = await this.userService.getById(id);
-
-    return plainToInstance(PublicUserDto, user);
-  }
-
-  @ApiOperation({ summary: 'Get user by ID' })
-  @ApiResponse({ status: HttpStatus.OK, type: PublicUserWithContactsDto })
-  @ApiNotFoundResponse()
-  @HttpCode(HttpStatus.OK)
-  @Get(':id')
-  async get(@Param('id', ParseIntPipe) id: number) {
     const user = await this.userService.getById(id);
 
     return plainToInstance(PublicUserWithContactsDto, user);
@@ -93,7 +80,7 @@ export class UserController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user.' })
-  @ApiResponse({
+  @ApiOkResponse({
     description: 'The user updated successfully.',
     type: PublicUserDto,
   })
@@ -109,6 +96,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user avatar.' })
   @ApiConsumes('multipart/form-data')
+  @ApiOkResponse({ type: PublicUserDto })
   @UseInterceptors(FileInterceptor('avatar'))
   @JwtSessionAuth()
   @Put('/avatar')
@@ -142,7 +130,7 @@ export class UserController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Remove avatar.' })
-  @ApiResponse({
+  @ApiOkResponse({
     description: 'The user updated successfully.',
     type: PublicUserDto,
   })
@@ -155,9 +143,9 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update user`s contacts.' })
+  @ApiOperation({ summary: 'Update user`s contacts list.' })
   @ApiResponse({
-    description: 'The user`s contacts created successfully.',
+    description: 'The user`s contacts added successfully.',
     type: PublicUserDto,
   })
   @JwtSessionAuth()

@@ -3,7 +3,6 @@ import {
   BankAccountParams,
   BankCredentialsData,
   BanksInfoResponse,
-  CreateReferenceRequest,
   DepositRedirectData,
   TransferInfo,
   TransferMethodRequest,
@@ -11,6 +10,7 @@ import {
 import {
   BankInterface,
   BankWithdrawalInterface,
+  CreateReferenceRequest,
   PaymentGatewayInterface,
   PaymentMethod,
   RedirectDepositInterface,
@@ -51,7 +51,7 @@ export class MexicoPaymentGateway
     return this.liquidoService.createCashPayment(request);
   }
 
-  async createReference(request: CreateReferenceRequest): Promise<BankCredentialsData> {
+  async createWireReference(request: CreateReferenceRequest): Promise<BankCredentialsData> {
     const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
 
     return this.koyweService.createReference(request, { wallet_address, asset_transfer_method_id, method: 'WIREMX' });

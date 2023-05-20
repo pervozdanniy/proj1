@@ -42,7 +42,7 @@ export class TwoFactorController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Verify 2FA codes and login' })
+  @ApiOperation({ summary: 'Verify 2FA codes and login user' })
   @ApiOkResponse({ type: TwoFactorSuccessResponseDto })
   @HttpCode(HttpStatus.OK)
   @Post('verify')
@@ -51,11 +51,12 @@ export class TwoFactorController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify single 2FA code and login user if no more 2FA methods to verify left' })
   @ApiOkResponse({ type: TwoFactorSuccessResponseDto, description: '2FA completed' })
   @ApiResponse({
     status: HttpStatus.PRECONDITION_REQUIRED,
     type: TwoFactorRequiredResponseDto,
-    description: 'Current 2FA method succeeded, but 2FA is not completed yet',
+    description: 'Current 2FA method check succeeded, but there are more 2FA methods to verify',
   })
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
   @JwtSessionAuth({ allowUnverified: true })

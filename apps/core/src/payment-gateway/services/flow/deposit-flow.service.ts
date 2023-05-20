@@ -7,7 +7,9 @@ import { DepositFlowEntity, DepositResourceType } from '../../entities/flow/depo
 import { CardResourceEntity } from '../../entities/prime_trust/card-resource.entity';
 import { PaymentMethod } from '../../interfaces/payment-gateway.interface';
 import {
+  hasBank,
   hasBankDeposit,
+  hasCash,
   hasCreditCard,
   hasDeposit,
   hasRedirectDeposit,
@@ -24,7 +26,6 @@ export class DepositFlow {
     private primeLinkManager: PrimeLinkManager,
     @InjectRepository(DepositFlowEntity)
     private depositFlowRepo: Repository<DepositFlowEntity>,
-
     @InjectRepository(CardResourceEntity)
     private cardsRepo: Repository<CardResourceEntity>,
   ) {}
@@ -55,7 +56,7 @@ export class DepositFlow {
       };
     }
 
-    if (payload.type === 'bank-transfer') {
+    if (payload.type === 'bank-transfer' && hasBank(paymentGateway)) {
       if (hasBankDeposit(paymentGateway)) {
         const { identifiers } = await this.depositFlowRepo.insert({
           user_id: payload.user_id,
@@ -78,7 +79,6 @@ export class DepositFlow {
           id: userDetails.id,
           amount: payload.amount,
           currency_type: payload.currency,
-          type: 'wire',
         });
 
         return {
@@ -91,11 +91,10 @@ export class DepositFlow {
       }
 
       if (hasWireTransfer(paymentGateway)) {
-        const { bank, info } = await paymentGateway.createReference({
+        const { bank, info } = await paymentGateway.createWireReference({
           id: userDetails.id,
           amount: payload.amount,
           currency_type: payload.currency,
-          type: 'wire',
         });
 
         return {
@@ -108,13 +107,12 @@ export class DepositFlow {
       }
     }
 
-    if (payload.type === 'cash') {
+    if (payload.type === 'cash' && hasCash(paymentGateway)) {
       if (hasRedirectDeposit(paymentGateway)) {
         const redirect = await paymentGateway.createRedirectReference({
           id: userDetails.id,
           amount: payload.amount,
           currency_type: payload.currency,
-          type: 'cash',
         });
 
         return {
@@ -144,14 +142,13 @@ export class DepositFlow {
       return {
         amount: flow.amount,
         currency: flow.currency,
-        rate: '1',
         fee: '0',
       };
     }
 
     if (flow.resource_type === DepositResourceType.Card && hasCreditCard(paymentGateway)) {
       const card = await this.cardsRepo.findOneBy({ id: payload.card.id });
-      const depositData = await paymentGateway.makeDeposit({
+      const transferInfo = await paymentGateway.makeDeposit({
         id: flow.user_id,
         funds_transfer_method_id: card.transfer_method_id,
         amount: flow.amount,
@@ -159,7 +156,7 @@ export class DepositFlow {
       });
       await this.depositFlowRepo.delete(payload.id);
 
-      return depositData;
+      return transferInfo;
     }
 
     throw new UnauthorizedException('This operation is not permitted in your country');

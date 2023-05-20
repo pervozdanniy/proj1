@@ -26,7 +26,6 @@ export class BrazilPaymentGateway
     private primeTrustService: PrimeTrustService,
     private koyweService: KoyweService,
     private facilitaService: FacilitaService,
-
     private liquidoService: LiquidoService,
   ) {}
 

@@ -16,7 +16,12 @@ import { SendType } from '~common/constants/user';
 import { UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 
 export class UserContactsDto {
-  @ApiProperty({ type: String, isArray: true })
+  @ApiProperty({
+    type: String,
+    isArray: true,
+    example: '+380951234498',
+    description: 'Phone numbers in international format',
+  })
   @IsNotEmpty()
   @IsArray()
   @IsPhoneNumber(undefined, { each: true })
