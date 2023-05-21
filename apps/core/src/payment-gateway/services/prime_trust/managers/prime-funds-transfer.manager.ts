@@ -1,3 +1,4 @@
+import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
@@ -14,12 +15,12 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountIdRequest, TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
-import { NotificationService } from '../../../../notification/services/notification.service';
 
 @Injectable()
 export class PrimeFundsTransferManager {
   private readonly prime_trust_url: string;
   private readonly asset_id: string;
+  private link_account_id: string;
 
   constructor(
     config: ConfigService<ConfigInterface>,
@@ -35,10 +36,12 @@ export class PrimeFundsTransferManager {
     @InjectRepository(TransfersEntity)
     private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
   ) {
-    const { prime_trust_url } = config.get('app');
+    const { prime_trust_url } = config.get('app', { infer: true });
+    const { link_account_id } = config.get('prime_trust', { infer: true });
     const { id } = config.get('asset');
     this.asset_id = id;
     this.prime_trust_url = prime_trust_url;
+    this.link_account_id = link_account_id;
   }
 
   async convertUSDtoAsset(account_id: string, amount: string, cancel?: boolean): Promise<UsDtoAssetResponse> {
@@ -229,11 +232,11 @@ export class PrimeFundsTransferManager {
     ) {
       await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);
 
-      if (account_id === 'd4a538c0-97cb-4de4-b830-d07e4e834009') {
+      if (account_id === this.link_account_id) {
         const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
         const linkTransactions = await this.transferFundsEntityRepository.findBy({
           provider: Providers.LINK,
-          status: 'initiated',
+          status: 'succeeded',
         });
 
         linkTransactions.map(async (l) => {

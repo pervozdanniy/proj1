@@ -51,6 +51,8 @@ export class WebhooksController {
   })
   @Post('/link')
   async linkHandler(@Body() payload: LinkWebhookType) {
+    this.logger.log(payload);
+
     return this.paymentGatewayService.linkHandler(payload);
   }
 

@@ -129,6 +129,10 @@ export class PrimeLinkManager {
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
 
+      if (contributionPayload.status === 'terminal_failed' || contributionPayload.status === 'failed') {
+        throw new GrpcException(Status.INVALID_ARGUMENT, 'Not enough monet on balance!', 400);
+      }
+
       return response;
     } catch (e) {
       throw new GrpcException(Status.INVALID_ARGUMENT, 'Payment error!', 400);
