@@ -27,5 +27,7 @@ export class WithdrawAuthorizationService {
     return this.inswitch.decline(payload);
   }
 
-  async update(payload: AuthorizationWebhookRequest) {}
+  async update(payload: AuthorizationWebhookRequest) {
+    return this.inswitch.updateWithdraw(payload);
+  }
 }

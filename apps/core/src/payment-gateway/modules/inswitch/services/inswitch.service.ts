@@ -11,7 +11,6 @@ import {
   AuthorizationWebhookRequest,
   AutorizationWebhookResponse,
   TransactionStatus,
-  TransactionType,
 } from '../interfaces/webhook.interface';
 import { InswitchApiService } from './api.service';
 
