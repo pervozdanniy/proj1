@@ -40,13 +40,13 @@ export class PaymentGatewayService {
     const resp: BalanceResponse = { ...balance, conversions: [] };
 
     if (currencies.length) {
-      const conversions = await this.currencyService.convert(parseFloat(balance.settled), currencies);
+      const conversions = await this.currencyService.convert(balance.settled, currencies);
       for (const curr in conversions) {
         if (Object.prototype.hasOwnProperty.call(conversions, curr)) {
           resp.conversions.push({
             currency: curr,
             amount: conversions[curr]['amount'],
-            rate: conversions[curr]['rate'].toString(),
+            rate: conversions[curr]['rate'],
           });
         }
       }
@@ -100,7 +100,7 @@ export class PaymentGatewayService {
       if (Object.prototype.hasOwnProperty.call(rates, curr)) {
         resp.conversions.push({
           currency: curr,
-          rate: rates.get(curr).toString(),
+          rate: rates[curr],
         });
       }
     }

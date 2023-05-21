@@ -1,24 +1,30 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
-export enum InswitchWithdrawStatus {
+export enum InswitchAuthorizationStatus {
   Pending,
-  Processed,
+  Approved,
 }
 
-@Entity('inswitch_withdraw_entity')
-export class InswitchWithdrawEntity {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
+@Entity('inswitch_withdraw_authorization')
+export class InswitchWithdrawAuthorizationEntity {
+  @PrimaryColumn({ type: 'varchar', generated: false, length: 64 })
+  id: string;
 
   @Column('decimal')
   amount: number;
 
+  @Column('char', { length: 3 })
+  currency: string;
+
   @Column('smallint')
-  status: InswitchWithdrawStatus;
+  status: InswitchAuthorizationStatus;
 
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column('timestamp', { nullable: true })
+  transferred_at?: Date;
 }

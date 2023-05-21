@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsNotEmpty, IsNumberString, IsString, Length, ValidateIf } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsString, Length, ValidateIf } from 'class-validator';
 import { TransferInfoDto } from '../../utils/prime-trust-response.dto';
 
 export enum PaymentType {
@@ -10,10 +10,10 @@ export enum PaymentType {
 }
 
 export class StartDepositFlowDto {
-  @IsNumberString()
+  @IsNumber()
   @IsNotEmpty()
   @ApiProperty()
-  amount: string;
+  amount: number;
 
   @IsString()
   @Length(3)

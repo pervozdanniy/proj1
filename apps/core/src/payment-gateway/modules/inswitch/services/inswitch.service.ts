@@ -5,20 +5,32 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { InswitchAccountEntity } from '../entities/inswitch-account.entity';
-import { InswitchWithdrawEntity, InswitchWithdrawStatus } from '../entities/inswitch-withdraw.entity';
+import { InswitchAuthorizationStatus, InswitchWithdrawAuthorizationEntity } from '../entities/inswitch-withdraw.entity';
+import {
+  AuthorizationStatus,
+  AuthorizationWebhookRequest,
+  AutorizationWebhookResponse,
+  TransactionStatus,
+  TransactionType,
+} from '../interfaces/webhook.interface';
 import { InswitchApiService } from './api.service';
 
 @Injectable()
 export class InswitchService {
-  private readonly withdrawWallet: string;
+  #withdrawWallet: string;
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly api: InswitchApiService,
-    @InjectRepository(InswitchWithdrawEntity) private readonly withdrawRepo: Repository<InswitchWithdrawEntity>,
+    @InjectRepository(InswitchWithdrawAuthorizationEntity)
+    private readonly withdrawRepo: Repository<InswitchWithdrawAuthorizationEntity>,
     @InjectRepository(InswitchAccountEntity) private readonly accountRepo: Repository<InswitchAccountEntity>,
     @InjectRepository(UserEntity) private readonly userRepo: Repository<UserEntity>,
   ) {
-    this.withdrawWallet = config.get('inswitch.withdrawWallet', { infer: true });
+    this.#withdrawWallet = config.get('inswitch.withdrawWallet', { infer: true });
+  }
+
+  get wallet() {
+    return this.#withdrawWallet;
   }
 
   async accountGetOrCreate(userId: number) {
@@ -53,15 +65,64 @@ export class InswitchService {
     );
   }
 
-  async withdraw(amount: number) {
-    await this.withdrawRepo.save(
+  async parseWithdrawRequest(payload: AuthorizationWebhookRequest) {
+    const withdraw = {
+      id: payload.transactionInfo.authorizationId,
+      amount: Number.parseFloat(payload.transactionInfo.amount),
+      currency: payload.transactionInfo.currency,
+    };
+    const user = await this.userRepo
+      .createQueryBuilder('u')
+      .innerJoin(InswitchAccountEntity, 'ia', 'u.id = ia.user_id')
+      .where('ia.entity_id = :entityId', { entityId: payload.cardInfo.entityId })
+      .getOneOrFail();
+
+    return { withdraw, user };
+  }
+
+  async approve(payload: AuthorizationWebhookRequest): Promise<AutorizationWebhookResponse> {
+    await this.withdrawRepo.insert(
       this.withdrawRepo.create({
-        amount,
-        status: InswitchWithdrawStatus.Pending,
+        id: payload.transactionInfo.authorizationId,
+        amount: Number.parseFloat(payload.transactionInfo.amount),
+        currency: payload.transactionInfo.currency,
+        status: InswitchAuthorizationStatus.Pending,
       }),
     );
 
-    return this.withdrawWallet;
+    return {
+      authorizationId: payload.transactionInfo.authorizationId,
+      status: AuthorizationStatus.Approved,
+    };
+  }
+
+  decline(payload: AuthorizationWebhookRequest): AutorizationWebhookResponse {
+    return {
+      authorizationId: payload.transactionInfo.authorizationId,
+      status: AuthorizationStatus.Declined,
+    };
+  }
+
+  async updateWithdraw(payload: AuthorizationWebhookRequest) {
+    const entity = await this.withdrawRepo.findOneBy({ id: payload.transactionInfo.authorizationId });
+    if (!entity) {
+      return;
+    }
+    switch (payload.transactionInfo.status) {
+      case TransactionStatus.Finished:
+        await this.withdrawRepo.update(entity.id, { status: InswitchAuthorizationStatus.Approved });
+        break;
+      case TransactionStatus.Reverted:
+      case TransactionStatus.Declined:
+        await this.withdrawRepo.delete(entity.id);
+        break;
+      case TransactionStatus.Adjusted:
+        await this.withdrawRepo.update(entity.id, {
+          amount: Number.parseFloat(payload.transactionInfo.amount),
+          status: InswitchAuthorizationStatus.Approved,
+        });
+        break;
+    }
   }
 
   async balance(userId: number) {

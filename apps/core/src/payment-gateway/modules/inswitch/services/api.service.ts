@@ -24,7 +24,7 @@ import {
   TransactionRequest,
   TransactionResponse,
   UnblockCardRequest,
-} from './api.interface';
+} from '../interfaces/api.interface';
 
 type AuthToken = {
   accessToken: string;

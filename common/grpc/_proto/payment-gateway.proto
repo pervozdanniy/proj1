@@ -77,7 +77,7 @@ message LinkCustomerRequest {
 
 message DepositFlowRequest {
   uint32 user_id = 1;
-  string amount = 2;
+  double amount = 2;
   string currency = 3;
   string type = 4;
 }
@@ -119,10 +119,10 @@ message BankCredentialsData {
 }
 
 message TransferInfo {
-  string amount = 1;
+  double amount = 1;
   string currency = 2;
-  string fee = 3;
-  optional string rate = 4;
+  double fee = 3;
+  optional double rate = 4;
 }
 
 message DepositNextStepRequest {
@@ -218,7 +218,7 @@ message DepositParam {
 message DepositDataResponse {
   uint32 id = 1;
   string uuid = 2;
-  string amount = 3;
+  double amount = 3;
   string currency_type = 4;
 }
 
@@ -233,7 +233,7 @@ message Transaction {
   string type = 2;
   string title = 3;
   string name = 4;
-  string amount = 5;
+  double amount = 5;
   string fee = 6;
   string status = 7;
   string created_at = 8;
@@ -242,7 +242,7 @@ message Transaction {
 message TransferResponse {
   string to = 1;
   string from = 2;
-  string amount = 3;
+  double amount = 3;
   string currency_type = 4;
   string status = 5;
   string created_at = 6;
@@ -263,7 +263,7 @@ message ContactResponse {
 
 message AssetWithdrawalRequest {
   uint32 id = 1;
-  string amount = 2;
+  double amount = 2;
   string wallet = 3;
 }
 
@@ -304,7 +304,7 @@ message BankAccountsResponse {
 message TransferFundsRequest {
   uint32 sender_id = 1;
   uint32 receiver_id = 2;
-  string amount = 3;
+  double amount = 3;
   string currency_type = 4;
 }
 
@@ -313,7 +313,7 @@ message TransferFundsResponse{
 }
 
 message TransferFunds {
-  string amount = 1;
+  double amount = 1;
   string currency_type = 2;
   string status = 3;
   string created_at = 4;
@@ -366,7 +366,7 @@ message TransferMethodRequest {
   uint32 id = 1;
   uint32 bank_account_id = 2;
   string funds_transfer_type = 3;
-  string amount = 4;
+  double amount = 4;
 }
 
 message WithdrawalResponse{
@@ -391,12 +391,12 @@ message ExchangeRequest {
 
 message Conversion {
   string currency = 1;
-  string amount = 2;
-  optional string rate = 3;
+  double amount = 2;
+  optional double rate = 3;
 }
 
 message BalanceResponse {
-  string settled = 1;
+  double settled = 1;
   string currency_type = 2;
   repeated Conversion conversions = 3;
 }
@@ -407,7 +407,7 @@ message ExchangeResponse {
 
 message Rates {
   string currency = 1;
-  optional string rate = 2;
+  optional double rate = 2;
 }
 
 message JsonData {

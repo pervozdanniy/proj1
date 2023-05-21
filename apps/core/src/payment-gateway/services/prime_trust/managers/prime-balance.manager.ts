@@ -32,20 +32,20 @@ export class PrimeBalanceManager {
     this.prime_trust_url = prime_trust_url;
   }
 
-  async updateAccountBalance(id: string): Promise<SuccessResponse> {
+  async updateAccountBalance(accountId: string): Promise<SuccessResponse> {
     const accountData = await this.primeAccountRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
       .select(['a.user_id as user_id'])
-      .where('a.uuid = :id', { id })
+      .where('a.uuid = :id', { id: accountId })
       .getRawOne();
 
     if (!accountData) {
-      throw new GrpcException(Status.NOT_FOUND, `Account by ${id} id not found`, 400);
+      throw new GrpcException(Status.NOT_FOUND, `Account by ${accountId} id not found`, 400);
     }
     const { user_id } = accountData;
 
-    const cacheData = await this.getBalanceInfo(id);
+    const cacheData = await this.getBalanceInfo(accountId);
 
     return this.saveBalance(user_id, cacheData);
   }
@@ -56,14 +56,14 @@ export class PrimeBalanceManager {
         method: 'get',
         url: `${this.prime_trust_url}/v2/accounts/${account_uuid}?include=account-asset-totals`,
       });
-      let balance = '0';
-      let cold_balance = '0';
-      let hot_balance = '0';
+      let balance = 0;
+      let cold_balance = 0;
+      let hot_balance = 0;
       if (cacheResponse.data.included.length !== 0) {
         const attributes = cacheResponse.data.included[0].attributes;
-        balance = attributes['settled'];
-        cold_balance = attributes['settled-cold'];
-        hot_balance = attributes['settled-hot'];
+        balance = Number.parseFloat(attributes['settled']);
+        cold_balance = Number.parseFloat(attributes['settled-cold']);
+        hot_balance = Number.parseFloat(attributes['settled-hot']);
       }
 
       return {
@@ -106,23 +106,23 @@ export class PrimeBalanceManager {
     return { success: true };
   }
 
-  async getAccountBalance(id: number): Promise<BalanceAttributes> {
-    const account = await this.primeAccountRepository.findOne({ where: { user_id: id, status: 'opened' } });
+  async getAccountBalance(userId: number): Promise<BalanceAttributes> {
+    const account = await this.primeAccountRepository.findOne({ where: { user_id: userId, status: 'opened' } });
     if (!account) {
       return {
-        settled: '0.00',
-        hot_balance: '0.00',
-        cold_balance: '0.00',
+        settled: 0,
+        hot_balance: 0,
+        cold_balance: 0,
         currency_type: 'USD',
       };
     }
     await this.updateAccountBalance(account.uuid);
-    const balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: id } });
+    const balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: userId } });
 
     return {
-      settled: parseFloat(balance.settled).toFixed(2),
-      hot_balance: parseFloat(balance.hot_balance).toFixed(2),
-      cold_balance: parseFloat(balance.cold_balance).toFixed(2),
+      settled: balance.settled,
+      hot_balance: balance.hot_balance,
+      cold_balance: balance.cold_balance,
       currency_type: balance.currency_type,
     };
   }

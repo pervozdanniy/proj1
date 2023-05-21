@@ -12,7 +12,7 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
-import { TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
+import { TransferInfo, TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData, CountryData } from '../../../country/data';
@@ -37,7 +37,7 @@ export class KoyweWithdrawalManager {
     @InjectRepository(VeriffDocumentEntity)
     private readonly documentRepository: Repository<VeriffDocumentEntity>,
     @InjectRepository(TransfersEntity)
-    private readonly withdrawalEntityRepository: Repository<TransfersEntity>,
+    private readonly transferRepository: Repository<TransfersEntity>,
     @InjectRedis() private readonly redis: Redis,
 
     config: ConfigService<ConfigInterface>,
@@ -48,7 +48,7 @@ export class KoyweWithdrawalManager {
     this.koywe_url = koywe_url;
   }
 
-  async makeWithdrawal(request: TransferMethodRequest) {
+  async makeWithdrawal(request: TransferMethodRequest): Promise<{ wallet: string; info: TransferInfo }> {
     const { id, bank_account_id, amount } = request;
     const { country_code, email } = await this.userService.getUserInfo(id);
     const bank = await this.bankAccountEntityRepository.findOneBy({
@@ -75,36 +75,36 @@ export class KoyweWithdrawalManager {
       document.document_number,
     );
     const totalFee = (quote.networkFee + quote.koyweFee) * quote.exchangeRate;
-    await this.withdrawalEntityRepository.save(
-      this.withdrawalEntityRepository.create({
+    await this.transferRepository.save(
+      this.transferRepository.create({
         user_id: id,
         uuid: orderId,
         type: 'withdrawal',
         provider: Providers.KOYWE,
-        amount: quote.amountOut.toFixed(2),
+        amount: quote.amountOut,
         currency_type,
         status: 'waiting',
-        fee: totalFee.toFixed(2),
+        fee: totalFee,
       }),
     );
     const info = {
-      amount: quote.amountOut.toFixed(2),
+      amount: quote.amountOut,
       currency: currency_type,
-      rate: quote.exchangeRate.toFixed(4),
-      fee: totalFee.toFixed(2),
+      rate: quote.exchangeRate,
+      fee: totalFee,
     };
 
     return { wallet: providedAddress, info };
   }
 
-  async createQuote(amount: string, currency_type: string): Promise<KoyweQuote> {
+  async createQuote(amountUsd: number, currency: string): Promise<KoyweQuote> {
     try {
-      const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(currency_type);
+      const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(currency);
 
       const formData = {
         symbolIn: this.asset,
-        symbolOut: currency_type,
-        amountIn: amount,
+        symbolOut: currency,
+        amountIn: amountUsd,
         paymentMethodId,
         executable: true,
       };

@@ -35,11 +35,11 @@ export class TransfersEntity {
   @Column('character varying', { length: 50, nullable: true })
   provider: string;
 
-  @Column('character varying', { length: 50, nullable: true })
-  amount: string;
+  @Column('decimal', { nullable: true })
+  amount: number;
 
-  @Column('character varying', { length: 50, nullable: true })
-  fee: string;
+  @Column('decimal', { nullable: true })
+  fee: number;
 
   @Column('character varying', { length: 50, nullable: true })
   currency_type: string;

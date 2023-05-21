@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
   AccountResponse,
@@ -74,10 +73,10 @@ class ConversionDto implements Conversion {
   currency: string;
 
   @ApiProperty()
-  amount: string;
+  amount: number;
 
   @ApiPropertyOptional()
-  rate?: string;
+  rate?: number;
 }
 
 export class BalanceResponseDto implements BalanceResponse {
@@ -85,7 +84,7 @@ export class BalanceResponseDto implements BalanceResponse {
   currency_type: string;
 
   @ApiProperty()
-  settled: string;
+  settled: number;
 
   @ApiProperty({ type: ConversionDto })
   @Type(() => ConversionDto)
@@ -163,7 +162,7 @@ export class CreditCardsResponseDto implements CreditCardsResponse {
 
 export class FundsDto implements TransferFunds {
   @ApiProperty()
-  amount: string;
+  amount: number;
   @ApiProperty()
   created_at: string;
   @ApiProperty()
@@ -180,14 +179,12 @@ export class TransferFundsResponseDto implements TransferFundsResponse {
 export class TransactionDto implements Transaction {
   @ApiProperty()
   id: number;
-
   @ApiProperty()
   name: string;
-
   @ApiProperty()
   type: string;
   @ApiProperty()
-  amount: string;
+  amount: number;
   @ApiProperty()
   created_at: string;
   @ApiProperty()
@@ -208,7 +205,7 @@ export class TransactionResponseDto implements TransactionResponse {
 }
 export class TransferInfoDto {
   @ApiProperty()
-  fee: string;
+  fee: number;
 
   @ApiProperty({ type: ConversionDto })
   @Type(() => ConversionDto)
@@ -217,22 +214,14 @@ export class TransferInfoDto {
 
 export class BankTransferInfoDto implements TransferInfo {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  amount: string;
+  amount: number;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
   currency: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  fee: string;
+  fee: number;
 
   @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  rate?: string;
+  rate?: number;
 }

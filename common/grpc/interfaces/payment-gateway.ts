@@ -30,7 +30,7 @@ export interface LinkCustomerRequest {
 
 export interface DepositFlowRequest {
   user_id: number;
-  amount: string;
+  amount: number;
   currency: string;
   type: string;
 }
@@ -70,10 +70,10 @@ export interface BankCredentialsData {
 }
 
 export interface TransferInfo {
-  amount: string;
+  amount: number;
   currency: string;
-  fee: string;
-  rate?: string | undefined;
+  fee: number;
+  rate?: number | undefined;
 }
 
 export interface DepositNextStepRequest {
@@ -167,7 +167,7 @@ export interface DepositParam {
 export interface DepositDataResponse {
   id: number;
   uuid: string;
-  amount: string;
+  amount: number;
   currency_type: string;
 }
 
@@ -182,7 +182,7 @@ export interface Transaction {
   type: string;
   title: string;
   name: string;
-  amount: string;
+  amount: number;
   fee: string;
   status: string;
   created_at: string;
@@ -191,7 +191,7 @@ export interface Transaction {
 export interface TransferResponse {
   to: string;
   from: string;
-  amount: string;
+  amount: number;
   currency_type: string;
   status: string;
   created_at: string;
@@ -210,7 +210,7 @@ export interface ContactResponse {
 
 export interface AssetWithdrawalRequest {
   id: number;
-  amount: string;
+  amount: number;
   wallet: string;
 }
 
@@ -250,7 +250,7 @@ export interface BankAccountsResponse {
 export interface TransferFundsRequest {
   sender_id: number;
   receiver_id: number;
-  amount: string;
+  amount: number;
   currency_type: string;
 }
 
@@ -259,7 +259,7 @@ export interface TransferFundsResponse {
 }
 
 export interface TransferFunds {
-  amount: string;
+  amount: number;
   currency_type: string;
   status: string;
   created_at: string;
@@ -310,7 +310,7 @@ export interface TransferMethodRequest {
   id: number;
   bank_account_id: number;
   funds_transfer_type: string;
-  amount: string;
+  amount: number;
 }
 
 export interface WithdrawalResponse {
@@ -335,12 +335,12 @@ export interface ExchangeRequest {
 
 export interface Conversion {
   currency: string;
-  amount: string;
-  rate?: string | undefined;
+  amount: number;
+  rate?: number | undefined;
 }
 
 export interface BalanceResponse {
-  settled: string;
+  settled: number;
   currency_type: string;
   conversions: Conversion[];
 }
@@ -352,7 +352,7 @@ export interface ExchangeResponse {
 
 export interface Rates {
   currency: string;
-  rate?: string | undefined;
+  rate?: number | undefined;
 }
 
 export interface JsonData {

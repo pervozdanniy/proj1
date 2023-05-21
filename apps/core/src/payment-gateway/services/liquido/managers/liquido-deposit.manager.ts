@@ -56,14 +56,13 @@ export class LiquidoDepositManager {
     const userDetails = await this.userService.getUserInfo(id);
     const { currency_type } = countriesData[userDetails.country_code];
 
-    const convertedAmount = await this.currencyService.convert(parseFloat(beforeConvertAmount), [currency_type]);
-
+    const convertedAmount = await this.currencyService.convert(beforeConvertAmount, [currency_type]);
     const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
 
-    const amount = parseFloat(convertedAmount[currency_type].amount);
+    const amount = convertedAmount[currency_type].amount;
 
     const headersRequest = {
       'Content-Type': 'application/json',
@@ -105,9 +104,9 @@ export class LiquidoDepositManager {
       return {
         url: result.data.paymentLink,
         info: {
-          amount: String(amount),
-          rate: String(convertedAmount[currency_type].rate),
-          fee: '0',
+          amount,
+          rate: convertedAmount[currency_type].rate,
+          fee: 0,
           currency: currency_type,
         },
       };

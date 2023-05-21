@@ -43,7 +43,7 @@ export class PrimeWithdrawalManager {
     @InjectRepository(PrimeTrustContactEntity)
     private readonly primeTrustContactEntityRepository: Repository<PrimeTrustContactEntity>,
     @InjectRepository(TransfersEntity)
-    private readonly withdrawalEntityRepository: Repository<TransfersEntity>,
+    private readonly transferRepository: Repository<TransfersEntity>,
     @InjectRepository(WithdrawalParamsEntity)
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
   ) {
@@ -143,8 +143,8 @@ export class PrimeWithdrawalManager {
       fee,
       amount,
     } = await this.sendWithdrawalRequest(request, account.uuid, funds_transfer_method_id);
-    await this.withdrawalEntityRepository.save(
-      this.withdrawalEntityRepository.create({
+    await this.transferRepository.save(
+      this.transferRepository.create({
         user_id: id,
         amount,
         uuid: fundsResponse.id,
@@ -186,7 +186,7 @@ export class PrimeWithdrawalManager {
   ) {
     let hotStatus = false;
     const balance = await this.primeBalanceManager.getAccountBalance(id);
-    if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
+    if (balance.cold_balance < amount && balance.hot_balance > amount) {
       hotStatus = true;
     }
     const { total_amount, fee_amount } = await this.primeFundsTransferManager.convertAssetToUSD(
@@ -227,7 +227,7 @@ export class PrimeWithdrawalManager {
 
   async updateWithdraw(request: AccountIdRequest) {
     const { resource_id, id: account_id } = request;
-    const withdrawData = await this.withdrawalEntityRepository
+    const withdrawData = await this.transferRepository
       .createQueryBuilder('w')
       .leftJoinAndSelect(UserEntity, 'u', 'w.user_id = u.id')
       .select(['u.id as user_id'])
@@ -240,7 +240,7 @@ export class PrimeWithdrawalManager {
 
     const withdrawResponse = await this.getWithdrawInfo(resource_id);
 
-    await this.withdrawalEntityRepository.update(
+    await this.transferRepository.update(
       { uuid: resource_id },
       {
         status: withdrawResponse['status'],
