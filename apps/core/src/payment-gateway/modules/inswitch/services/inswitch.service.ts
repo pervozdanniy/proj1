@@ -135,7 +135,7 @@ export class InswitchService {
       .where('iw.status = :status', { status: InswitchAuthorizationStatus.Approved })
       .groupBy('ia.user_id')
       .addGroupBy('iw.currency')
-      .getRawMany<{ amount: number; currency: string; user_id: number }>();
+      .getRawIterator<{ amount: number; currency: string; user_id: number }>();
   }
 
   async balance(userId: number) {

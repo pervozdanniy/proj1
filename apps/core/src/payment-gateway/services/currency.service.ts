@@ -18,7 +18,7 @@ export class CurrencyService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap(): Promise<void> {
-    await this.updateRates();
+    this.updateRates();
   }
 
   async rates<T extends CurrencyCode[]>(from: CurrencyCode, ...to: T) {
