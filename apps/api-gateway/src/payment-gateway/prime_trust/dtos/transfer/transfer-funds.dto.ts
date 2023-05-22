@@ -9,11 +9,11 @@ export class TransferFundsRequestDto {
   receiver_id: number;
 
   @ApiProperty({ description: 'Amount' })
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  amount: string;
+  amount: number;
 
-  @ApiProperty({ description: 'USD' })
+  @ApiProperty({ example: 'USD' })
   @IsString()
   @IsNotEmpty()
   currency_type: string;

@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CardsController } from './controllers/cards.controller';
 import { InswitchAccountEntity } from './entities/inswitch-account.entity';
 import { InswitchCardEntity } from './entities/inswitch-card.entity';
-import { InswitchWithdrawEntity } from './entities/inswitch-withdraw.entity';
+import { InswitchWithdrawAuthorizationEntity } from './entities/inswitch-withdraw.entity';
 import { InswitchApiService } from './services/api.service';
 import { InswitchCardsService } from './services/cards.service';
 import { InswitchService } from './services/inswitch.service';
@@ -17,7 +17,7 @@ import { InswitchService } from './services/inswitch.service';
     TypeOrmModule.forFeature([
       InswitchAccountEntity,
       InswitchCardEntity,
-      InswitchWithdrawEntity,
+      InswitchWithdrawAuthorizationEntity,
       UserEntity,
       UserDetailsEntity,
     ]),

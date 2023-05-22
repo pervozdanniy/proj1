@@ -6,14 +6,13 @@ import {
   AgreementRequest,
   AssetWithdrawalRequest,
   BankAccountParams,
-  CreateReferenceRequest,
   DepositParamRequest,
   SearchTransactionRequest,
   TransferFundsRequest,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { VeriffHookRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
-import { MakeDepositRequest } from '../../interfaces/payment-gateway.interface';
+import { CreateReferenceRequest, MakeDepositRequest } from '../../interfaces/payment-gateway.interface';
 import { PrimeAccountManager } from './managers/prime-account.manager';
 import { PrimeAssetsManager } from './managers/prime-assets.manager';
 import { PrimeBalanceManager } from './managers/prime-balance.manager';
@@ -73,10 +72,6 @@ export class PrimeTrustService {
   }
   cipCheck({ id, resource_id }: AccountIdRequest) {
     return this.primeKycManager.cipCheck(id, resource_id);
-  }
-
-  createReference(request: CreateReferenceRequest) {
-    return this.primeDepositManager.createReference(request);
   }
 
   async updateBalance({ id }: AccountIdRequest) {
@@ -188,5 +183,9 @@ export class PrimeTrustService {
 
   veriffWebhookHandler(request: WebhookResponse) {
     return this.primeVeriffManager.veriffWebhookHandler(request);
+  }
+
+  updateFundsTransfer(request: AccountIdRequest) {
+    return this.primeFundsTransferManager.updateFundsTransfer(request);
   }
 }

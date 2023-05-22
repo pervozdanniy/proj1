@@ -21,7 +21,7 @@ export type CountryData = {
 
 export type ConvertedRates = {
   [currency: string]: {
-    amount: string;
+    amount: number;
     rate: number;
   };
 };

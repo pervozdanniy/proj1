@@ -6,7 +6,7 @@ export class BalanceRequestDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @Transform(({ value }) => value.split(','))
+  @Transform(({ value }) => value.split(','), { toClassOnly: true })
   @ApiPropertyOptional({ description: 'Comma separated currency codes' })
   currencies?: string[];
 }

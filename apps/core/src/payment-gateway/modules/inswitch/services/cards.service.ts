@@ -8,7 +8,7 @@ import { BlockReason, Card, CardDetails } from '~common/grpc/interfaces/inswitch
 import { CardBlockDto, CardIdDto, CreateCardDto, SetPinDto } from '../dto/cards.dto';
 import { InswitchAccountEntity } from '../entities/inswitch-account.entity';
 import { CardType, InswitchCardEntity } from '../entities/inswitch-card.entity';
-import { BlockCardReason, CreateCardRequest, UnblockCardReason } from './api.interface';
+import { BlockCardReason, CreateCardRequest, UnblockCardReason } from '../interfaces/api.interface';
 import { InswitchApiService } from './api.service';
 
 @Injectable()

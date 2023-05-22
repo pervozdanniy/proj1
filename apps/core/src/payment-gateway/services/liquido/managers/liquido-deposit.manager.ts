@@ -10,11 +10,12 @@ import { Repository } from 'typeorm';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
-import { CreateReferenceRequest, DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
+import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
 import { TransfersEntity } from '../../../entities/transfers.entity';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
+import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { CurrencyService } from '../../currency.service';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
@@ -55,14 +56,13 @@ export class LiquidoDepositManager {
     const userDetails = await this.userService.getUserInfo(id);
     const { currency_type } = countriesData[userDetails.country_code];
 
-    const convertedAmount = await this.currencyService.convert(parseFloat(beforeConvertAmount), [currency_type]);
-
+    const convertedAmount = await this.currencyService.convert(beforeConvertAmount, [currency_type]);
     const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
 
-    const amount = parseFloat(convertedAmount[currency_type].amount);
+    const amount = convertedAmount[currency_type].amount;
 
     const headersRequest = {
       'Content-Type': 'application/json',
@@ -104,9 +104,9 @@ export class LiquidoDepositManager {
       return {
         url: result.data.paymentLink,
         info: {
-          amount: String(amount),
-          rate: String(convertedAmount[currency_type].rate),
-          fee: '0',
+          amount,
+          rate: convertedAmount[currency_type].rate,
+          fee: 0,
           currency: currency_type,
         },
       };

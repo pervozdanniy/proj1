@@ -1,8 +1,14 @@
-import { Body, Controller, HttpStatus, Logger, Post, Req } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Logger, Param, Post, Put, Req } from '@nestjs/common';
 import { ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
-import { FacilitaWebhookType, KoyweWebhookType, LiquidoWebhookType, PrimeTrustWebhookType } from '../webhooks/data';
+import {
+  FacilitaWebhookType,
+  KoyweWebhookType,
+  LinkWebhookType,
+  LiquidoWebhookType,
+  PrimeTrustWebhookType,
+} from '../webhooks/data';
 
 @ApiTags('Webhooks')
 @ApiExcludeController()
@@ -44,12 +50,19 @@ export class WebhooksController {
     status: HttpStatus.CREATED,
   })
   @Post('/link')
-  async linkHandler(@Body() payload: any) {
+  async linkHandler(@Body() payload: LinkWebhookType) {
     this.logger.log(payload);
+
+    return this.paymentGatewayService.linkHandler(payload);
   }
 
   @Post('inswitch')
   async inswitchHandler(@Req() req: Request) {
-    this.logger.debug('INSWITCH', req.body, req.headers);
+    this.logger.debug('INSWITCH POST', req.body, req.headers);
+  }
+
+  @Put('inswitch/:authorizationId')
+  async inswitchPutHandler(@Param('authorizationId') authorizationId: string, @Req() req: Request) {
+    this.logger.debug('INSWITCH PUT', req.body, authorizationId);
   }
 }

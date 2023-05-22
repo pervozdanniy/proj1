@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {
-  CreateReferenceRequest,
-  LiquidoWebhookRequest,
-  TransferMethodRequest,
-} from '~common/grpc/interfaces/payment-gateway';
+import { LiquidoWebhookRequest, TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
+import { CreateReferenceRequest } from '../../interfaces/payment-gateway.interface';
 import { LiquidoDepositManager } from './managers/liquido-deposit.manager';
 import { LiquidoWebhookManager } from './managers/liquido-webhook.manager';
 import { LiquidoWithdrawalManager } from './managers/liquido-withdrawal.manager';

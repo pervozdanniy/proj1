@@ -4,6 +4,7 @@ import {
   BankDepositInterface,
   BankInterface,
   BankWithdrawalInterface,
+  CashInterface,
   CreditCardInterface,
   DepositInterface,
   PaymentGatewayInterface,
@@ -23,11 +24,14 @@ export const hasBank = <T extends PaymentGatewayInterface>(gateway: T): gateway 
 export const hasCreditCard = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & CreditCardInterface =>
   gateway.getAvailablePaymentMethods().includes('credit-card');
 
+export const hasCash = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & CashInterface =>
+  gateway.getAvailablePaymentMethods().includes('cash');
+
 export const hasBankDeposit = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & BankDepositInterface =>
   hasBank(gateway) && hasDeposit(gateway) && 'setDepositParams' in gateway;
 
 export const hasWireTransfer = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & WireDepositInterface =>
-  'createReference' in gateway;
+  'createWireReference' in gateway;
 
 export const hasRedirectDeposit = <T extends PaymentGatewayInterface>(
   gateway: T,

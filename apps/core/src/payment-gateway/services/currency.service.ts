@@ -9,7 +9,7 @@ import { ConvertedRates, currenciesData, CurrencyCode } from '../country/data';
 @Injectable()
 export class CurrencyService implements OnApplicationBootstrap {
   private readonly logger = new Logger(CurrencyService.name);
-  protected readonly api_key: string;
+  private readonly api_key: string;
 
   private ratesData: Map<string, number> = new Map<string, number>();
   constructor(private readonly http: HttpService, config: ConfigService<ConfigInterface>) {
@@ -44,7 +44,7 @@ export class CurrencyService implements OnApplicationBootstrap {
       const rate = this.ratesData.get(param);
       if (rate) {
         selectedRates[param] = {
-          amount: (rate * amount).toFixed(2),
+          amount: rate * amount,
           rate,
         };
       }
@@ -54,15 +54,22 @@ export class CurrencyService implements OnApplicationBootstrap {
   }
 
   async updateRates() {
-    const rates: any = await this.ratesUsd(...currenciesData);
+    let rates: Record<string, number>;
+    try {
+      rates = await this.ratesUsd(...currenciesData);
+    } catch (error) {
+      this.logger.error('Rates update failed!', error);
+
+      return;
+    }
     Object.keys(rates).forEach((key) => {
       this.ratesData.set(key, rates[key]);
     });
+    this.logger.debug('Rates updated!');
   }
 
   @Cron('0 0 */2 * * *')
   async handleCron() {
     await this.updateRates();
-    this.logger.log('Rates updated!');
   }
 }

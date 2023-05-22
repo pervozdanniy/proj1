@@ -1,4 +1,4 @@
-import { KoyweOrderInfo } from '@/payment-gateway/types/koywe';
+import { KoyweOrderInfo, KoyweQuote } from '@/payment-gateway/types/koywe';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
@@ -56,5 +56,17 @@ export class KoyweMainManager {
     });
 
     return id;
+  }
+
+  async getQuoteFromUsd(amount: number, currency: string) {
+    const result = await lastValueFrom(
+      this.httpService.post<KoyweQuote>(`${this.koywe_url}/quotes`, {
+        amountOut: amount,
+        symbolOut: currency,
+        symbolIn: 'USDC',
+      }),
+    );
+
+    return result.data;
   }
 }

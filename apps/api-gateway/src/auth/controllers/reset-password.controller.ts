@@ -21,7 +21,7 @@ import { ResetPasswordService } from '../services/reset-password.service';
 export class ResetPasswordController {
   constructor(private readonly resetService: ResetPasswordService) {}
 
-  @ApiOperation({ summary: 'Check if user is unique and start session' })
+  @ApiOperation({ summary: 'Start reset password process for specified user' })
   @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')
@@ -40,7 +40,7 @@ export class ResetPasswordController {
     return this.resetService.verify(payload, sessionId);
   }
 
-  @ApiOperation({ summary: 'Finish registration process' })
+  @ApiOperation({ summary: 'Finish password reset process' })
   @ApiCreatedResponse({ type: SuccessDto })
   @ApiBearerAuth()
   @JwtSessionAuth({ allowUnauthorized: true, requirePasswordReset: true, allowClosed: true })

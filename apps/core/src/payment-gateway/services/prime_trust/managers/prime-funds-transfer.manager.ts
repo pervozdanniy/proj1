@@ -1,3 +1,4 @@
+import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
@@ -9,18 +10,21 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
+import { Providers } from '~common/enum/providers';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { AccountIdRequest, TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
-import { NotificationService } from '../../../../notification/services/notification.service';
 
 @Injectable()
 export class PrimeFundsTransferManager {
   private readonly prime_trust_url: string;
   private readonly asset_id: string;
+  private link_account_id: string;
 
   constructor(
     config: ConfigService<ConfigInterface>,
+
     private readonly httpService: PrimeTrustHttpService,
     private readonly primeBalanceManager: PrimeBalanceManager,
 
@@ -32,13 +36,15 @@ export class PrimeFundsTransferManager {
     @InjectRepository(TransfersEntity)
     private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
   ) {
-    const { prime_trust_url } = config.get('app');
+    const { prime_trust_url } = config.get('app', { infer: true });
+    const { link_account_id } = config.get('prime_trust', { infer: true });
     const { id } = config.get('asset');
     this.asset_id = id;
     this.prime_trust_url = prime_trust_url;
+    this.link_account_id = link_account_id;
   }
 
-  async convertUSDtoAsset(account_id: string, amount: string, cancel?: boolean): Promise<UsDtoAssetResponse> {
+  async convertUSDtoAsset(account_id: string, amount: number, cancel?: boolean): Promise<UsDtoAssetResponse> {
     const formData = {
       data: {
         type: 'quotes',
@@ -71,8 +77,8 @@ export class PrimeFundsTransferManager {
         });
 
         return {
-          unit_count: quote.data.data.attributes['unit-count'],
-          fee_amount: quote.data.data.attributes['fee-amount'],
+          unit_count: Number.parseFloat(quote.data.data.attributes['unit-count']),
+          fee_amount: Number.parseFloat(quote.data.data.attributes['fee-amount']),
         };
       }
     } catch (e) {
@@ -86,7 +92,7 @@ export class PrimeFundsTransferManager {
     }
   }
 
-  async convertAssetToUSD(account_id: string, amount: string, hotStatus: boolean): Promise<AssetToUSDResponse> {
+  async convertAssetToUSD(account_id: string, amount: number, hotStatus: boolean): Promise<AssetToUSDResponse> {
     const formData = {
       data: {
         type: 'quotes',
@@ -115,9 +121,9 @@ export class PrimeFundsTransferManager {
 
       return {
         trade_id: quoteResponse.data.data.attributes['trade-id'],
-        total_amount: quoteResponse.data.data.attributes['total-amount'].toFixed(2),
-        unit_count: quoteResponse.data.data.attributes['unit-count'].toFixed(2),
-        fee_amount: quoteResponse.data.data.attributes['fee-amount'].toFixed(4),
+        total_amount: Number.parseFloat(quoteResponse.data.data.attributes['total-amount']),
+        unit_count: Number.parseFloat(quoteResponse.data.data.attributes['unit-count']),
+        fee_amount: Number.parseFloat(quoteResponse.data.data.attributes['fee-amount']),
       };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
@@ -133,7 +139,7 @@ export class PrimeFundsTransferManager {
   async sendFunds(
     fromAccountId: string,
     toAccountId: string,
-    unit_count: string,
+    unit_count: number,
     hotStatus: boolean,
   ): Promise<SendFundsResponse> {
     try {
@@ -182,7 +188,7 @@ export class PrimeFundsTransferManager {
 
     const balance = await this.primeBalanceManager.getAccountBalance(sender_id);
     let hotStatus = false;
-    if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
+    if (balance.cold_balance < amount && balance.hot_balance > amount) {
       hotStatus = true;
     }
     const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count, hotStatus);
@@ -208,5 +214,45 @@ export class PrimeFundsTransferManager {
     return {
       data: payload,
     };
+  }
+
+  async updateFundsTransfer({ resource_id, id: account_id }: AccountIdRequest): Promise<SuccessResponse> {
+    const transferFundsResponse = await this.httpService.request({
+      method: 'get',
+      url: `${this.prime_trust_url}/v2/funds-transfers/${resource_id}`,
+    });
+
+    const cashResponse = await this.httpService.request({
+      method: 'get',
+      url: `${this.prime_trust_url}/v2/accounts/${account_id}?include=account-cash-totals`,
+    });
+    if (
+      cashResponse.data.included[0].attributes.settled === transferFundsResponse.data.data.attributes.amount &&
+      transferFundsResponse.data.data.attributes.amount > 0
+    ) {
+      await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);
+
+      if (account_id === this.link_account_id) {
+        const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
+        const linkTransactions = await this.transferFundsEntityRepository.findBy({
+          provider: Providers.LINK,
+          status: 'succeeded',
+        });
+
+        linkTransactions.map(async (l) => {
+          await this.transferFunds({
+            sender_id: sender.user_id,
+            receiver_id: l.user_id,
+            amount: l.amount,
+            currency_type: l.currency_type,
+          });
+          await this.transferFundsEntityRepository.update({ id: l.id }, { status: 'settled' });
+        });
+
+        await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);
+      }
+    }
+
+    return { success: true };
   }
 }

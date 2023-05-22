@@ -19,7 +19,6 @@ import { Providers } from '~common/enum/providers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import {
   AccountIdRequest,
-  CreateReferenceRequest,
   CreditCardResourceResponse,
   CreditCardsResponse,
   DepositParamRequest,
@@ -31,11 +30,10 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
-import { MakeDepositRequest } from '../../../interfaces/payment-gateway.interface';
+import { CreateReferenceRequest, MakeDepositRequest } from '../../../interfaces/payment-gateway.interface';
 import { CardResourceType } from '../../../types/prime-trust';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeBankAccountManager } from './prime-bank-account.manager';
-import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 
 @Injectable()
 export class PrimeDepositManager {
@@ -50,8 +48,6 @@ export class PrimeDepositManager {
     private readonly primeBankAccountManager: PrimeBankAccountManager,
 
     private readonly primeBalanceManager: PrimeBalanceManager,
-
-    private readonly primeFundsTransferManager: PrimeFundsTransferManager,
 
     private readonly notificationService: NotificationService,
 
@@ -206,7 +202,6 @@ export class PrimeDepositManager {
     const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
     const amount = contributionResponse['amount'];
 
-    await this.primeFundsTransferManager.convertUSDtoAsset(account_id, amount, false);
     if (existedDeposit) {
       await this.depositEntityRepository.update(
         { uuid: resource_id },
@@ -435,7 +430,7 @@ export class PrimeDepositManager {
       }
       this.logger.debug('Make Deposit', contribution_id);
 
-      return { fee: '0.00', amount, currency: 'USD' };
+      return { fee: 0.0, amount, currency: 'USD' };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();

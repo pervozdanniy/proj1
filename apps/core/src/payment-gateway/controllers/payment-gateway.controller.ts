@@ -13,6 +13,7 @@ import {
   ExchangeResponse,
   FacilitaWebhookRequest,
   KoyweWebhookRequest,
+  LinkWebhookRequest,
   LiquidoWebhookRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
@@ -36,6 +37,9 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
+  linkHandler(request: LinkWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.linkWebhookHandler(request);
+  }
   constructor(
     private mainService: MainService,
     private paymentGatewayService: PaymentGatewayService,
@@ -105,6 +109,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   exchange(request: ExchangeRequest): Promise<ExchangeResponse> {
     return this.paymentGatewayService.exchange(request);
   }
+
   transferToHotWallet(): Promise<SuccessResponse> {
     return this.paymentGatewayService.transferToHotWallet();
   }

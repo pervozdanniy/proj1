@@ -13,7 +13,6 @@ import {
   CreditCardsResponse,
   DepositResponse,
   JsonData,
-  Token_Data,
   Transaction,
   TransactionResponse,
   TransferFunds,
@@ -70,7 +69,7 @@ class ConversionDto implements Conversion {
   currency: string;
 
   @ApiProperty()
-  amount: string;
+  amount: number;
 }
 
 export class BalanceResponseDto implements BalanceResponse {
@@ -78,7 +77,7 @@ export class BalanceResponseDto implements BalanceResponse {
   currency_type: string;
 
   @ApiProperty()
-  settled: string;
+  settled: number;
 
   @ApiProperty({ type: ConversionDto })
   @Type(() => ConversionDto)
@@ -147,7 +146,7 @@ export class CreditCardsResponseDto implements CreditCardsResponse {
 
 export class FundsDto implements TransferFunds {
   @ApiProperty()
-  amount: string;
+  amount: number;
   @ApiProperty()
   created_at: string;
   @ApiProperty()
@@ -171,7 +170,7 @@ export class TransactionDto implements Transaction {
   type: string;
 
   @ApiProperty()
-  amount: string;
+  amount: number;
   @ApiProperty()
   created_at: string;
   @ApiProperty()
@@ -194,9 +193,4 @@ export class TransactionResponseDto implements TransactionResponse {
 export class JsonDataDto implements JsonData {
   @ApiProperty()
   data: string;
-}
-
-export class TokenDto implements Token_Data {
-  @ApiProperty()
-  token: string;
 }

@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsNotEmpty, IsNumberString, IsString, Length, ValidateIf } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsString, Length, ValidateIf } from 'class-validator';
 import { TransferInfoDto } from '../../utils/prime-trust-response.dto';
 
 export enum PaymentType {
@@ -10,10 +10,10 @@ export enum PaymentType {
 }
 
 export class StartDepositFlowDto {
-  @IsNumberString()
+  @IsNumber()
   @IsNotEmpty()
   @ApiProperty()
-  amount: string;
+  amount: number;
 
   @IsString()
   @Length(3)
@@ -81,17 +81,6 @@ class LinkTransferDto {
   sessionKey?: string;
 }
 
-class BankParamsDto {
-  @ApiProperty({ example: 'Test Test' })
-  bank_account_name: string;
-
-  @ApiProperty({ example: '123456890' })
-  bank_account_number: string;
-
-  @ApiPropertyOptional({ example: '021000021' })
-  routing_number?: string;
-}
-
 class RedirectDto {
   @ApiProperty()
   url: string;
@@ -110,21 +99,12 @@ class BankCredentialsDataDto {
   info: TransferInfoDto;
 }
 
-class SelectBankDto {
-  @ApiProperty({ type: BankParamsDto, isArray: true })
-  @Type(() => BankParamsDto)
-  banks: BankParamsDto[];
-}
-
 export class DepositStartResponseDto {
   @ApiProperty()
   flowId: number;
 
-  @ApiProperty({ enum: ['select-bank', 'redirect'] })
+  @ApiProperty({ enum: ['redirect', 'link_transfer', 'pay_with_bank'] })
   action: string;
-
-  @ApiPropertyOptional({ type: SelectBankDto })
-  select?: SelectBankDto;
 
   @ApiPropertyOptional({ type: RedirectDto })
   redirect?: RedirectDto;
