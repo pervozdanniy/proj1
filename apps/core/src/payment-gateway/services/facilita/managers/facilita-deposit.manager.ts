@@ -6,11 +6,15 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
+import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
+import { Providers } from '~common/enum/providers';
 import { BankCredentialsData } from '~common/grpc/interfaces/payment-gateway';
 import { countriesData, CountryData } from '../../../country/data';
+import { TransfersEntity } from '../../../entities/transfers.entity';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
+import { CurrencyService } from '../../currency.service';
 import { FacilitaBankAccount } from '../types';
 import { FacilitaTokenManager } from './facilita-token.manager';
 
@@ -19,12 +23,13 @@ export class FacilitaDepositManager {
   private readonly url: string;
   constructor(
     private readonly facilitaTokenManager: FacilitaTokenManager,
-    // @InjectRepository(TransfersEntity)
-    // private readonly depositEntityRepository: Repository<TransfersEntity>,
+    @InjectRepository(TransfersEntity)
+    private readonly depositEntityRepository: Repository<TransfersEntity>,
     @InjectRepository(VeriffDocumentEntity)
     private readonly documentRepository: Repository<VeriffDocumentEntity>,
     private userService: UserService,
 
+    private readonly currencyService: CurrencyService,
     private readonly httpService: HttpService,
 
     config: ConfigService<ConfigInterface>,
@@ -52,6 +57,19 @@ export class FacilitaDepositManager {
     const bankData = faciltaBanks.data.data.filter((b: FacilitaBankAccount) => {
       return b.currency === currency_type;
     });
+    const convertedRate = await this.currencyService.convert(amount, [currency_type]);
+    const payload = {
+      user_id: id,
+      uuid: await uid(12),
+      type: 'deposit',
+      amount: Number.parseFloat(convertedRate[currency_type].amount.toFixed(2)),
+      provider: Providers.FACILITA,
+      currency_type,
+      status: 'waiting',
+      fee: 0,
+    };
+
+    await this.depositEntityRepository.save(this.depositEntityRepository.create(payload));
 
     return { info: { currency, amount, fee: 0 }, bank: JSON.stringify(bankData[0]) };
   }
