@@ -32,6 +32,7 @@ import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { CurrencyService } from './services/currency.service';
 import { FacilitaService } from './services/facilita/facilita.service';
 import { FacilitaDepositManager } from './services/facilita/managers/facilita-deposit.manager';
+import { FacilitaTokenManager } from './services/facilita/managers/facilita-token.manager';
 import { FacilitaWebhookManager } from './services/facilita/managers/facilita-webhook.manager';
 import { DepositFlow } from './services/flow/deposit-flow.service';
 import { KoyweService } from './services/koywe/koywe.service';
@@ -128,6 +129,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PrimeVeriffManager,
     PrimeLinkManager,
     LiquidoDepositManager,
+    FacilitaTokenManager,
   ],
   controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],
