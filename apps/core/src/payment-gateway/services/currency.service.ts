@@ -65,7 +65,6 @@ export class CurrencyService implements OnApplicationBootstrap {
   async updateRates() {
     let rates: Record<string, number>;
     try {
-      throw 'PIZA';
       rates = await this.ratesUsd(...currenciesData);
     } catch (error) {
       this.logger.error('Rates update failed!', error);

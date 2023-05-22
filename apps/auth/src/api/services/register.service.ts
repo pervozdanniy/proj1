@@ -55,6 +55,9 @@ export class ApiRegisterService {
     }
 
     const agreement = await this.auth.createAgreement({ ...payload, ...session.register });
+    if (!agreement) {
+      console.log('AGREEMENT', payload, session);
+    }
 
     registerRequestAgreement(session, { user_details: payload, agreement: { id: agreement.id, status: false } });
 
