@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { TwoFactorCode } from '~common/grpc/interfaces/auth';
-import { changeEmail, isChangeContactInfo, SessionProxy } from '~common/session';
+import { changeEmail, changePhone, isChangeContactInfo, SessionProxy } from '~common/session';
 import { Auth2FAService } from '../../auth-2fa/2fa.service';
 import { AuthService } from '../../auth/auth.service';
 import { TwoFactorMethod } from '../../entities/2fa_settings.entity';
@@ -15,11 +15,11 @@ export class ApiContactInfoService {
 
       return { type: 'Change email confirmation', methods: [TwoFactorMethod.Email] };
     }
-    // if (payload.phone) {
-    //   this.auth2FA.requireOne(TwoFactorMethod.Sms, changePhone(session, payload.phone));
-    //
-    //   return { type: 'Change phone confirmation', methods: [TwoFactorMethod.Sms] };
-    // }
+    if (payload.phone) {
+      this.auth2FA.requireOne(TwoFactorMethod.Sms, changePhone(session, payload.phone));
+
+      return { type: 'Change phone confirmation', methods: [TwoFactorMethod.Sms] };
+    }
 
     throw new BadRequestException('Invalid payload');
   }

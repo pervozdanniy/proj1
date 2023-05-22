@@ -80,7 +80,7 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getUserAccountStatus({ id }));
   }
 
-  payfuraHandler(payload: FacilitaWebhookType) {
+  facilitaHandler(payload: FacilitaWebhookType) {
     return lastValueFrom(this.paymentGatewayServiceClient.facilitaWebhooksHandler(payload));
   }
 
