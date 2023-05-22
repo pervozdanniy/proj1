@@ -54,20 +54,16 @@ export class ApiRegisterService {
       throw new ConflictException('Registration process was not started');
     }
 
-    try {
-      const agreement = await this.auth.createAgreement({ ...payload, ...session.register });
+    const agreement = await this.auth.createAgreement({ ...payload, ...session.register });
 
-      registerRequestAgreement(session, { user_details: payload, agreement: { id: agreement.id, status: false } });
+    registerRequestAgreement(session, { user_details: payload, agreement: { id: agreement.id, status: false } });
 
-      const contentResponse = agreement.content.replace(/\n|\t/g, '').replace(/\\"/g, '"');
-      const closingTag = 'of this Agreement.</span></span>';
-      const position = contentResponse.indexOf(closingTag);
-      const content = contentResponse.substring(0, position + closingTag.length);
+    const contentResponse = agreement.content.replace(/\n|\t/g, '').replace(/\\"/g, '"');
+    const closingTag = 'of this Agreement.</span></span>';
+    const position = contentResponse.indexOf(closingTag);
+    const content = contentResponse.substring(0, position + closingTag.length);
 
-      return { ...agreement, content };
-    } catch (e) {
-      throw new ConflictException(e.details);
-    }
+    return { ...agreement, content };
   }
 
   async approveAgreement({ id }: ApproveAgreementRequest, session: SessionProxy): Promise<SuccessResponse> {

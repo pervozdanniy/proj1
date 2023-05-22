@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import { lastValueFrom } from 'rxjs';
@@ -11,14 +12,16 @@ export class CurrencyService implements OnApplicationBootstrap {
   private readonly logger = new Logger(CurrencyService.name);
   private readonly api_key: string;
 
+  private ratesPromise: Promise<Error>;
   private ratesData: Map<string, number> = new Map<string, number>();
+
   constructor(private readonly http: HttpService, config: ConfigService<ConfigInterface>) {
     const { key } = config.get('api_layer', { infer: true });
     this.api_key = key;
   }
 
   async onApplicationBootstrap(): Promise<void> {
-    await this.updateRates();
+    this.ratesPromise = this.updateRates();
   }
 
   async rates<T extends CurrencyCode[]>(from: CurrencyCode, ...to: T) {
@@ -39,6 +42,12 @@ export class CurrencyService implements OnApplicationBootstrap {
 
   async convert(amount: number, currencies: CurrencyCode[]): Promise<ConvertedRates> {
     const selectedRates: ConvertedRates = {};
+    if (this.ratesData.size === 0) {
+      const error = await this.ratesPromise;
+      if (error) {
+        throw new InternalServerErrorException(error.message);
+      }
+    }
 
     for (const param of currencies) {
       const rate = this.ratesData.get(param);
@@ -56,11 +65,12 @@ export class CurrencyService implements OnApplicationBootstrap {
   async updateRates() {
     let rates: Record<string, number>;
     try {
+      throw 'PIZA';
       rates = await this.ratesUsd(...currenciesData);
     } catch (error) {
       this.logger.error('Rates update failed!', error);
 
-      return;
+      return error;
     }
     Object.keys(rates).forEach((key) => {
       this.ratesData.set(key, rates[key]);
@@ -70,6 +80,6 @@ export class CurrencyService implements OnApplicationBootstrap {
 
   @Cron('0 0 */2 * * *')
   async handleCron() {
-    await this.updateRates();
+    this.ratesPromise = this.updateRates();
   }
 }
