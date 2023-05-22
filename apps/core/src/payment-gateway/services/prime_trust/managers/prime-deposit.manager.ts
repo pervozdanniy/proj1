@@ -434,7 +434,7 @@ export class PrimeDepositManager {
       }
       this.logger.debug('Make Deposit', contribution_id);
 
-      return { fee: '0.00', amount, currency: 'USD' };
+      return { fee: 0.0, amount, currency: 'USD' };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();

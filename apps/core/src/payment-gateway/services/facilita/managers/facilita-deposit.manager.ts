@@ -28,6 +28,6 @@ export class FacilitaDepositManager {
   async makeDeposit(request: MakeDepositRequest): Promise<TransferInfo> {
     this.logger.log(request, this.username, this.password, this.url);
 
-    return { fee: '0', amount: request.amount, currency: 'USD' };
+    return { fee: 0, amount: request.amount, currency: 'USD' };
   }
 }

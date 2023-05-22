@@ -13,8 +13,8 @@ export class DepositFlowEntity {
   @Column({ type: 'int' })
   user_id: number;
 
-  @Column({ type: 'varchar' })
-  amount: string;
+  @Column({ type: 'decimal' })
+  amount: number;
 
   @Column({ type: 'char', length: 3 })
   currency: string;

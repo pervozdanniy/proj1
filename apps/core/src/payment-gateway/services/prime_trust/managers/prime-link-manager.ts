@@ -78,7 +78,7 @@ export class PrimeLinkManager {
     return { sessionKey: result.data.sessionKey };
   }
 
-  async sendAmount(customerId: string, amount: string, currency: string): Promise<LinkTransferData> {
+  async sendAmount(customerId: string, amount: number, currency: string): Promise<LinkTransferData> {
     const { token } = await this.getToken();
     const headersRequest = {
       'Content-Type': 'application/json',

@@ -82,18 +82,18 @@ export class KoyweDepositManager {
         user_id: id,
         uuid: orderId,
         type: 'deposit',
-        amount: quote.amountIn.toFixed(2),
+        amount: quote.amountIn,
         provider: Providers.KOYWE,
         currency_type,
         status: 'waiting',
-        fee: totalFee.toFixed(2),
+        fee: totalFee,
       }),
     );
     const info = {
-      amount: quote.amountIn.toFixed(2),
+      amount: quote.amountIn,
       currency: currency_type,
-      rate: quote.exchangeRate.toFixed(4),
-      fee: totalFee.toFixed(2),
+      rate: quote.exchangeRate,
+      fee: totalFee,
     };
     if (providedAddress) {
       return { info, bank: providedAddress };
@@ -135,18 +135,18 @@ export class KoyweDepositManager {
         user_id: id,
         uuid: orderId,
         type: 'deposit',
-        amount: quote.amountIn.toFixed(2),
+        amount: quote.amountIn,
         provider: Providers.KOYWE,
         currency_type,
         status: 'waiting',
-        fee: totalFee.toFixed(2),
+        fee: totalFee,
       }),
     );
     const info = {
-      amount: quote.amountIn.toFixed(2),
+      amount: quote.amountIn,
       currency: currency_type,
-      rate: quote.exchangeRate.toFixed(4),
-      fee: totalFee.toFixed(2),
+      rate: quote.exchangeRate,
+      fee: totalFee,
     };
     if (providedAddress) {
       throw new ConflictException('Invalid flow params');
@@ -156,7 +156,7 @@ export class KoyweDepositManager {
     }
   }
 
-  async createQuote(params: { amount: string; currency: string; method?: KoywePaymentMethod }): Promise<KoyweQuote> {
+  async createQuote(params: { amount: number; currency: string; method?: KoywePaymentMethod }): Promise<KoyweQuote> {
     try {
       const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(params.currency, params.method ?? 'KHIPU');
 
@@ -168,7 +168,7 @@ export class KoyweDepositManager {
         executable: true,
       };
 
-      const result = await lastValueFrom(this.httpService.post(`${this.koywe_url}/quotes`, formData));
+      const result = await lastValueFrom(this.httpService.post<KoyweQuote>(`${this.koywe_url}/quotes`, formData));
 
       return result.data;
     } catch (e) {
