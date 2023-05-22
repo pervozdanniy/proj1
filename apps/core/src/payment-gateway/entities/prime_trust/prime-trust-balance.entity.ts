@@ -7,13 +7,13 @@ export class PrimeTrustBalanceEntity {
   user_id: number;
 
   @Column('float', { default: 0 })
-  settled: string;
+  settled: number;
 
   @Column('float', { default: 0, nullable: true })
-  hot_balance: string;
+  hot_balance: number;
 
   @Column('float', { default: 0, nullable: true })
-  cold_balance: string;
+  cold_balance: number;
 
   @Column('character varying')
   currency_type: string;

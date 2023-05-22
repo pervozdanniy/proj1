@@ -15,13 +15,13 @@ import {
 export type MakeDepositRequest = {
   id: number;
   funds_transfer_method_id: string;
-  amount: string;
+  amount: number;
   cvv?: string;
 };
 
 export interface CreateReferenceRequest {
   id: number;
-  amount: string;
+  amount: number;
   currency_type: string;
 }
 

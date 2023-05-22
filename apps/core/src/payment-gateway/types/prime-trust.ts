@@ -17,10 +17,10 @@ export const webhookData: string[] = [
 ];
 
 export type BalanceAttributes = {
-  settled: string;
+  settled: number;
   currency_type: string;
-  hot_balance: string;
-  cold_balance: string;
+  hot_balance: number;
+  cold_balance: number;
 };
 
 export type SendFundsResponse = {
@@ -30,14 +30,14 @@ export type SendFundsResponse = {
 };
 
 export type UsDtoAssetResponse = {
-  fee_amount: string;
-  unit_count: string;
+  fee_amount: number;
+  unit_count: number;
 };
 
 export type AssetToUSDResponse = {
-  total_amount: string;
-  fee_amount: string;
-  unit_count: string;
+  total_amount: number;
+  fee_amount: number;
+  unit_count: number;
 
   trade_id?: string;
 };

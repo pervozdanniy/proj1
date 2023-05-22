@@ -57,6 +57,8 @@ import { AlterLinksTable1683899714681 } from './migrations/1683899714681-AlterLi
 import { AddInswitchWitdrawEntity1684326195932 } from './migrations/1684326195932-AddInswitchWitdrawEntity';
 import { AddCountryToKYCInfo1684326270343 } from './migrations/1684326270343-AddCountryToKYCInfo';
 import { AlterInswitchCardENtity1684413645851 } from './migrations/1684413645851-AlterInswitchCardENtity';
+import { RefactorInwswitchWitdhrawTable1684676989982 } from './migrations/1684676989982-RefactorInwswitchWitdhrawTable';
+import { ConverAllStringsToNumbers1684679871328 } from './migrations/1684679871328-ConverAllStringsToNumbers';
 
 export default [
   createUserTable1669901299726,
@@ -118,4 +120,6 @@ export default [
   AddInswitchWitdrawEntity1684326195932,
   AddCountryToKYCInfo1684326270343,
   AlterInswitchCardENtity1684413645851,
+  RefactorInwswitchWitdhrawTable1684676989982,
+  ConverAllStringsToNumbers1684679871328,
 ];

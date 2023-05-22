@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Logger, Post, Req } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Logger, Param, Post, Put, Req } from '@nestjs/common';
 import { ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
@@ -58,6 +58,11 @@ export class WebhooksController {
 
   @Post('inswitch')
   async inswitchHandler(@Req() req: Request) {
-    this.logger.debug('INSWITCH', req.body, req.headers);
+    this.logger.debug('INSWITCH POST', req.body, req.headers);
+  }
+
+  @Put('inswitch/:authorizationId')
+  async inswitchPutHandler(@Param('authorizationId') authorizationId: string, @Req() req: Request) {
+    this.logger.debug('INSWITCH PUT', req.body, authorizationId);
   }
 }

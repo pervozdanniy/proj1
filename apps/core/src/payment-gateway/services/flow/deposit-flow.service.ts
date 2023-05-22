@@ -31,7 +31,7 @@ export class DepositFlow {
   ) {}
 
   async start(payload: {
-    amount: string;
+    amount: number;
     currency: string;
     user_id: number;
     type?: PaymentMethod;
@@ -142,7 +142,7 @@ export class DepositFlow {
       return {
         amount: flow.amount,
         currency: flow.currency,
-        fee: '0',
+        fee: 0,
       };
     }
 

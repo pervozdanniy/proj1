@@ -44,7 +44,7 @@ export class PrimeFundsTransferManager {
     this.link_account_id = link_account_id;
   }
 
-  async convertUSDtoAsset(account_id: string, amount: string, cancel?: boolean): Promise<UsDtoAssetResponse> {
+  async convertUSDtoAsset(account_id: string, amount: number, cancel?: boolean): Promise<UsDtoAssetResponse> {
     const formData = {
       data: {
         type: 'quotes',
@@ -77,8 +77,8 @@ export class PrimeFundsTransferManager {
         });
 
         return {
-          unit_count: quote.data.data.attributes['unit-count'],
-          fee_amount: quote.data.data.attributes['fee-amount'],
+          unit_count: Number.parseFloat(quote.data.data.attributes['unit-count']),
+          fee_amount: Number.parseFloat(quote.data.data.attributes['fee-amount']),
         };
       }
     } catch (e) {
@@ -92,7 +92,7 @@ export class PrimeFundsTransferManager {
     }
   }
 
-  async convertAssetToUSD(account_id: string, amount: string, hotStatus: boolean): Promise<AssetToUSDResponse> {
+  async convertAssetToUSD(account_id: string, amount: number, hotStatus: boolean): Promise<AssetToUSDResponse> {
     const formData = {
       data: {
         type: 'quotes',
@@ -121,9 +121,9 @@ export class PrimeFundsTransferManager {
 
       return {
         trade_id: quoteResponse.data.data.attributes['trade-id'],
-        total_amount: quoteResponse.data.data.attributes['total-amount'].toFixed(2),
-        unit_count: quoteResponse.data.data.attributes['unit-count'].toFixed(2),
-        fee_amount: quoteResponse.data.data.attributes['fee-amount'].toFixed(4),
+        total_amount: Number.parseFloat(quoteResponse.data.data.attributes['total-amount']),
+        unit_count: Number.parseFloat(quoteResponse.data.data.attributes['unit-count']),
+        fee_amount: Number.parseFloat(quoteResponse.data.data.attributes['fee-amount']),
       };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
@@ -139,7 +139,7 @@ export class PrimeFundsTransferManager {
   async sendFunds(
     fromAccountId: string,
     toAccountId: string,
-    unit_count: string,
+    unit_count: number,
     hotStatus: boolean,
   ): Promise<SendFundsResponse> {
     try {
@@ -188,7 +188,7 @@ export class PrimeFundsTransferManager {
 
     const balance = await this.primeBalanceManager.getAccountBalance(sender_id);
     let hotStatus = false;
-    if (parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount)) {
+    if (balance.cold_balance < amount && balance.hot_balance > amount) {
       hotStatus = true;
     }
     const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count, hotStatus);

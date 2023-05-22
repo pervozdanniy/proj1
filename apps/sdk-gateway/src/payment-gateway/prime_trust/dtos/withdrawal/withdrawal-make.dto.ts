@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, Min } from 'class-validator';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
 
 export class WithdrawalMakeDto {
@@ -16,7 +16,7 @@ export class WithdrawalMakeDto {
   readonly funds_transfer_type: WithdrawalTypes;
 
   @ApiProperty({ example: '500' })
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  amount: string;
+  amount: number;
 }

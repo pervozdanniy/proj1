@@ -109,6 +109,7 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
   exchange(request: ExchangeRequest): Promise<ExchangeResponse> {
     return this.paymentGatewayService.exchange(request);
   }
+
   transferToHotWallet(): Promise<SuccessResponse> {
     return this.paymentGatewayService.transferToHotWallet();
   }

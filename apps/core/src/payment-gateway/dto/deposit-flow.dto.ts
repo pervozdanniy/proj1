@@ -1,4 +1,4 @@
-import { IsIn, IsInt, IsNotEmpty, IsNumberString, IsString, Length } from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsNumber, IsString, Length } from 'class-validator';
 import { DepositFlowRequest } from '~common/grpc/interfaces/payment-gateway';
 import { PaymentMethod } from '../interfaces/payment-gateway.interface';
 
@@ -8,8 +8,8 @@ export class DepositFlowStartRequestDto implements DepositFlowRequest {
   user_id: number;
 
   @IsNotEmpty()
-  @IsNumberString()
-  amount: string;
+  @IsNumber()
+  amount: number;
 
   @IsNotEmpty()
   @IsString()

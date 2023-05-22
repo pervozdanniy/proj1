@@ -16,7 +16,7 @@ export class DepositService implements OnModuleInit {
     this.flowClient = this.client.getService('DepositFlowService');
   }
 
-  async start(payload: { amount: string; currency: string; type: string }, userId: number) {
+  async start(payload: { amount: number; currency: string; type: string }, userId: number) {
     const { flow_id, action, redirect, bank_params, ...rest } = await firstValueFrom(
       this.flowClient.start({
         user_id: userId,

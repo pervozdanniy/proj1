@@ -53,7 +53,7 @@ export class FacilitaDepositManager {
       return b.currency === currency_type;
     });
 
-    return { info: { currency, amount, fee: '0' }, bank: JSON.stringify(bankData[0]) };
+    return { info: { currency, amount, fee: 0 }, bank: JSON.stringify(bankData[0]) };
   }
 
   async createUserIfNotExist(id: number): Promise<{ user_id: number }> {

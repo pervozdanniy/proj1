@@ -67,7 +67,7 @@ export class PrimeAssetsManager {
   async createAssetTransferMethod(
     account_id: string,
     contact_id: string,
-    amount: string,
+    amount: number,
     currency_type: string,
   ): Promise<WalletResponse> {
     const formData = {
@@ -180,8 +180,7 @@ export class PrimeAssetsManager {
 
     const { account_id, contact_id } = accountData;
     const balance = await this.primeBalanceManager.getAccountBalance(id);
-    const hotStatus =
-      parseFloat(balance.cold_balance) < parseFloat(amount) && parseFloat(balance.hot_balance) > parseFloat(amount);
+    const hotStatus = balance.cold_balance < amount && balance.hot_balance > amount;
 
     try {
       const assetTransferMethodResponse = await this.httpService.request({
@@ -251,7 +250,7 @@ export class PrimeAssetsManager {
         });
       }
 
-      return { amount, currency: 'USD', fee: '0' };
+      return { amount, currency: 'USD', fee: 0 };
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
