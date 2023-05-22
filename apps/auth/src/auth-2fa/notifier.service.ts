@@ -12,8 +12,8 @@ const constraintToOptions = ({ method, destination }: TwoFactorConstraint): Noti
   switch (method) {
     case TwoFactorMethod.Email:
       return { send_type: SendType.SEND_TYPE_EMAIL, email: destination };
-    // case TwoFactorMethod.Sms:
-    //   return { send_type: SendType.SEND_TYPE_SMS, phone: destination };
+    case TwoFactorMethod.Sms:
+      return { send_type: SendType.SEND_TYPE_SMS, phone: destination };
     default:
       return { send_type: SendType.SEND_TYPE_UNSPECIFIED };
   }

@@ -51,8 +51,7 @@ export class Auth2FAService {
       throw new ConflictException('Registration process was not started');
     }
 
-    //  const settings = [{ method: TwoFactorMethod.Sms, destination: session.register.phone }];
-    const settings = [];
+    const settings = [{ method: TwoFactorMethod.Sms, destination: session.register.phone }];
     if (!registerIsSocial(session)) {
       settings.push({ method: TwoFactorMethod.Email, destination: session.register.email });
     }
@@ -72,8 +71,7 @@ export class Auth2FAService {
   }
 
   async requireIfEnabled(session: SessionProxy) {
-    //temporary method: TwoFactorMethod.Email
-    const enabled = await this.settingsRepo.findBy({ user_id: session.user.id, method: TwoFactorMethod.Email });
+    const enabled = await this.settingsRepo.findBy({ user_id: session.user.id });
 
     if (enabled.length) {
       const contstraints = this.generate(enabled, session.user);
