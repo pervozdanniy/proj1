@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   BankAccountParams,
+  BankCredentialsData,
   BanksInfoResponse,
   TransferInfo,
   TransferMethodRequest,
@@ -8,10 +9,10 @@ import {
 import {
   BankInterface,
   BankWithdrawalInterface,
-  DepositInterface,
-  MakeDepositRequest,
+  CreateReferenceRequest,
   PaymentGatewayInterface,
   PaymentMethod,
+  WireDepositInterface,
 } from '../../interfaces/payment-gateway.interface';
 import { FacilitaService } from '../../services/facilita/facilita.service';
 import { KoyweService } from '../../services/koywe/koywe.service';
@@ -20,7 +21,7 @@ import { PrimeTrustService } from '../../services/prime_trust/prime-trust.servic
 
 @Injectable()
 export class BrazilPaymentGateway
-  implements PaymentGatewayInterface, BankInterface, DepositInterface, BankWithdrawalInterface
+  implements PaymentGatewayInterface, BankInterface, WireDepositInterface, BankWithdrawalInterface
 {
   constructor(
     private primeTrustService: PrimeTrustService,
@@ -33,8 +34,8 @@ export class BrazilPaymentGateway
     return ['bank-transfer'];
   }
 
-  makeDeposit(request: MakeDepositRequest): Promise<TransferInfo> {
-    return this.facilitaService.makeDeposit(request);
+  createWireReference(request: CreateReferenceRequest): Promise<BankCredentialsData> {
+    return this.facilitaService.createWireReference(request);
   }
 
   addBank(request: BankAccountParams): Promise<BankAccountParams> {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { FacilitaWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
-import { MakeDepositRequest } from '../../interfaces/payment-gateway.interface';
+import { CreateReferenceRequest } from '../../interfaces/payment-gateway.interface';
 import { FacilitaDepositManager } from './managers/facilita-deposit.manager';
 import { FacilitaWebhookManager } from './managers/facilita-webhook.manager';
 
@@ -15,7 +15,7 @@ export class FacilitaService {
     return this.facilitaWebhookManager.facilitaWebhooksHandler(request);
   }
 
-  makeDeposit(request: MakeDepositRequest) {
-    return this.facilitaDepositManager.makeDeposit(request);
+  createWireReference(request: CreateReferenceRequest) {
+    return this.facilitaDepositManager.createWireReference(request);
   }
 }
