@@ -71,6 +71,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/sdk-gateway/tsconfig.app.json"
       }
+    },
+    "admin-panel": {
+      "type": "application",
+      "root": "apps/admin-panel",
+      "entryFile": "main",
+      "sourceRoot": "apps/admin-panel/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/admin-panel/tsconfig.app.json"
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   core:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.local
     volumes:
@@ -19,7 +19,7 @@ services:
         condition: service_healthy
 
   auth:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.local
     volumes:
@@ -28,7 +28,7 @@ services:
     networks:
       - backend
     env_file:
-      - .env    
+      - .env
     command: "start -w auth"
     depends_on:
       postgres:
@@ -37,7 +37,7 @@ services:
         condition: service_healthy
 
   bc-listener:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.local
     volumes:
@@ -49,7 +49,7 @@ services:
     command: "start -w bc-listener"
 
   notifier:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.local
     volumes:
@@ -62,7 +62,7 @@ services:
     command: "start -w notifier"
 
   websocket:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.local
     volumes:
@@ -80,7 +80,7 @@ services:
         condition: service_healthy
 
   api-gateway:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.local
     volumes:
@@ -96,9 +96,9 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-  
+
   sdk-gateway:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.local
     volumes:
@@ -112,6 +112,24 @@ services:
     ports:
       - ${SDK_LOCAL_PORT}:3000
     depends_on:
+      redis:
+        condition: service_healthy
+
+  admin-panel:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    volumes:
+      - ./apps/admin-panel:/usr/src/apps/admin-panel
+      - ./common:/usr/src/common
+    networks:
+      - backend
+    env_file:
+      - .env
+    command: "start -w admin-panel"
+    depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
 
@@ -131,7 +149,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_CORE_DB},${POSTGRES_AUTH_DB}
+      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_CORE_DB},${POSTGRES_AUTH_DB},${POSTGRES_ADMIN_PANEL_DB}
     volumes:
       - ./docker-postgresql-multiple-databases.sh:/docker-entrypoint-initdb.d/docker-postgresql-multiple-databases.sh
       - pg-data:/var/lib/postgresql/data
@@ -142,7 +160,7 @@ services:
       - backend
     ports:
       - ${DB_LOCAL_PORT}:5432
-  
+
   minio:
     image: 'minio/minio:latest'
     ports:

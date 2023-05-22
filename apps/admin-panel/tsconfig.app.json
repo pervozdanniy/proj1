@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "outDir": "../../dist/apps/admin-panel",
+    "paths":{
+      "@adminCommon/*":["apps/admin-panel/src/common/*"],
+      "@database/*":["apps/admin-panel/src/database/*"],
+      "@config":["apps/admin-panel/src/config"],
+      "@helpers":["apps/admin-panel/src/helpers"],
+      "@modules/*":["apps/admin-panel/src/modules/*"],
+      "@admin/*":["apps/admin-panel/src/modules/admin/*"],
+      "@auth":["apps/admin-panel/src/modules/auth/"],
+      "@libs/*":["apps/admin-panel/src/libs/*"],
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}
