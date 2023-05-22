@@ -34,7 +34,6 @@ import { CreateReferenceRequest, MakeDepositRequest } from '../../../interfaces/
 import { CardResourceType } from '../../../types/prime-trust';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeBankAccountManager } from './prime-bank-account.manager';
-import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 
 @Injectable()
 export class PrimeDepositManager {
@@ -49,8 +48,6 @@ export class PrimeDepositManager {
     private readonly primeBankAccountManager: PrimeBankAccountManager,
 
     private readonly primeBalanceManager: PrimeBalanceManager,
-
-    private readonly primeFundsTransferManager: PrimeFundsTransferManager,
 
     private readonly notificationService: NotificationService,
 
@@ -205,7 +202,6 @@ export class PrimeDepositManager {
     const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
     const amount = contributionResponse['amount'];
 
-    await this.primeFundsTransferManager.convertUSDtoAsset(account_id, amount, false);
     if (existedDeposit) {
       await this.depositEntityRepository.update(
         { uuid: resource_id },

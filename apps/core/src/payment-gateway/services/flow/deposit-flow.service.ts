@@ -56,6 +56,22 @@ export class DepositFlow {
       };
     }
 
+    if (hasWireTransfer(paymentGateway) && payload.type === 'bank-transfer') {
+      const { bank, info } = await paymentGateway.createWireReference({
+        id: userDetails.id,
+        amount: payload.amount,
+        currency_type: payload.currency,
+      });
+
+      return {
+        action: 'pay_with_bank',
+        bank_params: {
+          bank,
+          info,
+        },
+      };
+    }
+
     if (payload.type === 'bank-transfer' && hasBank(paymentGateway)) {
       if (hasBankDeposit(paymentGateway)) {
         const { identifiers } = await this.depositFlowRepo.insert({
@@ -85,22 +101,6 @@ export class DepositFlow {
           action: 'redirect',
           redirect: {
             url,
-            info,
-          },
-        };
-      }
-
-      if (hasWireTransfer(paymentGateway)) {
-        const { bank, info } = await paymentGateway.createWireReference({
-          id: userDetails.id,
-          amount: payload.amount,
-          currency_type: payload.currency,
-        });
-
-        return {
-          action: 'pay_with_bank',
-          bank_params: {
-            bank,
             info,
           },
         };
@@ -136,7 +136,7 @@ export class DepositFlow {
     }
 
     if (flow.resource_type === DepositResourceType.Bank && hasBankDeposit(paymentGateway)) {
-      await this.primeLinkManager.sendAmount(payload.customer.id, flow.amount, flow.currency);
+      await this.primeLinkManager.sendAmount(payload.user_id, payload.customer.id, flow.amount, flow.currency);
       await this.depositFlowRepo.delete(payload.id);
 
       return {

@@ -3,11 +3,16 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
+import { Repository } from 'typeorm';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
-import { LinkSessionResponse, LinkTransferData } from '~common/grpc/interfaces/payment-gateway';
+import { Providers } from '~common/enum/providers';
+import { SuccessResponse } from '~common/grpc/interfaces/common';
+import { LinkSessionResponse, LinkTransferData, LinkWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { TransfersEntity } from '../../../entities/transfers.entity';
 
 @Injectable()
 export class PrimeLinkManager {
@@ -20,6 +25,9 @@ export class PrimeLinkManager {
   constructor(
     private userService: UserService,
     private readonly httpService: HttpService,
+
+    @InjectRepository(TransfersEntity)
+    private readonly depositEntityRepository: Repository<TransfersEntity>,
 
     config: ConfigService<ConfigInterface>,
   ) {
@@ -78,7 +86,7 @@ export class PrimeLinkManager {
     return { sessionKey: result.data.sessionKey };
   }
 
-  async sendAmount(customerId: string, amount: number, currency: string): Promise<LinkTransferData> {
+  async sendAmount(user_id: number, customerId: string, amount: number, currency: string): Promise<LinkTransferData> {
     const { token } = await this.getToken();
     const headersRequest = {
       'Content-Type': 'application/json',
@@ -108,9 +116,35 @@ export class PrimeLinkManager {
         this.httpService.post(`${this.url}/v1/payments`, formData, { headers: headersRequest }),
       );
 
-      return { paymentId: paymentResponse.data.paymentId, paymentStatus: paymentResponse.data.paymentStatus };
+      const response = { paymentId: paymentResponse.data.paymentId, paymentStatus: paymentResponse.data.paymentStatus };
+      const contributionPayload = {
+        user_id,
+        uuid: response.paymentId,
+        currency_type: 'USD',
+        amount,
+        status: response.paymentStatus.toLowerCase(),
+        param_type: 'ach',
+        type: 'deposit',
+        provider: Providers.LINK,
+      };
+      await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
+
+      if (contributionPayload.status === 'terminal_failed' || contributionPayload.status === 'failed') {
+        throw new GrpcException(Status.INVALID_ARGUMENT, 'Not enough monet on balance!', 400);
+      }
+
+      return response;
     } catch (e) {
       throw new GrpcException(Status.INVALID_ARGUMENT, 'Payment error!', 400);
     }
+  }
+
+  async linkWebhookHandler({ resourceId, resourceType, eventType }: LinkWebhookRequest): Promise<SuccessResponse> {
+    const status = eventType.split('.')[1];
+    if (resourceType === 'payment') {
+      await this.depositEntityRepository.update({ uuid: resourceId }, { status });
+    }
+
+    return { success: true };
   }
 }

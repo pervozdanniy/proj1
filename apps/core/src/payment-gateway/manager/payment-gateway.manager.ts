@@ -31,7 +31,7 @@ export const hasBankDeposit = <T extends PaymentGatewayInterface>(gateway: T): g
   hasBank(gateway) && hasDeposit(gateway) && 'setDepositParams' in gateway;
 
 export const hasWireTransfer = <T extends PaymentGatewayInterface>(gateway: T): gateway is T & WireDepositInterface =>
-  'createReference' in gateway;
+  'createWireReference' in gateway;
 
 export const hasRedirectDeposit = <T extends PaymentGatewayInterface>(
   gateway: T,

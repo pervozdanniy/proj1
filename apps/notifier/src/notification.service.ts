@@ -6,7 +6,7 @@ import { AddNotificationRequest, SendType } from '~common/grpc/interfaces/notifi
 @Injectable()
 export class NotificationService {
   constructor(
-    //   @InjectQueue('sms_queue') private smsQueue: Queue,
+    @InjectQueue('sms_queue') private smsQueue: Queue,
     @InjectQueue('email_queue') private emailQueue: Queue,
   ) {}
 
@@ -15,9 +15,9 @@ export class NotificationService {
       options: { send_type },
     } = request;
 
-    // if (send_type & SendType.SEND_TYPE_SMS) {
-    //   await this.smsQueue.add('send', request);
-    // }
+    if (send_type & SendType.SEND_TYPE_SMS) {
+      await this.smsQueue.add('send', request);
+    }
     if (send_type & SendType.SEND_TYPE_EMAIL) {
       await this.emailQueue.add('send', request);
     }

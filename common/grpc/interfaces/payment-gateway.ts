@@ -7,6 +7,12 @@ import { VeriffHookRequest, VeriffSessionResponse, WebhookResponse } from "./ver
 
 export const protobufPackage = "skopa.core";
 
+export interface LinkWebhookRequest {
+  resourceId: string;
+  resourceType: string;
+  eventType: string;
+}
+
 export interface PrimeWebhookRequest {
   id: string;
   account_id: string;
@@ -427,6 +433,8 @@ export interface PaymentGatewayServiceClient {
   facilitaWebhooksHandler(request: FacilitaWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
   liquidoWebhooksHandler(request: LiquidoWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+
+  linkHandler(request: LinkWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
 export interface PaymentGatewayServiceController {
@@ -551,6 +559,11 @@ export interface PaymentGatewayServiceController {
     request: LiquidoWebhookRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  linkHandler(
+    request: LinkWebhookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 }
 
 export function PaymentGatewayServiceControllerMethods() {
@@ -578,6 +591,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "koyweWebhooksHandler",
       "facilitaWebhooksHandler",
       "liquidoWebhooksHandler",
+      "linkHandler",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

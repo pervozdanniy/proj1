@@ -65,6 +65,8 @@ export interface ConfigInterface {
   prime_trust: {
     email: string;
     password: string;
+    link_account_id: string;
+    facilita_account_id: string;
   };
 
   koywe: {
@@ -207,6 +209,8 @@ export default (): ConfigInterface => ({
   prime_trust: {
     email: process.env.PRIME_EMAIL,
     password: process.env.PRIME_PASSWORD,
+    link_account_id: process.env.LINK_ACCOUNT_ID,
+    facilita_account_id: process.env.FACILITA_ACCOUNT_ID,
   },
   sendgrid: {
     email: process.env.SENDGRID_EMAIL,

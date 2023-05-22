@@ -28,10 +28,9 @@ export class ApiResetPasswordService {
     if (payload.email) {
       user = await this.auth.findByEmail(payload.email);
       method = TwoFactorMethod.Email;
-
-      // } else if (payload.phone) {
-      //   user = await this.auth.findByPhone(payload.phone);
-      //   method = TwoFactorMethod.Sms;
+    } else if (payload.phone) {
+      user = await this.auth.findByPhone(payload.phone);
+      method = TwoFactorMethod.Sms;
     } else {
       throw new BadRequestException('Phone or email should be specified');
     }
@@ -73,8 +72,8 @@ export class ApiResetPasswordService {
     let method: TwoFactorMethod;
     if (type === ChangePasswordTypes.EMAIL) {
       method = TwoFactorMethod.Email;
-      // } else if (type === ChangePasswordTypes.PHONE) {
-      //   method = TwoFactorMethod.Sms;
+    } else if (type === ChangePasswordTypes.PHONE) {
+      method = TwoFactorMethod.Sms;
     } else {
       throw new BadRequestException('Email should be specified');
     }
