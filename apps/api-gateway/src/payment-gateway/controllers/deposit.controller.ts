@@ -1,11 +1,4 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/auth';
-import { PaymentGatewayService } from '@/payment-gateway/prime_trust/services/payment-gateway.service';
-import {
-  BankTransferInfoDto,
-  CreditCardResourceResponseDto,
-  SuccessResponseDto,
-  TransferInfoDto,
-} from '@/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { Body, Controller, Get, HttpStatus, Post, Query, Render } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
@@ -18,6 +11,13 @@ import {
 } from '../dtos/deposit/flow.dto';
 import { VerifyCardDto } from '../dtos/deposit/verify-card.dto';
 import { DepositService } from '../services/deposit.service';
+import { PaymentGatewayService } from '../services/payment-gateway.service';
+import {
+  BankTransferInfoDto,
+  CreditCardResourceResponseDto,
+  SuccessResponseDto,
+  TransferInfoDto,
+} from '../utils/prime-trust-response.dto';
 
 @ApiTags('Deposit Funds')
 @Controller({

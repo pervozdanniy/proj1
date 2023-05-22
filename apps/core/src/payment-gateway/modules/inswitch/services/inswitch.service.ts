@@ -22,8 +22,8 @@ export class InswitchService {
     private readonly api: InswitchApiService,
     @InjectRepository(InswitchWithdrawAuthorizationEntity)
     private readonly withdrawRepo: Repository<InswitchWithdrawAuthorizationEntity>,
-    @InjectRepository(InswitchAccountEntity) private readonly accountRepo: Repository<InswitchAccountEntity>,
     @InjectRepository(UserEntity) private readonly userRepo: Repository<UserEntity>,
+    @InjectRepository(InswitchAccountEntity) private readonly accountRepo: Repository<InswitchAccountEntity>,
   ) {
     this.#withdrawWallet = config.get('inswitch.withdrawWallet', { infer: true });
   }
@@ -86,6 +86,7 @@ export class InswitchService {
         amount: Number.parseFloat(payload.transactionInfo.amount),
         currency: payload.transactionInfo.currency,
         status: InswitchAuthorizationStatus.Pending,
+        entity_id: payload.cardInfo.entityId,
       }),
     );
 
@@ -124,12 +125,29 @@ export class InswitchService {
     }
   }
 
+  getApproved() {
+    return this.withdrawRepo
+      .createQueryBuilder('iw')
+      .select('SUM(iw.amount)', 'amount')
+      .addSelect('iw.currency', 'currency')
+      .addSelect('ia.user_id', 'user_id')
+      .innerJoin(InswitchAccountEntity, 'ia', 'iw.entity_id = ia.entity_id')
+      .where('iw.status = :status', { status: InswitchAuthorizationStatus.Approved })
+      .groupBy('ia.user_id')
+      .addGroupBy('iw.currency')
+      .getRawMany<{ amount: number; currency: string; user_id: number }>();
+  }
+
   async balance(userId: number) {
     const account = await this.accountGetOrCreate(userId);
     if (!account || !account.wallet_id) {
       throw new ConflictException('User has no wallet');
     }
+    const balances = await this.api.walletGetBalance(account.wallet_id);
 
-    return this.api.walletGetBalance(account.wallet_id);
+    return balances.map((b) => ({
+      currency: b.balance.currency,
+      amount: Number.parseFloat(b.balance.amounts.find((a) => a.label === 'available').amount),
+    }));
   }
 }

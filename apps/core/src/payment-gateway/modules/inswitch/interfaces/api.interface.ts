@@ -69,13 +69,18 @@ export type CreateWalletResponse = {
   [key: string]: any;
 };
 
-export type GetWalletBalanceResponse = {
+export type GetWalletBalance = {
   paymentMethodReference: string;
   paymentMethodTypeClass: string;
   paymentMethodType: string;
   paymentMethodAlias: string;
-  balances: Array<{ currency: string; amount: string }>;
+  balance: {
+    amounts: [{ amount: string; label: 'available' | 'reserved' | 'unsetted' }];
+    currency: string;
+  };
 };
+
+export type GetWalletBalanceResponse = Array<GetWalletBalance>;
 
 export type CreatePaymentMethodRequest = {
   walletId: string;

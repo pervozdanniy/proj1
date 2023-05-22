@@ -27,4 +27,7 @@ export class InswitchWithdrawAuthorizationEntity {
 
   @Column('timestamp', { nullable: true })
   transferred_at?: Date;
+
+  @Column('varchar', { length: 32 })
+  entity_id: string;
 }
