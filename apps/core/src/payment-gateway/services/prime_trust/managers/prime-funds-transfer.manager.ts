@@ -20,7 +20,7 @@ import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfer
 export class PrimeFundsTransferManager {
   private readonly prime_trust_url: string;
   private readonly asset_id: string;
-  private readonly link_account_id: string;
+  private readonly skopaAccountId: string;
 
   constructor(
     config: ConfigService<ConfigInterface>,
@@ -37,11 +37,11 @@ export class PrimeFundsTransferManager {
     private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
   ) {
     const { prime_trust_url } = config.get('app', { infer: true });
-    const { link_account_id } = config.get('prime_trust', { infer: true });
+    const { skopaAccountId } = config.get('prime_trust', { infer: true });
     const { id } = config.get('asset');
     this.asset_id = id;
     this.prime_trust_url = prime_trust_url;
-    this.link_account_id = link_account_id;
+    this.skopaAccountId = skopaAccountId;
   }
 
   async convertUSDtoAsset(account_id: string, amount: number, cancel?: boolean): Promise<UsDtoAssetResponse> {
@@ -232,7 +232,7 @@ export class PrimeFundsTransferManager {
     ) {
       await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);
 
-      if (account_id === this.link_account_id) {
+      if (account_id === this.skopaAccountId) {
         const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
         const linkTransactions = await this.transferFundsEntityRepository.findBy({
           provider: Providers.LINK,

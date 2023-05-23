@@ -33,7 +33,9 @@ export class PrimeAssetsManager {
   private readonly asset_type: string;
 
   private readonly logger = new Logger(PrimeAssetsManager.name);
-  private readonly skopa_account_id: string;
+  private readonly skopaKoyweAccountId: string;
+
+  private readonly skopaAccountId: string;
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
@@ -47,12 +49,13 @@ export class PrimeAssetsManager {
     private readonly depositEntityRepository: Repository<TransfersEntity>,
   ) {
     const { prime_trust_url } = config.get('app');
-    const { skopa_account_id } = config.get('prime_trust', { infer: true });
+    const { skopaKoyweAccountId, skopaAccountId } = config.get('prime_trust', { infer: true });
     const { id, type } = config.get('asset');
     this.asset_id = id;
     this.asset_type = type;
     this.prime_trust_url = prime_trust_url;
-    this.skopa_account_id = skopa_account_id;
+    this.skopaKoyweAccountId = skopaKoyweAccountId;
+    this.skopaAccountId = skopaAccountId;
   }
 
   async createWallet(depositParams: CreateReferenceRequest): Promise<WalletResponse> {
@@ -146,23 +149,31 @@ export class PrimeAssetsManager {
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(assetPayload));
     }
-    if (account_id === this.skopa_account_id) {
-      const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
-      const facilitaTransactions = await this.depositEntityRepository.findBy({
+    let transactions;
+    if (account_id === this.skopaAccountId) {
+      transactions = await this.depositEntityRepository.findBy({
         provider: Providers.FACILITA,
         status: 'succeeded',
       });
-
-      facilitaTransactions.map(async (t) => {
-        await this.primeFundsTransferManager.transferFunds({
-          sender_id: sender.user_id,
-          receiver_id: t.user_id,
-          amount: t.amount,
-          currency_type: t.currency_type,
-        });
-        await this.depositEntityRepository.update({ id: t.id }, { status: 'settled' });
+    }
+    if (account_id === this.skopaKoyweAccountId) {
+      transactions = await this.depositEntityRepository.findBy({
+        provider: Providers.KOYWE,
+        status: 'delivered',
       });
     }
+    const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
+
+    transactions.map(async (t) => {
+      await this.primeFundsTransferManager.transferFunds({
+        sender_id: sender.user_id,
+        receiver_id: t.user_id,
+        amount: t.amount,
+        currency_type: t.currency_type,
+      });
+      await this.depositEntityRepository.update({ id: t.id }, { status: 'settled' });
+    });
+
     await this.primeBalanceManager.updateAccountBalance(account_id);
     await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
 

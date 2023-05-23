@@ -13,7 +13,6 @@ import { LiquidoWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '../../../entities/transfers.entity';
 import { KoyweService } from '../../koywe/koywe.service';
-import { PrimeTrustService } from '../../prime_trust/prime-trust.service';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
 @Injectable()
@@ -21,6 +20,7 @@ export class LiquidoWebhookManager {
   private readonly logger = new Logger(LiquidoWebhookManager.name);
   private readonly api_url: string;
   private readonly x_api_key: string;
+  private readonly skopaKoyweWallet: string;
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly liquidoTokenManager: LiquidoTokenManager,
@@ -28,14 +28,15 @@ export class LiquidoWebhookManager {
     private koyweService: KoyweService,
     private userService: UserService,
     private readonly httpService: HttpService,
-    private primeTrustService: PrimeTrustService,
 
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
   ) {
     const { api_url, x_api_key } = config.get('liquido', { infer: true });
+    const { skopaKoyweWallet } = config.get('prime_trust', { infer: true });
     this.api_url = api_url;
     this.x_api_key = x_api_key;
+    this.skopaKoyweWallet = skopaKoyweWallet;
   }
 
   async liquidoWebhooksHandler({
@@ -62,11 +63,10 @@ export class LiquidoWebhookManager {
             currency_type: transfer.currency_type,
             type: 'wire',
           };
-          const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
+          //   const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
 
           const { bank } = await this.koyweService.createReference(request, {
-            wallet_address,
-            asset_transfer_method_id,
+            wallet_address: this.skopaKoyweWallet, //we use wallet from Skopa,for cash payments (All payments goes to this wallet)
             method: 'WIREMX',
           });
           const lines = bank.split('\n');

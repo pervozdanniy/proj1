@@ -23,7 +23,6 @@ import { KoyweTokenManager } from './koywe-token.manager';
 
 export type KoyweReferenceParams = {
   wallet_address: string;
-  asset_transfer_method_id: string;
   method?: KoywePaymentMethod;
 };
 
@@ -51,7 +50,7 @@ export class KoyweDepositManager {
   }
 
   async createReference(request: CreateReferenceRequest, params: KoyweReferenceParams): Promise<BankCredentialsData> {
-    const { amount, id } = request;
+    const { amount, id, currency_type: currency } = request;
     const { wallet_address, method } = params;
 
     const userDetails = await this.userService.getUserInfo(id);
@@ -82,9 +81,9 @@ export class KoyweDepositManager {
         user_id: id,
         uuid: orderId,
         type: 'deposit',
-        amount: quote.amountIn,
+        amount,
         provider: Providers.KOYWE,
-        currency_type,
+        currency_type: currency,
         status: 'waiting',
         fee: totalFee,
       }),
@@ -191,6 +190,7 @@ export class KoyweDepositManager {
         metadata: 'Deposit funds',
         documentNumber,
       };
+
       const headersRequest = {
         Authorization: `Bearer ${token}`,
       };
