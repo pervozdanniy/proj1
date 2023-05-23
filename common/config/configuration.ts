@@ -65,7 +65,7 @@ export interface ConfigInterface {
   prime_trust: {
     email: string;
     password: string;
-    link_account_id: string;
+    skopa_account_id: string;
     facilita_account_id: string;
   };
 
@@ -209,7 +209,7 @@ export default (): ConfigInterface => ({
   prime_trust: {
     email: process.env.PRIME_EMAIL,
     password: process.env.PRIME_PASSWORD,
-    link_account_id: process.env.LINK_ACCOUNT_ID,
+    skopa_account_id: process.env.SKOPA_ACCOUNT_ID,
     facilita_account_id: process.env.FACILITA_ACCOUNT_ID,
   },
   sendgrid: {

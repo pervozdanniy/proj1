@@ -20,7 +20,7 @@ import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfer
 export class PrimeFundsTransferManager {
   private readonly prime_trust_url: string;
   private readonly asset_id: string;
-  private link_account_id: string;
+  private readonly link_account_id: string;
 
   constructor(
     config: ConfigService<ConfigInterface>,
