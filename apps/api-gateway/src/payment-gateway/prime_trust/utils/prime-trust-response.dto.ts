@@ -14,6 +14,7 @@ import {
   DepositResponse,
   ExchangeResponse,
   Transaction,
+  TransactionParty,
   TransactionResponse,
   TransferFunds,
   TransferFundsResponse,
@@ -176,6 +177,15 @@ export class TransferFundsResponseDto implements TransferFundsResponse {
   data: FundsDto | undefined;
 }
 
+class TransactionPartyDto implements TransactionParty {
+  @ApiPropertyOptional()
+  first_name?: string;
+  @ApiPropertyOptional()
+  last_name?: string;
+  @ApiPropertyOptional()
+  avatar?: string;
+}
+
 export class TransactionDto implements Transaction {
   @ApiProperty()
   id: number;
@@ -193,6 +203,9 @@ export class TransactionDto implements Transaction {
   status: string;
   @ApiProperty()
   title: string;
+  @ApiPropertyOptional({ type: TransactionPartyDto })
+  @Type(() => TransactionPartyDto)
+  recepient?: TransactionPartyDto;
 }
 export class TransactionResponseDto implements TransactionResponse {
   @ApiProperty()
