@@ -4,7 +4,7 @@ import { GrpcOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { ConfigInterface } from '~common/config/configuration';
 import sentryInit from '~common/sentry/init';
-import '~common/utils/typeorm/cursor';
+import '~common/utils/typeorm/iterable-select';
 import { CoreModule } from './core.module';
 
 async function bootstrap() {

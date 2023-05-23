@@ -59,7 +59,7 @@ import { AddCountryToKYCInfo1684326270343 } from './migrations/1684326270343-Add
 import { AlterInswitchCardENtity1684413645851 } from './migrations/1684413645851-AlterInswitchCardENtity';
 import { RefactorInwswitchWitdhrawTable1684676989982 } from './migrations/1684676989982-RefactorInwswitchWitdhrawTable';
 import { ConverAllStringsToNumbers1684679871328 } from './migrations/1684679871328-ConverAllStringsToNumbers';
-import { AlterInswitchWithdrawAddEntityId1684763864391 } from './migrations/1684763864391-AlterInswitchWithdrawAddEntityId';
+import { AlterInswitchWithdrawEntity1684855247377 } from './migrations/1684855247377-AlterInswitchWithdrawEntity';
 
 export default [
   createUserTable1669901299726,
@@ -123,5 +123,5 @@ export default [
   AlterInswitchCardENtity1684413645851,
   RefactorInwswitchWitdhrawTable1684676989982,
   ConverAllStringsToNumbers1684679871328,
-  AlterInswitchWithdrawAddEntityId1684763864391,
+  AlterInswitchWithdrawEntity1684855247377,
 ];

@@ -1,21 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { ConcurrencyBarrier } from '~common/utils/helpers/async';
 import {
   AuthorizationWebhookRequest,
   AutorizationWebhookResponse,
 } from '../../modules/inswitch/interfaces/webhook.interface';
 import { InswitchService } from '../../modules/inswitch/services/inswitch.service';
-import { KoyweMainManager } from '../koywe/managers/koywe-main.manager';
 import { PrimeBalanceManager } from '../prime_trust/managers/prime-balance.manager';
-// import { PrimeTrustService } from '../prime_trust/prime-trust.service';
+import { PrimeTrustService } from '../prime_trust/prime-trust.service';
 
 @Injectable()
 export class WithdrawAuthorizationService {
   private readonly logger = new Logger(WithdrawAuthorizationService.name);
   constructor(
     private readonly inswitch: InswitchService,
-    private readonly koywe: KoyweMainManager,
-    // private readonly primeWithdraw: PrimeTrustService,
+    private readonly primeWithdraw: PrimeTrustService,
     private readonly balance: PrimeBalanceManager,
   ) {}
 
@@ -32,10 +31,10 @@ export class WithdrawAuthorizationService {
   async authorize(payload: AuthorizationWebhookRequest): Promise<AutorizationWebhookResponse> {
     const { withdraw, user } = await this.inswitch.parseWithdrawRequest(payload);
     const { settled } = await this.balance.getAccountBalance(user.id);
-    // TODO: replace with inswitch's exchange
-    const { amountIn } = await this.koywe.getQuoteFromUsd(withdraw.amount, withdraw.currency);
 
-    if (settled > amountIn) {
+    // convert to BigInts and compare with high precision
+    const usdAmount = (BigInt(withdraw.amount * 1e4) * BigInt(1e6)) / BigInt(withdraw.rate * 1e4);
+    if (BigInt(settled * 1e6) > usdAmount) {
       return this.inswitch.approve(payload);
     }
 
@@ -47,14 +46,22 @@ export class WithdrawAuthorizationService {
   }
 
   async payApproved() {
-    const approved = this.inswitch.getApproved();
-    for await (const pair of approved) {
-      console.log('SSS', pair);
-      // await this.primeWithdraw.makeAssetWithdrawal({
-      //   id: pair.user_id,
-      //   amount: pair.amount,
-      //   wallet: this.inswitch.wallet,
-      // });
+    const iterator = await this.inswitch.startProcessing();
+    const barrier = new ConcurrencyBarrier(10);
+
+    for await (const { user_id, amount } of iterator) {
+      await barrier.wait();
+      this.primeWithdraw
+        .makeAssetWithdrawal({
+          id: user_id,
+          amount: Number.parseFloat(amount),
+          wallet: this.inswitch.wallet,
+        })
+        .catch((error) => this.logger.error('Asset withdraw failed', error))
+        .finally(() => barrier.release());
     }
+
+    await barrier.finish();
+    await this.inswitch.finishProcessing();
   }
 }

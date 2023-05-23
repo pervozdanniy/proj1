@@ -3,6 +3,8 @@ import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } fro
 export enum InswitchAuthorizationStatus {
   Pending,
   Approved,
+  Processing,
+  Processed,
 }
 
 @Entity('inswitch_withdraw_authorization')
@@ -10,11 +12,17 @@ export class InswitchWithdrawAuthorizationEntity {
   @PrimaryColumn({ type: 'varchar', generated: false, length: 64 })
   id: string;
 
+  @Column('varchar', { length: 32 })
+  entity_id: string;
+
   @Column('decimal')
-  amount: number;
+  amount: string;
 
   @Column('char', { length: 3 })
   currency: string;
+
+  @Column('decimal')
+  usd_rate: string;
 
   @Column('smallint')
   status: InswitchAuthorizationStatus;
@@ -24,10 +32,4 @@ export class InswitchWithdrawAuthorizationEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @Column('timestamp', { nullable: true })
-  transferred_at?: Date;
-
-  @Column('varchar', { length: 32 })
-  entity_id: string;
 }

@@ -69,6 +69,7 @@ export class InswitchService {
       id: payload.transactionInfo.authorizationId,
       amount: Number.parseFloat(payload.transactionInfo.amount),
       currency: payload.transactionInfo.currency,
+      rate: Number.parseFloat(payload.transactionInfo.fx_rate),
     };
     const user = await this.userRepo
       .createQueryBuilder('u')
@@ -83,10 +84,11 @@ export class InswitchService {
     await this.withdrawRepo.insert(
       this.withdrawRepo.create({
         id: payload.transactionInfo.authorizationId,
-        amount: Number.parseFloat(payload.transactionInfo.amount),
+        amount: payload.transactionInfo.amount,
         currency: payload.transactionInfo.currency,
         status: InswitchAuthorizationStatus.Pending,
         entity_id: payload.cardInfo.entityId,
+        usd_rate: payload.transactionInfo.fx_rate,
       }),
     );
 
@@ -116,26 +118,24 @@ export class InswitchService {
       case TransactionStatus.Declined:
         await this.withdrawRepo.delete(entity.id);
         break;
-      case TransactionStatus.Adjusted:
-        await this.withdrawRepo.update(entity.id, {
-          amount: Number.parseFloat(payload.transactionInfo.amount),
-          status: InswitchAuthorizationStatus.Approved,
-        });
-        break;
     }
   }
 
-  getApproved() {
+  async startProcessing() {
+    await this.withdrawRepo.update(
+      { status: InswitchAuthorizationStatus.Approved },
+      { status: InswitchAuthorizationStatus.Processing },
+    );
+
     return this.withdrawRepo
       .createQueryBuilder('iw')
-      .select('SUM(iw.amount)', 'amount')
-      .addSelect('iw.currency', 'currency')
+      .select('SUM(iw.amount / iw.usd_rate)', 'amount')
       .addSelect('ia.user_id', 'user_id')
       .innerJoin(InswitchAccountEntity, 'ia', 'iw.entity_id = ia.entity_id')
       .where('iw.status = :status', { status: InswitchAuthorizationStatus.Approved })
-      .groupBy('ia.user_id')
-      .addGroupBy('iw.currency')
-      .getRawIterator<{ amount: number; currency: string; user_id: number }>();
+      .groupBy('iw.entity_id')
+      .addGroupBy('ia.user_id')
+      .getRawIterator<{ amount: string; user_id: number }>();
   }
 
   async balance(userId: number) {
@@ -149,5 +149,12 @@ export class InswitchService {
       currency: b.balance.currency,
       amount: Number.parseFloat(b.balance.amounts.find((a) => a.label === 'available').amount),
     }));
+  }
+
+  async finishProcessing() {
+    await this.withdrawRepo.update(
+      { status: InswitchAuthorizationStatus.Processing },
+      { status: InswitchAuthorizationStatus.Processed },
+    );
   }
 }
