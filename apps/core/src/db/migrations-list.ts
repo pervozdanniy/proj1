@@ -60,6 +60,7 @@ import { AlterInswitchCardENtity1684413645851 } from './migrations/1684413645851
 import { RefactorInwswitchWitdhrawTable1684676989982 } from './migrations/1684676989982-RefactorInwswitchWitdhrawTable';
 import { ConverAllStringsToNumbers1684679871328 } from './migrations/1684679871328-ConverAllStringsToNumbers';
 import { AlterInswitchWithdrawEntity1684855247377 } from './migrations/1684855247377-AlterInswitchWithdrawEntity';
+import { ChangeAllNumericTypesToDouble1684863902686 } from './migrations/1684863902686-ChangeAllNumericTypesToDouble';
 
 export default [
   createUserTable1669901299726,
@@ -124,4 +125,5 @@ export default [
   RefactorInwswitchWitdhrawTable1684676989982,
   ConverAllStringsToNumbers1684679871328,
   AlterInswitchWithdrawEntity1684855247377,
+  ChangeAllNumericTypesToDouble1684863902686,
 ];

@@ -3,6 +3,7 @@ syntax = "proto3";
 import "common.proto";
 import "veriff.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 import public "inswitch.proto";
 
 package skopa.core;
@@ -235,15 +236,21 @@ message TransactionResponse {
   optional uint32 last_id = 3;
 }
 
+
 message Transaction {
   uint32 id = 1;
   string type = 2;
-  string title = 3;
-  string name = 4;
-  double amount = 5;
-  string fee = 6;
-  string status = 7;
-  string created_at = 8;
+  double amount = 3;
+  double fee = 4;
+  string status = 5;
+  string created_at = 6;
+  optional TransactionParty participant = 7; 
+}
+
+message TransactionParty {
+  optional string first_name = 1;
+  optional string last_name = 2;
+  optional string avatar = 3;
 }
 
 message TransferResponse {

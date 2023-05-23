@@ -13,7 +13,7 @@ export class DepositFlowEntity {
   @Column({ type: 'int' })
   user_id: number;
 
-  @Column({ type: 'decimal' })
+  @Column({ type: 'double precision' })
   amount: number;
 
   @Column({ type: 'char', length: 3 })

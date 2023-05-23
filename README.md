@@ -20,7 +20,11 @@ This README would normally document whatever steps are necessary to get your app
 ```
     cp .env.sample .env
 ```
-3. Start docker
+3. Update db init script permissions
+```
+chmod +x docker-postgresql-multiple-databases.sh
+```
+4. Start docker
 ```
     docker-compose up
 ```
