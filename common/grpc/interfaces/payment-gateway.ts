@@ -70,8 +70,23 @@ export interface DepositRedirectData {
   info: TransferInfo | undefined;
 }
 
+export interface BankData {
+  currency?: string | undefined;
+  branch_number?: string | undefined;
+  details?: BankDetails | undefined;
+  account_type?: string | undefined;
+  account_number: string;
+}
+
+export interface BankDetails {
+  swift: string;
+  name: string;
+  id: string;
+  code: string;
+}
+
 export interface BankCredentialsData {
-  bank: string;
+  bank: BankData | undefined;
   info: TransferInfo | undefined;
 }
 

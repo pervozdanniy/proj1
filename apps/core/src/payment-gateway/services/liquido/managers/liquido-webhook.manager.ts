@@ -69,7 +69,7 @@ export class LiquidoWebhookManager {
             wallet_address: this.skopaKoyweWallet, //we use wallet from Skopa,for cash payments (All payments goes to this wallet)
             method: 'WIREMX',
           });
-          const lines = bank.split('\n');
+          const lines = bank.account_number.split('\n');
 
           accountNumber = lines[1];
         }

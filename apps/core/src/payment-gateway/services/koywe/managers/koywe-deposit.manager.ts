@@ -95,7 +95,7 @@ export class KoyweDepositManager {
       fee: totalFee,
     };
     if (providedAddress) {
-      return { info, bank: providedAddress };
+      return { info, bank: { account_number: providedAddress } };
     }
   }
 

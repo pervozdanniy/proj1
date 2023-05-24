@@ -1,7 +1,7 @@
 import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,6 +20,7 @@ import { FacilitaTokenManager } from './facilita-token.manager';
 
 @Injectable()
 export class FacilitaDepositManager {
+  private readonly logger = new Logger(FacilitaDepositManager.name);
   private readonly url: string;
   constructor(
     private readonly facilitaTokenManager: FacilitaTokenManager,
@@ -57,7 +58,7 @@ export class FacilitaDepositManager {
 
     await this.depositEntityRepository.save(this.depositEntityRepository.create(payload));
 
-    return { info: { currency, amount, fee: 0 }, bank: JSON.stringify(facilitaBank) };
+    return { info: { currency, amount, fee: 0 }, bank: facilitaBank };
   }
 
   async createUserIfNotExist(id: number): Promise<{ subject_id: string }> {
@@ -78,6 +79,7 @@ export class FacilitaDepositManager {
         email: user.email,
       },
     };
+
     try {
       const facilitaUser = await lastValueFrom(
         this.httpService.post(`${this.url}/api/v1/subject/people`, data, { headers: headersRequest }),
@@ -85,6 +87,8 @@ export class FacilitaDepositManager {
 
       return { subject_id: facilitaUser.data.data.id };
     } catch (e) {
+      this.logger.error(e.response.data.errors);
+
       throw new GrpcException(Status.ABORTED, 'Facilita create user error!', 400);
     }
   }

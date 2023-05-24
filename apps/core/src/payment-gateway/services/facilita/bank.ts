@@ -1,7 +1,7 @@
 export const facilitaBank = {
   currency: 'BRL',
   branch_number: '0001',
-  bank: {
+  details: {
     swift: 'PLURBRRJ',
     name: 'BRASIL PLURAL S.A. BANCO MÚLTIPLO',
     id: '292c1958-4926-4c7d-8550-6ce9c0952552',

@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsString, Length, ValidateIf } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateIf } from 'class-validator';
 import { TransferInfoDto } from '../../utils/prime-trust-response.dto';
 
 export enum PaymentType {
@@ -90,9 +90,41 @@ class RedirectDto {
   info: TransferInfoDto;
 }
 
+export class BankDetailsDto {
+  @ApiPropertyOptional()
+  swift: string;
+  @ApiPropertyOptional()
+  name: string;
+  @ApiPropertyOptional()
+  id: string;
+  @ApiPropertyOptional()
+  code: string;
+}
+export class BankDataDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  currency?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  branch_number?: string;
+
+  @Type(() => BankDetailsDto)
+  @ApiPropertyOptional({ type: BankDetailsDto })
+  @IsOptional()
+  details?: BankDetailsDto;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  account_type?: string;
+
+  @ApiPropertyOptional()
+  account_number: string;
+}
+
 class BankCredentialsDataDto {
   @ApiProperty()
-  bank: string;
+  bank: BankDataDto;
 
   @Type(() => TransferInfoDto)
   @ApiProperty({ type: TransferInfoDto })
