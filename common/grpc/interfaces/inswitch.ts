@@ -70,6 +70,15 @@ export interface BlockCardRequest {
   reason: BlockReason;
 }
 
+export interface ExternalBalanceEntry {
+  currency: string;
+  amount: number;
+}
+
+export interface ExternalBalanceResponse {
+  balance: ExternalBalanceEntry[];
+}
+
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface CardsServiceClient {
@@ -141,3 +150,31 @@ export function CardsServiceControllerMethods() {
 }
 
 export const CARDS_SERVICE_NAME = "CardsService";
+
+export interface ExternalBalanceServiceClient {
+  getBalance(request: UserId, ...rest: any): Observable<ExternalBalanceResponse>;
+}
+
+export interface ExternalBalanceServiceController {
+  getBalance(
+    request: UserId,
+    ...rest: any
+  ): Promise<ExternalBalanceResponse> | Observable<ExternalBalanceResponse> | ExternalBalanceResponse;
+}
+
+export function ExternalBalanceServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = ["getBalance"];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("ExternalBalanceService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("ExternalBalanceService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
+
+export const EXTERNAL_BALANCE_SERVICE_NAME = "ExternalBalanceService";

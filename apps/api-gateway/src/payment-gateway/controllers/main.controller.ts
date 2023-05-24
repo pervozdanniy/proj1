@@ -1,12 +1,4 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/auth';
-import { PaymentGatewayService } from '@/payment-gateway/prime_trust/services/payment-gateway.service';
-import {
-  BalanceResponseDto,
-  BankAccountParamsDto,
-  BankAccountResponseDto,
-  ExchangeResponseDto,
-  TransactionResponseDto,
-} from '@/payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
@@ -14,6 +6,14 @@ import { BalanceRequestDto } from '../dtos/main/balance.dto';
 import { BankParamsDto } from '../dtos/main/bank-params.dto';
 import { ExchangeDto } from '../dtos/main/exchange.dto';
 import { GetTransfersDto } from '../dtos/transfer/get-transfers.dto';
+import { PaymentGatewayService } from '../services/payment-gateway.service';
+import {
+  BalanceResponseDto,
+  BankAccountParamsDto,
+  BankAccountResponseDto,
+  ExchangeResponseDto,
+  TransactionResponseDto,
+} from '../utils/prime-trust-response.dto';
 
 @ApiTags('Payment Gateway')
 @Controller({

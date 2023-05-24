@@ -1,11 +1,11 @@
-import { NotificationController } from '@/notification/controllers/notification.controller';
-import { NotificationService } from '@/notification/services/notification.service';
+import { PaymentGatewayService } from '@/payment-gateway/services/payment-gateway.service';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { JwtSessionMiddleware } from '~common/http-session';
 import { AuthModule } from '../auth';
-import { PaymentGatewayService } from '../payment-gateway/prime_trust/services/payment-gateway.service';
+import { NotificationController } from './controllers/notification.controller';
+import { NotificationService } from './services/notification.service';
 
 @Module({
   imports: [ClientsModule.registerAsync([asyncClientOptions('core')]), AuthModule],

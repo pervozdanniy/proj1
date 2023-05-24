@@ -174,7 +174,7 @@ export class TransactionDto implements Transaction {
   @ApiProperty()
   created_at: string;
   @ApiProperty()
-  fee: string;
+  fee: number;
   @ApiProperty()
   status: string;
   @ApiProperty()

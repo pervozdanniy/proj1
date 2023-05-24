@@ -162,7 +162,7 @@ export class InswitchApiService {
       ),
     ).catch(this.#handleHttpException);
 
-    return resp.data.balances;
+    return resp.data;
   }
 
   async getAvailablePaymentMethods(request: GetPaymentMethodsRequest) {

@@ -30,6 +30,7 @@ import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { InswitchModule } from './modules/inswitch/inswitch.module';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { CurrencyService } from './services/currency.service';
+import { WithdrawAuthorizationService } from './services/external-withdraw-authorization/withdraw-authorization.service';
 import { FacilitaService } from './services/facilita/facilita.service';
 import { FacilitaDepositManager } from './services/facilita/managers/facilita-deposit.manager';
 import { FacilitaTokenManager } from './services/facilita/managers/facilita-token.manager';
@@ -130,6 +131,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     PrimeLinkManager,
     LiquidoDepositManager,
     FacilitaTokenManager,
+    WithdrawAuthorizationService,
   ],
   controllers: [PaymentGatewayController, DepositFlowController],
   exports: [PaymentGatewayService, CurrencyService],

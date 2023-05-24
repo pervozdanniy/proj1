@@ -186,12 +186,17 @@ export interface TransactionResponse {
 export interface Transaction {
   id: number;
   type: string;
-  title: string;
-  name: string;
   amount: number;
-  fee: string;
+  fee: number;
   status: string;
   created_at: string;
+  participant?: TransactionParty | undefined;
+}
+
+export interface TransactionParty {
+  first_name?: string | undefined;
+  last_name?: string | undefined;
+  avatar?: string | undefined;
 }
 
 export interface TransferResponse {

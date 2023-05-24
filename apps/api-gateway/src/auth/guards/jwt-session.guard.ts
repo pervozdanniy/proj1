@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UserSourceEnum, UserStatusEnum } from '~common/constants/user';
+import { User } from '~common/grpc/interfaces/common';
 import {
   is2FA,
   isPasswordReset,
@@ -18,7 +19,7 @@ import {
   SessionProxy,
 } from '~common/http-session';
 import { JWT_AUTH_METADATA } from '~common/http-session/meta';
-import { PaymentGatewayService } from '../../payment-gateway/prime_trust/services/payment-gateway.service';
+import { PaymentGatewayService } from '../../payment-gateway/services/payment-gateway.service';
 import { SessionMetadataOptions } from '../interfaces/session.interface';
 import { TwoFactorService } from '../services/2fa.service';
 
@@ -33,7 +34,7 @@ export class JwtSessionGuard extends BaseGuard {
   }
 
   protected async validateSession(
-    session: SessionProxy<SessionInterface<any>>,
+    session: SessionProxy<SessionInterface<User>>,
     context: ExecutionContext,
   ): Promise<boolean> {
     const res = await super.validateSession(session, context);
@@ -80,7 +81,7 @@ export class JwtSessionGuard extends BaseGuard {
       if (status === UserStatusEnum.Closed) {
         throw new ConflictException({
           message:
-            'Your account closed,you hav`nt permission for this action,please send email to support for reactivation!',
+            "Your account closed, you don't have permission for this action, please send email to support for reactivation!",
         });
       }
     }
