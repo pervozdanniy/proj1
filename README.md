@@ -47,69 +47,100 @@ You'll be able to find them in `common/grpc/interfaces`.
 * How to run tests
 * Deployment instructions
 
-## How to test it ##
+## Integration ##
 
 1. Authorization:
     Our app provides Bearer token authorization mechanism providing a pair of tokens: `access_token` and `refresh_token`. 
-
-1. Registration flow:
-    * POST /auth/registration/start
-
-
-    * POST /auth/registration/verify
-        (on local version get code from logs of auth service)
-    * POST /auth/registration/create/agreement
-    * POST /auth/registration/approve/agreement
-        (just paste id from previous step's response)
-    * POST /auth/registration/finish
-
-2. Deposit flow:
-    * POST /deposit/start
-        * case `action='redirect'`: 
-            follow link `redirect.url` in response
-        * case `action='link_transfer'`: 
-            there is no way to process this flow without frontend part
-        * case `action='pay_with_bank'`: 
-            pay with provided bank details
-
-3. Withdraw flow:
-    * GET /payment_gateway/banks/account
-
-        Check if you have any banks. If yes copy `id` of chosen one.
+    There are two endpoins:
+    * `POST /auth/login` - login with user credentials and get tokens pair
+    * `POST /auth/refresh` - refresh tokens pair if `access_token` is expired
     
-    * POST /payment_gateway/banks/account
+    To authorize request add header `Authorization: Bearer <access_token>`. Once token is expired you'll get `401 Unautorized` response.
 
-        If there is no banks added, add one and copy it's `id`
+2. Two-factor verification (2FA):
+    Some endpoints require two-factor verification. When 2FA is required you'll get `428 Precondition required` response. It contains list of methods to be verified (e.g. email/sms). Getting 428 response also means that verification codes are already sent to user devices.
+    To complete 2FA you can use one of endpoints below:
+    * `POST /auth/2fa/verify` - verify all required codes at once
+    * `POST /auth/2fa/verify_one` - verify one 2fa code at a time until all required codes verifed.
 
-    * POST /withdrawal/make
+3. Registration:
+    * `POST /auth/registration/start`
 
-        Set `bank_account_id: id_from_prev_step`
+        Provide user's identification details - email and phone number and start registration session. You'll get `201 Created` response with auth tokens pair and `verify` object with required 2fa methods. 
+    * `POST /auth/registration/verify`
 
-4. Cards management:
-    * POST /cards
+        This is an alias to `POST /auth/2fa/verify_one` endpoint. Authorize this requiest with `access_token` from previous step.
+    * `POST /auth/registration/create/agreement`
 
-        Issue a card. Pin is required if `is_virtual=false`
-    * POST /cards/{reference}/activate
+        Generate user agreement in `html` format and show it to end user.
+    * `POST /auth/registration/approve/agreement`
+
+        Send `id` from previous step response to approve user agreement.
+    * `POST /auth/registration/finish`
+
+        Provide rest of user data and become logged in with the same `access_token`
+
+4. Deposit flow:
+    Our API provides one-or-more step flow for depositing money to SKOPA account based on user's country and selected payment method. 
+
+    * `POST /deposit/start`
+        Supports several payment methods: `bank-transfer` | `credit-card` | `cash`. Provide `amount` and `currency` along with `type=<selected_payment_method>` and get one of possible responses below:
+
+        * `action='redirect'`: 
+
+            Follow link `redirect.url` in response. No further actions required.
+        * `action='link_transfer'`: 
+
+            Generate [Link](https://developer.link-sandbox.money/products/quickstart) widget using provided `link_transfer.sessionKey` from response. After you'll get `CUSTOMER_ID` from Link widget send it to `POST /deposit/pay_with_bank` togather with `flowId` from our API response.
+        * `action='pay_with_bank'`: 
+
+            Show user provided bank details to make a bank transfer. No further actions required.
+
+        Also response contains `info` object with fees/conversions which are going to be charged from user.
+
+    * `POST /deposit/pay_with_bank`
+
+        Accepts `flowId` and some details based on `action` from previous step.
+
+5. Withdraw flow:
+    * `GET /payment_gateway/banks/account`
+
+        List of user's added banks.
+    
+    * `POST /payment_gateway/banks/account`
+
+        Add new bank to user's account.
+
+    * `POST /withdrawal/make`
+
+        Specify `bank_account_id` with one of user's banks `id` and `amount` to withdraw.
+
+6. Transfer funds:
+    User `POST /transfer` to transfer specified `amount` to some other SKOPA user. `receiver_id` - ID of SKOPA user. 
+
+7. Cards management:
+    * `POST /cards`
+
+        Issue a card. `pin` is required if `is_virtual=false`
+    * `POST /cards/{reference}/activate`
 
         Activate card. If `is_virtual=true` you can do it right after issuing. Otherwise user should wait until he gets a card. (can't be tested in sandbox)
-    * GET /cards
+    * `GET /cards`
     
         List all your issued cards
 
-5. Reset password flow:
+8. Reset password flow:
 
     Used for users that can't access their account
 
     * POST /auth/reset_password/start
     * POST /auth/reset_password/verify
-        (on local version get code from logs of auth service)
     * POST /auth/reset_password/finish
 
-6. Change password flow:
+9. Change password flow:
 
-    Used by authorized user to change password for future logins
+    Used by authorized user to change password for future logins. Requires `Authorization`
 
     * POST /auth/change_password/start
     * POST /auth/change_password/verify
-        (on local version get code from logs of auth service)
     * POST /auth/change_password/finish
