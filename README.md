@@ -48,8 +48,14 @@ You'll be able to find them in `common/grpc/interfaces`.
 * Deployment instructions
 
 ## How to test it ##
+
+1. Authorization:
+    Our app provides Bearer token authorization mechanism providing a pair of tokens: `access_token` and `refresh_token`. 
+
 1. Registration flow:
     * POST /auth/registration/start
+
+
     * POST /auth/registration/verify
         (on local version get code from logs of auth service)
     * POST /auth/registration/create/agreement

@@ -1,8 +1,8 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtSessionAuth, JwtSessionId } from '~common/http-session';
-import { TwoFactorAppliedResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
-import { ChangeContactVerifyDto, ChangeEmailDto } from '../dto/change-contact-info.dto';
+import { TwoFactorSuccessResponseDto, TwoFactorVerificationDto } from '../dto/2fa.reponse.dto';
+import { ChangeContactVerifyDto, ChangeEmailDto, ChangePhoneDto } from '../dto/change-contact-info.dto';
 import { ChangeContactInfoService } from '../services/change-contact-info.service';
 
 @ApiTags('Auth')
@@ -15,31 +15,21 @@ export class ChangeContactInfoController {
 
   @ApiOperation({ summary: 'Start email change process' })
   @ApiBearerAuth()
-  @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
+  @ApiCreatedResponse({ type: TwoFactorVerificationDto })
   @Post('start/email')
   @JwtSessionAuth({ forbidSocial: true })
-  async email(
-    @Body() payload: ChangeEmailDto,
-    @JwtSessionId() sessionId: string,
-  ): Promise<TwoFactorAppliedResponseDto> {
-    const verify = await this.changeContactInfo.start(payload, sessionId);
-
-    return { verify };
+  async email(@Body() payload: ChangeEmailDto, @JwtSessionId() sessionId: string): Promise<TwoFactorVerificationDto> {
+    return this.changeContactInfo.start(payload, sessionId);
   }
 
-  // @ApiOperation({ summary: 'Start phone change process' })
-  // @ApiBearerAuth()
-  // @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
-  // @Post('start/phone')
-  // @JwtSessionAuth()
-  // async phone(
-  //   @Body() payload: ChangePhoneDto,
-  //   @JwtSessionId() sessionId: string,
-  // ): Promise<TwoFactorAppliedResponseDto> {
-  //   const verify = await this.changeContactInfo.start(payload, sessionId);
-  //
-  //   return { verify };
-  // }
+  @ApiOperation({ summary: 'Start phone change process' })
+  @ApiBearerAuth()
+  @ApiCreatedResponse({ type: TwoFactorVerificationDto })
+  @Post('start/phone')
+  @JwtSessionAuth()
+  async phone(@Body() payload: ChangePhoneDto, @JwtSessionId() sessionId: string): Promise<TwoFactorVerificationDto> {
+    return this.changeContactInfo.start(payload, sessionId);
+  }
 
   @ApiOperation({ summary: 'Verify 2FA codes and accept email change' })
   @ApiBearerAuth()

@@ -1,10 +1,11 @@
 import { Metadata } from '@grpc/grpc-js';
-import { ConflictException, HttpException, Injectable, OnModuleInit } from '@nestjs/common';
-import { HttpStatus } from '@nestjs/common/enums';
+import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { RegisterServiceClient } from '~common/grpc/interfaces/auth';
+import { TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
+import { AuthResponseDto } from '../dto/auth.response.dto';
 import {
   ChangeAgreementStatusDto,
   CreateAgreementRequestDto,
@@ -12,6 +13,7 @@ import {
   RegistrationStartRequestDto,
   RegistrationVerifyRequestDto,
 } from '../dto/registration.dto';
+import { parseAuthResponse, parseVerificationResponse } from '../helpers/2fa';
 
 @Injectable()
 export class RegistrationService implements OnModuleInit {
@@ -23,26 +25,19 @@ export class RegistrationService implements OnModuleInit {
     this.authClient = this.auth.getService('RegisterService');
   }
 
-  start(payload: RegistrationStartRequestDto) {
-    return firstValueFrom(this.authClient.registerStart(payload));
+  async start(payload: RegistrationStartRequestDto): Promise<AuthResponseDto> {
+    const resp = await firstValueFrom(this.authClient.registerStart(payload));
+
+    return parseAuthResponse(resp);
   }
 
-  async verify(payload: RegistrationVerifyRequestDto, sessionId: string) {
+  async verify(payload: RegistrationVerifyRequestDto, sessionId: string): Promise<TwoFactorVerifyDto> {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 
     const resp = await firstValueFrom(this.authClient.registerVerify(payload, metadata));
-    if (!resp.valid) {
-      throw new ConflictException(resp.reason);
-    }
-    if (resp.unverified?.methods.length) {
-      throw new HttpException(
-        { message: '2FA is not finished', methods: resp.unverified.methods },
-        HttpStatus.PRECONDITION_REQUIRED,
-      );
-    }
 
-    return { valid: resp.valid };
+    return parseVerificationResponse(resp);
   }
 
   async finish(payload: RegistrationFinishRequestDto, sessionId: string) {
