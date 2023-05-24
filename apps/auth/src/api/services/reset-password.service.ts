@@ -41,7 +41,7 @@ export class ApiResetPasswordService {
     this.auth2FA.requireOne(method, resetPassword(session));
 
     const resp: AuthData = await this.resetLogin(user, session);
-    resp.verify = { type: 'Reset password confirmation', methods: [method] };
+    resp.verify = { methods: [method] };
 
     return resp;
   }
@@ -80,7 +80,7 @@ export class ApiResetPasswordService {
 
     this.auth2FA.requireOne(method, resetPassword(session));
 
-    return { type: 'Reset password confirmation', methods: [method] };
+    return { methods: [method] };
   }
 
   async changeOldPassword(

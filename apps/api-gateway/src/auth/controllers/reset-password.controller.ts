@@ -9,7 +9,8 @@ import {
 } from '@nestjs/swagger';
 import { SuccessDto } from '../../utils/success.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
-import { TwoFactorAppliedResponseDto, TwoFactorSuccessResponseDto } from '../dto/2fa.reponse.dto';
+import { TwoFactorAppliedResponseDto, TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
+import { AuthResponseDto } from '../dto/auth.response.dto';
 import { ResetPasswordFinishDto, ResetPasswordStartDto, ResetPasswordVerifyDto } from '../dto/reset-password.dto';
 import { ResetPasswordService } from '../services/reset-password.service';
 
@@ -25,18 +26,18 @@ export class ResetPasswordController {
   @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
   @ApiConflictResponse()
   @Post('start')
-  start(@Body() payload: ResetPasswordStartDto) {
+  start(@Body() payload: ResetPasswordStartDto): Promise<AuthResponseDto> {
     return this.resetService.start(payload);
   }
 
   @ApiOperation({ summary: 'Verify 2FA codes' })
   @ApiBearerAuth()
-  @ApiOkResponse({ type: TwoFactorSuccessResponseDto, description: '2FA completed' })
+  @ApiOkResponse({ type: TwoFactorVerifyDto, description: '2FA completed' })
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
   @JwtSessionAuth({ allowUnauthorized: true, allowUnverified: true, requirePasswordReset: true, allowClosed: true })
   @HttpCode(HttpStatus.OK)
   @Post('verify')
-  verify(@Body() payload: ResetPasswordVerifyDto, @JwtSessionId() sessionId: string) {
+  verify(@Body() payload: ResetPasswordVerifyDto, @JwtSessionId() sessionId: string): Promise<TwoFactorVerifyDto> {
     return this.resetService.verify(payload, sessionId);
   }
 
