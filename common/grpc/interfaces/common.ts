@@ -54,4 +54,8 @@ export interface SuccessResponse {
   error?: string | undefined;
 }
 
+export interface UserIdRequest {
+  user_id: number;
+}
+
 export const SKOPA_COMMON_PACKAGE_NAME = "skopa.common";

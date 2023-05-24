@@ -12,24 +12,18 @@ import { ConfigInterface } from '~common/config/configuration';
 import { BankAccountParams, BanksInfoResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
-import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { KoyweTokenManager } from './koywe-token.manager';
 
 @Injectable()
 export class KoyweBankAccountManager {
   private readonly koywe_url: string;
   constructor(
+    config: ConfigService<ConfigInterface>,
     private userService: UserService,
     private readonly koyweTokenManager: KoyweTokenManager,
     private readonly httpService: HttpService,
-
     @InjectRepository(BankAccountEntity)
     private readonly bankAccountEntityRepository: Repository<BankAccountEntity>,
-
-    @InjectRepository(VeriffDocumentEntity)
-    private readonly documentRepository: Repository<VeriffDocumentEntity>,
-
-    config: ConfigService<ConfigInterface>,
   ) {
     const { koywe_url } = config.get('app');
     this.koywe_url = koywe_url;
@@ -52,10 +46,10 @@ export class KoyweBankAccountManager {
 
   async addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
     const { bank_code, bank_account_number, id, bank_account_name } = request;
-    const { country_code, email } = await this.userService.getUserInfo(id);
+    const { country_code, email, documents } = await this.userService.getUserInfo(id);
     const { code, currency_type } = countriesData[country_code];
 
-    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
+    const document = documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }

@@ -16,7 +16,6 @@ import { BankCredentialsData, DepositRedirectData } from '~common/grpc/interface
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
-import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { KoyweMainManager, KoywePaymentMethod } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
@@ -37,8 +36,6 @@ export class KoyweDepositManager {
     private readonly koyweMainManager: KoyweMainManager,
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
-    @InjectRepository(VeriffDocumentEntity)
-    private readonly documentRepository: Repository<VeriffDocumentEntity>,
 
     private userService: UserService,
     config: ConfigService<ConfigInterface>,
@@ -64,7 +61,7 @@ export class KoyweDepositManager {
       method,
     });
 
-    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
+    const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
@@ -117,7 +114,7 @@ export class KoyweDepositManager {
       method,
     });
 
-    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
+    const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }

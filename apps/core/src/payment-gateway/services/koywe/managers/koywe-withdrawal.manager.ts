@@ -16,7 +16,6 @@ import { TransferInfo, TransferMethodRequest } from '~common/grpc/interfaces/pay
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData, CountryData } from '../../../country/data';
-import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { KoyweCreateOrder, KoyweQuote } from '../../../types/koywe';
 import { KoyweMainManager } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
@@ -33,9 +32,6 @@ export class KoyweWithdrawalManager {
     private userService: UserService,
     @InjectRepository(BankAccountEntity)
     private readonly bankAccountEntityRepository: Repository<BankAccountEntity>,
-
-    @InjectRepository(VeriffDocumentEntity)
-    private readonly documentRepository: Repository<VeriffDocumentEntity>,
     @InjectRepository(TransfersEntity)
     private readonly transferRepository: Repository<TransfersEntity>,
     @InjectRedis() private readonly redis: Redis,
@@ -50,7 +46,7 @@ export class KoyweWithdrawalManager {
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<{ wallet: string; info: TransferInfo }> {
     const { id, bank_account_id, amount } = request;
-    const { country_code, email } = await this.userService.getUserInfo(id);
+    const { country_code, email, documents } = await this.userService.getUserInfo(id);
     const bank = await this.bankAccountEntityRepository.findOneBy({
       user_id: id,
       id: bank_account_id,
@@ -64,7 +60,7 @@ export class KoyweWithdrawalManager {
     const countries: CountryData = countriesData;
     const { currency_type } = countries[country_code];
     const quote = await this.createQuote(amount, currency_type);
-    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
+    const document = documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }

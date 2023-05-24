@@ -4,8 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
+import { KYCDocumentType } from '~svc/core/src/payment-gateway/modules/veriff/entities/veriff-document.entity';
 import { InswitchAccountEntity } from '../entities/inswitch-account.entity';
 import { InswitchAuthorizationStatus, InswitchWithdrawAuthorizationEntity } from '../entities/inswitch-withdraw.entity';
+import { CreateEntityRequest } from '../interfaces/api.interface';
 import {
   AuthorizationStatus,
   AuthorizationWebhookRequest,
@@ -32,13 +34,40 @@ export class InswitchService {
     return this.#withdrawWallet;
   }
 
+  private mapDocumentTypes(internal: KYCDocumentType): CreateEntityRequest['documentType'] {
+    switch (internal) {
+      case 'ID_CARD':
+        return 'nationalId';
+      case 'PASSPORT':
+        return 'passport';
+      default:
+        throw new ConflictException('Unsupported KYC document type');
+    }
+  }
+
   async accountGetOrCreate(userId: number) {
     const existing = await this.accountRepo.findOneBy({ user_id: userId });
     if (existing) {
       return existing;
     }
 
-    const user = await this.userRepo.findOneOrFail({ where: { id: userId }, relations: ['kyc', 'details'] });
+    const user = await this.userRepo.findOneOrFail({ where: { id: userId }, relations: ['documents', 'details'] });
+    const document = user.documents.find((d) => d.label === 'ID_CARD' || d.label === 'PASSPORT');
+    if (!document) {
+      throw new ConflictException('Only "ID_CARD" and "PASSPORT" documents are allowed for card payments');
+    }
+
+    const paymentMethods = await this.api.getAvailablePaymentMethods({
+      country: user.country_code,
+      direction: 'out',
+      paymentMethodTypeClass: 'emoney',
+      paymentMethodTypeStatus: 'available',
+    });
+    const paymentMethod = paymentMethods.find((pm) => pm.country === user.country_code);
+    if (!paymentMethod) {
+      throw new ConflictException('Card payments are not available in your country');
+    }
+
     const entityId = await this.api.createEntity({
       firstName: user.details.first_name,
       lastName: user.details.last_name,
@@ -48,11 +77,15 @@ export class InswitchService {
       city: user.details.city,
       postalCode: user.details.postal_code.toString(),
       country: user.country_code,
-      documentType: 'nationalId',
-      documentNumber: user.kyc.document_number,
-      documentCountry: user.kyc.country,
+      documentType: this.mapDocumentTypes(document.label),
+      documentNumber: document.document_number,
+      documentCountry: document.country,
     });
     const walletId = await this.api.createWallet(entityId);
+    const payment_reference = await this.api.createPaymentMethod({
+      walletId,
+      paymentMethodType: paymentMethod.paymentMethodType,
+    });
 
     return this.accountRepo.save(
       this.accountRepo.create({
@@ -60,6 +93,7 @@ export class InswitchService {
         entity_id: entityId,
         wallet_id: walletId,
         country: user.country_code,
+        payment_reference,
       }),
     );
   }
@@ -138,6 +172,13 @@ export class InswitchService {
       .getRawIterator<{ amount: string; user_id: number }>();
   }
 
+  async finishProcessing() {
+    await this.withdrawRepo.update(
+      { status: InswitchAuthorizationStatus.Processing },
+      { status: InswitchAuthorizationStatus.Processed },
+    );
+  }
+
   async balance(userId: number) {
     const account = await this.accountGetOrCreate(userId);
     if (!account || !account.wallet_id) {
@@ -151,10 +192,9 @@ export class InswitchService {
     }));
   }
 
-  async finishProcessing() {
-    await this.withdrawRepo.update(
-      { status: InswitchAuthorizationStatus.Processing },
-      { status: InswitchAuthorizationStatus.Processed },
-    );
+  async paymentReference(userId: number) {
+    const account = await this.accountGetOrCreate(userId);
+
+    return account.payment_reference;
   }
 }

@@ -9,6 +9,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+export type KYCDocumentType = 'PASSPORT' | 'ID_CARD' | 'RESIDENCE_PERMIT' | 'DRIVERS_LICENSE' | 'OTHER';
+
 @Entity('veriff_kyc_documents')
 export class VeriffDocumentEntity {
   @PrimaryGeneratedColumn('increment')
@@ -33,7 +35,7 @@ export class VeriffDocumentEntity {
   document_number: string;
 
   @Column('character varying', { nullable: true })
-  label: string;
+  label: KYCDocumentType;
 
   @Column('character varying', { nullable: true })
   document_front: string;
@@ -45,7 +47,7 @@ export class VeriffDocumentEntity {
   profile_image: string;
 
   @Column('character varying')
-  status: string;
+  status: 'approved' | string;
 
   @Column('character varying', { nullable: true })
   failure_details?: string;

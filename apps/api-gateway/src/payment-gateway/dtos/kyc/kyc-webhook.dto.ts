@@ -1,15 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { DecisionWebhook, EventWebhook } from '~common/grpc/interfaces/veriff';
 
 class VerificationPersonDto {
   @IsOptional()
   @IsString()
-  @ApiProperty()
+  @ApiPropertyOptional()
   gender?: string;
 
   @IsOptional()
   @IsString()
-  @ApiProperty()
+  @ApiPropertyOptional()
   idNumber?: string;
 
   @IsNotEmpty()
@@ -24,31 +25,31 @@ class VerificationPersonDto {
 
   @IsOptional()
   @IsString()
-  @ApiProperty()
+  @ApiPropertyOptional()
   citizenship?: string;
 
   @IsOptional()
   @IsString()
-  @ApiProperty()
+  @ApiPropertyOptional()
   dateOfBirth?: string;
 
   @IsOptional()
   @IsString()
-  @ApiProperty()
+  @ApiPropertyOptional()
   nationality?: string;
 
   @IsOptional()
   @IsString()
-  @ApiProperty()
+  @ApiPropertyOptional()
   yearOfBirth?: string;
 
   @IsOptional()
   @IsString()
-  @ApiProperty()
+  @ApiPropertyOptional()
   placeOfBirth?: string;
 
   @IsOptional()
-  @ApiProperty()
+  @ApiPropertyOptional()
   pepSanctionMatch?: boolean;
 }
 
@@ -75,7 +76,7 @@ class VerificationDocumentDto {
 
   @IsOptional()
   @IsString()
-  @ApiProperty()
+  @ApiPropertyOptional()
   validUntil?: string;
 }
 
@@ -90,12 +91,12 @@ class VerificationDto {
   code: number;
 
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({ type: VerificationPersonDto })
   person: VerificationPersonDto;
 
   @IsOptional()
   @IsString()
-  @ApiProperty()
+  @ApiPropertyOptional()
   reason?: string;
 
   @IsNotEmpty()
@@ -111,7 +112,7 @@ class VerificationDto {
 
   @IsOptional()
   @IsString()
-  @ApiProperty()
+  @ApiPropertyOptional()
   reasonCode?: string;
 
   @IsNotEmpty()
@@ -138,7 +139,7 @@ class TechnicalDataDto {
   ip: string;
 }
 
-export class VeriffWebhookDto {
+export class DecisionWebhookDto implements DecisionWebhook {
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
@@ -149,6 +150,15 @@ export class VeriffWebhookDto {
   verification: VerificationDto;
 
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ type: TechnicalDataDto })
   technicalData: TechnicalDataDto;
+}
+
+export class EventWebhookDto implements EventWebhook {
+  @ApiProperty()
+  id: string;
+  @ApiProperty()
+  attemptId: string;
+  @ApiProperty()
+  action: string;
 }

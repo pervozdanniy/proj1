@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { CountryModule } from '../country/country.module';
 import { DepositFlowController } from './controllers/deposit-flow.controller';
+import { KYCController } from './controllers/kyc.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
@@ -19,7 +20,6 @@ import { PrimeTrustContactEntity } from './entities/prime_trust/prime-trust-cont
 import { PrimeTrustKycDocumentEntity } from './entities/prime_trust/prime-trust-kyc-document.entity';
 import { WithdrawalParamsEntity } from './entities/prime_trust/withdrawal-params.entity';
 import { TransfersEntity } from './entities/transfers.entity';
-import { VeriffDocumentEntity } from './entities/veriff-document.entity';
 import { BrazilPaymentGateway } from './manager/countries/brazil-payment.gateway';
 import { ChilePaymentGateway } from './manager/countries/chile-payment.gateway';
 import { ColombiaPaymentGateway } from './manager/countries/colombia-payment.gateway';
@@ -28,6 +28,7 @@ import { PeruPaymentGateway } from './manager/countries/peru-payment.gateway';
 import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
 import { InswitchModule } from './modules/inswitch/inswitch.module';
+import { VeriffModule } from './modules/veriff/veriff.module';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { CurrencyService } from './services/currency.service';
 import { WithdrawAuthorizationService } from './services/external-withdraw-authorization/withdraw-authorization.service';
@@ -43,6 +44,7 @@ import { KoyweMainManager } from './services/koywe/managers/koywe-main.manager';
 import { KoyweTokenManager } from './services/koywe/managers/koywe-token.manager';
 import { KoyweWebhookManager } from './services/koywe/managers/koywe-webhook.manager';
 import { KoyweWithdrawalManager } from './services/koywe/managers/koywe-withdrawal.manager';
+import { KYCService } from './services/kyc/kyc.service';
 import { LiquidoService } from './services/liquido/liquido.service';
 import { LiquidoDepositManager } from './services/liquido/managers/liquido-deposit.manager';
 import { LiquidoTokenManager } from './services/liquido/managers/liquido-token.manager';
@@ -61,7 +63,6 @@ import { PrimeKycManager } from './services/prime_trust/managers/prime-kyc-manag
 import { PrimeLinkManager } from './services/prime_trust/managers/prime-link-manager';
 import { PrimeTokenManager } from './services/prime_trust/managers/prime-token.manager';
 import { PrimeTransactionsManager } from './services/prime_trust/managers/prime-transactions.manager';
-import { PrimeVeriffManager } from './services/prime_trust/managers/prime-veriff-manager';
 import { PrimeWithdrawalManager } from './services/prime_trust/managers/prime-withdrawal.manager';
 import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
 
@@ -82,11 +83,11 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       TransfersEntity,
       BankAccountEntity,
       DepositParamsEntity,
-      VeriffDocumentEntity,
       DepositFlowEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
     InswitchModule,
+    VeriffModule,
   ],
   providers: [
     PaymentGatewayService,
@@ -127,13 +128,13 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     LiquidoWithdrawalManager,
     LiquidoWebhookManager,
     DepositFlow,
-    PrimeVeriffManager,
     PrimeLinkManager,
     LiquidoDepositManager,
     FacilitaTokenManager,
     WithdrawAuthorizationService,
+    KYCService,
   ],
-  controllers: [PaymentGatewayController, DepositFlowController],
+  controllers: [PaymentGatewayController, DepositFlowController, KYCController],
   exports: [PaymentGatewayService, CurrencyService],
 })
 export class PaymentGatewayModule {}

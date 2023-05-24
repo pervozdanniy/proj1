@@ -1,6 +1,6 @@
 import { UserService } from '@/user/services/user.service';
 import { Injectable } from '@nestjs/common';
-import { IdRequest, SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
+import { IdRequest, UserAgreement } from '~common/grpc/interfaces/common';
 import {
   AccountResponse,
   AgreementRequest,
@@ -13,7 +13,6 @@ import {
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { VeriffHookRequest, WebhookResponse } from '~common/grpc/interfaces/veriff';
 import { CurrencyService } from './currency.service';
 import { PrimeTrustService } from './prime_trust/prime-trust.service';
 
@@ -106,22 +105,5 @@ export class PaymentGatewayService {
     }
 
     return resp;
-  }
-
-  generateVeriffLink(id: number) {
-    return this.primeTrustService.generateVeriffLink(id);
-  }
-
-  veriffHookHandler(request: VeriffHookRequest) {
-    return this.primeTrustService.veriffHookHandler(request);
-  }
-
-  async veriffWebhookHandler(request: WebhookResponse): Promise<SuccessResponse> {
-    const { success, user_id } = await this.primeTrustService.veriffWebhookHandler(request);
-    if (success) {
-      await this.createAccount(user_id);
-    }
-
-    return { success };
   }
 }
