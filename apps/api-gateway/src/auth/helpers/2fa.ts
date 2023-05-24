@@ -4,7 +4,7 @@ import { TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
 
 export const parseAuthResponse = ({ verify, ...tokens }: AuthData): AuthResponseDto => {
-  if (verify.methods.length) {
+  if (verify?.methods.length) {
     return {
       type: 'verification_required',
       verify: { methods: verify.methods },
