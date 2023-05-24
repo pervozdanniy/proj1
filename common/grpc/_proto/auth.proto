@@ -104,13 +104,12 @@ message AuthRequest {
 }
 
 message Verification {
-  string type = 1;
-  repeated string methods = 2;
+  repeated string methods = 1;
 }
 
 message AuthData {
   string access_token = 1;
-  optional string refresh_token = 2;
+  string refresh_token = 2;
   optional Verification verify = 3;
 }
 

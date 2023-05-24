@@ -5,35 +5,36 @@ import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { AuthRequest, AuthServiceClient } from '~common/grpc/interfaces/auth';
 import { IdRequest } from '~common/grpc/interfaces/common';
+import { AuthResponseDto } from '../dto/auth.response.dto';
 import { RegisterSocialsUserDto } from '../dto/register-socials-user.dto';
 import { SocialsUserDto } from '../dto/socials-user.dto';
-import { TwoFactorService } from './2fa.service';
+import { parseAuthResponse } from '../helpers/2fa';
 
 export class AuthService implements OnModuleInit {
   private authClient: AuthServiceClient;
 
-  constructor(@InjectGrpc('auth') private readonly auth: ClientGrpc, private readonly auth2FA: TwoFactorService) {}
+  constructor(@InjectGrpc('auth') private readonly auth: ClientGrpc) {}
 
   onModuleInit() {
     this.authClient = this.auth.getService('AuthService');
   }
 
-  async login(credentials: AuthRequest) {
+  async login(credentials: AuthRequest): Promise<AuthResponseDto> {
     const resp = await firstValueFrom(this.authClient.login(credentials));
 
-    return this.auth2FA.validateAuthResponse(resp);
+    return parseAuthResponse(resp);
   }
 
-  async loginSocials(payload: SocialsUserDto) {
+  async loginSocials(payload: SocialsUserDto): Promise<AuthResponseDto> {
     const resp = await firstValueFrom(this.authClient.loginSocials({ ...payload, social_id: payload.socialId }));
 
-    return this.auth2FA.validateAuthResponse(resp);
+    return parseAuthResponse(resp);
   }
 
-  async registerSocials(payload: RegisterSocialsUserDto) {
+  async registerSocials(payload: RegisterSocialsUserDto): Promise<AuthResponseDto> {
     const resp = await firstValueFrom(this.authClient.registerSocials({ ...payload, social_id: payload.socialId }));
 
-    return this.auth2FA.validateAuthResponse(resp);
+    return parseAuthResponse(resp);
   }
 
   closeAccount(sessionId: string) {

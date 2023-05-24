@@ -35,7 +35,7 @@ export class ApiRegisterService {
 
     const methods = await this.auth2FA.requireConfirmation(startRegistration(session, payload));
     if (methods.length) {
-      resp.verify = { type: 'Registration confirmation', methods };
+      resp.verify = { methods };
     }
 
     return resp;
@@ -56,7 +56,7 @@ export class ApiRegisterService {
 
     const agreement = await this.auth.createAgreement({ ...payload, ...session.register });
     if (!agreement) {
-      console.log('AGREEMENT', payload, session);
+      console.log('NO_AGREEMENT', payload, session);
     }
 
     registerRequestAgreement(session, { user_details: payload, agreement: { id: agreement.id, status: false } });

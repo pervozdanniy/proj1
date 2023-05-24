@@ -6,17 +6,13 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
-import {
-  TwoFactorAppliedResponseDto,
-  TwoFactorRequiredResponseDto,
-  TwoFactorSuccessResponseDto,
-} from '../dto/2fa.reponse.dto';
+import { TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
+import { AuthResponseDto } from '../dto/auth.response.dto';
 import {
   ChangeAgreementStatusDto,
   CreateAgreementRequestDto,
@@ -39,10 +35,10 @@ export class RegistrationController {
   ) {}
 
   @ApiOperation({ summary: 'Check if user is unique and start registration process' })
-  @ApiCreatedResponse({ type: TwoFactorAppliedResponseDto })
+  @ApiCreatedResponse({ type: AuthResponseDto })
   @ApiConflictResponse()
   @Post('start')
-  async start(@Body() payload: RegistrationStartRequestDto) {
+  async start(@Body() payload: RegistrationStartRequestDto): Promise<AuthResponseDto> {
     await this.ipqualityScoreService.checkUserData(payload);
 
     return this.registerService.start(payload);
@@ -50,17 +46,15 @@ export class RegistrationController {
 
   @ApiOperation({ summary: 'Verify 2FA codes' })
   @ApiBearerAuth()
-  @ApiOkResponse({ type: TwoFactorSuccessResponseDto, description: '2FA completed' })
-  @ApiResponse({
-    status: HttpStatus.PRECONDITION_REQUIRED,
-    type: TwoFactorRequiredResponseDto,
-    description: 'Current 2FA method check succeeded, but there are more 2FA methods to verify',
-  })
+  @ApiOkResponse({ type: TwoFactorVerifyDto, description: '2FA completed or partially accepted' })
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
   @JwtSessionAuth({ allowUnauthorized: true, allowUnverified: true, requireRegistration: true, allowClosed: true })
   @HttpCode(HttpStatus.OK)
   @Post('verify')
-  verify(@Body() payload: RegistrationVerifyRequestDto, @JwtSessionId() sessionId: string) {
+  verify(
+    @Body() payload: RegistrationVerifyRequestDto,
+    @JwtSessionId() sessionId: string,
+  ): Promise<TwoFactorVerifyDto> {
     return this.registerService.verify(payload, sessionId);
   }
 

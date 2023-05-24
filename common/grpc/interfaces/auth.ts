@@ -29,13 +29,12 @@ export interface AuthRequest {
 }
 
 export interface Verification {
-  type: string;
   methods: string[];
 }
 
 export interface AuthData {
   access_token: string;
-  refresh_token?: string | undefined;
+  refresh_token: string;
   verify?: Verification | undefined;
 }
 

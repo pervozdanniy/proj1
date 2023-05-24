@@ -19,7 +19,7 @@ export class AuthApiService {
     const resp: AuthData = await this.auth.login(user, session);
     const methods = await this.auth2FA.requireIfEnabled(session);
     if (methods.length) {
-      resp.verify = { type: '2FA Verification', methods };
+      resp.verify = { methods };
     }
 
     return resp;
