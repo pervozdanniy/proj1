@@ -7,6 +7,7 @@ import { InjectGrpc } from '~common/grpc/helpers';
 import { TwoFactorServiceClient } from '~common/grpc/interfaces/auth';
 import { TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
 import { TwoFactorEnableRequestDto, TwoFactorVerificationDto, TwoFactorVerifyRequestDto } from '../dto/2fa.request.dto';
+import { parseVerificationResponse } from '../helpers/2fa';
 
 @Injectable()
 export class TwoFactorService implements OnModuleInit {
@@ -74,19 +75,8 @@ export class TwoFactorService implements OnModuleInit {
     metadata.set('sessionId', sessionId);
 
     const resp = await firstValueFrom(this.authClient.verifyOne(payload, metadata));
-    if (!resp.valid) {
-      throw new ConflictException(resp.reason);
-    }
-    if (resp.unverified?.methods.length) {
-      return {
-        type: 'partially_accepted',
-        verify: {
-          methods: resp.unverified.methods,
-        },
-      };
-    }
 
-    return { type: 'completed' };
+    return parseVerificationResponse(resp);
   }
 
   resend(method: TwoFactorMethod, sessionId: string) {
