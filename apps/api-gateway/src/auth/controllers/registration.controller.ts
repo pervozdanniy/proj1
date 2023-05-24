@@ -1,3 +1,4 @@
+import { AgreementResponseDto, SuccessResponseDto } from '@/payment-gateway/utils/prime-trust-response.dto';
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -9,10 +10,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import {
-  AgreementResponseDto,
-  SuccessResponseDto,
-} from '../../payment-gateway/prime_trust/utils/prime-trust-response.dto';
 import { PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
 import {

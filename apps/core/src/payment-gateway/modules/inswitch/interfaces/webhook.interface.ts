@@ -32,6 +32,8 @@ export type TransactionInfo = {
   transactionType: TransactionType;
   amount: string;
   currency: string;
+  fx_currency: 'USD';
+  fx_rate: string;
   panEntryMode: string;
   mcc: string;
   merchantCountry: string;

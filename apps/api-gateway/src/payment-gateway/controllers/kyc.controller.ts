@@ -1,11 +1,11 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/auth';
-import { PaymentGatewayService } from '@/payment-gateway/prime_trust/services/payment-gateway.service';
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
 import { VeriffSessionResponseDto } from '../dtos/veriff/veriff-session-response.dto';
 import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
+import { PaymentGatewayService } from '../services/payment-gateway.service';
 
 @ApiTags('KYC')
 @Controller({

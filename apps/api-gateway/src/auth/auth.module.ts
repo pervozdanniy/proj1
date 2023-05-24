@@ -3,7 +3,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { HttpSessionModule, JwtSessionMiddleware } from '~common/http-session';
-import { PaymentGatewayService } from '../payment-gateway/prime_trust/services/payment-gateway.service';
+import { PaymentGatewayService } from '../payment-gateway/services/payment-gateway.service';
 import { TwoFactorController } from './controllers/2fa.controller';
 import { AuthController } from './controllers/auth.controller';
 import { ChangeContactInfoController } from './controllers/change-contact-info.controller';

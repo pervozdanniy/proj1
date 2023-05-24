@@ -22,8 +22,8 @@ export class InswitchService {
     private readonly api: InswitchApiService,
     @InjectRepository(InswitchWithdrawAuthorizationEntity)
     private readonly withdrawRepo: Repository<InswitchWithdrawAuthorizationEntity>,
-    @InjectRepository(InswitchAccountEntity) private readonly accountRepo: Repository<InswitchAccountEntity>,
     @InjectRepository(UserEntity) private readonly userRepo: Repository<UserEntity>,
+    @InjectRepository(InswitchAccountEntity) private readonly accountRepo: Repository<InswitchAccountEntity>,
   ) {
     this.#withdrawWallet = config.get('inswitch.withdrawWallet', { infer: true });
   }
@@ -69,6 +69,7 @@ export class InswitchService {
       id: payload.transactionInfo.authorizationId,
       amount: Number.parseFloat(payload.transactionInfo.amount),
       currency: payload.transactionInfo.currency,
+      rate: Number.parseFloat(payload.transactionInfo.fx_rate),
     };
     const user = await this.userRepo
       .createQueryBuilder('u')
@@ -83,9 +84,11 @@ export class InswitchService {
     await this.withdrawRepo.insert(
       this.withdrawRepo.create({
         id: payload.transactionInfo.authorizationId,
-        amount: Number.parseFloat(payload.transactionInfo.amount),
+        amount: payload.transactionInfo.amount,
         currency: payload.transactionInfo.currency,
         status: InswitchAuthorizationStatus.Pending,
+        entity_id: payload.cardInfo.entityId,
+        usd_rate: payload.transactionInfo.fx_rate,
       }),
     );
 
@@ -115,13 +118,24 @@ export class InswitchService {
       case TransactionStatus.Declined:
         await this.withdrawRepo.delete(entity.id);
         break;
-      case TransactionStatus.Adjusted:
-        await this.withdrawRepo.update(entity.id, {
-          amount: Number.parseFloat(payload.transactionInfo.amount),
-          status: InswitchAuthorizationStatus.Approved,
-        });
-        break;
     }
+  }
+
+  async startProcessing() {
+    await this.withdrawRepo.update(
+      { status: InswitchAuthorizationStatus.Approved },
+      { status: InswitchAuthorizationStatus.Processing },
+    );
+
+    return this.withdrawRepo
+      .createQueryBuilder('iw')
+      .select('SUM(iw.amount / iw.usd_rate)', 'amount')
+      .addSelect('ia.user_id', 'user_id')
+      .innerJoin(InswitchAccountEntity, 'ia', 'iw.entity_id = ia.entity_id')
+      .where('iw.status = :status', { status: InswitchAuthorizationStatus.Approved })
+      .groupBy('iw.entity_id')
+      .addGroupBy('ia.user_id')
+      .getRawIterator<{ amount: string; user_id: number }>();
   }
 
   async balance(userId: number) {
@@ -129,7 +143,18 @@ export class InswitchService {
     if (!account || !account.wallet_id) {
       throw new ConflictException('User has no wallet');
     }
+    const balances = await this.api.walletGetBalance(account.wallet_id);
 
-    return this.api.walletGetBalance(account.wallet_id);
+    return balances.map((b) => ({
+      currency: b.balance.currency,
+      amount: Number.parseFloat(b.balance.amounts.find((a) => a.label === 'available').amount),
+    }));
+  }
+
+  async finishProcessing() {
+    await this.withdrawRepo.update(
+      { status: InswitchAuthorizationStatus.Processing },
+      { status: InswitchAuthorizationStatus.Processed },
+    );
   }
 }

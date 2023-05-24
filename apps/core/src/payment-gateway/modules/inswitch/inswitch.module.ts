@@ -3,6 +3,7 @@ import { UserEntity } from '@/user/entities/user.entity';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ExternalBalanceController } from './controllers/balance.controller';
 import { CardsController } from './controllers/cards.controller';
 import { InswitchAccountEntity } from './entities/inswitch-account.entity';
 import { InswitchCardEntity } from './entities/inswitch-card.entity';
@@ -23,7 +24,7 @@ import { InswitchService } from './services/inswitch.service';
     ]),
   ],
   providers: [InswitchService, InswitchCardsService, InswitchApiService],
-  controllers: [CardsController],
+  controllers: [CardsController, ExternalBalanceController],
   exports: [InswitchService],
 })
 export class InswitchModule {}
