@@ -17,10 +17,6 @@ export type KoyweWebhookType = {
   signature: string;
 };
 
-export type FacilitaWebhookType = {
-  orderId: string;
-};
-
 export type LiquidoWebhookType = {
   eventType: 'CHARGE_SUCCEEDED';
   data: {
@@ -49,5 +45,13 @@ export type LinkWebhookType = {
   metadata: {
     resourceId: string;
     resourceType: string;
+  };
+};
+
+export type FacilitaWebhookType = {
+  notification: {
+    type: string;
+    transaction_id: string;
+    secret: string;
   };
 };

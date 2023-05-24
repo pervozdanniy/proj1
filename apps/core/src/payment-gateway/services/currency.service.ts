@@ -62,6 +62,10 @@ export class CurrencyService implements OnApplicationBootstrap {
     return selectedRates;
   }
 
+  get rate(): Map<string, number> {
+    return this.ratesData;
+  }
+
   async updateRates() {
     let rates: Record<string, number>;
     try {

@@ -161,7 +161,7 @@ message LiquidoWebhookRequest {
   string orderId = 6;
 }
 message FacilitaWebhookRequest {
-  string orderId = 1;
+  string transactionId = 1;
 }
 
 message AccountStatusResponse {

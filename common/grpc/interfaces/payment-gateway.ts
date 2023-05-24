@@ -110,7 +110,7 @@ export interface LiquidoWebhookRequest {
 }
 
 export interface FacilitaWebhookRequest {
-  orderId: string;
+  transactionId: string;
 }
 
 export interface AccountStatusResponse {

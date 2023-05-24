@@ -153,7 +153,7 @@ export class PrimeAssetsManager {
     if (account_id === this.skopaAccountId) {
       transactions = await this.depositEntityRepository.findBy({
         provider: Providers.FACILITA,
-        status: 'succeeded',
+        status: 'wired',
       });
     }
     if (account_id === this.skopaKoyweAccountId) {
