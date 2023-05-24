@@ -127,6 +127,8 @@ services:
     env_file:
       - .env
     command: "start -w admin-panel"
+    ports:
+      - ${ADMIN_PANEL_LOCAL_PORT}:3002
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,19 +1,19 @@
+import { PermissionEntity } from '@admin/access/permissions/permission.entity';
 import { DBErrorCode } from '@adminCommon/enums';
 import { PermissionExistsException } from '@adminCommon/http/exceptions';
 import { Pagination, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
 import { Injectable, InternalServerErrorException, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TimeoutError } from 'rxjs';
+import { Repository } from 'typeorm';
 import { CreatePermissionRequestDto, PermissionResponseDto, UpdatePermissionRequestDto } from './dtos';
 import { PermissionMapper } from './permission.mapper';
-import { PermissionsRepository } from './permissions.repository';
 
 @Injectable()
-export class PermissionsService {
-  constructor(
-    @InjectRepository(PermissionsRepository)
-    private permissionsRepository: PermissionsRepository,
-  ) {}
+export class PermissionsService extends Repository<PermissionEntity> {
+  constructor(@InjectRepository(PermissionEntity) permissionsRepository: Repository<PermissionEntity>) {
+    super(PermissionEntity, permissionsRepository.manager, permissionsRepository.queryRunner);
+  }
 
   /**
    * Get a paginated permission list
@@ -22,9 +22,7 @@ export class PermissionsService {
    */
   public async getPermissions(pagination: PaginationRequest): Promise<PaginationResponseDto<PermissionResponseDto>> {
     try {
-      const [permissionEntities, totalPermissions] = await this.permissionsRepository.getPermissionsAndCount(
-        pagination,
-      );
+      const [permissionEntities, totalPermissions] = await this.getPermissionsAndCount(pagination);
 
       const permissionDtos = await Promise.all(permissionEntities.map(PermissionMapper.toDto));
 
@@ -47,7 +45,7 @@ export class PermissionsService {
    * @returns {Promise<PermissionResponseDto>}
    */
   public async getPermissionById(id: number): Promise<PermissionResponseDto> {
-    const permissionEntity = await this.permissionsRepository.findOne({ where: { id } });
+    const permissionEntity = await this.findOne({ where: { id } });
     if (!permissionEntity) {
       throw new NotFoundException();
     }
@@ -63,7 +61,7 @@ export class PermissionsService {
   public async createPermission(permissionDto: CreatePermissionRequestDto): Promise<PermissionResponseDto> {
     try {
       let permissionEntity = PermissionMapper.toCreateEntity(permissionDto);
-      permissionEntity = await this.permissionsRepository.save(permissionEntity);
+      permissionEntity = await this.save(permissionEntity);
 
       return PermissionMapper.toDto(permissionEntity);
     } catch (error) {
@@ -85,14 +83,14 @@ export class PermissionsService {
    * @returns {Promise<PermissionResponseDto>}
    */
   public async updatePermission(id: number, permissionDto: UpdatePermissionRequestDto): Promise<PermissionResponseDto> {
-    let permissionEntity = await this.permissionsRepository.findOne({ where: { id } });
+    let permissionEntity = await this.findOne({ where: { id } });
     if (!permissionEntity) {
       throw new NotFoundException();
     }
 
     try {
       permissionEntity = PermissionMapper.toUpdateEntity(permissionEntity, permissionDto);
-      permissionEntity = await this.permissionsRepository.save(permissionEntity);
+      permissionEntity = await this.save(permissionEntity);
 
       return PermissionMapper.toDto(permissionEntity);
     } catch (error) {
@@ -105,5 +103,30 @@ export class PermissionsService {
         throw new InternalServerErrorException();
       }
     }
+  }
+
+  /**
+   * Get permision list
+   * @param pagination {PaginationRequest}
+   * @returns permissionEntities[] and totalPermissions
+   */
+  public async getPermissionsAndCount(
+    pagination: PaginationRequest,
+  ): Promise<[permissionEntities: PermissionEntity[], totalPermissions: number]> {
+    const {
+      skip,
+      limit: take,
+      order,
+      params: { search },
+    } = pagination;
+    const query = this.createQueryBuilder().skip(skip).take(take).orderBy(order);
+
+    if (search) {
+      query.where('description ILIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    return query.getManyAndCount();
   }
 }

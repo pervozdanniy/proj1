@@ -1,3 +1,4 @@
+import { UserEntity } from '@admin/access/users/user.entity';
 import { DBErrorCode } from '@adminCommon/enums';
 import {
   ForeignKeyConflictException,
@@ -9,16 +10,18 @@ import { Pagination, PaginationRequest, PaginationResponseDto } from '@libs/pagi
 import { Injectable, InternalServerErrorException, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TimeoutError } from 'rxjs';
+import { Repository } from 'typeorm';
 import { ChangePasswordRequestDto, CreateUserRequestDto, UpdateUserRequestDto, UserResponseDto } from './dtos';
 import { UserMapper } from './users.mapper';
-import { UsersRepository } from './users.repository';
 
 @Injectable()
-export class UsersService {
+export class UsersService extends Repository<UserEntity> {
   constructor(
-    @InjectRepository(UsersRepository)
-    private usersRepository: UsersRepository,
-  ) {}
+    @InjectRepository(UserEntity)
+    usersRepository: Repository<UserEntity>,
+  ) {
+    super(UserEntity, usersRepository.manager, usersRepository.queryRunner);
+  }
 
   /**
    * Get a paginated user list
@@ -27,7 +30,7 @@ export class UsersService {
    */
   public async getUsers(pagination: PaginationRequest): Promise<PaginationResponseDto<UserResponseDto>> {
     try {
-      const [userEntities, totalUsers] = await this.usersRepository.getUsersAndCount(pagination);
+      const [userEntities, totalUsers] = await this.getUsersAndCount(pagination);
 
       const UserDtos = await Promise.all(userEntities.map(UserMapper.toDtoWithRelations));
 
@@ -50,7 +53,7 @@ export class UsersService {
    * @returns {Promise<UserResponseDto>}
    */
   public async getUserById(id: string): Promise<UserResponseDto> {
-    const userEntity = await this.usersRepository.findOne({
+    const userEntity = await this.findOne({
       where: { id },
       relations: ['permissions', 'roles'],
     });
@@ -70,7 +73,7 @@ export class UsersService {
     try {
       let userEntity = UserMapper.toCreateEntity(userDto);
       userEntity.password = await HashHelper.encrypt(userEntity.password);
-      userEntity = await this.usersRepository.save(userEntity);
+      userEntity = await this.save(userEntity);
 
       return UserMapper.toDto(userEntity);
     } catch (error) {
@@ -98,14 +101,14 @@ export class UsersService {
    * @returns {Promise<UserResponseDto>}
    */
   public async updateUser(id: string, userDto: UpdateUserRequestDto): Promise<UserResponseDto> {
-    let userEntity = await this.usersRepository.findOne({ where: { id } });
+    let userEntity = await this.findOne({ where: { id } });
     if (!userEntity) {
       throw new NotFoundException();
     }
 
     try {
       userEntity = UserMapper.toUpdateEntity(userEntity, userDto);
-      userEntity = await this.usersRepository.save(userEntity);
+      userEntity = await this.save(userEntity);
 
       return UserMapper.toDto(userEntity);
     } catch (error) {
@@ -135,7 +138,7 @@ export class UsersService {
   public async changePassword(changePassword: ChangePasswordRequestDto, userId: string): Promise<UserResponseDto> {
     const { currentPassword, newPassword } = changePassword;
 
-    const userEntity = await this.usersRepository.findOne({ where: { id: userId } });
+    const userEntity = await this.findOne({ where: { id: userId } });
 
     if (!userEntity) {
       throw new NotFoundException();
@@ -149,7 +152,7 @@ export class UsersService {
 
     try {
       userEntity.password = await HashHelper.encrypt(newPassword);
-      await this.usersRepository.save(userEntity);
+      await this.save(userEntity);
 
       return UserMapper.toDto(userEntity);
     } catch (error) {
@@ -159,5 +162,54 @@ export class UsersService {
         throw new InternalServerErrorException();
       }
     }
+  }
+
+  /**
+   * Get users list
+   * @param pagination {PaginationRequest}
+   * @returns [userEntities: UserEntity[], totalUsers: number]
+   */
+  public async getUsersAndCount(
+    pagination: PaginationRequest,
+  ): Promise<[userEntities: UserEntity[], totalUsers: number]> {
+    const {
+      skip,
+      limit: take,
+      order,
+      params: { search },
+    } = pagination;
+    const query = this.createQueryBuilder('u')
+      .innerJoinAndSelect('u.roles', 'r')
+      .leftJoinAndSelect('u.permissions', 'p')
+      .skip(skip)
+      .take(take)
+      .orderBy(order);
+
+    if (search) {
+      query.where(
+        `
+            u.username ILIKE :search
+            OR u.first_name ILIKE :search
+            OR u.last_name ILIKE :search
+            `,
+        { search: `%${search}%` },
+      );
+    }
+
+    return query.getManyAndCount();
+  }
+
+  /**
+   * find user by username
+   * @param username {string}
+   * @returns Promise<UserEntity>
+   */
+  async findUserByUsername(username: string): Promise<UserEntity> {
+    return this.createQueryBuilder('u')
+      .leftJoinAndSelect('u.roles', 'r', 'r.active = true')
+      .leftJoinAndSelect('r.permissions', 'rp', 'rp.active = true')
+      .leftJoinAndSelect('u.permissions', 'p', 'p.active = true')
+      .where('u.username = :username', { username })
+      .getOne();
   }
 }

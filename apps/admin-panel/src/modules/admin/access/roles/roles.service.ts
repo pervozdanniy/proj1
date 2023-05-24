@@ -1,19 +1,19 @@
+import { RoleEntity } from '@admin/access/roles/role.entity';
 import { DBErrorCode } from '@adminCommon/enums';
 import { ForeignKeyConflictException, RoleExistsException } from '@adminCommon/http/exceptions';
 import { Pagination, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
 import { Injectable, InternalServerErrorException, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TimeoutError } from 'rxjs';
+import { Repository } from 'typeorm';
 import { CreateRoleRequestDto, RoleResponseDto, UpdateRoleRequestDto } from './dtos';
 import { RoleMapper } from './role.mapper';
-import { RolesRepository } from './roles.repository';
 
 @Injectable()
-export class RolesService {
-  constructor(
-    @InjectRepository(RolesRepository)
-    private rolesRepository: RolesRepository,
-  ) {}
+export class RolesService extends Repository<RoleEntity> {
+  constructor(@InjectRepository(RoleEntity) rolesRepository: Repository<RoleEntity>) {
+    super(RoleEntity, rolesRepository.manager, rolesRepository.queryRunner);
+  }
 
   /**
    * Get a paginated role list
@@ -22,7 +22,7 @@ export class RolesService {
    */
   public async getRoles(pagination: PaginationRequest): Promise<PaginationResponseDto<RoleResponseDto>> {
     try {
-      const [roleEntities, totalRoles] = await this.rolesRepository.getRolesAndCount(pagination);
+      const [roleEntities, totalRoles] = await this.getRolesAndCount(pagination);
 
       const roleDtos = await Promise.all(roleEntities.map(RoleMapper.toDtoWithRelations));
 
@@ -45,7 +45,7 @@ export class RolesService {
    * @returns {Promise<RoleResponseDto>}
    */
   public async getRoleById(id: number): Promise<RoleResponseDto> {
-    const roleEntity = await this.rolesRepository.findOne({
+    const roleEntity = await this.findOne({
       where: { id },
       relations: ['permissions'],
     });
@@ -64,7 +64,7 @@ export class RolesService {
   public async createRole(roleDto: CreateRoleRequestDto): Promise<RoleResponseDto> {
     try {
       let roleEntity = RoleMapper.toCreateEntity(roleDto);
-      roleEntity = await this.rolesRepository.save(roleEntity);
+      roleEntity = await this.save(roleEntity);
 
       return RoleMapper.toDto(roleEntity);
     } catch (error) {
@@ -92,14 +92,14 @@ export class RolesService {
    * @returns {Promise<RoleResponseDto>}
    */
   public async updateRole(id: number, roleDto: UpdateRoleRequestDto): Promise<RoleResponseDto> {
-    let roleEntity = await this.rolesRepository.findOne({ where: { id } });
+    let roleEntity = await this.findOne({ where: { id } });
     if (!roleEntity) {
       throw new NotFoundException();
     }
 
     try {
       roleEntity = RoleMapper.toUpdateEntity(roleEntity, roleDto);
-      roleEntity = await this.rolesRepository.save(roleEntity);
+      roleEntity = await this.save(roleEntity);
 
       return RoleMapper.toDto(roleEntity);
     } catch (error) {
@@ -118,5 +118,32 @@ export class RolesService {
         throw new InternalServerErrorException();
       }
     }
+  }
+
+  /**
+   * Get roles list
+   * @param pagination {PaginationRequest}
+   * @returns [roleEntities: RoleEntity[], totalRoles: number]
+   */
+  public async getRolesAndCount(
+    pagination: PaginationRequest,
+  ): Promise<[roleEntities: RoleEntity[], totalRoles: number]> {
+    const {
+      skip,
+      limit: take,
+      order,
+      params: { search },
+    } = pagination;
+    const query = this.createQueryBuilder('r')
+      .innerJoinAndSelect('r.permissions', 'p')
+      .skip(skip)
+      .take(take)
+      .orderBy(order);
+
+    if (search) {
+      query.where('name ILIKE :search', { search: `%${search}%` });
+    }
+
+    return query.getManyAndCount();
   }
 }

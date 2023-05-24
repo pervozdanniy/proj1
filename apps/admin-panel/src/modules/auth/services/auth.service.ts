@@ -1,22 +1,17 @@
 import { UserStatus } from '@admin/access/users/user-status.enum';
 import { UserEntity } from '@admin/access/users/user.entity';
 import { UserMapper } from '@admin/access/users/users.mapper';
+import { UsersService } from '@admin/access/users/users.service';
 import { ErrorType } from '@adminCommon/enums';
 import { DisabledUserException, InvalidCredentialsException } from '@adminCommon/http/exceptions';
 import { HashHelper } from '@helpers';
-import { UsersRepository } from '@modules/admin/access/users/users.repository';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { AuthCredentialsRequestDto, JwtPayload, LoginResponseDto } from '../dtos';
 import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    @InjectRepository(UsersRepository)
-    private usersRepository: UsersRepository,
-    private tokenService: TokenService,
-  ) {}
+  constructor(private usersService: UsersService, private tokenService: TokenService) {}
 
   /**
    * User authentication
@@ -24,7 +19,7 @@ export class AuthService {
    * @returns {Promise<LoginResponseDto>}
    */
   public async login({ username, password }: AuthCredentialsRequestDto): Promise<LoginResponseDto> {
-    const user: UserEntity = await this.usersRepository.findUserByUsername(username);
+    const user: UserEntity = await this.usersService.findUserByUsername(username);
 
     if (!user) {
       throw new InvalidCredentialsException();
