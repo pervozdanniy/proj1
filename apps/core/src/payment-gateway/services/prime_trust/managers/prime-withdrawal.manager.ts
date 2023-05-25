@@ -1,4 +1,3 @@
-import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { WithdrawalParamsEntity } from '@/payment-gateway/entities/prime_trust/withdrawal-params.entity';
@@ -34,7 +33,6 @@ export class PrimeWithdrawalManager {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-    private readonly notificationService: NotificationService,
     private readonly primeBankAccountManager: PrimeBankAccountManager,
     private readonly primeFundsTransferManager: PrimeFundsTransferManager,
     private readonly primeBalanceManager: PrimeBalanceManager,
@@ -246,8 +244,6 @@ export class PrimeWithdrawalManager {
         status: withdrawResponse['status'],
       },
     );
-    const { user_id } = withdrawData;
-    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
     await this.primeBalanceManager.updateAccountBalance(account_id);
 
     return { success: true };

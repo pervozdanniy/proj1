@@ -1,4 +1,3 @@
-import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
@@ -35,7 +34,6 @@ export class PrimeAssetsManager {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
-    private readonly notificationService: NotificationService,
     private readonly primeBalanceManager: PrimeBalanceManager,
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -141,7 +139,6 @@ export class PrimeAssetsManager {
       await this.depositEntityRepository.save(this.depositEntityRepository.create(assetPayload));
     }
     await this.primeBalanceManager.updateAccountBalance(account_id);
-    await this.notificationService.sendWs(user_id, 'balance', 'Balance updated!', 'Balance');
 
     return { success: true };
   }

@@ -161,7 +161,7 @@ export class VeriffService {
       };
 
       const sessionResponse = await lastValueFrom(
-        this.httpService.post(`${this.url}/v1/sessions/`, formData, {
+        this.httpService.post(`${this.url}/v1/sessions`, formData, {
           headers: headersRequest,
         }),
       );
@@ -180,7 +180,7 @@ export class VeriffService {
 
       return response;
     } catch (e) {
-      throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
+      throw new GrpcException(Status.ABORTED, e?.response.data.message ?? e.message, 400);
     }
   }
   async veriffHookHandler({ attemptId: attempt_id, id: session_id }: EventWebhook) {

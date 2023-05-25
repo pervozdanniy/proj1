@@ -1,4 +1,3 @@
-import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
@@ -24,15 +23,10 @@ export class PrimeFundsTransferManager {
 
   constructor(
     config: ConfigService<ConfigInterface>,
-
     private readonly httpService: PrimeTrustHttpService,
     private readonly primeBalanceManager: PrimeBalanceManager,
-
-    private readonly notificationService: NotificationService,
-
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
-
     @InjectRepository(TransfersEntity)
     private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
   ) {
@@ -207,9 +201,7 @@ export class PrimeFundsTransferManager {
 
     await this.transferFundsEntityRepository.save(this.transferFundsEntityRepository.create(payload));
     await this.primeBalanceManager.updateAccountBalance(fromAccountId);
-    await this.notificationService.sendWs(sender_id, 'balance', 'Balance updated!', 'Balance');
     await this.primeBalanceManager.updateAccountBalance(toAccountId);
-    await this.notificationService.sendWs(receiver_id, 'balance', 'Balance updated!', 'Balance');
 
     return {
       data: payload,

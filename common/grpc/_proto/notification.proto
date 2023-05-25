@@ -39,10 +39,9 @@ message NotificationListResponse {
 }
 
 message Notification {
-  uint32 id =1;
-  string title = 2;
-  string type = 3;
-  string description = 4;
-  bool read = 5;
-  string created_at = 6;
+  uint32 id = 1;
+  string type = 2;
+  bool read = 3;
+  string created_at = 4;
+  optional string payload = 5;
 }

@@ -8,6 +8,7 @@ import { join } from 'path';
 import { ConfigInterface } from '~common/config/configuration';
 import { ApiExceptionFilter } from '~common/utils/filters/api-exception.filter';
 import { ApiGatewayModule } from './api-gateway.module';
+import { NotificationEventDto } from './utils/socket.dto';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(ApiGatewayModule, { rawBody: true });
@@ -37,7 +38,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(app.get(ClassSerializerInterceptor));
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  const document = SwaggerModule.createDocument(app, swaggerConfig, { extraModels: [NotificationEventDto] });
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: {
       docExpansion: 'none',
