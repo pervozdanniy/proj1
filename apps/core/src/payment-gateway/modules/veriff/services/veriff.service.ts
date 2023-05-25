@@ -113,7 +113,7 @@ export class VeriffService {
 
         return filteredMediaUrls;
       } catch (e) {
-        throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
+        throw new GrpcException(Status.ABORTED, e.response?.data.message ?? e.message, 400);
       }
     }
   }
@@ -180,7 +180,7 @@ export class VeriffService {
 
       return response;
     } catch (e) {
-      throw new GrpcException(Status.ABORTED, e?.response.data.message ?? e.message, 400);
+      throw new GrpcException(Status.ABORTED, e.response?.data.message ?? e.message, 400);
     }
   }
   async veriffHookHandler({ attemptId: attempt_id, id: session_id }: EventWebhook) {
@@ -190,7 +190,7 @@ export class VeriffService {
   async decisionHandler({
     verification: { id: session_id, status, document },
   }: DecisionWebhook): Promise<{ success: boolean; user_id: number }> {
-    const session = await this.veriffDocumentEntityRepository.findOneBy({ session_id });
+    const session = await this.veriffDocumentEntityRepository.findOneByOrFail({ session_id });
     await this.veriffDocumentEntityRepository.update(
       { session_id },
       {

@@ -117,8 +117,6 @@ export class PrimeAccountManager {
 
       return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
     } catch (e) {
-      this.logger.error(e);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
         this.notificationService.createAsync(userDetails.id, {
@@ -128,6 +126,8 @@ export class PrimeAccountManager {
 
         throw new GrpcException(code, detail);
       } else {
+        throw e;
+
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
     }
