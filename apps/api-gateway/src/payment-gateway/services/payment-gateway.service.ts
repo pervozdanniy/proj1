@@ -12,8 +12,6 @@ import {
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { ExchangeDto } from '../dtos/main/exchange.dto';
-import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
-import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
 import {
   FacilitaWebhookType,
   KoyweWebhookType,
@@ -90,17 +88,6 @@ export class PaymentGatewayService implements OnModuleInit {
 
   exchange({ currencies, currency_type }: ExchangeDto) {
     return lastValueFrom(this.paymentGatewayServiceClient.exchange({ currencies, currency_type }));
-  }
-  generateVeriffLink(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.generateVeriffLink(data));
-  }
-
-  veriffHookHandler(data: VeriffHookDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.veriffHookHandler(data));
-  }
-
-  veriffWebhookHandler(data: VeriffWebhookDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.veriffWebhookHandler(data));
   }
 
   primeTrustHandler(data: PrimeTrustWebhookType) {

@@ -3,7 +3,6 @@ import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { IdRequest, SuccessResponse, UserAgreement, UserDetails } from "./common";
 import { Empty } from "./google/protobuf/empty";
-import { VeriffHookRequest, VeriffSessionResponse, WebhookResponse } from "./veriff";
 
 export const protobufPackage = "skopa.core";
 
@@ -400,14 +399,6 @@ export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 export interface PaymentGatewayServiceClient {
   createAgreement(request: AgreementRequest, ...rest: any): Observable<UserAgreement>;
 
-  /** veriff */
-
-  generateVeriffLink(request: UserIdRequest, ...rest: any): Observable<VeriffSessionResponse>;
-
-  veriffHookHandler(request: VeriffHookRequest, ...rest: any): Observable<SuccessResponse>;
-
-  veriffWebhookHandler(request: WebhookResponse, ...rest: any): Observable<SuccessResponse>;
-
   getAvailablePaymentMethods(request: UserIdRequest, ...rest: any): Observable<PaymentMethodsResponse>;
 
   getContact(request: UserIdRequest, ...rest: any): Observable<ContactResponse>;
@@ -462,23 +453,6 @@ export interface PaymentGatewayServiceController {
     request: AgreementRequest,
     ...rest: any
   ): Promise<UserAgreement> | Observable<UserAgreement> | UserAgreement;
-
-  /** veriff */
-
-  generateVeriffLink(
-    request: UserIdRequest,
-    ...rest: any
-  ): Promise<VeriffSessionResponse> | Observable<VeriffSessionResponse> | VeriffSessionResponse;
-
-  veriffHookHandler(
-    request: VeriffHookRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
-  veriffWebhookHandler(
-    request: WebhookResponse,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
   getAvailablePaymentMethods(
     request: UserIdRequest,
@@ -590,9 +564,6 @@ export function PaymentGatewayServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "createAgreement",
-      "generateVeriffLink",
-      "veriffHookHandler",
-      "veriffWebhookHandler",
       "getAvailablePaymentMethods",
       "getContact",
       "getBalance",

@@ -11,7 +11,7 @@ import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { FacilitaWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
-import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
+import { VeriffService } from '../../../modules/veriff/services/veriff.service';
 import { CurrencyService } from '../../currency.service';
 import { facilitaTaxes } from '../constants';
 import { FacilitaTokenManager } from './facilita-token.manager';
@@ -25,11 +25,10 @@ export class FacilitaWebhookManager {
     private readonly httpService: HttpService,
 
     private readonly currencyService: CurrencyService,
+
+    private readonly veriffService: VeriffService,
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
-
-    @InjectRepository(VeriffDocumentEntity)
-    private readonly documentRepository: Repository<VeriffDocumentEntity>,
   ) {
     const { facilita_url } = config.get('app', { infer: true });
     this.url = facilita_url;
@@ -49,7 +48,8 @@ export class FacilitaWebhookManager {
       const currency_type = transactionResponse.data.data.currency;
 
       const documentNumber = transactionResponse.data.data.source_document_number;
-      const { user_id } = await this.documentRepository.findOneBy({ document_number: documentNumber });
+
+      const { user_id } = await this.veriffService.getDocumentByNumber(documentNumber);
       const { amountUSD, fee } = await this.calculateUSD(amountCurrency, currency_type);
 
       const currentTransfer = await this.depositEntityRepository.findOneBy({ uuid: transactionId });

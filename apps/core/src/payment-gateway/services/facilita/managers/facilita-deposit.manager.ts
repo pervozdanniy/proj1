@@ -14,7 +14,6 @@ import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { UserEntity } from '../../../../user/entities/user.entity';
 import { countriesData, CountryData } from '../../../country/data';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
-import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { CurrencyService } from '../../currency.service';
 import { facilitaBank, facilitaTaxes } from '../constants';
@@ -28,8 +27,6 @@ export class FacilitaDepositManager {
     private readonly facilitaTokenManager: FacilitaTokenManager,
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
-    @InjectRepository(VeriffDocumentEntity)
-    private readonly documentRepository: Repository<VeriffDocumentEntity>,
     private userService: UserService,
     private readonly currencyService: CurrencyService,
     private readonly httpService: HttpService,
@@ -70,12 +67,12 @@ export class FacilitaDepositManager {
     return { info: { currency, amount, fee: 0 }, bank: facilitaBank };
   }
 
-  async createUserIfNotExist(user: UserEntity): Promise<{ subject_id: string }> {
-    const { token } = await this.facilitaTokenManager.getToken();
+  async createUserIfNotExist(user: UserEntity) {
+    const token = await this.facilitaTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };
-    const document = await this.documentRepository.findOneBy({ user_id: user.id, status: 'approved' });
+    const document = user.documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
@@ -89,11 +86,9 @@ export class FacilitaDepositManager {
     };
 
     try {
-      const facilitaUser = await lastValueFrom(
+      await lastValueFrom(
         this.httpService.post(`${this.url}/api/v1/subject/people`, data, { headers: headersRequest }),
       );
-
-      return { subject_id: facilitaUser.data.data.id };
     } catch (e) {
       this.logger.error(e.response.data.errors);
 

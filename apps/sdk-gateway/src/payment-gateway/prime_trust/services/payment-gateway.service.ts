@@ -11,8 +11,6 @@ import {
   UserIdRequest,
   VerifyCreditCardRequest,
 } from '~common/grpc/interfaces/payment-gateway';
-import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
-import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
 import { KoyweWebhookType, PrimeTrustWebhookType } from '../webhooks/data';
 
 @Injectable()
@@ -67,18 +65,6 @@ export class PaymentGatewayService implements OnModuleInit {
 
   getUserAccountStatus(id: number) {
     return lastValueFrom(this.paymentGatewayServiceClient.getUserAccountStatus({ id }));
-  }
-
-  generateVeriffLink(data: UserIdRequest) {
-    return lastValueFrom(this.paymentGatewayServiceClient.generateVeriffLink(data));
-  }
-
-  veriffHookHandler(data: VeriffHookDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.veriffHookHandler(data));
-  }
-
-  veriffWebhookHandler(data: VeriffWebhookDto) {
-    return lastValueFrom(this.paymentGatewayServiceClient.veriffWebhookHandler(data));
   }
 
   primeTrustHandler(data: PrimeTrustWebhookType) {

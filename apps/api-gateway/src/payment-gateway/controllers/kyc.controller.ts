@@ -2,10 +2,9 @@ import { JwtSessionAuth, JwtSessionUser } from '@/auth';
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
-import { VeriffHookDto } from '../dtos/veriff/veriff-hook.dto';
-import { VeriffSessionResponseDto } from '../dtos/veriff/veriff-session-response.dto';
-import { VeriffWebhookDto } from '../dtos/veriff/veriff-webhook.dto';
-import { PaymentGatewayService } from '../services/payment-gateway.service';
+import { VeriffSessionResponseDto } from '../dtos/kyc/kyc-session.dto';
+import { DecisionWebhookDto, EventWebhookDto } from '../dtos/kyc/kyc-webhook.dto';
+import { KYCService } from '../services/kyc.service';
 
 @ApiTags('KYC')
 @Controller({
@@ -13,31 +12,31 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
   path: 'kyc',
 })
 export class KYCController {
-  constructor(private paymentGatewayService: PaymentGatewayService) {}
+  constructor(private kyc: KYCService) {}
 
   @Post('/link')
   @ApiOkResponse({ type: VeriffSessionResponseDto })
   @ApiBearerAuth()
   @JwtSessionAuth()
   link(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.generateVeriffLink({ id });
+    return this.kyc.generateLink(id);
   }
 
   @ApiOperation({ summary: 'Webhook catch' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @Post('/webhook')
-  async veriffWebhookHandler(@Body() payload: VeriffWebhookDto) {
-    return this.paymentGatewayService.veriffWebhookHandler(payload);
+  @Post('/webhook/decision')
+  async veriffWebhookHandler(@Body() payload: DecisionWebhookDto) {
+    return this.kyc.decisionHandler(payload);
   }
 
   @ApiOperation({ summary: 'Hook catch' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
-  @Post('/hook')
-  async veriffHookHandler(@Body() payload: VeriffHookDto) {
-    return this.paymentGatewayService.veriffHookHandler(payload);
+  @Post('/webhook/event')
+  async veriffHookHandler(@Body() payload: EventWebhookDto) {
+    return this.kyc.eventHandler(payload);
   }
 }

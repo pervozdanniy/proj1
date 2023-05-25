@@ -1,13 +1,21 @@
 syntax = "proto3";
 
-package skopa.veriff;
+package skopa.core;
 
+import "common.proto";
+import "google/protobuf/empty.proto";
+
+service KYCService {
+  rpc GenerateLink(common.UserIdRequest) returns (VeriffSessionResponse);
+  rpc EventHandler(EventWebhook) returns (google.protobuf.Empty);
+  rpc DecisionHandler(DecisionWebhook) returns (google.protobuf.Empty);
+}
 
 message Person {
- optional string gender = 1;
+  optional string gender = 1;
   optional string idNumber = 2;
-   string lastName = 3;
-   string firstName = 4;
+  string lastName = 3;
+  string firstName = 4;
   optional string citizenship = 5;
   optional string dateOfBirth = 6;
   optional string nationality = 7;
@@ -43,15 +51,13 @@ message TechnicalData {
   string ip = 1;
 }
 
-message WebhookResponse {
+message DecisionWebhook {
   string status = 1;
   Verification verification = 2;
   TechnicalData technicalData = 3;
 }
 
-
-
-message VeriffHookRequest {
+message EventWebhook {
   string id = 1;
   string attemptId = 2;
   string action = 3;

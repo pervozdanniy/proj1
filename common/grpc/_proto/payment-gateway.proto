@@ -1,21 +1,15 @@
 syntax = "proto3";
 
 import "common.proto";
-import "veriff.proto";
 import "google/protobuf/empty.proto";
 import public "inswitch.proto";
+import public "veriff.proto";
 
 package skopa.core;
 
 service PaymentGatewayService {
 
   rpc CreateAgreement (AgreementRequest) returns (common.UserAgreement);
-
-  //veriff
-  rpc GenerateVeriffLink(UserIdRequest) returns (veriff.VeriffSessionResponse);
-  rpc VeriffHookHandler(veriff.VeriffHookRequest) returns (common.SuccessResponse);
-  rpc VeriffWebhookHandler(veriff.WebhookResponse) returns (common.SuccessResponse);
-
 
   rpc GetAvailablePaymentMethods (UserIdRequest) returns (PaymentMethodsResponse);
   rpc GetContact (UserIdRequest) returns (ContactResponse);
