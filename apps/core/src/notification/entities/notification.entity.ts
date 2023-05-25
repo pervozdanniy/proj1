@@ -21,10 +21,10 @@ export class NotificationEntity {
   type: string;
 
   @Column('text', { nullable: true })
-  payload: string;
+  payload?: string;
 
   @Column('boolean', { default: false })
-  read: boolean;
+  read?: boolean;
 
   @CreateDateColumn()
   created_at: Date;
@@ -34,5 +34,5 @@ export class NotificationEntity {
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
-  user: UserEntity;
+  user?: UserEntity;
 }

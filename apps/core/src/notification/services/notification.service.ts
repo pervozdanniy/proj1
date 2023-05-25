@@ -88,7 +88,13 @@ export class NotificationService {
     // };
 
     await Promise.all([
-      this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload)),
+      this.notificationEntityRepository.save(
+        this.notificationEntityRepository.create({
+          user_id: userId,
+          type: payload.type,
+          payload: payload.data ? JSON.stringify(payload.data) : null,
+        }),
+      ),
       this.ws.sendTo({ event: 'notification', data: JSON.stringify(payload) }, userId),
     ]);
   }
