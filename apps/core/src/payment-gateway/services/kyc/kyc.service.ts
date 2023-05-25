@@ -14,10 +14,10 @@ export class KYCService {
 
   async eventHandler(request: EventWebhook) {
     try {
-      const { success, user_id } = await this.veriff.eventHandler(request);
-      if (success) {
-        await this.verifyPaymentAccount(user_id);
-      }
+      await this.veriff.eventHandler(request);
+      // if (success) {
+      //   await this.verifyPaymentAccount(user_id);
+      // }
     } catch (error) {
       this.logger.error('Event handler', error, request);
     }
