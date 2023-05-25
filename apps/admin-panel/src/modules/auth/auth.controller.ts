@@ -30,7 +30,7 @@ export class AuthController {
 
   @SkipAuth()
   @ApiOperation({ description: 'User authentication' })
-  @ApiOkResponse({ description: 'Successfully authenticated user' })
+  @ApiOkResponse({ description: 'Successfully authenticated user', type: LoginResponseDto })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Post('/login')
@@ -40,7 +40,7 @@ export class AuthController {
 
   @ApiBearerAuth(TOKEN_NAME)
   @ApiOperation({ description: 'Get User Information' })
-  @ApiOkResponse({ description: 'Successfully Return User Information' })
+  @ApiOkResponse({ description: 'Successfully Return User Information', type: GetMeResponseDto })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Get('/me')
@@ -50,7 +50,7 @@ export class AuthController {
 
   @SkipAuth()
   @ApiOperation({ description: 'Renew access in the application' })
-  @ApiOkResponse({ description: 'token successfully renewed' })
+  @ApiOkResponse({ description: 'token successfully renewed', type: TokenDto })
   @ApiUnauthorizedResponse({ description: 'Refresh token invalid or expired' })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Post('/token/refresh')
@@ -62,7 +62,7 @@ export class AuthController {
 
   @SkipAuth()
   @ApiOperation({ description: 'Validate token' })
-  @ApiOkResponse({ description: 'Validation was successful' })
+  @ApiOkResponse({ description: 'Validation was successful', type: ValidateTokenResponseDto })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @Post('/token/validate')
   async validateToken(@Body(ValidationPipe) validateToken: ValidateTokenRequestDto): Promise<ValidateTokenResponseDto> {

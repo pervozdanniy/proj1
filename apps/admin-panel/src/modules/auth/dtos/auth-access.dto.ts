@@ -1,7 +1,10 @@
-export interface AuthAccessDto {
+import { RolesAccessDto } from '@modules/auth/dtos/roles-access.dto';
+import { ApiProperty } from '@nestjs/swagger';
+
+export class AuthAccessDto {
+  @ApiProperty()
   additionalPermissions: string[];
-  roles: {
-    name: string;
-    permissions: string[];
-  }[];
+
+  @ApiProperty({ type: [RolesAccessDto] })
+  roles: RolesAccessDto[];
 }
