@@ -25,3 +25,14 @@ export type ConvertedRates = {
     rate: number;
   };
 };
+
+export type LiquidoFee = {
+  [code: string]: {
+    value: number;
+    currency_type: string;
+  };
+};
+
+export const liquidoFees: LiquidoFee = {
+  MX: { value: 3.5, currency_type: 'USD' },
+};

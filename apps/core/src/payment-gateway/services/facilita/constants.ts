@@ -11,7 +11,7 @@ export const facilitaBank = {
   account_number: '3467-3',
 };
 
-export const facilitaTaxes = {
+export const facilitaTaxesBrazil = {
   facilita_fee: 0.4,
   crypto_settlement: 0.3,
   brazil_federal_tax: 0.38,

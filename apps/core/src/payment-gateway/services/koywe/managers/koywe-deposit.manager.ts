@@ -51,16 +51,16 @@ export class KoyweDepositManager {
   }
 
   async createReference(request: CreateReferenceRequest, params: KoyweReferenceParams): Promise<BankCredentialsData> {
-    const { amount: amountUSD, id, currency_type: currencyUSD } = request;
+    const { amount: amountUSD, id: user_id } = request;
     const { wallet_address, method } = params;
 
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(user_id);
     await this.koyweTokenManager.getToken(userDetails.email);
     const { currency_type } = countriesData[userDetails.country_code];
 
     const quote = await this.createQuote({
       amount: amountUSD,
-      currency: currencyUSD,
+      currency: currency_type,
       method,
     });
 
@@ -79,10 +79,10 @@ export class KoyweDepositManager {
     const totalFee = quote.networkFee + quote.koyweFee;
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
-        user_id: id,
+        user_id,
         uuid: orderId,
         type: TransferTypes.DEPOSIT,
-        amount: quote.amountOut,
+        amount: quote.amountIn,
         amount_usd: amountUSD,
         provider: Providers.KOYWE,
         currency_type,
@@ -161,7 +161,6 @@ export class KoyweDepositManager {
   async createQuote(params: { amount: number; currency: string; method?: KoywePaymentMethod }): Promise<KoyweQuote> {
     try {
       const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(params.currency, params.method ?? 'KHIPU');
-
       const formData = {
         symbolIn: params.currency,
         symbolOut: this.asset,

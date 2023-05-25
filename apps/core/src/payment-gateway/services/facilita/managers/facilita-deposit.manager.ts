@@ -16,7 +16,7 @@ import { countriesData, CountryData } from '../../../country/data';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { CurrencyService } from '../../currency.service';
-import { facilitaBank, facilitaTaxes } from '../constants';
+import { facilitaBank, facilitaTaxesBrazil } from '../constants';
 import { FacilitaTokenManager } from './facilita-token.manager';
 
 @Injectable()
@@ -48,27 +48,31 @@ export class FacilitaDepositManager {
     const { currency_type } = countries[user.country_code];
     const ratesData = await this.currencyService.rate;
     const rate = ratesData.get(currency_type);
-    const amount = amountUSD * rate;
-    console.log(this.calculateExpressionAndDifference(rate));
+    const amount = Number((amountUSD * rate).toFixed(2));
+    let currentFee = 0;
+    if (user.country_code === 'BR') {
+      const { fee } = this.calculateFeeFromBrazil(rate, amount);
+      currentFee = fee;
+    }
 
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
         user_id,
         type: TransferTypes.DEPOSIT,
-        amount,
+        amount: Number(amount + currentFee),
         amount_usd: amountUSD,
         provider: Providers.FACILITA,
         currency_type,
         status: TransferStatus.PENDING,
-        fee: 0,
+        fee: currentFee,
       }),
     );
 
-    return { info: { currency, amount, fee: 0 }, bank: facilitaBank };
+    return { info: { currency, amount: Number(amount + currentFee), fee: currentFee }, bank: facilitaBank };
   }
 
   async createUserIfNotExist(user: UserEntity) {
-    const token = await this.facilitaTokenManager.getToken();
+    const { token } = await this.facilitaTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };
@@ -90,24 +94,25 @@ export class FacilitaDepositManager {
         this.httpService.post(`${this.url}/api/v1/subject/people`, data, { headers: headersRequest }),
       );
     } catch (e) {
-      this.logger.error(e.response.data.errors);
+      this.logger.error(e.response.data);
 
       throw new GrpcException(Status.ABORTED, 'Facilita create user error!', 400);
     }
   }
 
-  calculateExpressionAndDifference(rate: number) {
-    const { facilita_fee: percent1, crypto_settlement: percent2, brazil_federal_tax: percent3 } = facilitaTaxes;
+  calculateFeeFromBrazil(rate: number, amount: number) {
+    const { facilita_fee, crypto_settlement, brazil_federal_tax } = facilitaTaxesBrazil;
     const result =
       rate +
-      (percent1 / 100) * rate +
-      (percent2 / 100) * (rate + (percent1 / 100) * rate) +
-      (percent3 / 100) * (rate + (percent1 / 100) * rate + (percent2 / 100) * (rate + (percent1 / 100) * rate));
+      (facilita_fee / 100) * rate +
+      (crypto_settlement / 100) * (rate + (facilita_fee / 100) * rate) +
+      (brazil_federal_tax / 100) *
+        (rate + (facilita_fee / 100) * rate + (crypto_settlement / 100) * (rate + (facilita_fee / 100) * rate));
     const difference = ((result - rate) / rate) * 100;
+    const fee = Number(((amount * difference) / 100).toFixed(2));
 
     return {
-      result,
-      difference,
+      fee,
     };
   }
 }

@@ -13,9 +13,10 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { countriesData } from '../../../country/data';
+import {countriesData, liquidoFees} from '../../../country/data';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { CurrencyService } from '../../currency.service';
+import { KoyweMainManager } from '../../koywe/managers/koywe-main.manager';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
 @Injectable()
@@ -30,6 +31,8 @@ export class LiquidoDepositManager {
     private readonly httpService: HttpService,
 
     private readonly currencyService: CurrencyService,
+
+    private readonly koyweMainManager: KoyweMainManager,
 
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
@@ -47,7 +50,14 @@ export class LiquidoDepositManager {
     const { token } = await this.liquidoTokenManager.getToken();
     const userDetails = await this.userService.getUserInfo(id);
     const { currency_type } = countriesData[userDetails.country_code];
-    const convertedAmount = await this.currencyService.convert(amountUSD, [currency_type]);
+    const liquidoFeeUsd = liquidoFees[userDetails.country_code].value;
+    const fullAmount = amountUSD + liquidoFeeUsd;
+    const convertedAmount = await this.currencyService.convert(fullAmount, [currency_type]);
+    const { amountIn, networkFee, koyweFee } = await this.koyweMainManager.getCurrencyAmountByUsd(
+      amountUSD,
+      currency_type,
+    );
+    const totalFee = networkFee + koyweFee;
     const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
@@ -63,7 +73,7 @@ export class LiquidoDepositManager {
     const orderId = await uid(18);
     const formData = {
       orderId: orderId,
-      amount: amount,
+      amount: amountIn,
       currency: currency_type,
       country: userDetails.country_code,
       allowPaymentMethods: ['PAY_CASH'],
@@ -89,6 +99,7 @@ export class LiquidoDepositManager {
           amount_usd: amountUSD,
           provider: Providers.LIQUIDO,
           currency_type,
+          fee: totalFee,
           status: TransferStatus.PENDING,
         }),
       );
@@ -98,7 +109,7 @@ export class LiquidoDepositManager {
         info: {
           amount,
           rate: convertedAmount[currency_type].rate,
-          fee: 0,
+          fee: totalFee,
           currency: currency_type,
         },
       };
