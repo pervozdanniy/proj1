@@ -14,7 +14,11 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { TransferInfo, TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import {
+  TransfersEntity,
+  TransferStatus,
+  TransferTypes,
+} from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData, CountryData } from '../../../country/data';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { KoyweCreateOrder, KoyweQuote } from '../../../types/koywe';
@@ -49,7 +53,7 @@ export class KoyweWithdrawalManager {
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<{ wallet: string; info: TransferInfo }> {
-    const { id, bank_account_id, amount } = request;
+    const { id, bank_account_id, amount: amountUSD } = request;
     const { country_code, email } = await this.userService.getUserInfo(id);
     const bank = await this.bankAccountEntityRepository.findOneBy({
       user_id: id,
@@ -63,7 +67,7 @@ export class KoyweWithdrawalManager {
 
     const countries: CountryData = countriesData;
     const { currency_type } = countries[country_code];
-    const quote = await this.createQuote(amount, currency_type);
+    const quote = await this.createQuote(amountUSD, currency_type);
     const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
     if (!document) {
       throw new ConflictException('KYC is not completed');
@@ -79,11 +83,12 @@ export class KoyweWithdrawalManager {
       this.transferRepository.create({
         user_id: id,
         uuid: orderId,
-        type: 'withdrawal',
+        type: TransferTypes.WITHDRAWAL,
         provider: Providers.KOYWE,
         amount: quote.amountOut,
+        amount_usd: amountUSD,
         currency_type,
-        status: 'waiting',
+        status: TransferStatus.PENDING,
         fee: totalFee,
       }),
     );

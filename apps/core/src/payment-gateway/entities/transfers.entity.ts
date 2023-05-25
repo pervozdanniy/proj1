@@ -9,6 +9,23 @@ import {
 } from 'typeorm';
 import { PrimeTrustContactEntity } from './prime_trust/prime-trust-contact.entity';
 
+export enum TransferTypes {
+  DEPOSIT = 'deposit',
+  WITHDRAWAL = 'withdrawal',
+  TRANSFER = 'transfer',
+}
+export enum ParamsTypes {
+  WITHDRAWAL = 'withdrawal_param',
+}
+
+export enum TransferStatus {
+  PENDING = 'pending',
+  FAILED = 'failed',
+  IDENTIFIED = 'identified',
+  DELIVERED = 'delivered',
+  SETTLED = 'settled',
+}
+
 @Entity('transfers')
 export class TransfersEntity {
   @PrimaryGeneratedColumn('increment')
@@ -27,10 +44,10 @@ export class TransfersEntity {
   param_id: number;
 
   @Column('character varying', { length: 50, nullable: true })
-  param_type: string;
+  param_type: ParamsTypes;
 
   @Column('character varying', { length: 50, nullable: true })
-  type: string;
+  type: TransferTypes;
 
   @Column('character varying', { length: 50, nullable: true })
   provider: string;
@@ -39,13 +56,16 @@ export class TransfersEntity {
   amount: number;
 
   @Column('double precision', { nullable: true })
+  amount_usd: number;
+
+  @Column('double precision', { nullable: true })
   fee: number;
 
   @Column('character varying', { length: 50, nullable: true })
   currency_type: string;
 
   @Column('character varying', { length: 50, nullable: true })
-  status: string;
+  status: TransferStatus;
 
   @CreateDateColumn()
   created_at: Date;

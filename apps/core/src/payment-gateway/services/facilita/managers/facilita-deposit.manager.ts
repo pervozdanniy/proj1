@@ -7,15 +7,17 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
-import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { BankCredentialsData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '../../../entities/transfers.entity';
+import { UserEntity } from '../../../../user/entities/user.entity';
+import { countriesData, CountryData } from '../../../country/data';
+import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
-import { facilitaBank } from '../bank';
+import { CurrencyService } from '../../currency.service';
+import { facilitaBank, facilitaTaxes } from '../constants';
 import { FacilitaTokenManager } from './facilita-token.manager';
 
 @Injectable()
@@ -29,7 +31,7 @@ export class FacilitaDepositManager {
     @InjectRepository(VeriffDocumentEntity)
     private readonly documentRepository: Repository<VeriffDocumentEntity>,
     private userService: UserService,
-
+    private readonly currencyService: CurrencyService,
     private readonly httpService: HttpService,
 
     config: ConfigService<ConfigInterface>,
@@ -39,35 +41,41 @@ export class FacilitaDepositManager {
   }
 
   async createWireReference({
-    amount,
+    amount: amountUSD,
     currency_type: currency,
-    id,
+    id: user_id,
   }: CreateReferenceRequest): Promise<BankCredentialsData> {
-    await this.createUserIfNotExist(id);
+    const user = await this.userService.getUserInfo(user_id);
+    await this.createUserIfNotExist(user);
+    const countries: CountryData = countriesData;
+    const { currency_type } = countries[user.country_code];
+    const ratesData = await this.currencyService.rate;
+    const rate = ratesData.get(currency_type);
+    const amount = amountUSD * rate;
+    console.log(this.calculateExpressionAndDifference(rate));
 
-    const payload = {
-      user_id: id,
-      uuid: await uid(18),
-      type: 'deposit',
-      amount,
-      provider: Providers.FACILITA,
-      currency_type: currency,
-      status: 'waiting',
-      fee: 0,
-    };
-
-    await this.depositEntityRepository.save(this.depositEntityRepository.create(payload));
+    await this.depositEntityRepository.save(
+      this.depositEntityRepository.create({
+        user_id,
+        type: TransferTypes.DEPOSIT,
+        amount,
+        amount_usd: amountUSD,
+        provider: Providers.FACILITA,
+        currency_type,
+        status: TransferStatus.PENDING,
+        fee: 0,
+      }),
+    );
 
     return { info: { currency, amount, fee: 0 }, bank: facilitaBank };
   }
 
-  async createUserIfNotExist(id: number): Promise<{ subject_id: string }> {
+  async createUserIfNotExist(user: UserEntity): Promise<{ subject_id: string }> {
     const { token } = await this.facilitaTokenManager.getToken();
     const headersRequest = {
       Authorization: `Bearer ${token}`,
     };
-    const user = await this.userService.getUserInfo(id);
-    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
+    const document = await this.documentRepository.findOneBy({ user_id: user.id, status: 'approved' });
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
@@ -91,5 +99,20 @@ export class FacilitaDepositManager {
 
       throw new GrpcException(Status.ABORTED, 'Facilita create user error!', 400);
     }
+  }
+
+  calculateExpressionAndDifference(rate: number) {
+    const { facilita_fee: percent1, crypto_settlement: percent2, brazil_federal_tax: percent3 } = facilitaTaxes;
+    const result =
+      rate +
+      (percent1 / 100) * rate +
+      (percent2 / 100) * (rate + (percent1 / 100) * rate) +
+      (percent3 / 100) * (rate + (percent1 / 100) * rate + (percent2 / 100) * (rate + (percent1 / 100) * rate));
+    const difference = ((result - rate) / rate) * 100;
+
+    return {
+      result,
+      difference,
+    };
   }
 }

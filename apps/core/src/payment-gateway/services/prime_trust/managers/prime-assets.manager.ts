@@ -21,7 +21,11 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { createDate } from '~common/helpers';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import {
+  TransfersEntity,
+  TransferStatus,
+  TransferTypes,
+} from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
@@ -133,33 +137,33 @@ export class PrimeAssetsManager {
     const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
 
     const amount = assetResponse['unit-count'];
-    const type = amount < 0 ? 'withdrawal' : 'deposit';
+    const type = amount < 0 ? TransferTypes.WITHDRAWAL : TransferTypes.DEPOSIT;
 
     if (existedDeposit) {
       await this.depositEntityRepository.update({ uuid: resource_id }, { status: assetResponse['status'] });
     } else {
-      const assetPayload = {
-        user_id,
-        uuid: resource_id,
-        currency_type: 'USD',
-        amount,
-        status: assetResponse['status'],
-        param_type: 'assets_transfer',
-        type,
-      };
-      await this.depositEntityRepository.save(this.depositEntityRepository.create(assetPayload));
+      await this.depositEntityRepository.save(
+        this.depositEntityRepository.create({
+          user_id,
+          uuid: resource_id,
+          currency_type: 'USD',
+          amount,
+          status: assetResponse['status'],
+          type,
+        }),
+      );
     }
     let transactions;
     if (account_id === this.skopaAccountId) {
       transactions = await this.depositEntityRepository.findBy({
         provider: Providers.FACILITA,
-        status: 'wired',
+        status: TransferStatus.DELIVERED,
       });
     }
     if (account_id === this.skopaKoyweAccountId) {
       transactions = await this.depositEntityRepository.findBy({
         provider: Providers.KOYWE,
-        status: 'delivered',
+        status: TransferStatus.DELIVERED,
       });
     }
     const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
@@ -171,7 +175,7 @@ export class PrimeAssetsManager {
         amount: t.amount,
         currency_type: t.currency_type,
       });
-      await this.depositEntityRepository.update({ id: t.id }, { status: 'settled' });
+      await this.depositEntityRepository.update({ id: t.id }, { status: TransferStatus.SETTLED });
     });
 
     await this.primeBalanceManager.updateAccountBalance(account_id);

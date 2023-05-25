@@ -13,7 +13,7 @@ import { Providers } from '~common/enum/providers';
 import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
-import { TransfersEntity } from '../../../entities/transfers.entity';
+import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { CurrencyService } from '../../currency.service';
@@ -47,16 +47,12 @@ export class LiquidoDepositManager {
     this.domain = domain;
   }
 
-  async createCashPayment({
-    id,
-    amount: beforeConvertAmount,
-    currency_type: currency,
-  }: CreateReferenceRequest): Promise<DepositRedirectData> {
+  async createCashPayment({ id, amount: amountUSD }: CreateReferenceRequest): Promise<DepositRedirectData> {
     const { token } = await this.liquidoTokenManager.getToken();
     const userDetails = await this.userService.getUserInfo(id);
     const { currency_type } = countriesData[userDetails.country_code];
 
-    const convertedAmount = await this.currencyService.convert(beforeConvertAmount, [currency_type]);
+    const convertedAmount = await this.currencyService.convert(amountUSD, [currency_type]);
     const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
     if (!document) {
       throw new ConflictException('KYC is not completed');
@@ -93,11 +89,12 @@ export class LiquidoDepositManager {
         this.depositEntityRepository.create({
           user_id: id,
           uuid: orderId,
-          type: 'deposit',
-          amount: beforeConvertAmount,
+          type: TransferTypes.DEPOSIT,
+          amount,
+          amount_usd: amountUSD,
           provider: Providers.LIQUIDO,
-          currency_type: currency,
-          status: 'waiting',
+          currency_type,
+          status: TransferStatus.PENDING,
         }),
       );
 

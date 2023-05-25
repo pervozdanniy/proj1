@@ -11,7 +11,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { LiquidoWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '../../../entities/transfers.entity';
+import {TransfersEntity, TransferStatus} from '../../../entities/transfers.entity';
 import { KoyweService } from '../../koywe/koywe.service';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
@@ -53,7 +53,7 @@ export class LiquidoWebhookManager {
 
     try {
       if (paymentStatus === 'SETTLED') {
-        await this.depositEntityRepository.update({ uuid: orderId }, { status: paymentStatus.toLowerCase() });
+        await this.depositEntityRepository.update({ uuid: orderId }, { status: TransferStatus.SETTLED });
         let accountNumber;
         if (country === 'MX') {
           const transfer = await this.depositEntityRepository.findOneBy({ uuid: orderId });

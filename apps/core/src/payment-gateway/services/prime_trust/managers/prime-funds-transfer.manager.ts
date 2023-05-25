@@ -14,7 +14,11 @@ import { Providers } from '~common/enum/providers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountIdRequest, TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import {
+  TransfersEntity,
+  TransferStatus,
+  TransferTypes,
+} from '~svc/core/src/payment-gateway/entities/transfers.entity';
 
 @Injectable()
 export class PrimeFundsTransferManager {
@@ -193,14 +197,18 @@ export class PrimeFundsTransferManager {
     }
     const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count, hotStatus);
 
+    let currentStatus = TransferStatus.PENDING;
+    if (status === 'settled') {
+      currentStatus = TransferStatus.SETTLED;
+    }
     const payload = {
       fee: fee_amount,
       uuid,
-      type: 'transfer',
+      type: TransferTypes.TRANSFER,
       user_id: sender_id,
       receiver_id,
       currency_type,
-      status,
+      status: currentStatus,
       amount,
       created_at,
     };
@@ -236,7 +244,7 @@ export class PrimeFundsTransferManager {
         const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
         const linkTransactions = await this.transferFundsEntityRepository.findBy({
           provider: Providers.LINK,
-          status: 'succeeded',
+          status: TransferStatus.DELIVERED,
         });
 
         linkTransactions.map(async (l) => {
@@ -246,7 +254,7 @@ export class PrimeFundsTransferManager {
             amount: l.amount,
             currency_type: l.currency_type,
           });
-          await this.transferFundsEntityRepository.update({ id: l.id }, { status: 'settled' });
+          await this.transferFundsEntityRepository.update({ id: l.id }, { status: TransferStatus.SETTLED });
         });
 
         await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);

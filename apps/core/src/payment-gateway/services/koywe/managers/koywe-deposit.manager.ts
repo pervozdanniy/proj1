@@ -14,7 +14,11 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { BankCredentialsData, DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import {
+  TransfersEntity,
+  TransferStatus,
+  TransferTypes,
+} from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
 import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
@@ -50,7 +54,7 @@ export class KoyweDepositManager {
   }
 
   async createReference(request: CreateReferenceRequest, params: KoyweReferenceParams): Promise<BankCredentialsData> {
-    const { amount, id, currency_type: currency } = request;
+    const { amount: amountUSD, id, currency_type: currencyUSD } = request;
     const { wallet_address, method } = params;
 
     const userDetails = await this.userService.getUserInfo(id);
@@ -58,8 +62,8 @@ export class KoyweDepositManager {
     const { currency_type } = countriesData[userDetails.country_code];
 
     const quote = await this.createQuote({
-      amount,
-      currency: currency_type,
+      amount: amountUSD,
+      currency: currencyUSD,
       method,
     });
 
@@ -80,11 +84,12 @@ export class KoyweDepositManager {
       this.depositEntityRepository.create({
         user_id: id,
         uuid: orderId,
-        type: 'deposit',
-        amount,
+        type: TransferTypes.DEPOSIT,
+        amount: quote.amountOut,
+        amount_usd: amountUSD,
         provider: Providers.KOYWE,
-        currency_type: currency,
-        status: 'waiting',
+        currency_type,
+        status: TransferStatus.PENDING,
         fee: totalFee,
       }),
     );
@@ -133,11 +138,12 @@ export class KoyweDepositManager {
       this.depositEntityRepository.create({
         user_id: id,
         uuid: orderId,
-        type: 'deposit',
+        type: TransferTypes.DEPOSIT,
         amount: quote.amountIn,
+        amount_usd: amount,
         provider: Providers.KOYWE,
         currency_type,
-        status: 'waiting',
+        status: TransferStatus.PENDING,
         fee: totalFee,
       }),
     );

@@ -23,7 +23,7 @@ import {
   WithdrawalResponse,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import { ParamsTypes, TransfersEntity, TransferTypes } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 
@@ -127,14 +127,14 @@ export class PrimeWithdrawalManager {
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
-    const { id, bank_account_id, funds_transfer_type } = request;
+    const { id: user_id, bank_account_id, funds_transfer_type } = request;
     const { transfer_method_id: funds_transfer_method_id } = await this.addWithdrawalParams({
-      id,
+      id: user_id,
       bank_account_id,
       funds_transfer_type,
     });
 
-    const account = await this.primeAccountRepository.findOneByOrFail({ user_id: id });
+    const account = await this.primeAccountRepository.findOneByOrFail({ user_id });
     const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({
       uuid: funds_transfer_method_id,
     });
@@ -145,15 +145,15 @@ export class PrimeWithdrawalManager {
     } = await this.sendWithdrawalRequest(request, account.uuid, funds_transfer_method_id);
     await this.transferRepository.save(
       this.transferRepository.create({
-        user_id: id,
+        user_id,
         amount,
         uuid: fundsResponse.id,
         status: fundsResponse.attributes['status'],
         currency_type: fundsResponse.attributes['currency-type'],
-        param_type: 'withdrawal_param',
+        param_type: ParamsTypes.WITHDRAWAL,
         param_id: withdrawalParams.id,
         fee,
-        type: 'withdrawal',
+        type: TransferTypes.WITHDRAWAL,
         provider: Providers.PRIME_TRUST,
       }),
     );
