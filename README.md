@@ -148,14 +148,18 @@ You'll be able to find them in `common/grpc/interfaces`.
 10. KYC
 
     We are using 3rd party provider to verify customers. Make a request to `POST /kyc/link` and follow `verification.url` link in response.    
-    To check if KYC process is finished check for Websocket `notification` events: 
-    ```
+    To check if KYC process is finished:
+    * subscribe to Websocket `notification` events: 
+
+        ```
         { 
             "type": "kyc",
             "data": { "completed": boolean, "reason": string | null }
         }
-    ``` 
-    Or scroll trough notifications `GET /notifications/list` and find corresponsding event with `type: "kyc"`.
+        ``` 
+        (You can see all available websocket event types in Swagger: Schemas -> NotificationEventDto)
+
+    * or scroll trough notifications `GET /notifications/list` and find corresponsding event with `type: "kyc"`.
 
 11. Paginated Lists
     
