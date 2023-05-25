@@ -36,11 +36,10 @@ export interface NotificationListResponse {
 
 export interface Notification {
   id: number;
-  title: string;
   type: string;
-  description: string;
   read: boolean;
   created_at: string;
+  payload?: string | undefined;
 }
 
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";

@@ -144,6 +144,7 @@ export class PrimeKycManager {
         );
         if (process.env.NODE_ENV === 'dev') {
           await this.verifyDocument(documentCheckResponse.data.id);
+          this.notificationService.createAsync(user_id, { type: 'kyc', data: { completed: true } });
         }
 
         await this.saveDocument(documentResponse.data, user.id, documentCheckResponse.data);
@@ -268,12 +269,13 @@ export class PrimeKycManager {
         ...data,
       });
 
-      await this.notificationService.sendWs(
-        user_id,
-        'kyc',
-        JSON.stringify({ status: documentData.data.attributes.status }),
-        'Document',
-      );
+      this.notificationService.createAsync(user_id, {
+        type: 'kyc',
+        data: {
+          completed: documentData.data.attributes.status === 'approved',
+          reason: documentData.data.attributes['failure-details'],
+        },
+      });
 
       return { success: true };
     } catch (e) {

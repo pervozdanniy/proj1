@@ -48,7 +48,10 @@ export class PrimeAccountManager {
   async createAccount(userDetails: UserEntity): Promise<AccountResponse> {
     const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
     if (account) {
-      await this.notificationService.sendWs(userDetails.id, 'account', 'Account already exist', 'Account');
+      this.notificationService.createAsync(userDetails.id, {
+        type: 'payment_account_creation',
+        data: { completed: false, reason: 'Account already exists' },
+      });
 
       throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
     }
@@ -107,19 +110,24 @@ export class PrimeAccountManager {
       //     data: null,
       //   });
       // }
-      await this.notificationService.sendWs(userDetails.id, 'account', 'Account created successfully!', 'Account');
+      this.notificationService.createAsync(userDetails.id, {
+        type: 'payment_account_creation',
+        data: { completed: true },
+      });
 
       return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
-      //
     } catch (e) {
-      this.logger.error(e);
-
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
-        await this.notificationService.sendWs(userDetails.id, 'account', 'Account creation failed!', 'Account');
+        this.notificationService.createAsync(userDetails.id, {
+          type: 'payment_account_creation',
+          data: { completed: false, reason: detail },
+        });
 
         throw new GrpcException(code, detail);
       } else {
+        throw e;
+
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
     }
@@ -174,7 +182,10 @@ export class PrimeAccountManager {
       },
     );
     if (accountResponse.status === 'opened') {
-      await this.notificationService.sendWs(user_id, 'account', 'Account created successfully!', 'Account');
+      this.notificationService.createAsync(user_id, {
+        type: 'payment_account_creation',
+        data: { completed: true },
+      });
     }
 
     return { success: true };

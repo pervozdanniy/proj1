@@ -1,5 +1,5 @@
 import { ToBoolean } from '@/utils/transformer.util';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsBoolean, IsNumber, IsOptional, Min } from 'class-validator';
 
@@ -10,10 +10,8 @@ export class ListNotificationsDto {
   @Type(() => Number)
   readonly limit: number = 20;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Last id.',
-    required: false,
-    default: 1,
     minimum: 1,
   })
   @IsNumber()
@@ -21,10 +19,7 @@ export class ListNotificationsDto {
   @Type(() => Number)
   readonly search_after: number = 0;
 
-  @ApiProperty({
-    description: 'Read status.',
-    required: false,
-  })
+  @ApiPropertyOptional({ description: 'Read status.' })
   @IsOptional()
   @IsBoolean()
   @ToBoolean()

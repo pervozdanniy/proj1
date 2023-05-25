@@ -18,16 +18,13 @@ export class NotificationEntity {
   user_id: number;
 
   @Column('character varying')
-  title: string;
-
-  @Column('character varying')
   type: string;
 
-  @Column('character varying', { nullable: true })
-  description: string;
+  @Column('text', { nullable: true })
+  payload?: string;
 
   @Column('boolean', { default: false })
-  read: boolean;
+  read?: boolean;
 
   @CreateDateColumn()
   created_at: Date;
@@ -37,5 +34,5 @@ export class NotificationEntity {
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
-  user: UserEntity;
+  user?: UserEntity;
 }
