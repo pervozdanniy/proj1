@@ -24,10 +24,10 @@ export class PaymentGatewayService {
     private readonly currencyService: CurrencyService,
   ) {}
 
-  async createAccount(id: number): Promise<AccountResponse> {
-    const userDetails = await this.userService.getUserInfo(id);
+  async createAccountIfNotCreated(userId: number): Promise<AccountResponse> {
+    const userDetails = await this.userService.getUserInfo(userId);
 
-    return this.primeTrustService.createAccount(userDetails);
+    return this.primeTrustService.createAccountIfNotCreated(userDetails);
   }
 
   createAgreement(request: AgreementRequest): Promise<UserAgreement> {
@@ -68,8 +68,8 @@ export class PaymentGatewayService {
     return this.primeTrustService.transferFunds(request);
   }
 
-  getContact(id: number) {
-    return this.primeTrustService.getContact(id);
+  getContact(userId: number) {
+    return this.primeTrustService.getContact(userId);
   }
 
   getTransactions(request: SearchTransactionRequest) {
@@ -105,5 +105,9 @@ export class PaymentGatewayService {
     }
 
     return resp;
+  }
+
+  verifyDocuments(userId: number, accountId: string) {
+    return this.primeTrustService.verifyDocuments(userId, accountId);
   }
 }
