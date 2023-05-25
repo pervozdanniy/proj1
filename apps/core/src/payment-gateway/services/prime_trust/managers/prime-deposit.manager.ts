@@ -29,7 +29,7 @@ import {
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import {TransfersEntity, TransferTypes} from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import { TransfersEntity, TransferTypes } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { CreateReferenceRequest, MakeDepositRequest } from '../../../interfaces/payment-gateway.interface';
 import { CardResourceType } from '../../../types/prime-trust';
 import { PrimeBalanceManager } from './prime-balance.manager';

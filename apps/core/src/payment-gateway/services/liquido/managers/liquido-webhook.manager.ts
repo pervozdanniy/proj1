@@ -11,7 +11,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { LiquidoWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import {TransfersEntity, TransferStatus} from '../../../entities/transfers.entity';
+import { TransfersEntity, TransferStatus } from '../../../entities/transfers.entity';
 import { KoyweService } from '../../koywe/koywe.service';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
