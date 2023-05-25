@@ -51,7 +51,7 @@ export class KoyweDepositManager {
   }
 
   async createReference(request: CreateReferenceRequest, params: KoyweReferenceParams): Promise<BankCredentialsData> {
-    const { amount: amountUSD, id: user_id } = request;
+    const { amount_usd, user_id } = request;
     const { wallet_address, method } = params;
 
     const userDetails = await this.userService.getUserInfo(user_id);
@@ -59,7 +59,7 @@ export class KoyweDepositManager {
     const { currency_type } = countriesData[userDetails.country_code];
 
     const quote = await this.createQuote({
-      amount: amountUSD,
+      amount: amount_usd,
       currency: currency_type,
       method,
     });
@@ -83,7 +83,7 @@ export class KoyweDepositManager {
         uuid: orderId,
         type: TransferTypes.DEPOSIT,
         amount: quote.amountIn,
-        amount_usd: amountUSD,
+        amount_usd,
         provider: Providers.KOYWE,
         currency_type,
         status: TransferStatus.PENDING,
@@ -105,15 +105,15 @@ export class KoyweDepositManager {
     depositParams: CreateReferenceRequest,
     transferParams: KoyweReferenceParams,
   ): Promise<DepositRedirectData> {
-    const { amount, id } = depositParams;
+    const { amount_usd, user_id } = depositParams;
     const { wallet_address, method } = transferParams;
 
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(user_id);
     await this.koyweTokenManager.getToken(userDetails.email);
     const { currency_type } = countriesData[userDetails.country_code];
 
     const quote = await this.createQuote({
-      amount,
+      amount: amount_usd,
       currency: currency_type,
       method,
     });
@@ -133,11 +133,11 @@ export class KoyweDepositManager {
     const totalFee = quote.networkFee + quote.koyweFee;
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
-        user_id: id,
+        user_id,
         uuid: orderId,
         type: TransferTypes.DEPOSIT,
         amount: quote.amountIn,
-        amount_usd: amount,
+        amount_usd: amount_usd,
         provider: Providers.KOYWE,
         currency_type,
         status: TransferStatus.PENDING,
@@ -203,6 +203,7 @@ export class KoyweDepositManager {
 
       return result.data;
     } catch (e) {
+
       throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
     }
   }

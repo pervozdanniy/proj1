@@ -16,7 +16,8 @@ import { countriesData, CountryData } from '../../../country/data';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { CurrencyService } from '../../currency.service';
-import { facilitaBank, facilitaTaxesBrazil } from '../constants';
+import { facilitaBank } from '../constants';
+import { countBrazilRate } from '../facilita-helpers';
 import { FacilitaTokenManager } from './facilita-token.manager';
 
 @Injectable()
@@ -38,9 +39,9 @@ export class FacilitaDepositManager {
   }
 
   async createWireReference({
-    amount: amountUSD,
+    amount_usd,
     currency_type: currency,
-    id: user_id,
+    user_id,
   }: CreateReferenceRequest): Promise<BankCredentialsData> {
     const user = await this.userService.getUserInfo(user_id);
     await this.createUserIfNotExist(user);
@@ -48,7 +49,7 @@ export class FacilitaDepositManager {
     const { currency_type } = countries[user.country_code];
     const ratesData = await this.currencyService.rate;
     const rate = ratesData.get(currency_type);
-    const amount = Number((amountUSD * rate).toFixed(2));
+    const amount = Number((amount_usd * rate).toFixed(2));
     let currentFee = 0;
     if (user.country_code === 'BR') {
       const { fee } = this.calculateFeeFromBrazil(rate, amount);
@@ -60,7 +61,7 @@ export class FacilitaDepositManager {
         user_id,
         type: TransferTypes.DEPOSIT,
         amount: Number(amount + currentFee),
-        amount_usd: amountUSD,
+        amount_usd,
         provider: Providers.FACILITA,
         currency_type,
         status: TransferStatus.PENDING,
@@ -100,15 +101,9 @@ export class FacilitaDepositManager {
     }
   }
 
-  calculateFeeFromBrazil(rate: number, amount: number) {
-    const { facilita_fee, crypto_settlement, brazil_federal_tax } = facilitaTaxesBrazil;
-    const result =
-      rate +
-      (facilita_fee / 100) * rate +
-      (crypto_settlement / 100) * (rate + (facilita_fee / 100) * rate) +
-      (brazil_federal_tax / 100) *
-        (rate + (facilita_fee / 100) * rate + (crypto_settlement / 100) * (rate + (facilita_fee / 100) * rate));
-    const difference = ((result - rate) / rate) * 100;
+  calculateFeeFromBrazil(pureRate: number, amount: number) {
+    const finalRate = countBrazilRate(pureRate);
+    const difference = ((finalRate - pureRate) / pureRate) * 100;
     const fee = Number(((amount * difference) / 100).toFixed(2));
 
     return {

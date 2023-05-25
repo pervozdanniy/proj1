@@ -154,6 +154,10 @@ export class PrimeLinkManager {
         await this.depositEntityRepository.update({ uuid: resourceId }, { status: TransferStatus.DELIVERED });
       }
 
+      if (status === 'initiated') {
+        await this.depositEntityRepository.update({ uuid: resourceId }, { status: TransferStatus.IDENTIFIED });
+      }
+
       if (status === 'failed') {
         await this.depositEntityRepository.update({ uuid: resourceId }, { status: TransferStatus.FAILED });
       }

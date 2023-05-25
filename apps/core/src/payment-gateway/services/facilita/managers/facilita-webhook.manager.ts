@@ -13,7 +13,7 @@ import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { VeriffService } from '../../../modules/veriff/services/veriff.service';
 import { CurrencyService } from '../../currency.service';
-import { facilitaTaxesBrazil } from '../constants';
+import { countBrazilRate } from '../facilita-helpers';
 import { FacilitaTokenManager } from './facilita-token.manager';
 
 @Injectable()
@@ -50,7 +50,7 @@ export class FacilitaWebhookManager {
       const documentNumber = transactionResponse.data.data.source_document_number;
 
       const { user_id } = await this.veriffService.getDocumentByNumber(documentNumber);
-      const { amountUSD, fee } = await this.calculateUsdFromBrl(amountCurrency, currency_type);
+      const { amount_usd, fee } = await this.calculateUsdFromBrl(amountCurrency, currency_type);
 
       const currentTransfer = await this.depositEntityRepository.findOneBy({ user_id, uuid: transactionId });
       let currentStatus = TransferStatus.PENDING;
@@ -68,7 +68,7 @@ export class FacilitaWebhookManager {
             uuid: transactionId,
             type: TransferTypes.DEPOSIT,
             amount: amountCurrency,
-            amount_usd: amountUSD,
+            amount_usd: amount_usd,
             provider: Providers.FACILITA,
             currency_type,
             status: currentStatus,
@@ -88,24 +88,17 @@ export class FacilitaWebhookManager {
   async calculateUsdFromBrl(
     amountCurrency: number,
     currency_type: string,
-  ): Promise<{ fee: number; amountUSD: number }> {
+  ): Promise<{ fee: number; amount_usd: number }> {
     const ratesData = await this.currencyService.rate;
-    const pureRate = ratesData.get(currency_type);
-    const { facilita_fee, crypto_settlement, brazil_federal_tax } = facilitaTaxesBrazil;
+    const pureRate = ratesData.get(currency_type); //4.95240
+    const finalRate = countBrazilRate(pureRate); //5.006
 
-    const step1 = pureRate + (facilita_fee / 100) * pureRate;
-    const step2 = step1 + (crypto_settlement / 100) * step1;
-    const finalRate = step2 + (brazil_federal_tax / 100) * step2;
-
-    const payed = amountCurrency / pureRate;
-    const received = amountCurrency / finalRate;
-
-    const feePercent = ((payed - received) / payed) * 100;
+    const feePercent = ((finalRate - pureRate) / pureRate) * 100;
 
     const fee = Number(((amountCurrency * feePercent) / 100).toFixed(2));
 
-    const amountUSD = Number((amountCurrency / finalRate).toFixed(2));
+    const amount_usd = Number((amountCurrency / finalRate).toFixed(2));
 
-    return { amountUSD, fee };
+    return { amount_usd, fee };
   }
 }

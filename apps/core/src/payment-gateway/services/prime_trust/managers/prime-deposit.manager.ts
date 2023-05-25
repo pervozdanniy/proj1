@@ -71,9 +71,9 @@ export class PrimeDepositManager {
   }
 
   async createReference(request: CreateReferenceRequest): Promise<JsonData> {
-    let refInfo = await this.getReferenceInfo(request.id);
+    let refInfo = await this.getReferenceInfo(request.user_id);
     if (refInfo.data.length == 0) {
-      refInfo = await this.createFundsReference(request.id);
+      refInfo = await this.createFundsReference(request.user_id);
     }
     const newData = [];
     for (let i = 0; i < refInfo.data.length; i++) {

@@ -12,7 +12,7 @@ export const facilitaBank = {
 };
 
 export const facilitaTaxesBrazil = {
-  facilita_fee: 0.4,
-  crypto_settlement: 0.3,
-  brazil_federal_tax: 0.38,
+  facilitaFeeRate: 0.4,
+  cryptoSettlementRate: 0.3,
+  brazilFederalTaxRate: 0.38,
 };

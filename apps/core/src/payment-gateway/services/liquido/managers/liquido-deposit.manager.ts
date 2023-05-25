@@ -15,7 +15,6 @@ import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData, liquidoFees } from '../../../country/data';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
-import { CurrencyService } from '../../currency.service';
 import { KoyweMainManager } from '../../koywe/managers/koywe-main.manager';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
@@ -29,8 +28,6 @@ export class LiquidoDepositManager {
     config: ConfigService<ConfigInterface>,
     private readonly liquidoTokenManager: LiquidoTokenManager,
     private readonly httpService: HttpService,
-
-    private readonly currencyService: CurrencyService,
 
     private readonly koyweMainManager: KoyweMainManager,
 
@@ -46,24 +43,22 @@ export class LiquidoDepositManager {
     this.domain = domain;
   }
 
-  async createCashPayment({ id, amount: amountUSD }: CreateReferenceRequest): Promise<DepositRedirectData> {
+  async createCashPayment({ user_id, amount_usd }: CreateReferenceRequest): Promise<DepositRedirectData> {
     const { token } = await this.liquidoTokenManager.getToken();
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(user_id);
     const { currency_type } = countriesData[userDetails.country_code];
     const liquidoFeeUsd = liquidoFees[userDetails.country_code].value;
-    const fullAmount = amountUSD + liquidoFeeUsd;
-    const convertedAmount = await this.currencyService.convert(fullAmount, [currency_type]);
-    const { amountIn, networkFee, koyweFee } = await this.koyweMainManager.getCurrencyAmountByUsd(
-      amountUSD,
+    const amountWithLiquidoFee = amount_usd + liquidoFeeUsd;
+    const { amountOut, networkFee, koyweFee } = await this.koyweMainManager.getCurrencyAmountByUsd(
+      amountWithLiquidoFee,
       currency_type,
     );
     const totalFee = networkFee + koyweFee;
+
     const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
-
-    const amount = convertedAmount[currency_type].amount;
 
     const headersRequest = {
       'Content-Type': 'application/json',
@@ -73,7 +68,7 @@ export class LiquidoDepositManager {
     const orderId = await uid(18);
     const formData = {
       orderId: orderId,
-      amount: amountIn,
+      amount: amountOut,
       currency: currency_type,
       country: userDetails.country_code,
       allowPaymentMethods: ['PAY_CASH'],
@@ -92,11 +87,11 @@ export class LiquidoDepositManager {
 
       await this.depositEntityRepository.save(
         this.depositEntityRepository.create({
-          user_id: id,
+          user_id,
           uuid: orderId,
           type: TransferTypes.DEPOSIT,
-          amount,
-          amount_usd: amountUSD,
+          amount: amountOut,
+          amount_usd,
           provider: Providers.LIQUIDO,
           currency_type,
           fee: totalFee,
@@ -107,8 +102,8 @@ export class LiquidoDepositManager {
       return {
         url: result.data.paymentLink,
         info: {
-          amount,
-          rate: convertedAmount[currency_type].rate,
+          amount: amountOut,
+          rate: Number((amountOut / amount_usd).toFixed(2)),
           fee: totalFee,
           currency: currency_type,
         },

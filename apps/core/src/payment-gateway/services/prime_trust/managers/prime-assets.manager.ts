@@ -63,16 +63,16 @@ export class PrimeAssetsManager {
   }
 
   async createWallet(depositParams: CreateReferenceRequest): Promise<WalletResponse> {
-    const { id, amount } = depositParams;
+    const { user_id, amount_usd } = depositParams;
     const prime_trust_params = await this.primeAccountRepository
       .createQueryBuilder('a')
       .leftJoinAndSelect(PrimeTrustContactEntity, 'c', 'a.user_id = c.user_id')
-      .where('a.user_id = :id', { id })
+      .where('a.user_id = :user_id', { user_id })
       .select(['a.uuid as account_id', 'c.uuid as contact_id'])
       .getRawOne();
 
     const { account_id, contact_id } = prime_trust_params;
-    const walletPayload = await this.createAssetTransferMethod(account_id, contact_id, amount, 'USD');
+    const walletPayload = await this.createAssetTransferMethod(account_id, contact_id, amount_usd, 'USD');
 
     return walletPayload;
   }

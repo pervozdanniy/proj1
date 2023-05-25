@@ -98,14 +98,14 @@ export class KoyweWithdrawalManager {
     return { wallet: providedAddress, info };
   }
 
-  async createQuote(amountUsd: number, currency: string): Promise<KoyweQuote> {
+  async createQuote(amount_usd: number, currency: string): Promise<KoyweQuote> {
     try {
       const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(currency);
 
       const formData = {
         symbolIn: this.asset,
         symbolOut: currency,
-        amountIn: amountUsd,
+        amountIn: amount_usd,
         paymentMethodId,
         executable: true,
       };

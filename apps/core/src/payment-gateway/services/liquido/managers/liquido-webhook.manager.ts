@@ -14,6 +14,7 @@ import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity, TransferStatus } from '../../../entities/transfers.entity';
 import { KoyweService } from '../../koywe/koywe.service';
 import { LiquidoTokenManager } from './liquido-token.manager';
+import {CreateReferenceRequest} from "../../../interfaces/payment-gateway.interface";
 
 @Injectable()
 export class LiquidoWebhookManager {
@@ -57,11 +58,10 @@ export class LiquidoWebhookManager {
         let accountNumber;
         if (country === 'MX') {
           const transfer = await this.depositEntityRepository.findOneBy({ uuid: orderId });
-          const request = {
-            id: user.id,
-            amount: transfer.amount,
+          const request: CreateReferenceRequest = {
+            user_id: user.id,
+            amount_usd: transfer.amount_usd,
             currency_type: transfer.currency_type,
-            type: 'wire',
           };
           //   const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
 
