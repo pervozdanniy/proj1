@@ -35,10 +35,10 @@ export class KYCService {
   }
 
   private async verifyPaymentAccount(userId: number) {
-    const { uuid } = await this.paymentGateway.createAccountIfNotCreated(userId);
-    const contact = await this.paymentGateway.getContact(userId);
-    if (!contact?.identity_confirmed) {
-      await this.paymentGateway.verifyDocuments(userId, uuid);
-    }
+    await this.paymentGateway.createAccountIfNotCreated(userId);
+    // const contact = await this.paymentGateway.getContact(userId);
+    // if (!contact?.identity_confirmed) {
+    //   await this.paymentGateway.verifyDocuments(userId, uuid);
+    // }
   }
 }
