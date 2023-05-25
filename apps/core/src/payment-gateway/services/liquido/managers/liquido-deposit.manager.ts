@@ -13,7 +13,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import {countriesData, liquidoFees} from '../../../country/data';
+import { countriesData, liquidoFees } from '../../../country/data';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { CurrencyService } from '../../currency.service';
 import { KoyweMainManager } from '../../koywe/managers/koywe-main.manager';
