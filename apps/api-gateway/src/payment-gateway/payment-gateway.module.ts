@@ -16,6 +16,7 @@ import { WithdrawalController } from './controllers/withdrawal.controller';
 import { CardsService } from './services/cards.service';
 import { DepositService } from './services/deposit.service';
 import { ExternalBalanceService } from './services/external-balance.service';
+import { KYCService } from './services/kyc.service';
 import { PaymentGatewayService } from './services/payment-gateway.service';
 import { SandboxService } from './services/sandbox.service';
 
@@ -32,7 +33,7 @@ import { SandboxService } from './services/sandbox.service';
     CardsController,
     ExternalBalanceController,
   ],
-  providers: [PaymentGatewayService, SandboxService, DepositService, CardsService, ExternalBalanceService],
+  providers: [PaymentGatewayService, SandboxService, DepositService, CardsService, ExternalBalanceService, KYCService],
 })
 export class PaymentGatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

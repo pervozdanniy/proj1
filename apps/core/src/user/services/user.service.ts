@@ -49,14 +49,8 @@ export class UserService {
     return user;
   }
 
-  async getUserInfo(id: number) {
-    const userDetails = await this.userRepository
-      .createQueryBuilder('u')
-      .leftJoinAndSelect('u.details', 'd')
-      .where('u.id = :id', { id })
-      .getOne();
-
-    return userDetails;
+  getUserInfo(id: number) {
+    return this.userRepository.findOne({ where: { id }, relations: ['details', 'documents'] });
   }
 
   findByLogin({ email, phone }: FindRequestDto) {

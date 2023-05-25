@@ -10,6 +10,7 @@ import { InswitchAccountEntity } from '../entities/inswitch-account.entity';
 import { CardType, InswitchCardEntity } from '../entities/inswitch-card.entity';
 import { BlockCardReason, CreateCardRequest, UnblockCardReason } from '../interfaces/api.interface';
 import { InswitchApiService } from './api.service';
+import { InswitchService } from './inswitch.service';
 
 @Injectable()
 export class InswitchCardsService {
@@ -19,7 +20,7 @@ export class InswitchCardsService {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly api: InswitchApiService,
-    @InjectRepository(InswitchAccountEntity) private readonly accountRepo: Repository<InswitchAccountEntity>,
+    private readonly inswitch: InswitchService,
     @InjectRepository(InswitchCardEntity) private readonly cardRepo: Repository<InswitchCardEntity>,
     @InjectRepository(UserDetailsEntity) private readonly userDetailsRepo: Repository<UserDetailsEntity>,
   ) {
@@ -49,35 +50,6 @@ export class InswitchCardsService {
     return entity;
   }
 
-  async getAndSetUpAccount(userId: number) {
-    const account = await this.accountRepo.findOneByOrFail({ user_id: userId });
-    let needsUpdate = false;
-    if (!account.wallet_id) {
-      needsUpdate = true;
-      account.wallet_id = await this.api.createWallet(account.entity_id);
-    }
-    if (!account.payment_reference) {
-      needsUpdate = true;
-      const paymentMethods = await this.api.getAvailablePaymentMethods({
-        country: account.country,
-        direction: 'out',
-        paymentMethodTypeClass: 'emoney',
-        paymentMethodTypeStatus: 'available',
-      });
-      const paymentMethod = paymentMethods.find((pm) => pm.country === account.country);
-      if (!paymentMethod) {
-        throw new ConflictException('No payment methods are available in your country');
-      }
-      account.payment_reference = await this.api.createPaymentMethod({
-        walletId: account.wallet_id,
-        paymentMethodType: paymentMethod.paymentMethodType,
-      });
-    }
-    if (needsUpdate) await this.accountRepo.save(account);
-
-    return account;
-  }
-
   async list(userId: number): Promise<Card[]> {
     const cards = await this.cardRepo
       .createQueryBuilder('c')
@@ -95,7 +67,7 @@ export class InswitchCardsService {
   }
 
   async issueCard(payload: CreateCardDto): Promise<Card> {
-    const account = await this.getAndSetUpAccount(payload.user_id);
+    const account = await this.inswitch.accountGetOrCreate(payload.user_id);
 
     let data: CreateCardRequest;
     if (payload.is_virtual) {

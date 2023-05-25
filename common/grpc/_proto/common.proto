@@ -53,3 +53,7 @@ message SuccessResponse {
     bool success = 1;
     optional string error = 2;
 }
+
+message UserIdRequest {
+    uint32 user_id = 1;
+}

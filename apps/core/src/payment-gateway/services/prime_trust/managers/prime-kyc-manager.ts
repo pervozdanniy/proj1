@@ -18,7 +18,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountIdRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { PrimeVeriffManager } from './prime-veriff-manager';
+import { VeriffService } from '../../../modules/veriff/services/veriff.service';
 
 @Injectable()
 export class PrimeKycManager {
@@ -29,7 +29,7 @@ export class PrimeKycManager {
     private userService: UserService,
     private readonly httpService: PrimeTrustHttpService,
     private readonly notificationService: NotificationService,
-    private readonly primeVeriffManager: PrimeVeriffManager,
+    private readonly veriff: VeriffService,
 
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
@@ -132,7 +132,7 @@ export class PrimeKycManager {
     const user = await this.userService.get(user_id);
     const contact = await this.getContactByAccount(account_id);
 
-    const mediaFiles = await this.primeVeriffManager.getMedia(user.id);
+    const mediaFiles = await this.veriff.getMedia(user.id);
     for (const m of mediaFiles) {
       const documentResponse = await this.send(m.buffer, m.name + '.jpg', `${m.name}  ${m.label}`, contact.id);
       if (m.name === 'document-front' || m.name === 'document-back') {

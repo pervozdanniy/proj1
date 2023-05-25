@@ -3,9 +3,10 @@ syntax = "proto3";
 package skopa.core;
 
 import "google/protobuf/empty.proto";
+import "common.proto";
 
 service CardsService {
-    rpc List (UserId) returns (CardsList);
+    rpc List (common.UserIdRequest) returns (CardsList);
   
     rpc Issue (IssueCardRequest) returns (Card);
   
@@ -25,11 +26,9 @@ service CardsService {
 }
 
 service ExternalBalanceService {
-    rpc GetBalance (UserId) returns (ExternalBalanceResponse);
-}
+    rpc GetBalance (common.UserIdRequest) returns (ExternalBalanceResponse);
 
-message UserId {
-    uint32 user_id = 1;
+    rpc GetPaymentMethodReference (common.UserIdRequest) returns (ExternalPaymentMethodResponse);
 }
 
 message CardId {
@@ -99,4 +98,8 @@ message ExternalBalanceEntry {
 
 message ExternalBalanceResponse {
     repeated ExternalBalanceEntry balance = 1;
+}
+
+message ExternalPaymentMethodResponse {
+    string reference = 1;
 }

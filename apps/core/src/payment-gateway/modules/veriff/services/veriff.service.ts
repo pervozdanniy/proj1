@@ -1,3 +1,4 @@
+import { UserEntity } from '@/user/entities/user.entity';
 import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
@@ -9,23 +10,21 @@ import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { DocumentTypesEnum } from '~common/enum/document-types.enum';
-import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { VeriffHookRequest, VeriffSessionResponse, WebhookResponse } from '~common/grpc/interfaces/veriff';
+import { DecisionWebhook, EventWebhook, VeriffSessionResponse } from '~common/grpc/interfaces/veriff';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { Media } from '../../../types/prime-trust';
+import { KYCDocumentType, VeriffDocumentEntity } from '../entities/veriff-document.entity';
 
 @Injectable()
-export class PrimeVeriffManager {
+export class VeriffService {
   private readonly url: string;
   private readonly api_key: string;
   private readonly secret;
 
   constructor(
-    private userService: UserService,
-    private readonly httpService: HttpService,
-
     config: ConfigService<ConfigInterface>,
+    private readonly userService: UserService,
+    private readonly httpService: HttpService,
     @InjectRepository(VeriffDocumentEntity)
     private readonly veriffDocumentEntityRepository: Repository<VeriffDocumentEntity>,
   ) {
@@ -53,7 +52,7 @@ export class PrimeVeriffManager {
     if (approvedSession) {
       throw new GrpcException(Status.ABORTED, 'User already have approved document!', 400);
     }
-    const session = await this.createVeriffSession(user_id);
+    const session = await this.createVeriffSession(user);
     await this.veriffDocumentEntityRepository.save(
       this.veriffDocumentEntityRepository.create({
         user_id,
@@ -73,6 +72,7 @@ export class PrimeVeriffManager {
       .andWhere('d.status = :status', { status: 'approved' })
       .orderBy('d.created_at', 'DESC')
       .getOne();
+
     if (session) {
       const attemptId = session.attempt_id;
       try {
@@ -139,8 +139,7 @@ export class PrimeVeriffManager {
     }
   }
 
-  async createVeriffSession(user_id: number): Promise<VeriffSessionResponse> {
-    const user = await this.userService.getUserInfo(user_id);
+  async createVeriffSession(user: UserEntity): Promise<VeriffSessionResponse> {
     try {
       const headersRequest = {
         'X-AUTH-CLIENT': this.api_key,
@@ -184,15 +183,13 @@ export class PrimeVeriffManager {
       throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
     }
   }
-  async veriffHookHandler({ attemptId: attempt_id, id: session_id }: VeriffHookRequest): Promise<SuccessResponse> {
+  async veriffHookHandler({ attemptId: attempt_id, id: session_id }: EventWebhook) {
     await this.veriffDocumentEntityRepository.update({ session_id }, { attempt_id });
-
-    return { success: true };
   }
 
-  async veriffWebhookHandler({
+  async decisionHandler({
     verification: { id: session_id, status, document },
-  }: WebhookResponse): Promise<{ success: boolean; user_id: number }> {
+  }: DecisionWebhook): Promise<{ success: boolean; user_id: number }> {
     const session = await this.veriffDocumentEntityRepository.findOneBy({ session_id });
     await this.veriffDocumentEntityRepository.update(
       { session_id },
@@ -200,7 +197,7 @@ export class PrimeVeriffManager {
         document_number: document.number,
         issuing_date: document.validFrom,
         expiration_date: document.validUntil,
-        label: document.type,
+        label: document.type as KYCDocumentType,
         country: document.country,
         status,
       },

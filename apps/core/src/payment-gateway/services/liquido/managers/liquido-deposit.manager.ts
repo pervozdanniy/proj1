@@ -1,3 +1,4 @@
+import { TransfersEntity } from '@/payment-gateway/entities/transfers.entity';
 import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
@@ -12,10 +13,8 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { CreateReferenceRequest } from '~svc/core/src/payment-gateway/interfaces/payment-gateway.interface';
 import { countriesData } from '../../../country/data';
-import { TransfersEntity } from '../../../entities/transfers.entity';
-import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
-import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { CurrencyService } from '../../currency.service';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
@@ -34,9 +33,6 @@ export class LiquidoDepositManager {
 
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
-
-    @InjectRepository(VeriffDocumentEntity)
-    private readonly documentRepository: Repository<VeriffDocumentEntity>,
 
     private userService: UserService,
   ) {
@@ -57,7 +53,7 @@ export class LiquidoDepositManager {
     const { currency_type } = countriesData[userDetails.country_code];
 
     const convertedAmount = await this.currencyService.convert(beforeConvertAmount, [currency_type]);
-    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
+    const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }

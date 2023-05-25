@@ -13,7 +13,7 @@ import {
 } from 'typeorm';
 import { UserSourceEnum } from '~common/constants/user';
 import { NotificationEntity } from '../../notification/entities/notification.entity';
-import { VeriffDocumentEntity } from '../../payment-gateway/entities/veriff-document.entity';
+import { VeriffDocumentEntity } from '../../payment-gateway/modules/veriff/entities/veriff-document.entity';
 import { UserDetailsEntity } from './user-details.entity';
 
 @Entity('users')

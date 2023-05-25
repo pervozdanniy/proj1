@@ -12,7 +12,6 @@ import { Providers } from '~common/enum/providers';
 import { BankCredentialsData } from '~common/grpc/interfaces/payment-gateway';
 import { countriesData, CountryData } from '../../../country/data';
 import { TransfersEntity } from '../../../entities/transfers.entity';
-import { VeriffDocumentEntity } from '../../../entities/veriff-document.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { CurrencyService } from '../../currency.service';
 import { FacilitaBankAccount } from '../types';
@@ -25,8 +24,6 @@ export class FacilitaDepositManager {
     private readonly facilitaTokenManager: FacilitaTokenManager,
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
-    @InjectRepository(VeriffDocumentEntity)
-    private readonly documentRepository: Repository<VeriffDocumentEntity>,
     private userService: UserService,
 
     private readonly currencyService: CurrencyService,
@@ -76,7 +73,7 @@ export class FacilitaDepositManager {
 
   async createUserIfNotExist(id: number): Promise<{ user_id: number }> {
     const user = await this.userService.getUserInfo(id);
-    const document = await this.documentRepository.findOneBy({ user_id: id, status: 'approved' });
+    const document = user.documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }

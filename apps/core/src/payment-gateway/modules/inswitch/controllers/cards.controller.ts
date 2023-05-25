@@ -1,4 +1,5 @@
 import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { UserIdRequest } from '~common/grpc/interfaces/common';
 import {
   Card,
   CardDetails,
@@ -6,7 +7,6 @@ import {
   CardsServiceController,
   CardsServiceControllerMethods,
   RegenerateCvvResponse,
-  UserId,
 } from '~common/grpc/interfaces/inswitch';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { CardBlockDto, CardIdDto, CreateCardDto, SetPinDto } from '../dto/cards.dto';
@@ -37,7 +37,7 @@ export class CardsController implements CardsServiceController {
     return this.inswitch.unblock(request);
   }
 
-  async list({ user_id }: UserId): Promise<CardsList> {
+  async list({ user_id }: UserIdRequest): Promise<CardsList> {
     const cards = await this.inswitch.list(user_id);
 
     return { cards };
