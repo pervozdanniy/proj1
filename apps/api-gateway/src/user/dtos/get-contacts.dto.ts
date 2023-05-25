@@ -1,18 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class GetContactsDto {
-  @ApiProperty({ description: 'The number of records.', required: false, default: 20, minimum: 0 })
+  @ApiPropertyOptional({ description: 'The number of records.', default: 20, minimum: 0 })
   @IsNumber()
   @Min(0)
   @Type(() => Number)
   readonly limit: number = 20;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Last id.',
-    required: false,
-    default: 1,
     minimum: 1,
   })
   @IsNumber()
@@ -20,9 +18,8 @@ export class GetContactsDto {
   @Type(() => Number)
   readonly search_after: number = 0;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Search item',
-    required: false,
   })
   @IsOptional()
   @IsString()

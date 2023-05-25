@@ -1,3 +1,4 @@
+import { NotificationService } from '@/notification/services/notification.service';
 import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-account.entity';
 import { PrimeTrustBalanceEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-balance.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
@@ -22,9 +23,9 @@ export class PrimeBalanceManager {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
+    private readonly notificationService: NotificationService,
     @InjectRepository(PrimeTrustAccountEntity)
     private readonly primeAccountRepository: Repository<PrimeTrustAccountEntity>,
-
     @InjectRepository(PrimeTrustBalanceEntity)
     private readonly primeTrustBalanceEntityRepository: Repository<PrimeTrustBalanceEntity>,
   ) {
@@ -46,6 +47,7 @@ export class PrimeBalanceManager {
     const { user_id } = accountData;
 
     const cacheData = await this.getBalanceInfo(accountId);
+    this.notificationService.createAsync(user_id, { type: 'balance_updated' });
 
     return this.saveBalance(user_id, cacheData);
   }
@@ -116,8 +118,8 @@ export class PrimeBalanceManager {
         currency_type: 'USD',
       };
     }
-    await this.updateAccountBalance(account.uuid);
-    const balance = await this.primeTrustBalanceEntityRepository.findOne({ where: { user_id: userId } });
+
+    const balance = await this.getBalanceInfo(account.uuid);
 
     return {
       settled: balance.settled,

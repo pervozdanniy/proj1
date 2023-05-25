@@ -1,38 +1,25 @@
-import { UserService } from '@/user/services/user.service';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
-import { InjectGrpc } from '~common/grpc/helpers';
 import {
   Notification,
   NotificationListResponse,
   NotificationRequest,
   UpdateNotificationRequest,
 } from '~common/grpc/interfaces/notification';
-import { NotifierServiceClient, NotifyOptions, NotifyRequest, SendType } from '~common/grpc/interfaces/notifier';
 import { NotificationEntity } from '../entities/notification.entity';
+import { NotificationEvent } from '../interfaces/event.interface';
 import { WebSocketService } from './web-socket.service';
 
 @Injectable()
-export class NotificationService implements OnModuleInit {
+export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  private notifierService: NotifierServiceClient;
-
   constructor(
-    @InjectGrpc('notifier') private readonly client: ClientGrpc,
     @InjectRepository(NotificationEntity)
     private notificationEntityRepository: Repository<NotificationEntity>,
     private readonly ws: WebSocketService,
-
-    private readonly userService: UserService,
   ) {}
-
-  onModuleInit() {
-    this.notifierService = this.client.getService('NotifierService');
-  }
 
   async list(request: NotificationRequest): Promise<NotificationListResponse> {
     const { search_after, limit, read, id } = request;
@@ -77,45 +64,32 @@ export class NotificationService implements OnModuleInit {
     return {
       id: notificationEntity.id,
       type: notificationEntity.type,
-      title: notificationEntity.title,
-      description: notificationEntity.description,
+      payload: notificationEntity.payload,
       read: notificationEntity.read,
       created_at: notificationEntity.created_at.toString(),
     };
   }
 
-  createAsync(payload: { user_id: number; description: string; title: string; type: string }) {
-    this.create(payload).catch((e) => this.logger.error(e.message));
+  createAsync(userId: number, payload: NotificationEvent) {
+    this.create(userId, payload).catch((e) => this.logger.error(e.message));
   }
 
-  async create(payload: { user_id: number; description: string; title: string; type: string }): Promise<void> {
-    const {
-      phone,
-      email,
-      details: { send_type },
-    } = await this.userService.getUserInfo(payload.user_id);
+  async create(userId: number, payload: NotificationEvent): Promise<void> {
+    // const {
+    //   phone,
+    //   email,
+    //   details: { send_type },
+    // } = await this.userService.getUserInfo(userId);
 
-    const user_data: NotifyOptions = {
-      phone,
-      email,
-      send_type: send_type as unknown as SendType,
-    };
+    // const user_data: NotifyOptions = {
+    //   phone,
+    //   email,
+    //   send_type: send_type as unknown as SendType,
+    // };
 
-    await this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload));
-
-    const message = { body: payload.description, title: payload.title };
     await Promise.all([
-      this.send(message, user_data),
-      this.ws.sendTo({ event: 'notification', data: JSON.stringify(message) }, payload.user_id),
+      this.notificationEntityRepository.save(this.notificationEntityRepository.create(payload)),
+      this.ws.sendTo({ event: 'notification', data: JSON.stringify(payload) }, userId),
     ]);
-  }
-
-  send(notification: NotifyRequest, options: NotifyOptions) {
-    return firstValueFrom(this.notifierService.add({ notification, options }));
-  }
-
-  async sendWs(user_id: number, event: string, body?: string, title?: string) {
-    const message = { body, title };
-    await this.ws.sendTo({ event, data: JSON.stringify(message) }, user_id);
   }
 }

@@ -61,6 +61,7 @@ import { RefactorInwswitchWitdhrawTable1684676989982 } from './migrations/168467
 import { ConverAllStringsToNumbers1684679871328 } from './migrations/1684679871328-ConverAllStringsToNumbers';
 import { AlterInswitchWithdrawEntity1684855247377 } from './migrations/1684855247377-AlterInswitchWithdrawEntity';
 import { ChangeAllNumericTypesToDouble1684863902686 } from './migrations/1684863902686-ChangeAllNumericTypesToDouble';
+import { ChangeNotificationEntity1685024382736 } from './migrations/1685024382736-ChangeNotificationEntity';
 
 export default [
   createUserTable1669901299726,
@@ -126,4 +127,5 @@ export default [
   ConverAllStringsToNumbers1684679871328,
   AlterInswitchWithdrawEntity1684855247377,
   ChangeAllNumericTypesToDouble1684863902686,
+  ChangeNotificationEntity1685024382736,
 ];

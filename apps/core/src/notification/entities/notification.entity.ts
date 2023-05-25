@@ -18,13 +18,10 @@ export class NotificationEntity {
   user_id: number;
 
   @Column('character varying')
-  title: string;
-
-  @Column('character varying')
   type: string;
 
-  @Column('character varying', { nullable: true })
-  description: string;
+  @Column('text', { nullable: true })
+  payload: string;
 
   @Column('boolean', { default: false })
   read: boolean;

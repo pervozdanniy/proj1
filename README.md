@@ -144,3 +144,28 @@ You'll be able to find them in `common/grpc/interfaces`.
     * POST /auth/change_password/start
     * POST /auth/change_password/verify
     * POST /auth/change_password/finish
+
+10. KYC
+
+    We are using 3rd party provider to verify customers. Make a request to `POST /kyc/link` and follow `verification.url` link in response.    
+    To check if KYC process is finished:
+    * subscribe to Websocket `notification` events: 
+
+        ```
+        { 
+            "type": "kyc",
+            "data": { "completed": boolean, "reason": string | null }
+        }
+        ``` 
+        (You can see all available websocket event types in Swagger: Schemas -> NotificationEventDto)
+
+    * or scroll trough notifications `GET /notifications/list` and find corresponsding event with `type: "kyc"`.
+
+11. Paginated Lists
+    
+    For example `GET /notifications/list` or `GET /payment_gateway/transactions`.
+    Paginated list request has 2 key query params: 
+    * `limit`: used to specify number of records per page.
+    * `search_after`: used to specify record id to scroll after. Don't send this value on first request. For further requests take this value from `last_id` field from response.
+
+    Every response contains `has_more` boolean field to specify if there are any more records to fetch.
