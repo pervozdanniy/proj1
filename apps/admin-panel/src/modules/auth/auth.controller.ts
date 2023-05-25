@@ -1,12 +1,15 @@
-import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
+import { UserEntity } from '@admin/access/users/user.entity';
+import { GetMeResponseDto } from '@modules/auth/dtos/get-me-response.dto';
+import { Body, Controller, Get, Post, ValidationPipe } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { SkipAuth } from '.';
+import { CurrentUser, SkipAuth, TOKEN_NAME } from '.';
 import {
   AuthCredentialsRequestDto,
   LoginResponseDto,
@@ -17,7 +20,6 @@ import {
 } from './dtos';
 import { AuthService, TokenService } from './services';
 
-@SkipAuth()
 @ApiTags('Auth')
 @Controller({
   path: 'auth',
@@ -26,6 +28,7 @@ import { AuthService, TokenService } from './services';
 export class AuthController {
   constructor(private authService: AuthService, private tokenService: TokenService) {}
 
+  @SkipAuth()
   @ApiOperation({ description: 'User authentication' })
   @ApiOkResponse({ description: 'Successfully authenticated user' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
@@ -35,6 +38,17 @@ export class AuthController {
     return this.authService.login(authCredentialsDto);
   }
 
+  @ApiBearerAuth(TOKEN_NAME)
+  @ApiOperation({ description: 'Get User Information' })
+  @ApiOkResponse({ description: 'Successfully Return User Information' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiInternalServerErrorResponse({ description: 'Server error' })
+  @Get('/me')
+  getMe(@CurrentUser() user: UserEntity): Promise<GetMeResponseDto> {
+    return this.authService.getMe(user);
+  }
+
+  @SkipAuth()
   @ApiOperation({ description: 'Renew access in the application' })
   @ApiOkResponse({ description: 'token successfully renewed' })
   @ApiUnauthorizedResponse({ description: 'Refresh token invalid or expired' })
@@ -46,6 +60,7 @@ export class AuthController {
     return this.tokenService.generateRefreshToken(refreshToken);
   }
 
+  @SkipAuth()
   @ApiOperation({ description: 'Validate token' })
   @ApiOkResponse({ description: 'Validation was successful' })
   @ApiInternalServerErrorResponse({ description: 'Server error' })

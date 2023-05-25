@@ -79,7 +79,7 @@ export class TokenService {
   public async validateToken(token: string): Promise<ValidateTokenResponseDto> {
     try {
       const { id } = this.jwtService.verify(token);
-      const user = await this.usersService.findOne(id);
+      const user = await this.usersService.findOne({ where: { id } });
       if (!user || user.status == UserStatus.Blocked || user.status == UserStatus.Inactive) {
         return { valid: false };
       }
