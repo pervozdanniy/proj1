@@ -9,7 +9,7 @@ export const countriesData: CountryData = {
 };
 export type CurrencyCode = string;
 
-export const currenciesData: CurrencyCode[] = ['CLP', 'MXN', 'COP', 'PEN', 'BRL', 'ARS'];
+export const currenciesData: CurrencyCode[] = ['CLP', 'MXN', 'COP', 'PEN', 'BRL', 'ARS', 'USD', 'EUR'];
 
 export type CountryData = {
   [code: string]: {
