@@ -1,7 +1,7 @@
 import { BaseEntity } from 'apps/admin-panel/src/db/entities';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ schema: 'admin', name: 'permissions' })
+@Entity('permissions')
 export class PermissionEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'id', type: 'integer' })
   id: number;

@@ -4,7 +4,7 @@ import { PermissionEntity } from '../permissions/permission.entity';
 import { RoleEntity } from '../roles/role.entity';
 import { UserStatus } from './user-status.enum';
 
-@Entity({ schema: 'admin', name: 'users' })
+@Entity('users')
 export class UserEntity extends BaseEntity {
   @PrimaryColumn({ name: 'id', type: 'uuid', generated: 'uuid' })
   id?: string;

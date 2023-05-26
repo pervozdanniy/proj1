@@ -2,7 +2,7 @@ import { BaseEntity } from 'apps/admin-panel/src/db/entities';
 import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { PermissionEntity } from '../permissions/permission.entity';
 
-@Entity({ schema: 'admin', name: 'roles' })
+@Entity('roles')
 export class RoleEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'id', type: 'integer' })
   id: number;
@@ -17,6 +17,15 @@ export class RoleEntity extends BaseEntity {
   name: string;
 
   @Column({
+    name: 'slug',
+    type: 'varchar',
+    nullable: false,
+    unique: true,
+    length: 60,
+  })
+  slug: string;
+
+  @Column({
     name: 'active',
     type: 'boolean',
     nullable: false,
@@ -29,7 +38,6 @@ export class RoleEntity extends BaseEntity {
     cascade: true,
   })
   @JoinTable({
-    schema: 'admin',
     name: 'roles_permissions',
     joinColumn: {
       name: 'role_id',

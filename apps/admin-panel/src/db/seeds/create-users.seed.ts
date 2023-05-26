@@ -20,41 +20,47 @@ const users = [
   },
 ];
 
-const rolePermissions: Record<string, { slug: string; description: string }[]> = {
-  Developer: [
-    { slug: 'admin.access.users.read', description: 'Read users' },
-    { slug: 'admin.access.users.create', description: 'Create users' },
-    { slug: 'admin.access.users.update', description: 'Update users' },
-    { slug: 'admin.access.roles.read', description: 'Read Roles' },
-    { slug: 'admin.access.roles.create', description: 'Create Roles' },
-    { slug: 'admin.access.roles.update', description: 'Update Roles' },
-    { slug: 'admin.access.permissions.read', description: 'Read permissions' },
-    {
-      slug: 'admin.access.permissions.create',
-      description: 'Create permissions',
-    },
-    {
-      slug: 'admin.access.permissions.update',
-      description: 'Update permissions',
-    },
-  ],
-  Admin: [
-    { slug: 'admin.access.users.read', description: 'Read users' },
-    { slug: 'admin.access.users.create', description: 'Create users' },
-    { slug: 'admin.access.users.update', description: 'Update users' },
-    { slug: 'admin.access.roles.read', description: 'Read Roles' },
-    { slug: 'admin.access.roles.create', description: 'Create Roles' },
-    { slug: 'admin.access.roles.update', description: 'Update Roles' },
-  ],
-};
+const rolePermissions: { name: string; slug: string; permissions: { slug: string; description: string }[] }[] = [
+  {
+    name: 'Developer',
+    slug: 'developer',
+    permissions: [
+      { slug: 'admin.access.users.read', description: 'Read users' },
+      { slug: 'admin.access.users.create', description: 'Create users' },
+      { slug: 'admin.access.users.update', description: 'Update users' },
+      { slug: 'admin.access.roles.read', description: 'Read Roles' },
+      { slug: 'admin.access.roles.create', description: 'Create Roles' },
+      { slug: 'admin.access.roles.update', description: 'Update Roles' },
+      { slug: 'admin.access.permissions.read', description: 'Read permissions' },
+      {
+        slug: 'admin.access.permissions.create',
+        description: 'Create permissions',
+      },
+      {
+        slug: 'admin.access.permissions.update',
+        description: 'Update permissions',
+      },
+    ],
+  },
+  {
+    name: 'Admin',
+    slug: 'admin',
+    permissions: [
+      { slug: 'admin.access.users.read', description: 'Read users' },
+      { slug: 'admin.access.users.create', description: 'Create users' },
+      { slug: 'admin.access.users.update', description: 'Update users' },
+      { slug: 'admin.access.roles.read', description: 'Read Roles' },
+      { slug: 'admin.access.roles.create', description: 'Create Roles' },
+      { slug: 'admin.access.roles.update', description: 'Update Roles' },
+    ],
+  },
+];
 
 export default class CreateUsersSeed implements Seeder {
   public async run(_factory: Factory, connection: Connection): Promise<any> {
-    const roleNames = Object.keys(rolePermissions);
-    // Distinct permissions contained in all roles
     const permissions = _.uniqBy(
-      roleNames.reduce((acc, roleName) => {
-        return acc.concat(rolePermissions[roleName]);
+      rolePermissions.reduce((acc, element) => {
+        return acc.concat(...element.permissions);
       }, []),
       'slug',
     );
@@ -82,10 +88,10 @@ export default class CreateUsersSeed implements Seeder {
     );
 
     // Creating roles
-    const roles = roleNames.map((name) => {
-      const permissions = Promise.resolve(rolePermissions[name].map((p) => savedPermissions[p.slug]));
+    const roles = rolePermissions.map(({ name, slug, permissions }) => {
+      const permissionsPromise = Promise.resolve(permissions.map((p) => savedPermissions[p.slug]));
 
-      return new RoleEntity({ name, permissions });
+      return new RoleEntity({ name, permissions: permissionsPromise, slug });
     });
     const savedRoles = await connection.manager.save(roles);
     //Creating users
