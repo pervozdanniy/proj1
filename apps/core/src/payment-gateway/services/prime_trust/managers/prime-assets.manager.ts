@@ -170,8 +170,8 @@ export class PrimeAssetsManager {
       await this.primeFundsTransferManager.transferFunds({
         sender_id: sender.user_id,
         receiver_id: t.user_id,
-        amount: t.amount,
-        currency_type: t.currency_type,
+        amount: t.amount_usd,
+        currency_type: 'USD',
       });
       await this.depositEntityRepository.update({ id: t.id }, { status: TransferStatus.SETTLED });
     });

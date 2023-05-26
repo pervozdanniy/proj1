@@ -13,7 +13,7 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { countriesData, liquidoFees } from '../../../country/data';
+import { countriesData } from '../../../country/data';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { KoyweMainManager } from '../../koywe/managers/koywe-main.manager';
 import { LiquidoTokenManager } from './liquido-token.manager';
@@ -47,13 +47,13 @@ export class LiquidoDepositManager {
     const { token } = await this.liquidoTokenManager.getToken();
     const userDetails = await this.userService.getUserInfo(user_id);
     const { currency_type } = countriesData[userDetails.country_code];
-    const liquidoFeeUsd = liquidoFees[userDetails.country_code].value;
-    const amountWithLiquidoFee = amount_usd + liquidoFeeUsd;
+    // const liquidoFeeUsd = liquidoFees[userDetails.country_code].value;
+    // const amountWithLiquidoFee = amount_usd + liquidoFeeUsd;
     const { amountOut, networkFee, koyweFee } = await this.koyweMainManager.getCurrencyAmountByUsd(
-      amountWithLiquidoFee,
+      amount_usd,
       currency_type,
     );
-    const totalFee = networkFee + koyweFee;
+    const totalFee = Number((networkFee + koyweFee).toFixed(2));
 
     const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document) {
