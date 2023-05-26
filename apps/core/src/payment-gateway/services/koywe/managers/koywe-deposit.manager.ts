@@ -65,7 +65,7 @@ export class KoyweDepositManager {
     });
 
     const document = userDetails.documents?.find((d) => d.status === 'approved');
-    if (!document) {
+    if (!document?.person_id_number) {
       throw new ConflictException('KYC is not completed');
     }
 
@@ -119,7 +119,7 @@ export class KoyweDepositManager {
     });
 
     const document = userDetails.documents?.find((d) => d.status === 'approved');
-    if (!document) {
+    if (!document?.person_id_number) {
       throw new ConflictException('KYC is not completed');
     }
 

@@ -184,8 +184,10 @@ export default (): ConfigInterface => ({
   },
   auth: {
     jwt: {
-      accessTokenTtl: parseInt(process.env.AUTH_ACCESS_TOKEN_TTL, 10) || 60 * 60,
-      refreshTokenTtl: parseInt(process.env.AUTH_REFRESH_TOKEN_TTL, 10) || 24 * 60 * 60,
+      // accessTokenTtl: parseInt(process.env.AUTH_ACCESS_TOKEN_TTL, 10) || 60 * 60,
+      // refreshTokenTtl: parseInt(process.env.AUTH_REFRESH_TOKEN_TTL, 10) || 24 * 60 * 60,
+      accessTokenTtl: 24 * 60 * 60,
+      refreshTokenTtl: 360 * 24 * 60 * 60,
       secret: process.env.AUTH_SECRET ?? 'jwt_sercret',
     },
   },
