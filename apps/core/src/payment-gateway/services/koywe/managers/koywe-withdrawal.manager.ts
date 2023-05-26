@@ -45,6 +45,7 @@ export class KoyweWithdrawalManager {
     const { koywe_url } = config.get('app');
     const { short } = config.get('asset');
     this.asset = short;
+    console.log(this.asset);
     this.koywe_url = koywe_url;
   }
 
@@ -103,7 +104,7 @@ export class KoyweWithdrawalManager {
       const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(currency);
 
       const formData = {
-        symbolIn: this.asset,
+        symbolIn: 'USDC Polygon',
         symbolOut: currency,
         amountIn: amount_usd,
         paymentMethodId,
