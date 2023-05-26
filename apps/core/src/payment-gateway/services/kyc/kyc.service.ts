@@ -18,7 +18,7 @@ export class KYCService {
     } catch (error) {
       this.logger.error('Event handler', error, request);
 
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -31,7 +31,7 @@ export class KYCService {
     } catch (error) {
       this.logger.error('Decision handler', error, request);
 
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(error.message);
     }
   }
 

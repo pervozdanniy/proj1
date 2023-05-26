@@ -30,7 +30,7 @@ export class KYCController {
   })
   @Post('/webhook/decision')
   async veriffWebhookHandler(@Body() payload: DecisionWebhookDto) {
-    this.logger.debug('decision', payload);
+    this.logger.debug('decision', { payload });
 
     return this.kyc.decisionHandler(payload);
   }
@@ -41,7 +41,7 @@ export class KYCController {
   })
   @Post('/webhook/event')
   async veriffHookHandler(@Body() payload: EventWebhookDto) {
-    this.logger.debug('event', payload);
+    this.logger.debug('event', { payload });
 
     return this.kyc.eventHandler(payload);
   }
