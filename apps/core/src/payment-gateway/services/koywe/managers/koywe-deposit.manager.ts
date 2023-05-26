@@ -59,7 +59,7 @@ export class KoyweDepositManager {
     const { currency_type } = countriesData[userDetails.country_code];
 
     const quote = await this.createQuote({
-      amount: amount_usd,
+      amount_usd,
       currency: currency_type,
       method,
     });
@@ -113,7 +113,7 @@ export class KoyweDepositManager {
     const { currency_type } = countriesData[userDetails.country_code];
 
     const quote = await this.createQuote({
-      amount: amount_usd,
+      amount_usd,
       currency: currency_type,
       method,
     });
@@ -158,13 +158,17 @@ export class KoyweDepositManager {
     }
   }
 
-  async createQuote(params: { amount: number; currency: string; method?: KoywePaymentMethod }): Promise<KoyweQuote> {
+  async createQuote(params: {
+    amount_usd: number;
+    currency: string;
+    method?: KoywePaymentMethod;
+  }): Promise<KoyweQuote> {
     try {
       const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(params.currency, params.method ?? 'KHIPU');
       const formData = {
         symbolIn: params.currency,
         symbolOut: this.asset,
-        amountOut: params.amount,
+        amountOut: params.amount_usd,
         paymentMethodId,
         executable: true,
       };
