@@ -73,7 +73,7 @@ export class KoyweDepositManager {
       quote.quoteId,
       userDetails.email,
       wallet_address,
-      document.document_number,
+      document.person_id_number,
     );
 
     const totalFee = quote.networkFee + quote.koyweFee;
@@ -127,7 +127,7 @@ export class KoyweDepositManager {
       quote.quoteId,
       userDetails.email,
       wallet_address,
-      document.document_number,
+      document.person_id_number,
     );
 
     const totalFee = quote.networkFee + quote.koyweFee;

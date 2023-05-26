@@ -25,28 +25,28 @@ export class VeriffDocumentEntity {
   session_id: string;
 
   @Column('character varying', { unique: true, nullable: true })
-  attempt_id: string;
+  attempt_id?: string;
 
   @Column('character varying', { nullable: true })
-  issuing_date: string;
+  issuing_date?: string;
 
   @Column('character varying', { nullable: true })
-  expiration_date: string;
+  expiration_date?: string;
 
   @Column('character varying', { nullable: true })
-  document_number: string;
+  document_number?: string;
 
   @Column('character varying', { nullable: true })
-  label: KYCDocumentType;
+  label?: KYCDocumentType;
 
   @Column('character varying', { nullable: true })
-  document_front: string;
+  document_front?: string;
 
   @Column('character varying', { nullable: true })
-  document_back: string;
+  document_back?: string;
 
   @Column('character varying', { nullable: true })
-  profile_image: string;
+  profile_image?: string;
 
   @Column('character varying')
   status: KYCStatus;
@@ -62,6 +62,9 @@ export class VeriffDocumentEntity {
 
   @Column('char', { length: 2 })
   country: string;
+
+  @Column('character varying', { nullable: true })
+  person_id_number?: string;
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })

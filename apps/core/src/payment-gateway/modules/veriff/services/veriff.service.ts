@@ -192,7 +192,7 @@ export class VeriffService {
     return { success: session.status === 'approved', user_id: session.user_id };
   }
 
-  async decisionHandler({ verification: { id: session_id, status, document } }: DecisionWebhook) {
+  async decisionHandler({ verification: { id: session_id, status, document, person } }: DecisionWebhook) {
     const session = await this.veriffDocumentEntityRepository.findOneByOrFail({ session_id });
     await this.veriffDocumentEntityRepository.update(
       { session_id },
@@ -203,6 +203,7 @@ export class VeriffService {
         label: document.type as KYCDocumentType,
         country: document.country,
         status: status as KYCStatus,
+        person_id_number: person.idNumber,
       },
     );
 

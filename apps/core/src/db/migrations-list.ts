@@ -63,6 +63,7 @@ import { AlterInswitchWithdrawEntity1684855247377 } from './migrations/168485524
 import { ChangeAllNumericTypesToDouble1684863902686 } from './migrations/1684863902686-ChangeAllNumericTypesToDouble';
 import { AlterTransfersTable1684992546927 } from './migrations/1684992546927-AlterTransfersTable';
 import { ChangeNotificationEntity1685024382736 } from './migrations/1685024382736-ChangeNotificationEntity';
+import { AddPersonIdToDocumentData1685118506461 } from './migrations/1685118506461-AddPersonIdToDocumentData';
 
 export default [
   createUserTable1669901299726,
@@ -130,4 +131,5 @@ export default [
   ChangeAllNumericTypesToDouble1684863902686,
   ChangeNotificationEntity1685024382736,
   AlterTransfersTable1684992546927,
+  AddPersonIdToDocumentData1685118506461,
 ];
