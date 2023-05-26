@@ -1,5 +1,5 @@
 import { JwtSessionAuth, JwtSessionUser } from '@/auth';
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Logger, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { VeriffSessionResponseDto } from '../dtos/kyc/kyc-session.dto';
@@ -12,6 +12,8 @@ import { KYCService } from '../services/kyc.service';
   path: 'kyc',
 })
 export class KYCController {
+  private readonly logger = new Logger(KYCController.name);
+
   constructor(private kyc: KYCService) {}
 
   @Post('/link')
@@ -28,6 +30,8 @@ export class KYCController {
   })
   @Post('/webhook/decision')
   async veriffWebhookHandler(@Body() payload: DecisionWebhookDto) {
+    this.logger.debug('decision', payload);
+
     return this.kyc.decisionHandler(payload);
   }
 
@@ -37,6 +41,8 @@ export class KYCController {
   })
   @Post('/webhook/event')
   async veriffHookHandler(@Body() payload: EventWebhookDto) {
+    this.logger.debug('event', payload);
+
     return this.kyc.eventHandler(payload);
   }
 }
