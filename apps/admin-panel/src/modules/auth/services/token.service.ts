@@ -5,10 +5,11 @@ import {
   InvalidTokenException,
   RefreshTokenExpiredException,
 } from '@adminCommon/http/exceptions';
+import { IGenerateRefreshTokenPayload } from '@modules/auth/interfaces/token.interface';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload, TokenDto, ValidateTokenResponseDto } from '../dtos';
+import { JwtPayload, ValidateTokenResponseDto } from '../dtos';
 import { TokenError, TokenType } from '../enums';
 
 @Injectable()
@@ -22,9 +23,9 @@ export class TokenService {
   /**
    * Generate Auth token(JWT) service for login user
    * @param JwtPayload {JwtPayload}
-   * @returns TokenDto Returns access and refresh tokens with expiry
+   * @returns IGenerateRefreshTokenPayload Returns access and refresh tokens with expiry
    */
-  public generateAuthToken(payload: JwtPayload): TokenDto {
+  public generateAuthToken(payload: JwtPayload): IGenerateRefreshTokenPayload {
     const accessTokenExpires = this.configService.get('admin_panel.access_token_ttl', { infer: true });
     const refreshTokenExpires = this.configService.get('admin_panel.refresh_token_ttl', { infer: true });
     const tokenType = this.configService.get('admin_panel.token_type', { infer: true });
@@ -44,7 +45,7 @@ export class TokenService {
    * @param payload {JwtPayload}
    * @returns  Returns access and refresh tokens with expiry or error
    */
-  public generateRefreshToken(refreshToken: string): TokenDto {
+  public generateRefreshToken(refreshToken: string): IGenerateRefreshTokenPayload {
     const { id, username } = this.verifyToken(refreshToken, TokenType.RefreshToken);
 
     return this.generateAuthToken({ id, username });

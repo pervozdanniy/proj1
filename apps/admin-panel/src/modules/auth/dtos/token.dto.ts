@@ -10,6 +10,9 @@ export class TokenDto {
   @ApiProperty()
   accessTokenExpires: number;
 
-  @ApiProperty()
-  refreshToken: string;
+  constructor(tokensPayload: TokenDto) {
+    this.tokenType = tokensPayload.tokenType;
+    this.accessToken = tokensPayload.accessToken;
+    this.accessTokenExpires = tokensPayload.accessTokenExpires;
+  }
 }

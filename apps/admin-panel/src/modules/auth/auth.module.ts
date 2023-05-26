@@ -1,4 +1,5 @@
 import { UsersModule } from '@admin/access/users/users.module';
+import { JwtRefreshStrategy } from '@modules/auth/jwt-refresh.strategy';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -31,6 +32,7 @@ import { AuthService, TokenService } from './services';
   providers: [
     AuthService,
     JwtStrategy,
+    JwtRefreshStrategy,
     TokenService,
     {
       provide: APP_GUARD,
@@ -41,6 +43,6 @@ import { AuthService, TokenService } from './services';
       useClass: PermissionsGuard,
     },
   ],
-  exports: [JwtStrategy, PassportModule, TokenService, AuthService],
+  exports: [JwtStrategy, PassportModule, TokenService, AuthService, JwtRefreshStrategy],
 })
 export class AuthModule {}

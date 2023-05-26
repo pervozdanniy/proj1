@@ -148,6 +148,7 @@ export interface ConfigInterface {
     token_type: string;
     access_token_ttl: string;
     refresh_token_ttl: string;
+    cookie_domain: string;
   };
 }
 
@@ -303,5 +304,6 @@ export default (): ConfigInterface => ({
     token_type: process.env.ADMIN_PANEL_TOKEN_TYPE || 'Bearer',
     access_token_ttl: process.env.ADMIN_PANEL_ACCESS_TOKEN_TTL || '1h',
     refresh_token_ttl: process.env.ADMIN_PANEL_REFRESH_TOKEN_TTL || '2h',
+    cookie_domain: process.env.ADMIN_PANEL_COOKIE_DOMAIN,
   },
 });

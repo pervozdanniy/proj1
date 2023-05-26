@@ -3,6 +3,7 @@ import { UserEntity } from '@admin/access/users/user.entity';
 import { UsersService } from '@admin/access/users/users.service';
 import { ErrorType } from '@adminCommon/enums';
 import { DisabledUserException, InvalidCredentialsException } from '@adminCommon/http/exceptions';
+import { REFRESH_TOKEN_NAME } from '@modules/auth/constants';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
@@ -10,10 +11,19 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayload } from './dtos';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(private usersService: UsersService, configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request) => {
+          const token = request?.cookies[REFRESH_TOKEN_NAME];
+          if (!token) {
+            return null;
+          }
+
+          return token;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: configService.get('admin_panel.token_secret', { infer: true }),
     });

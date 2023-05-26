@@ -7,3 +7,5 @@ export const AUTH_OPTIONS: SecuritySchemeObject = {
   scheme: 'bearer',
   bearerFormat: 'Bearer',
 };
+
+export const REFRESH_TOKEN_NAME = 'refresh-token';

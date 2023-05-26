@@ -12,4 +12,10 @@ export class LoginResponseDto {
 
   @ApiProperty({ type: AuthAccessDto })
   access: AuthAccessDto;
+
+  constructor(payload: LoginResponseDto) {
+    this.token = new TokenDto(payload.token);
+    this.user = payload.user;
+    this.access = payload.access;
+  }
 }

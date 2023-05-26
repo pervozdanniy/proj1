@@ -7,19 +7,28 @@ import { DisabledUserException, InvalidCredentialsException } from '@adminCommon
 import { HashHelper } from '@helpers';
 import { GetMeResponseDto } from '@modules/auth/dtos/get-me-response.dto';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
+import ms from 'ms';
+import { ConfigInterface } from '../../../../../../common/config/configuration';
+import { prepareAuthCookie, prepareLogoutCookie } from '../../../helpers/cookies';
 import { AuthCredentialsRequestDto, JwtPayload, LoginResponseDto } from '../dtos';
 import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService, private tokenService: TokenService) {}
+  constructor(
+    private usersService: UsersService,
+    private tokenService: TokenService,
+    private configService: ConfigService<ConfigInterface>,
+  ) {}
 
   /**
    * User authentication
    * @param authCredentialsDto {AuthCredentialsRequestDto}
    * @returns {Promise<LoginResponseDto>}
    */
-  public async login({ username, password }: AuthCredentialsRequestDto): Promise<LoginResponseDto> {
+  public async login({ username, password }: AuthCredentialsRequestDto, response: Response): Promise<LoginResponseDto> {
     const user: UserEntity = await this.usersService.findUserByUsername(username);
 
     if (!user) {
@@ -41,6 +50,8 @@ export class AuthService {
     const payload: JwtPayload = { id: user.id, username: user.username };
     const token = await this.tokenService.generateAuthToken(payload);
 
+    this.setAuthCookie(response, token.refreshToken);
+
     const userDto = await UserMapper.toDto(user);
     const { permissions, roles } = await UserMapper.toDtoWithRelations(user);
     const additionalPermissions = permissions.map(({ slug }) => slug);
@@ -53,14 +64,14 @@ export class AuthService {
       };
     });
 
-    return {
+    return new LoginResponseDto({
       user: userDto,
       token,
       access: {
         additionalPermissions,
         roles: mappedRoles,
       },
-    };
+    });
   }
 
   public async getMe(user: UserEntity): Promise<GetMeResponseDto> {
@@ -94,5 +105,16 @@ export class AuthService {
         roles: mappedRoles,
       },
     };
+  }
+
+  public setAuthCookie(response: Response, refreshToken: string): void {
+    const maxAge = +ms(this.configService.get('admin_panel.refresh_token_ttl', { infer: true })) / 1000;
+    const cookieDomain = this.configService.get('admin_panel.cookie_domain', { infer: true });
+    prepareAuthCookie(response, refreshToken, cookieDomain, maxAge);
+  }
+
+  public setLogoutCookie(response: Response): void {
+    const cookieDomain = this.configService.get('admin_panel.cookie_domain', { infer: true });
+    prepareLogoutCookie(response, cookieDomain);
   }
 }
