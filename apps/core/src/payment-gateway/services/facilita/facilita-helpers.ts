@@ -3,12 +3,15 @@ import { facilitaTaxesBrazil } from './constants';
 
 export const countBrazilRate = (pureRate: number) => {
   const { facilitaFeeRate, cryptoSettlementRate, brazilFederalTaxRate } = facilitaTaxesBrazil;
-  const number1 = new Fraction(pureRate);
-  const percentage1 = new Fraction(facilitaFeeRate).div(100);
-  const percentage2 = new Fraction(cryptoSettlementRate).div(100);
-  const percentage3 = new Fraction(brazilFederalTaxRate).div(100);
+  const pureRateFraction = new Fraction(pureRate);
+  const facilitaFeeRateFraction = new Fraction(facilitaFeeRate).div(100);
+  const cryptoSettlementRateFraction = new Fraction(cryptoSettlementRate).div(100);
+  const brazilFederalTaxRateFraction = new Fraction(brazilFederalTaxRate).div(100);
 
-  const result = number1.add(number1.mul(percentage1)).add(number1.mul(percentage2)).add(number1.mul(percentage3));
+  const result = pureRateFraction
+    .add(pureRateFraction.mul(facilitaFeeRateFraction))
+    .add(pureRateFraction.mul(cryptoSettlementRateFraction))
+    .add(pureRateFraction.mul(brazilFederalTaxRateFraction));
 
   return Number(result.toString());
 };
