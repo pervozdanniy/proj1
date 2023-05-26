@@ -208,4 +208,8 @@ export class VeriffService {
 
     return { success: status === 'approved', user_id: session.user_id };
   }
+
+  async getDocumentByNumber(documentNumber: string) {
+    return await this.veriffDocumentEntityRepository.findOneBy({ document_number: documentNumber });
+  }
 }

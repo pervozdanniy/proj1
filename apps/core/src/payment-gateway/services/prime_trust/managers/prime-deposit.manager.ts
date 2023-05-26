@@ -28,7 +28,7 @@ import {
   WithdrawalParams,
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import { TransfersEntity, TransferTypes } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { CreateReferenceRequest, MakeDepositRequest } from '../../../interfaces/payment-gateway.interface';
 import { CardResourceType } from '../../../types/prime-trust';
 import { PrimeBalanceManager } from './prime-balance.manager';
@@ -68,9 +68,9 @@ export class PrimeDepositManager {
   }
 
   async createReference(request: CreateReferenceRequest): Promise<JsonData> {
-    let refInfo = await this.getReferenceInfo(request.id);
+    let refInfo = await this.getReferenceInfo(request.user_id);
     if (refInfo.data.length == 0) {
-      refInfo = await this.createFundsReference(request.id);
+      refInfo = await this.createFundsReference(request.user_id);
     }
     const newData = [];
     for (let i = 0; i < refInfo.data.length; i++) {
@@ -212,7 +212,7 @@ export class PrimeDepositManager {
         amount,
         status: contributionResponse['status'],
         param_type: contributionResponse['payment-type'],
-        type: 'deposit',
+        type: TransferTypes.DEPOSIT,
         provider: Providers.PRIME_TRUST,
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
@@ -386,7 +386,7 @@ export class PrimeDepositManager {
       });
       const contributionAttributes = contributionResponse.data.data.attributes;
       const contributionPayload: Record<string, any> = {
-        type: 'deposit',
+        type: TransferTypes.DEPOSIT,
         provider: Providers.PRIME_TRUST,
         user_id: id,
         uuid: contributionResponse.data.data.id,

@@ -20,8 +20,8 @@ export type MakeDepositRequest = {
 };
 
 export interface CreateReferenceRequest {
-  id: number;
-  amount: number;
+  user_id: number;
+  amount_usd: number;
   currency_type: string;
 }
 

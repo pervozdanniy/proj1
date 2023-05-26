@@ -114,8 +114,24 @@ message DepositRedirectData {
   TransferInfo info = 2;
 }
 
+
+message BankData {
+  optional string currency = 1;
+  optional string branch_number = 2;
+  optional BankDetails details = 3;
+  optional string account_type = 4;
+  string account_number = 5;
+}
+
+message BankDetails {
+  string swift = 1;
+  string name = 2;
+  string id = 3;
+  string code = 4;
+}
+
 message BankCredentialsData {
-  string bank = 1;
+  BankData bank = 1;
   TransferInfo info = 2;
 }
 
@@ -155,7 +171,7 @@ message LiquidoWebhookRequest {
   string orderId = 6;
 }
 message FacilitaWebhookRequest {
-  string orderId = 1;
+  string transactionId = 1;
 }
 
 message AccountStatusResponse {

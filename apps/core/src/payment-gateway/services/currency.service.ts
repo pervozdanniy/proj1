@@ -62,6 +62,14 @@ export class CurrencyService implements OnApplicationBootstrap {
     return selectedRates;
   }
 
+  async waitForRatesUpdate(): Promise<Map<string, number>> {
+    if (this.ratesData.size !== 0) {
+      return this.ratesData;
+    } else {
+      await this.updateRates();
+    }
+  }
+
   async updateRates() {
     let rates: Record<string, number>;
     try {

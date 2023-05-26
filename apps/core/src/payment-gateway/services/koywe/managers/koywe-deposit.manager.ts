@@ -14,7 +14,11 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { BankCredentialsData, DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import {
+  TransfersEntity,
+  TransferStatus,
+  TransferTypes,
+} from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { KoyweMainManager, KoywePaymentMethod } from './koywe-main.manager';
@@ -22,7 +26,6 @@ import { KoyweTokenManager } from './koywe-token.manager';
 
 export type KoyweReferenceParams = {
   wallet_address: string;
-  asset_transfer_method_id: string;
   method?: KoywePaymentMethod;
 };
 
@@ -48,15 +51,15 @@ export class KoyweDepositManager {
   }
 
   async createReference(request: CreateReferenceRequest, params: KoyweReferenceParams): Promise<BankCredentialsData> {
-    const { amount, id } = request;
+    const { amount_usd, user_id } = request;
     const { wallet_address, method } = params;
 
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(user_id);
     await this.koyweTokenManager.getToken(userDetails.email);
     const { currency_type } = countriesData[userDetails.country_code];
 
     const quote = await this.createQuote({
-      amount,
+      amount_usd,
       currency: currency_type,
       method,
     });
@@ -76,13 +79,14 @@ export class KoyweDepositManager {
     const totalFee = quote.networkFee + quote.koyweFee;
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
-        user_id: id,
+        user_id,
         uuid: orderId,
-        type: 'deposit',
+        type: TransferTypes.DEPOSIT,
         amount: quote.amountIn,
+        amount_usd,
         provider: Providers.KOYWE,
         currency_type,
-        status: 'waiting',
+        status: TransferStatus.PENDING,
         fee: totalFee,
       }),
     );
@@ -93,7 +97,7 @@ export class KoyweDepositManager {
       fee: totalFee,
     };
     if (providedAddress) {
-      return { info, bank: providedAddress };
+      return { info, bank: { account_number: providedAddress } };
     }
   }
 
@@ -101,15 +105,15 @@ export class KoyweDepositManager {
     depositParams: CreateReferenceRequest,
     transferParams: KoyweReferenceParams,
   ): Promise<DepositRedirectData> {
-    const { amount, id } = depositParams;
+    const { amount_usd, user_id } = depositParams;
     const { wallet_address, method } = transferParams;
 
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(user_id);
     await this.koyweTokenManager.getToken(userDetails.email);
     const { currency_type } = countriesData[userDetails.country_code];
 
     const quote = await this.createQuote({
-      amount,
+      amount_usd,
       currency: currency_type,
       method,
     });
@@ -129,13 +133,14 @@ export class KoyweDepositManager {
     const totalFee = quote.networkFee + quote.koyweFee;
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
-        user_id: id,
+        user_id,
         uuid: orderId,
-        type: 'deposit',
+        type: TransferTypes.DEPOSIT,
         amount: quote.amountIn,
+        amount_usd: amount_usd,
         provider: Providers.KOYWE,
         currency_type,
-        status: 'waiting',
+        status: TransferStatus.PENDING,
         fee: totalFee,
       }),
     );
@@ -153,14 +158,17 @@ export class KoyweDepositManager {
     }
   }
 
-  async createQuote(params: { amount: number; currency: string; method?: KoywePaymentMethod }): Promise<KoyweQuote> {
+  async createQuote(params: {
+    amount_usd: number;
+    currency: string;
+    method?: KoywePaymentMethod;
+  }): Promise<KoyweQuote> {
     try {
       const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(params.currency, params.method ?? 'KHIPU');
-
       const formData = {
         symbolIn: params.currency,
         symbolOut: this.asset,
-        amountOut: params.amount,
+        amountOut: params.amount_usd,
         paymentMethodId,
         executable: true,
       };
@@ -188,6 +196,7 @@ export class KoyweDepositManager {
         metadata: 'Deposit funds',
         documentNumber,
       };
+
       const headersRequest = {
         Authorization: `Bearer ${token}`,
       };

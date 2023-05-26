@@ -13,13 +13,17 @@ import { Providers } from '~common/enum/providers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { AccountIdRequest, TransferFundsRequest, TransferFundsResponse } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import {
+  TransfersEntity,
+  TransferStatus,
+  TransferTypes,
+} from '~svc/core/src/payment-gateway/entities/transfers.entity';
 
 @Injectable()
 export class PrimeFundsTransferManager {
   private readonly prime_trust_url: string;
   private readonly asset_id: string;
-  private link_account_id: string;
+  private readonly skopaAccountId: string;
 
   constructor(
     config: ConfigService<ConfigInterface>,
@@ -31,11 +35,11 @@ export class PrimeFundsTransferManager {
     private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
   ) {
     const { prime_trust_url } = config.get('app', { infer: true });
-    const { link_account_id } = config.get('prime_trust', { infer: true });
+    const { skopaAccountId } = config.get('prime_trust', { infer: true });
     const { id } = config.get('asset');
     this.asset_id = id;
     this.prime_trust_url = prime_trust_url;
-    this.link_account_id = link_account_id;
+    this.skopaAccountId = skopaAccountId;
   }
 
   async convertUSDtoAsset(account_id: string, amount: number, cancel?: boolean): Promise<UsDtoAssetResponse> {
@@ -187,14 +191,18 @@ export class PrimeFundsTransferManager {
     }
     const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count, hotStatus);
 
+    let currentStatus = TransferStatus.PENDING;
+    if (status === 'settled') {
+      currentStatus = TransferStatus.SETTLED;
+    }
     const payload = {
       fee: fee_amount,
       uuid,
-      type: 'transfer',
+      type: TransferTypes.TRANSFER,
       user_id: sender_id,
       receiver_id,
       currency_type,
-      status,
+      status: currentStatus,
       amount,
       created_at,
     };
@@ -224,11 +232,11 @@ export class PrimeFundsTransferManager {
     ) {
       await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);
 
-      if (account_id === this.link_account_id) {
+      if (account_id === this.skopaAccountId) {
         const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
         const linkTransactions = await this.transferFundsEntityRepository.findBy({
           provider: Providers.LINK,
-          status: 'succeeded',
+          status: TransferStatus.DELIVERED,
         });
 
         linkTransactions.map(async (l) => {
@@ -238,7 +246,7 @@ export class PrimeFundsTransferManager {
             amount: l.amount,
             currency_type: l.currency_type,
           });
-          await this.transferFundsEntityRepository.update({ id: l.id }, { status: 'settled' });
+          await this.transferFundsEntityRepository.update({ id: l.id }, { status: TransferStatus.SETTLED });
         });
 
         await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);

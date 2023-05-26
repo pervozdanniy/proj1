@@ -58,8 +58,8 @@ export class DepositFlow {
 
     if (hasWireTransfer(paymentGateway) && payload.type === 'bank-transfer') {
       const { bank, info } = await paymentGateway.createWireReference({
-        id: userDetails.id,
-        amount: payload.amount,
+        user_id: userDetails.id,
+        amount_usd: payload.amount,
         currency_type: payload.currency,
       });
 
@@ -92,8 +92,8 @@ export class DepositFlow {
 
       if (hasRedirectDeposit(paymentGateway)) {
         const { url, info } = await paymentGateway.createRedirectReference({
-          id: userDetails.id,
-          amount: payload.amount,
+          user_id: userDetails.id,
+          amount_usd: payload.amount,
           currency_type: payload.currency,
         });
 
@@ -110,8 +110,8 @@ export class DepositFlow {
     if (payload.type === 'cash' && hasCash(paymentGateway)) {
       if (hasRedirectDeposit(paymentGateway)) {
         const redirect = await paymentGateway.createRedirectReference({
-          id: userDetails.id,
-          amount: payload.amount,
+          user_id: userDetails.id,
+          amount_usd: payload.amount,
           currency_type: payload.currency,
         });
 

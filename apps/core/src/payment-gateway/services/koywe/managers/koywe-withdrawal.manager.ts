@@ -14,7 +14,11 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { TransferInfo, TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import {
+  TransfersEntity,
+  TransferStatus,
+  TransferTypes,
+} from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData, CountryData } from '../../../country/data';
 import { KoyweCreateOrder, KoyweQuote } from '../../../types/koywe';
 import { KoyweMainManager } from './koywe-main.manager';
@@ -39,8 +43,7 @@ export class KoyweWithdrawalManager {
     config: ConfigService<ConfigInterface>,
   ) {
     const { koywe_url } = config.get('app');
-    const { short } = config.get('asset');
-    this.asset = short;
+    this.asset = 'USDC Polygon';
     this.koywe_url = koywe_url;
   }
 
@@ -75,11 +78,12 @@ export class KoyweWithdrawalManager {
       this.transferRepository.create({
         user_id: id,
         uuid: orderId,
-        type: 'withdrawal',
+        type: TransferTypes.WITHDRAWAL,
         provider: Providers.KOYWE,
         amount: quote.amountOut,
+        amount_usd: amount,
         currency_type,
-        status: 'waiting',
+        status: TransferStatus.PENDING,
         fee: totalFee,
       }),
     );
@@ -93,14 +97,14 @@ export class KoyweWithdrawalManager {
     return { wallet: providedAddress, info };
   }
 
-  async createQuote(amountUsd: number, currency: string): Promise<KoyweQuote> {
+  async createQuote(amount_usd: number, currency: string): Promise<KoyweQuote> {
     try {
       const paymentMethodId = await this.koyweMainManager.getPaymentMethodId(currency);
 
       const formData = {
         symbolIn: this.asset,
         symbolOut: currency,
-        amountIn: amountUsd,
+        amountIn: amount_usd,
         paymentMethodId,
         executable: true,
       };

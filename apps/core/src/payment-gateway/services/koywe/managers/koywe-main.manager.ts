@@ -69,4 +69,16 @@ export class KoyweMainManager {
 
     return result.data;
   }
+
+  async getCurrencyAmountByUsd(amount: number, currency: string) {
+    const result = await lastValueFrom(
+      this.httpService.post<KoyweQuote>(`${this.koywe_url}/quotes`, {
+        amountIn: amount,
+        symbolIn: 'USDC',
+        symbolOut: currency,
+      }),
+    );
+
+    return result.data;
+  }
 }

@@ -12,7 +12,7 @@ import { Providers } from '~common/enum/providers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { LinkSessionResponse, LinkTransferData, LinkWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { TransfersEntity } from '../../../entities/transfers.entity';
+import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 
 @Injectable()
 export class PrimeLinkManager {
@@ -117,19 +117,27 @@ export class PrimeLinkManager {
       );
 
       const response = { paymentId: paymentResponse.data.paymentId, paymentStatus: paymentResponse.data.paymentStatus };
+      let currentStatus = TransferStatus.PENDING;
+      if (
+        response.paymentStatus.toLowerCase() === 'terminal_failed' ||
+        response.paymentStatus.toLowerCase() === 'failed'
+      ) {
+        currentStatus = TransferStatus.FAILED;
+      }
+
       const contributionPayload = {
         user_id,
         uuid: response.paymentId,
         currency_type: 'USD',
         amount,
-        status: response.paymentStatus.toLowerCase(),
-        param_type: 'ach',
-        type: 'deposit',
+        amount_usd: amount,
+        status: currentStatus,
+        type: TransferTypes.DEPOSIT,
         provider: Providers.LINK,
       };
       await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
 
-      if (contributionPayload.status === 'terminal_failed' || contributionPayload.status === 'failed') {
+      if (currentStatus === 'failed') {
         throw new GrpcException(Status.INVALID_ARGUMENT, 'Not enough monet on balance!', 400);
       }
 
@@ -142,7 +150,17 @@ export class PrimeLinkManager {
   async linkWebhookHandler({ resourceId, resourceType, eventType }: LinkWebhookRequest): Promise<SuccessResponse> {
     const status = eventType.split('.')[1];
     if (resourceType === 'payment') {
-      await this.depositEntityRepository.update({ uuid: resourceId }, { status });
+      if (status === 'succeeded' || status === 'disbursed') {
+        await this.depositEntityRepository.update({ uuid: resourceId }, { status: TransferStatus.DELIVERED });
+      }
+
+      if (status === 'initiated') {
+        await this.depositEntityRepository.update({ uuid: resourceId }, { status: TransferStatus.IDENTIFIED });
+      }
+
+      if (status === 'failed') {
+        await this.depositEntityRepository.update({ uuid: resourceId }, { status: TransferStatus.FAILED });
+      }
     }
 
     return { success: true };

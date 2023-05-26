@@ -225,7 +225,7 @@ export class PrimeKycManager {
         .where('a.uuid = :id', { id })
         .getRawOne();
 
-      const { contact_id, user_id } = accountData;
+      const { user_id } = accountData;
 
       const { data: documentData } = await this.httpService.request({
         method: 'get',
@@ -246,18 +246,6 @@ export class PrimeKycManager {
           );
         }
       }
-
-      const contactResponse = await this.getContactByUuid(contact_id);
-
-      const contact = await this.primeTrustContactEntityRepository.findOne({
-        where: { uuid: contactResponse.data.id },
-      });
-
-      const data = this.collectContactData(contactResponse.data);
-      await this.primeTrustContactEntityRepository.save({
-        ...contact,
-        ...data,
-      });
 
       this.notificationService.createAsync(user_id, {
         type: 'kyc',

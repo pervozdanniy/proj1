@@ -90,10 +90,9 @@ export class PaymentGatewayWebhooksService {
       return this.primeTrustService.updateWithdraw(sendData);
     }
     if (resource_type === 'asset_transfers' && action === 'update') {
-      const paramsToCheck = ['status', 'unit-count', 'from-wallet-address'];
+      const paramsToCheck = 'contingencies-cleared-on';
 
-      const allParamsExist = paramsToCheck.every((param) => changes.includes(param));
-      if (allParamsExist) {
+      if (changes[0] === paramsToCheck) {
         return this.primeTrustService.updateAssetDeposit(sendData);
       }
     }

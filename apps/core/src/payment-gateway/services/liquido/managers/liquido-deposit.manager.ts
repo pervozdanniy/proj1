@@ -1,4 +1,4 @@
-import { TransfersEntity } from '@/payment-gateway/entities/transfers.entity';
+import { TransfersEntity, TransferStatus, TransferTypes } from '@/payment-gateway/entities/transfers.entity';
 import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
@@ -13,9 +13,9 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { CreateReferenceRequest } from '~svc/core/src/payment-gateway/interfaces/payment-gateway.interface';
 import { countriesData } from '../../../country/data';
-import { CurrencyService } from '../../currency.service';
+import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
+import { KoyweMainManager } from '../../koywe/managers/koywe-main.manager';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class LiquidoDepositManager {
     private readonly liquidoTokenManager: LiquidoTokenManager,
     private readonly httpService: HttpService,
 
-    private readonly currencyService: CurrencyService,
+    private readonly koyweMainManager: KoyweMainManager,
 
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
@@ -43,22 +43,22 @@ export class LiquidoDepositManager {
     this.domain = domain;
   }
 
-  async createCashPayment({
-    id,
-    amount: beforeConvertAmount,
-    currency_type: currency,
-  }: CreateReferenceRequest): Promise<DepositRedirectData> {
+  async createCashPayment({ user_id, amount_usd }: CreateReferenceRequest): Promise<DepositRedirectData> {
     const { token } = await this.liquidoTokenManager.getToken();
-    const userDetails = await this.userService.getUserInfo(id);
+    const userDetails = await this.userService.getUserInfo(user_id);
     const { currency_type } = countriesData[userDetails.country_code];
+    // const liquidoFeeUsd = liquidoFees[userDetails.country_code].value;
+    // const amountWithLiquidoFee = amount_usd + liquidoFeeUsd;
+    const { amountOut, networkFee, koyweFee } = await this.koyweMainManager.getCurrencyAmountByUsd(
+      amount_usd,
+      currency_type,
+    );
+    const totalFee = networkFee + koyweFee;
 
-    const convertedAmount = await this.currencyService.convert(beforeConvertAmount, [currency_type]);
     const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
-
-    const amount = convertedAmount[currency_type].amount;
 
     const headersRequest = {
       'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ export class LiquidoDepositManager {
     const orderId = await uid(18);
     const formData = {
       orderId: orderId,
-      amount: amount,
+      amount: amountOut,
       currency: currency_type,
       country: userDetails.country_code,
       allowPaymentMethods: ['PAY_CASH'],
@@ -87,22 +87,24 @@ export class LiquidoDepositManager {
 
       await this.depositEntityRepository.save(
         this.depositEntityRepository.create({
-          user_id: id,
+          user_id,
           uuid: orderId,
-          type: 'deposit',
-          amount: beforeConvertAmount,
+          type: TransferTypes.DEPOSIT,
+          amount: amountOut,
+          amount_usd,
           provider: Providers.LIQUIDO,
-          currency_type: currency,
-          status: 'waiting',
+          currency_type,
+          fee: totalFee,
+          status: TransferStatus.PENDING,
         }),
       );
 
       return {
         url: result.data.paymentLink,
         info: {
-          amount,
-          rate: convertedAmount[currency_type].rate,
-          fee: 0,
+          amount: amountOut,
+          rate: amountOut / amount_usd,
+          fee: totalFee,
           currency: currency_type,
         },
       };

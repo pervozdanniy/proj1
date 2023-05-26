@@ -78,8 +78,8 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.getUserAccountStatus({ id }));
   }
 
-  facilitaHandler(payload: FacilitaWebhookType) {
-    return lastValueFrom(this.paymentGatewayServiceClient.facilitaWebhooksHandler(payload));
+  facilitaHandler({ notification: { transaction_id: transactionId } }: FacilitaWebhookType) {
+    return lastValueFrom(this.paymentGatewayServiceClient.facilitaWebhooksHandler({ transactionId }));
   }
 
   transferToHotWallet() {

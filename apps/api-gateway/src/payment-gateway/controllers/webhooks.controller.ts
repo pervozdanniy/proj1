@@ -2,7 +2,13 @@ import { Body, Controller, HttpStatus, Logger, Param, Post, Put, Req } from '@ne
 import { ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
-import { KoyweWebhookType, LinkWebhookType, LiquidoWebhookType, PrimeTrustWebhookType } from '../webhooks/data';
+import {
+  FacilitaWebhookType,
+  KoyweWebhookType,
+  LinkWebhookType,
+  LiquidoWebhookType,
+  PrimeTrustWebhookType,
+} from '../webhooks/data';
 
 @ApiTags('Webhooks')
 @ApiExcludeController()
@@ -28,7 +34,7 @@ export class WebhooksController {
   }
 
   @Post('/facilita')
-  async facilitaHandler(@Body() payload: any) {
+  async facilitaHandler(@Body() payload: FacilitaWebhookType) {
     this.logger.log(payload);
 
     return this.paymentGatewayService.facilitaHandler(payload);

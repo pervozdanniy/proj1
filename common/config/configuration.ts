@@ -65,8 +65,9 @@ export interface ConfigInterface {
   prime_trust: {
     email: string;
     password: string;
-    link_account_id: string;
-    facilita_account_id: string;
+    skopaAccountId: string;
+    skopaKoyweAccountId: string;
+    skopaKoyweWallet: string;
   };
 
   koywe: {
@@ -209,8 +210,9 @@ export default (): ConfigInterface => ({
   prime_trust: {
     email: process.env.PRIME_EMAIL,
     password: process.env.PRIME_PASSWORD,
-    link_account_id: process.env.LINK_ACCOUNT_ID,
-    facilita_account_id: process.env.FACILITA_ACCOUNT_ID,
+    skopaAccountId: process.env.SKOPA_ACCOUNT_ID,
+    skopaKoyweAccountId: process.env.SKOPA_KOYWE_ACCOUNT_ID,
+    skopaKoyweWallet: process.env.SKOPA_KOYWE_WALLET,
   },
   sendgrid: {
     email: process.env.SENDGRID_EMAIL,

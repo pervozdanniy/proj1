@@ -28,7 +28,10 @@ export class EmailHandler {
     await sendGrid.send({
       to: email,
       subject: 'Skopa notification',
-      from: this.from_email,
+      from: {
+        name: 'App',
+        email: this.from_email,
+      },
       text: title,
       html: `<h3>${body}</h3>`,
     });
