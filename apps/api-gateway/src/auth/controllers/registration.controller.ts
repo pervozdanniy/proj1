@@ -11,7 +11,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { PublicUserWithContactsDto } from '../../utils/public-user.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
-import { TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
+import { TwoFactorVerifyResponseDto } from '../dto/2fa.reponse.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
 import {
   ChangeAgreementStatusDto,
@@ -46,7 +46,7 @@ export class RegistrationController {
 
   @ApiOperation({ summary: 'Verify 2FA codes' })
   @ApiBearerAuth()
-  @ApiOkResponse({ type: TwoFactorVerifyDto, description: '2FA completed or partially accepted' })
+  @ApiOkResponse({ type: TwoFactorVerifyResponseDto, description: '2FA completed or partially accepted' })
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
   @JwtSessionAuth({ allowUnauthorized: true, allowUnverified: true, requireRegistration: true, allowClosed: true })
   @HttpCode(HttpStatus.OK)
@@ -54,7 +54,7 @@ export class RegistrationController {
   verify(
     @Body() payload: RegistrationVerifyRequestDto,
     @JwtSessionId() sessionId: string,
-  ): Promise<TwoFactorVerifyDto> {
+  ): Promise<TwoFactorVerifyResponseDto> {
     return this.registerService.verify(payload, sessionId);
   }
 

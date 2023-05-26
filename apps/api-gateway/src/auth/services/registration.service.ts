@@ -4,7 +4,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { RegisterServiceClient } from '~common/grpc/interfaces/auth';
-import { TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
+import { TwoFactorVerifyResponseDto } from '../dto/2fa.reponse.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
 import {
   ChangeAgreementStatusDto,
@@ -31,7 +31,7 @@ export class RegistrationService implements OnModuleInit {
     return parseAuthResponse(resp);
   }
 
-  async verify(payload: RegistrationVerifyRequestDto, sessionId: string): Promise<TwoFactorVerifyDto> {
+  async verify(payload: RegistrationVerifyRequestDto, sessionId: string): Promise<TwoFactorVerifyResponseDto> {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 

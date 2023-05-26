@@ -306,7 +306,7 @@ export class PrimeKycManager {
   }
 
   getContact(userId: number): Promise<PrimeTrustContactEntity> {
-    return this.primeTrustContactEntityRepository.findOneBy({ user_id: userId });
+    return this.primeTrustContactEntityRepository.findOneByOrFail({ user_id: userId });
   }
 
   async updateContact({ id: account_id, resource_id }: AccountIdRequest): Promise<SuccessResponse> {

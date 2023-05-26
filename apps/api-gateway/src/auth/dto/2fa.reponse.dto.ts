@@ -17,15 +17,15 @@ export class TwoFactorRequiredResponseDto {
   access_token?: string;
 }
 
-export class TwoFactorVerificationDto {
+export class TwoFactorMethodsAppliedDto {
   @ApiProperty({ enum: Object.values(TwoFactorMethod), isArray: true })
   methods: string[];
 }
 
-export class TwoFactorVerifyDto {
+export class TwoFactorVerifyResponseDto {
   @ApiProperty({ enum: ['completed', 'partially_accepted'] })
   type: 'completed' | 'partially_accepted';
 
-  @ApiProperty({ type: TwoFactorVerificationDto })
-  verify?: TwoFactorVerificationDto;
+  @ApiProperty({ type: TwoFactorMethodsAppliedDto })
+  verify?: TwoFactorMethodsAppliedDto;
 }

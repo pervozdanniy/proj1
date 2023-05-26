@@ -1,6 +1,7 @@
 import {
   ConflictException,
   ExecutionContext,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -10,6 +11,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { UserSourceEnum, UserStatusEnum } from '~common/constants/user';
 import { User } from '~common/grpc/interfaces/common';
+import { ContactResponse } from '~common/grpc/interfaces/payment-gateway';
 import {
   is2FA,
   isPasswordReset,
@@ -45,7 +47,7 @@ export class JwtSessionGuard extends BaseGuard {
       throw new UnauthorizedException();
     }
     if (!options.allowUnverified && is2FA(session) && !session.twoFactor.isVerified) {
-      throw new PreconditionFailedException('Verification is not completed');
+      throw new PreconditionFailedException('2FA verification is not completed');
     }
     if (options.require2FA && !is2FA(session)) {
       const { error, required } = await this.twoFactor.require(session.id);
@@ -54,12 +56,12 @@ export class JwtSessionGuard extends BaseGuard {
       }
 
       throw new HttpException(
-        { message: 'Verification required', methods: required.methods },
+        { message: '2FA verification required', methods: required.methods },
         HttpStatus.PRECONDITION_REQUIRED,
       );
     }
     if (options.forbidSocial && session.user.source !== UserSourceEnum.Api) {
-      throw new ConflictException({ message: `This action unavailable for users were registered via social network!` });
+      throw new ForbiddenException({ message: `Unavailable social registered users` });
     }
 
     if (options.requireRegistration && !isRegistration(session)) {
@@ -70,16 +72,22 @@ export class JwtSessionGuard extends BaseGuard {
     }
 
     if (options.requireKYC) {
-      const contact = await this.paymentGatewayService.getContact({ id: session.user.id });
+      let contact: ContactResponse;
+      try {
+        contact = await this.paymentGatewayService.getContact({ id: session.user.id });
+      } catch (error) {
+        throw new ForbiddenException('KYC verification required');
+      }
+
       if (!contact.identity_confirmed) {
-        throw new ConflictException({ message: 'Please complete KYC verification!' });
+        throw new ForbiddenException('KYC verification required');
       }
     }
 
     if (!options.allowClosed) {
       const { status } = await this.paymentGatewayService.getUserAccountStatus(session.user.id);
       if (status === UserStatusEnum.Closed) {
-        throw new ConflictException({
+        throw new ForbiddenException({
           message:
             "Your account closed, you don't have permission for this action, please send email to support for reactivation!",
         });

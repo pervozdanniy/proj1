@@ -4,7 +4,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { ResetPasswordServiceClient } from '~common/grpc/interfaces/auth';
-import { TwoFactorVerificationDto, TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
+import { TwoFactorMethodsAppliedDto, TwoFactorVerifyResponseDto } from '../dto/2fa.reponse.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
 import { ChangePasswordTypeDto } from '../dto/change-password-type.dto';
 import { ChangePasswordDto } from '../dto/change-password.dto';
@@ -27,7 +27,7 @@ export class ResetPasswordService implements OnModuleInit {
     return parseAuthResponse(resp);
   }
 
-  async verify(payload: ResetPasswordVerifyDto, sessionId: string): Promise<TwoFactorVerifyDto> {
+  async verify(payload: ResetPasswordVerifyDto, sessionId: string): Promise<TwoFactorVerifyResponseDto> {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 
@@ -43,7 +43,7 @@ export class ResetPasswordService implements OnModuleInit {
     return firstValueFrom(this.authClient.resetPasswordFinish(payload, metadata));
   }
 
-  changePasswordStart(payload: ChangePasswordTypeDto, sessionId: string): Promise<TwoFactorVerificationDto> {
+  changePasswordStart(payload: ChangePasswordTypeDto, sessionId: string): Promise<TwoFactorMethodsAppliedDto> {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 

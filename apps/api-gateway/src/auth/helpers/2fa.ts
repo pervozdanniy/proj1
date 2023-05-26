@@ -1,6 +1,6 @@
 import { ConflictException } from '@nestjs/common';
 import { AuthData, TwoFactorVerificationResponse } from '~common/grpc/interfaces/auth';
-import { TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
+import { TwoFactorVerifyResponseDto } from '../dto/2fa.reponse.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
 
 export const parseAuthResponse = ({ verify, ...tokens }: AuthData): AuthResponseDto => {
@@ -15,7 +15,7 @@ export const parseAuthResponse = ({ verify, ...tokens }: AuthData): AuthResponse
   return { type: 'success', ...tokens };
 };
 
-export const parseVerificationResponse = (resp: TwoFactorVerificationResponse): TwoFactorVerifyDto => {
+export const parseVerificationResponse = (resp: TwoFactorVerificationResponse): TwoFactorVerifyResponseDto => {
   if (!resp.valid) {
     throw new ConflictException(resp.reason);
   }

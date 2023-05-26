@@ -29,7 +29,7 @@ export class PrimeTrustAccountEntity {
   solid_freeze?: boolean;
 
   @Column('varchar', { length: 50, nullable: true })
-  status?: string;
+  status?: 'opened' | string;
 
   @Column('varchar', { length: 50, nullable: true })
   offline_cold_storage?: string;

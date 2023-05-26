@@ -9,7 +9,11 @@ import {
 } from '@nestjs/swagger';
 import { SuccessDto } from '../../utils/success.dto';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
-import { TwoFactorRequiredResponseDto, TwoFactorVerificationDto, TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
+import {
+  TwoFactorMethodsAppliedDto,
+  TwoFactorRequiredResponseDto,
+  TwoFactorVerifyResponseDto,
+} from '../dto/2fa.reponse.dto';
 import { ChangePasswordTypeDto } from '../dto/change-password-type.dto';
 import { ChangePasswordDto } from '../dto/change-password.dto';
 import { ResetPasswordFinishDto, ResetPasswordVerifyDto } from '../dto/reset-password.dto';
@@ -26,21 +30,27 @@ export class ChangePasswordController {
   @ApiOperation({ summary: 'Check change password type' })
   @ApiBearerAuth()
   @JwtSessionAuth({ allowClosed: true, forbidSocial: true })
-  @ApiCreatedResponse({ type: TwoFactorVerificationDto })
+  @ApiCreatedResponse({ type: TwoFactorMethodsAppliedDto })
   @ApiConflictResponse()
   @Post('start')
-  start(@Body() { type }: ChangePasswordTypeDto, @JwtSessionId() sessionId: string): Promise<TwoFactorVerificationDto> {
+  start(
+    @Body() { type }: ChangePasswordTypeDto,
+    @JwtSessionId() sessionId: string,
+  ): Promise<TwoFactorMethodsAppliedDto> {
     return this.resetService.changePasswordStart({ type }, sessionId);
   }
 
   @ApiOperation({ summary: 'Verify 2FA codes' })
   @ApiBearerAuth()
-  @ApiOkResponse({ type: TwoFactorVerifyDto, description: '2FA completed' })
+  @ApiOkResponse({ type: TwoFactorVerifyResponseDto, description: '2FA completed' })
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
   @JwtSessionAuth({ requirePasswordReset: true, allowUnverified: true, allowClosed: true })
   @HttpCode(HttpStatus.OK)
   @Post('verify')
-  verify(@Body() payload: ResetPasswordVerifyDto, @JwtSessionId() sessionId: string): Promise<TwoFactorVerifyDto> {
+  verify(
+    @Body() payload: ResetPasswordVerifyDto,
+    @JwtSessionId() sessionId: string,
+  ): Promise<TwoFactorVerifyResponseDto> {
     return this.resetService.verify(payload, sessionId);
   }
 

@@ -4,7 +4,7 @@ import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-htt
 import { PrimeBalanceManager } from '@/payment-gateway/services/prime_trust/managers/prime-balance.manager';
 import { AssetToUSDResponse, SendFundsResponse, UsDtoAssetResponse } from '@/payment-gateway/types/prime-trust';
 import { Status } from '@grpc/grpc-js/build/src/constants';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -179,17 +179,23 @@ export class PrimeFundsTransferManager {
   async transferFunds(request: TransferFundsRequest): Promise<TransferFundsResponse> {
     const { sender_id, receiver_id, amount, currency_type } = request;
 
-    const { uuid: fromAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: sender_id });
-    const { uuid: toAccountId } = await this.primeAccountRepository.findOneByOrFail({ user_id: receiver_id });
+    const sender = await this.primeAccountRepository.findOneBy({ user_id: sender_id });
+    if (sender?.status !== 'opened') {
+      throw new ForbiddenException('Not verified');
+    }
+    const recepient = await this.primeAccountRepository.findOneBy({ user_id: receiver_id });
+    if (recepient?.status !== 'opened') {
+      throw new ConflictException('Recepient is not verified yet');
+    }
 
-    const { unit_count, fee_amount } = await this.convertUSDtoAsset(fromAccountId, amount, true);
+    const { unit_count, fee_amount } = await this.convertUSDtoAsset(sender.uuid, amount, true);
 
     const balance = await this.primeBalanceManager.getAccountBalance(sender_id);
     let hotStatus = false;
     if (balance.cold_balance < amount && balance.hot_balance > amount) {
       hotStatus = true;
     }
-    const { status, created_at, uuid } = await this.sendFunds(fromAccountId, toAccountId, unit_count, hotStatus);
+    const { status, created_at, uuid } = await this.sendFunds(sender.uuid, recepient.uuid, unit_count, hotStatus);
 
     let currentStatus = TransferStatus.PENDING;
     if (status === 'settled') {
@@ -208,8 +214,8 @@ export class PrimeFundsTransferManager {
     };
 
     await this.transferFundsEntityRepository.save(this.transferFundsEntityRepository.create(payload));
-    await this.primeBalanceManager.updateAccountBalance(fromAccountId);
-    await this.primeBalanceManager.updateAccountBalance(toAccountId);
+    await this.primeBalanceManager.updateAccountBalance(sender.uuid);
+    await this.primeBalanceManager.updateAccountBalance(recepient.uuid);
 
     return {
       data: payload,

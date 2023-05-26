@@ -17,9 +17,8 @@ import { UpdateRequest, UserContacts } from '~common/grpc/interfaces/core';
 
 export class UserContactsDto {
   @ApiProperty({
-    type: String,
     isArray: true,
-    example: '+380951234498',
+    example: ['+380951234498'],
     description: 'Phone numbers in international format',
   })
   @IsNotEmpty()

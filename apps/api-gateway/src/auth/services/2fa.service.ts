@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { TwoFactorMethod } from '~common/constants/auth';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { TwoFactorServiceClient } from '~common/grpc/interfaces/auth';
-import { TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
+import { TwoFactorVerifyResponseDto } from '../dto/2fa.reponse.dto';
 import { TwoFactorEnableRequestDto, TwoFactorVerificationDto, TwoFactorVerifyRequestDto } from '../dto/2fa.request.dto';
 import { parseVerificationResponse } from '../helpers/2fa';
 
@@ -70,7 +70,7 @@ export class TwoFactorService implements OnModuleInit {
     return firstValueFrom(this.authClient.verify(payload, metadata));
   }
 
-  async verifyOne(payload: TwoFactorVerificationDto, sessionId: string): Promise<TwoFactorVerifyDto> {
+  async verifyOne(payload: TwoFactorVerificationDto, sessionId: string): Promise<TwoFactorVerifyResponseDto> {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 

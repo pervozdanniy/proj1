@@ -1,7 +1,11 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiConflictResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorators';
-import { TwoFactorRequiredResponseDto, TwoFactorSuccessResponseDto, TwoFactorVerifyDto } from '../dto/2fa.reponse.dto';
+import {
+  TwoFactorRequiredResponseDto,
+  TwoFactorSuccessResponseDto,
+  TwoFactorVerifyResponseDto,
+} from '../dto/2fa.reponse.dto';
 import {
   TwoFactorDisableRequestDto,
   TwoFactorEnableRequestDto,
@@ -52,12 +56,15 @@ export class TwoFactorController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Verify single 2FA code and login user if no more 2FA methods to verify left' })
-  @ApiOkResponse({ type: TwoFactorVerifyDto, description: '2FA completed or partially accepted' })
+  @ApiOkResponse({ type: TwoFactorVerifyResponseDto, description: '2FA completed or partially accepted' })
   @ApiConflictResponse({ description: 'Invalid 2FA code or method' })
   @JwtSessionAuth({ allowUnverified: true })
   @HttpCode(HttpStatus.OK)
   @Post('verify_one')
-  verifyOne(@Body() payload: TwoFactorVerificationDto, @JwtSessionId() sessionId: string): Promise<TwoFactorVerifyDto> {
+  verifyOne(
+    @Body() payload: TwoFactorVerificationDto,
+    @JwtSessionId() sessionId: string,
+  ): Promise<TwoFactorVerifyResponseDto> {
     return this.twoFactor.verifyOne(payload, sessionId);
   }
 

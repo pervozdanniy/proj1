@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { TwoFactorVerificationDto } from './2fa.reponse.dto';
+import { TwoFactorMethodsAppliedDto } from './2fa.reponse.dto';
 
 export class AuthResponseDto {
   @ApiProperty({ enum: ['verification_required', 'success'] })
@@ -11,6 +11,6 @@ export class AuthResponseDto {
   @ApiProperty()
   refresh_token: string;
 
-  @ApiPropertyOptional({ type: TwoFactorVerificationDto })
-  verify?: TwoFactorVerificationDto;
+  @ApiPropertyOptional({ type: TwoFactorMethodsAppliedDto })
+  verify?: TwoFactorMethodsAppliedDto;
 }

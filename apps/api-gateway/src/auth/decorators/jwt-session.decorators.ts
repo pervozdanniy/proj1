@@ -1,6 +1,7 @@
 import { applyDecorators, HttpStatus, SetMetadata, UseGuards } from '@nestjs/common';
 import {
   ApiConflictResponse,
+  ApiForbiddenResponse,
   ApiPreconditionFailedResponse,
   ApiResponse,
   ApiUnauthorizedResponse,
@@ -19,14 +20,14 @@ const JwtSessionAuth = (options: SessionMetadataOptions = {}) => {
   ];
 
   if (!options.allowUnverified) {
-    decorators.push(ApiPreconditionFailedResponse({ description: 'Verification is not completed' }));
+    decorators.push(ApiPreconditionFailedResponse({ description: '2FA verification is not completed' }));
   }
   if (options.require2FA) {
     decorators.push(
       ApiResponse({
         status: HttpStatus.PRECONDITION_REQUIRED,
         type: TwoFactorRequiredResponseDto,
-        description: 'Verification required',
+        description: '2FA verification required',
       }),
       ApiConflictResponse({ description: 'No verification methods are enabled' }),
     );
@@ -36,6 +37,12 @@ const JwtSessionAuth = (options: SessionMetadataOptions = {}) => {
   }
   if (options.requirePasswordReset) {
     decorators.push(ApiConflictResponse({ description: "You haven't started password reset process" }));
+  }
+  if (options.requireKYC) {
+    decorators.push(ApiForbiddenResponse({ description: 'KYC verification required' }));
+  }
+  if (options.forbidSocial) {
+    decorators.push(ApiForbiddenResponse({ description: 'Unavailable social registered users' }));
   }
 
   return applyDecorators(...decorators);
