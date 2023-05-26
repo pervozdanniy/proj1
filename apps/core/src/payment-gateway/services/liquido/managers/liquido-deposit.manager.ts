@@ -53,7 +53,7 @@ export class LiquidoDepositManager {
       amount_usd,
       currency_type,
     );
-    const totalFee = Number((networkFee + koyweFee).toFixed(2));
+    const totalFee = networkFee + koyweFee;
 
     const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document) {
@@ -103,7 +103,7 @@ export class LiquidoDepositManager {
         url: result.data.paymentLink,
         info: {
           amount: amountOut,
-          rate: Number((amountOut / amount_usd).toFixed(2)),
+          rate: amountOut / amount_usd,
           fee: totalFee,
           currency: currency_type,
         },

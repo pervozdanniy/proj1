@@ -76,7 +76,7 @@ export class KoyweDepositManager {
       document.document_number,
     );
 
-    const totalFee = Number((quote.networkFee + quote.koyweFee).toFixed(2));
+    const totalFee = quote.networkFee + quote.koyweFee;
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
         user_id,
@@ -130,7 +130,7 @@ export class KoyweDepositManager {
       document.document_number,
     );
 
-    const totalFee = Number((quote.networkFee + quote.koyweFee).toFixed(2));
+    const totalFee = quote.networkFee + quote.koyweFee;
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
         user_id,

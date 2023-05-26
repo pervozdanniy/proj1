@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import Fraction from 'fraction.js';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
@@ -54,14 +55,13 @@ export class FacilitaWebhookManager {
 
       const currentTransfer = await this.depositEntityRepository.findOneBy({ user_id, uuid: transactionId });
       let currentStatus = TransferStatus.PENDING;
+      if (transactionResponse.data.data.status === 'identified') {
+        currentStatus = TransferStatus.IDENTIFIED;
+      }
+      if (transactionResponse.data.data.status === 'wired' || transactionResponse.data.data.status === 'exchanged') {
+        currentStatus = TransferStatus.DELIVERED;
+      }
       if (!currentTransfer) {
-        if (transactionResponse.data.data.status === 'identified') {
-          currentStatus = TransferStatus.IDENTIFIED;
-        }
-        if (transactionResponse.data.data.status === 'wired' || transactionResponse.data.data.status === 'exchanged') {
-          currentStatus = TransferStatus.DELIVERED;
-        }
-
         await this.depositEntityRepository.save(
           this.depositEntityRepository.create({
             user_id,
@@ -89,16 +89,18 @@ export class FacilitaWebhookManager {
     amountCurrency: number,
     currency_type: string,
   ): Promise<{ fee: number; amount_usd: number }> {
-    const ratesData = await this.currencyService.rate;
-    const pureRate = ratesData.get(currency_type); //4.95240
-    const finalRate = countBrazilRate(pureRate); //5.006
+    const ratesData = await this.currencyService.waitForRatesUpdate();
+    const pureRate = ratesData.get(currency_type);
+    const pureRateFraction = new Fraction(ratesData.get(currency_type));
+    const finalRateFraction = new Fraction(countBrazilRate(pureRate));
+    const amountCurrencyFraction = new Fraction(amountCurrency);
 
-    const feePercent = ((finalRate - pureRate) / pureRate) * 100;
+    const feePercentFraction = finalRateFraction.sub(pureRateFraction).div(pureRateFraction).mul(100);
 
-    const fee = Number(((amountCurrency * feePercent) / 100).toFixed(2));
+    const feeFraction = Number(amountCurrencyFraction.mul(feePercentFraction).div(100).toString());
 
-    const amount_usd = Number((amountCurrency / finalRate).toFixed(2));
+    const amount_usdFraction = Number(amountCurrencyFraction.div(finalRateFraction).toString());
 
-    return { amount_usd, fee };
+    return { amount_usd: amount_usdFraction, fee: feeFraction };
   }
 }

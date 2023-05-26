@@ -5,6 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import Fraction from 'fraction.js';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
@@ -47,9 +48,9 @@ export class FacilitaDepositManager {
     await this.createUserIfNotExist(user);
     const countries: CountryData = countriesData;
     const { currency_type } = countries[user.country_code];
-    const ratesData = await this.currencyService.rate;
+    const ratesData = await this.currencyService.waitForRatesUpdate();
     const rate = ratesData.get(currency_type);
-    const amount = Number((amount_usd * rate).toFixed(2));
+    const amount = amount_usd * rate;
     let currentFee = 0;
     if (user.country_code === 'BR') {
       const { fee } = this.calculateFeeFromBrazil(rate, amount);
@@ -60,7 +61,7 @@ export class FacilitaDepositManager {
       this.depositEntityRepository.create({
         user_id,
         type: TransferTypes.DEPOSIT,
-        amount: Number(amount + currentFee),
+        amount: amount + currentFee,
         amount_usd,
         provider: Providers.FACILITA,
         currency_type,
@@ -69,7 +70,7 @@ export class FacilitaDepositManager {
       }),
     );
 
-    return { info: { currency, amount: Number(amount + currentFee), fee: currentFee }, bank: facilitaBank };
+    return { info: { currency, amount: amount + currentFee, fee: currentFee }, bank: facilitaBank };
   }
 
   async createUserIfNotExist(user: UserEntity) {
@@ -103,8 +104,13 @@ export class FacilitaDepositManager {
 
   calculateFeeFromBrazil(pureRate: number, amount: number) {
     const finalRate = countBrazilRate(pureRate);
-    const difference = ((finalRate - pureRate) / pureRate) * 100;
-    const fee = Number(((amount * difference) / 100).toFixed(2));
+    const finalRateFraction = new Fraction(finalRate);
+    const pureRateFraction = new Fraction(pureRate);
+    const amountFraction = new Fraction(amount);
+
+    const difference = finalRateFraction.sub(pureRateFraction).div(pureRateFraction).mul(100);
+
+    const fee = Number(amountFraction.mul(difference).div(100).toString());
 
     return {
       fee,
