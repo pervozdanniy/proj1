@@ -22,7 +22,7 @@ export class KYCController {
     return this.kyc.generateLink(id);
   }
 
-  @ApiOperation({ summary: 'Webhook catch' })
+  @ApiOperation({ summary: 'Decision webhook' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })
@@ -31,7 +31,7 @@ export class KYCController {
     return this.kyc.decisionHandler(payload);
   }
 
-  @ApiOperation({ summary: 'Hook catch' })
+  @ApiOperation({ summary: 'Event webhook' })
   @ApiResponse({
     status: HttpStatus.CREATED,
   })

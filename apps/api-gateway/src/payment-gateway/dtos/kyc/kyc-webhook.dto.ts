@@ -156,9 +156,12 @@ export class DecisionWebhookDto implements DecisionWebhook {
 
 export class EventWebhookDto implements EventWebhook {
   @ApiProperty()
+  @IsString()
   id: string;
   @ApiProperty()
+  @IsString()
   attemptId: string;
   @ApiProperty()
+  @IsString()
   action: string;
 }

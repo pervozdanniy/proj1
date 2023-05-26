@@ -45,15 +45,10 @@ export class PrimeAccountManager {
     this.app_domain = domain;
   }
 
-  async createAccount(userDetails: UserEntity): Promise<AccountResponse> {
-    const account = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
-    if (account) {
-      this.notificationService.createAsync(userDetails.id, {
-        type: 'payment_account_creation',
-        data: { completed: false, reason: 'Account already exists' },
-      });
-
-      throw new GrpcException(Status.ALREADY_EXISTS, 'Account already exist', 400);
+  async createAccountIfNotCreated(userDetails: UserEntity): Promise<AccountResponse> {
+    const existing = await this.primeAccountRepository.findOne({ where: { user_id: userDetails.id } });
+    if (existing) {
+      return { uuid: existing.uuid, status: existing.status, name: existing.name, number: existing.number };
     }
 
     const formData: CreateAccountType = {
@@ -91,31 +86,14 @@ export class PrimeAccountManager {
     if (userDetails.country_code === 'US') {
       formData.data.attributes.owner['primary-address']['region'] = `${userDetails.details.region}`;
     }
-
+    let account: PrimeTrustAccountEntity;
     try {
       const accountResponse = await this.httpService.request({
         method: 'post',
         url: `${this.prime_trust_url}/v2/accounts`,
         data: formData,
       });
-
-      //create contact after creating account
-      const account = await this.saveAccount(accountResponse.data.data, userDetails.id);
-      await this.primeKycManager.passVerification(account.user_id, accountResponse.data.data.id);
-      // account open from development
-      // if (process.env.NODE_ENV === 'dev') {
-      //   await this.httpService.request({
-      //     method: 'post',
-      //     url: `${this.prime_trust_url}/v2/accounts/${accountResponse.data.data.id}/sandbox/open`,
-      //     data: null,
-      //   });
-      // }
-      this.notificationService.createAsync(userDetails.id, {
-        type: 'payment_account_creation',
-        data: { completed: true },
-      });
-
-      return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
+      account = await this.saveAccount(accountResponse.data.data, userDetails.id);
     } catch (e) {
       if (e instanceof PrimeTrustException) {
         const { detail, code } = e.getFirstError();
@@ -125,40 +103,36 @@ export class PrimeAccountManager {
         });
 
         throw new GrpcException(code, detail);
-      } else {
-        throw e;
-
-        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
+
+      throw e;
     }
+    this.notificationService.createAsync(userDetails.id, {
+      type: 'payment_account_creation',
+      data: { completed: true },
+    });
+
+    await this.primeKycManager.verifyDocuments(account.user_id, account.uuid);
+
+    return { uuid: account.uuid, status: account.status, name: account.name, number: account.number };
   }
 
   async saveAccount(accountData: AccountType, user_id: number): Promise<PrimeTrustAccountEntity> {
-    try {
-      const accountPayload: PrimeTrustAccountEntity = {
-        user_id,
-        uuid: accountData.id,
-        name: accountData.attributes.name,
-        number: accountData.attributes.number,
-        contributions_frozen: accountData.attributes['contributions-frozen'],
-        disbursements_frozen: accountData.attributes['disbursements-frozen'],
-        statements: accountData.attributes['statements'],
-        solid_freeze: accountData.attributes['solid-freeze'],
-        offline_cold_storage: accountData.attributes['offline-cold-storage'],
-        status: accountData.attributes.status,
-      };
-      const account = await this.primeAccountRepository.save(this.primeAccountRepository.create(accountPayload));
+    const accountPayload: PrimeTrustAccountEntity = {
+      user_id,
+      uuid: accountData.id,
+      name: accountData.attributes.name,
+      number: accountData.attributes.number,
+      contributions_frozen: accountData.attributes['contributions-frozen'],
+      disbursements_frozen: accountData.attributes['disbursements-frozen'],
+      statements: accountData.attributes['statements'],
+      solid_freeze: accountData.attributes['solid-freeze'],
+      offline_cold_storage: accountData.attributes['offline-cold-storage'],
+      status: accountData.attributes.status,
+    };
+    const account = await this.primeAccountRepository.save(this.primeAccountRepository.create(accountPayload));
 
-      return account;
-    } catch (e) {
-      if (e instanceof PrimeTrustException) {
-        const { detail, code } = e.getFirstError();
-
-        throw new GrpcException(code, detail);
-      } else {
-        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
-      }
-    }
+    return account;
   }
 
   async updateAccount(id: string): Promise<SuccessResponse> {
@@ -200,9 +174,7 @@ export class PrimeAccountManager {
 
       return accountResponse.data.data.attributes;
     } catch (e) {
-      this.logger.error(e.response.data.errors[0]);
-
-      throw new GrpcException(Status.ABORTED, e.response.data.errors[0], 400);
+      throw new GrpcException(Status.ABORTED, e.response?.data.errors[0] ?? e.message, 400);
     }
   }
 

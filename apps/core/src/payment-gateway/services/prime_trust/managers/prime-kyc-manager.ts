@@ -12,7 +12,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import FormData from 'form-data';
-import process from 'process';
+import process from 'node:process';
 import { IsNull, Not, Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
@@ -128,7 +128,7 @@ export class PrimeKycManager {
     return { success: true };
   }
 
-  async passVerification(user_id: number, account_id: string) {
+  async verifyDocuments(user_id: number, account_id: string) {
     const user = await this.userService.get(user_id);
     const contact = await this.getContactByAccount(account_id);
 
@@ -136,14 +136,14 @@ export class PrimeKycManager {
     for (const m of mediaFiles) {
       const documentResponse = await this.send(m.buffer, m.name + '.jpg', `${m.name}  ${m.label}`, contact.id);
       if (m.name === 'document-front' || m.name === 'document-back') {
-        const documentCheckResponse = await this.kycDocumentCheck(
+        const documentCheckResponse = await this.getKycDocument(
           documentResponse.data.id,
           contact.id,
           m.label,
           user.country_code,
         );
         if (process.env.NODE_ENV === 'dev') {
-          await this.verifyDocument(documentCheckResponse.data.id);
+          await this.__sandboxVerifyDocument__(documentCheckResponse.data.id);
           this.notificationService.createAsync(user_id, { type: 'kyc', data: { completed: true } });
         }
 
@@ -152,7 +152,7 @@ export class PrimeKycManager {
     }
   }
 
-  async verifyDocument(document_id: string) {
+  async __sandboxVerifyDocument__(document_id: string) {
     try {
       await this.httpService.request({
         method: 'post',
@@ -160,17 +160,17 @@ export class PrimeKycManager {
         data: null,
       });
     } catch (e) {
-      throw new GrpcException(Status.ABORTED, 'Document verify error,sandbox!', 400);
+      throw new GrpcException(Status.ABORTED, 'Document verify error, sandbox!', 400);
     }
   }
 
-  async kycDocumentCheck(document_uuid: string, contact_uuid: string, label: string, country_code: string) {
+  async getKycDocument(uploaded_document_id: string, contact_uuid: string, label: string, country_code: string) {
     const formData = {
       data: {
         type: 'kyc-document-checks',
         attributes: {
           'contact-id': contact_uuid,
-          'uploaded-document-id': document_uuid,
+          'uploaded-document-id': uploaded_document_id,
           identity: true,
           'identity-photo': true,
           'proof-of-address': true,
@@ -201,26 +201,16 @@ export class PrimeKycManager {
     }
   }
   async saveDocument(documentData: DocumentDataType, user_id: number, documentCheckResponse: DocumentCheckType) {
-    try {
-      const payload = {
-        user_id,
-        uuid: documentData.id,
-        file_url: documentData.attributes['file-url'],
-        extension: documentData.attributes['extension'],
-        label: documentData.attributes['label'],
-        kyc_check_uuid: documentCheckResponse.id,
-        status: documentCheckResponse.attributes.status,
-      };
-      await this.primeTrustKycDocumentEntityRepository.save(this.primeTrustKycDocumentEntityRepository.create(payload));
-    } catch (e) {
-      if (e instanceof PrimeTrustException) {
-        const { detail, code } = e.getFirstError();
-
-        throw new GrpcException(code, detail);
-      } else {
-        throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
-      }
-    }
+    const payload = {
+      user_id,
+      uuid: documentData.id,
+      file_url: documentData.attributes['file-url'],
+      extension: documentData.attributes['extension'],
+      label: documentData.attributes['label'],
+      kyc_check_uuid: documentCheckResponse.id,
+      status: documentCheckResponse.attributes.status,
+    };
+    await this.primeTrustKycDocumentEntityRepository.save(this.primeTrustKycDocumentEntityRepository.create(payload));
 
     return { document_id: documentCheckResponse.id };
   }
@@ -329,8 +319,8 @@ export class PrimeKycManager {
     }
   }
 
-  async getContact(id: number): Promise<PrimeTrustContactEntity> {
-    return await this.primeTrustContactEntityRepository.findOneBy({ user_id: id });
+  getContact(userId: number): Promise<PrimeTrustContactEntity> {
+    return this.primeTrustContactEntityRepository.findOneBy({ user_id: userId });
   }
 
   async updateContact({ id: account_id, resource_id }: AccountIdRequest): Promise<SuccessResponse> {

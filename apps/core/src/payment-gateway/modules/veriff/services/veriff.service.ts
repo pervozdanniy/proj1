@@ -13,7 +13,7 @@ import { DocumentTypesEnum } from '~common/enum/document-types.enum';
 import { DecisionWebhook, EventWebhook, VeriffSessionResponse } from '~common/grpc/interfaces/veriff';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { Media } from '../../../types/prime-trust';
-import { KYCDocumentType, VeriffDocumentEntity } from '../entities/veriff-document.entity';
+import { KYCDocumentType, KYCStatus, VeriffDocumentEntity } from '../entities/veriff-document.entity';
 
 @Injectable()
 export class VeriffService {
@@ -57,7 +57,7 @@ export class VeriffService {
       this.veriffDocumentEntityRepository.create({
         user_id,
         session_id: session.verification.id,
-        status: session.verification.status,
+        status: session.verification.status as KYCStatus,
         country: user.country_code,
       }),
     );
@@ -73,17 +73,16 @@ export class VeriffService {
       .orderBy('d.created_at', 'DESC')
       .getOne();
 
-    if (session) {
-      const attemptId = session.attempt_id;
+    if (session && session.attempt_id) {
       try {
         const headersRequest = {
           'Content-Type': 'application/json',
-          'X-HMAC-SIGNATURE': this.createHash(attemptId),
+          'X-HMAC-SIGNATURE': this.createHash(session.attempt_id),
           'X-AUTH-CLIENT': this.api_key,
         };
 
         const mediaResponse = await lastValueFrom(
-          this.httpService.get(`${this.url}/v1/attempts/${attemptId}/media`, {
+          this.httpService.get(`${this.url}/v1/attempts/${session.attempt_id}/media`, {
             headers: headersRequest,
           }),
         );
@@ -116,6 +115,8 @@ export class VeriffService {
         throw new GrpcException(Status.ABORTED, e.response?.data.message ?? e.message, 400);
       }
     }
+
+    throw new GrpcException(Status.ABORTED, 'No session id stored', 400);
   }
 
   async getBuffer(mediaId: string) {
@@ -183,13 +184,15 @@ export class VeriffService {
       throw new GrpcException(Status.ABORTED, e.response?.data.message ?? e.message, 400);
     }
   }
-  async veriffHookHandler({ attemptId: attempt_id, id: session_id }: EventWebhook) {
-    await this.veriffDocumentEntityRepository.update({ session_id }, { attempt_id });
+  async eventHandler({ attemptId, id: session_id }: EventWebhook) {
+    const session = await this.veriffDocumentEntityRepository.findOneByOrFail({ session_id });
+    session.attempt_id = attemptId;
+    await this.veriffDocumentEntityRepository.save(session);
+
+    return { success: session.status === 'approved', user_id: session.user_id };
   }
 
-  async decisionHandler({
-    verification: { id: session_id, status, document },
-  }: DecisionWebhook): Promise<{ success: boolean; user_id: number }> {
+  async decisionHandler({ verification: { id: session_id, status, document } }: DecisionWebhook) {
     const session = await this.veriffDocumentEntityRepository.findOneByOrFail({ session_id });
     await this.veriffDocumentEntityRepository.update(
       { session_id },
@@ -199,15 +202,11 @@ export class VeriffService {
         expiration_date: document.validUntil,
         label: document.type as KYCDocumentType,
         country: document.country,
-        status,
+        status: status as KYCStatus,
       },
     );
-    let success = false;
-    if (status === 'approved') {
-      success = true;
-    }
 
-    return { success, user_id: session.user_id };
+    return { success: status === 'approved', user_id: session.user_id };
   }
 
   async getDocumentByNumber(documentNumber: string) {

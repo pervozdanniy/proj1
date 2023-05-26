@@ -48,8 +48,8 @@ export class PrimeTrustService {
     return this.primeTokenManager.getToken();
   }
 
-  createAccount(userDetails: UserEntity) {
-    return this.primeAccountManager.createAccount(userDetails);
+  createAccountIfNotCreated(userDetails: UserEntity) {
+    return this.primeAccountManager.createAccountIfNotCreated(userDetails);
   }
 
   updateAccount({ id }: AccountIdRequest) {
@@ -123,9 +123,10 @@ export class PrimeTrustService {
     return this.primeAccountManager.getAccount(id);
   }
 
-  getContact(id: number) {
-    return this.primeKycManager.getContact(id);
+  getContact(userId: number) {
+    return this.primeKycManager.getContact(userId);
   }
+
   addDepositParams(request: DepositParamRequest) {
     return this.primeDepositManager.addDepositParams(request);
   }
@@ -172,5 +173,9 @@ export class PrimeTrustService {
 
   updateFundsTransfer(request: AccountIdRequest) {
     return this.primeFundsTransferManager.updateFundsTransfer(request);
+  }
+
+  verifyDocuments(userId: number, accountId: string) {
+    return this.primeKycManager.verifyDocuments(userId, accountId);
   }
 }

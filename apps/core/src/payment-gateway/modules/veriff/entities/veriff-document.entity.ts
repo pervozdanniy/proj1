@@ -11,6 +11,8 @@ import {
 
 export type KYCDocumentType = 'PASSPORT' | 'ID_CARD' | 'RESIDENCE_PERMIT' | 'DRIVERS_LICENSE' | 'OTHER';
 
+export type KYCStatus = 'approved' | 'resubmission_requested' | 'declined' | 'expired' | 'abandoned' | 'review';
+
 @Entity('veriff_kyc_documents')
 export class VeriffDocumentEntity {
   @PrimaryGeneratedColumn('increment')
@@ -47,7 +49,7 @@ export class VeriffDocumentEntity {
   profile_image: string;
 
   @Column('character varying')
-  status: 'approved' | string;
+  status: KYCStatus;
 
   @Column('character varying', { nullable: true })
   failure_details?: string;
