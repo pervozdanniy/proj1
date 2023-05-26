@@ -107,10 +107,6 @@ export class PrimeAccountManager {
 
       throw e;
     }
-    this.notificationService.createAsync(userDetails.id, {
-      type: 'payment_account_creation',
-      data: { completed: true },
-    });
 
     await this.primeKycManager.verifyDocuments(account.user_id, account.uuid);
 

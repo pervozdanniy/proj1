@@ -144,9 +144,7 @@ export class PrimeKycManager {
         );
         if (process.env.NODE_ENV === 'dev') {
           await this.__sandboxVerifyDocument__(documentCheckResponse.data.id);
-          this.notificationService.createAsync(user_id, { type: 'kyc', data: { completed: true } });
         }
-
         await this.saveDocument(documentResponse.data, user.id, documentCheckResponse.data);
       }
     }

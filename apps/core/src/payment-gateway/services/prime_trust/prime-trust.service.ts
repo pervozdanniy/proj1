@@ -67,6 +67,7 @@ export class PrimeTrustService {
   documentCheck(request: AccountIdRequest) {
     return this.primeKycManager.documentCheck(request);
   }
+
   cipCheck({ id, resource_id }: AccountIdRequest) {
     return this.primeKycManager.cipCheck(id, resource_id);
   }

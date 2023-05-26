@@ -34,7 +34,7 @@ export class BaseGrpcExceptionFilter extends BaseRpcExceptionFilter {
 @Catch()
 export class AllExceptionFilter extends BaseGrpcExceptionFilter {
   catch(exception: any, host: ArgumentsHost): Observable<any> {
-    if (process.env.NODE_ENV === 'dev') {
+    if (process.env.NODE_ENV === 'local') {
       console.log('EX', exception);
     }
     let finalException = exception;

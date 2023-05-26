@@ -62,7 +62,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Start deposit flow' })
   @ApiCreatedResponse({ type: DepositStartResponseDto })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Post('/start')
   start(@Body() payload: StartDepositFlowDto, @JwtSessionUser() { id }: User): Promise<DepositStartResponseDto> {
     return this.depositService.start(payload, id);
@@ -71,7 +71,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Select bank for deposit' })
   @ApiCreatedResponse({ type: BankTransferInfoDto })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Post('/pay_with_bank')
   payWithBank(@Body() payload: PayWithBankRequestDto, @JwtSessionUser() { id }: User): Promise<BankTransferInfoDto> {
     return this.depositService.payWithBank(payload, id);
@@ -80,7 +80,7 @@ export class DepositController {
   @ApiOperation({ summary: 'Select card for deposit' })
   @ApiCreatedResponse({ type: TransferInfoDto })
   @ApiBearerAuth()
-  @JwtSessionAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Post('/pay_with_card')
   payWithCard(@Body() payload: PayWithCardRequestDto, @JwtSessionUser() { id }: User): Promise<TransferInfoDto> {
     return this.depositService.payWithCard(payload, id);

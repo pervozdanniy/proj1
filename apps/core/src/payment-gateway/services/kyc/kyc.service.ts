@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { DecisionWebhook, EventWebhook } from '~common/grpc/interfaces/veriff';
 import { VeriffService } from '../../modules/veriff/services/veriff.service';
 import { PaymentGatewayService } from '../payment-gateway.service';
@@ -15,11 +15,10 @@ export class KYCService {
   async eventHandler(request: EventWebhook) {
     try {
       await this.veriff.eventHandler(request);
-      // if (success) {
-      //   await this.verifyPaymentAccount(user_id);
-      // }
     } catch (error) {
       this.logger.error('Event handler', error, request);
+
+      throw new InternalServerErrorException();
     }
   }
 
@@ -31,14 +30,12 @@ export class KYCService {
       }
     } catch (error) {
       this.logger.error('Decision handler', error, request);
+
+      throw new InternalServerErrorException();
     }
   }
 
   private async verifyPaymentAccount(userId: number) {
     await this.paymentGateway.createAccountIfNotCreated(userId);
-    // const contact = await this.paymentGateway.getContact(userId);
-    // if (!contact?.identity_confirmed) {
-    //   await this.paymentGateway.verifyDocuments(userId, uuid);
-    // }
   }
 }
