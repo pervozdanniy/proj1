@@ -40,7 +40,7 @@ export class MexicoPaymentGateway
   }
 
   addBank(request: BankAccountParams): Promise<BankAccountParams> {
-    return this.koyweService.addBankAccountParams(request);
+    return this.primeTrustService.addBankAccountParams(request);
   }
 
   getAvailableBanks(country: string): Promise<BanksInfoResponse> {
@@ -58,9 +58,7 @@ export class MexicoPaymentGateway
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
-    const { id, amount } = request;
-    const wallet = await this.liquidoService.makeWithdrawal(request);
-
-    return this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
+    //    const { success } = await this.primeTrustService.transferToSkopaKoyweAccount(amount, sender_id);
+    return this.liquidoService.makeWithdrawal(request);
   }
 }

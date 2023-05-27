@@ -14,15 +14,15 @@ export class LiquidoService {
     private readonly liquidoDepositManager: LiquidoDepositManager,
   ) {}
 
-  makeWithdrawal(request: TransferMethodRequest) {
-    return this.liquidoWithdrawalManager.makeWithdrawal(request);
-  }
-
   liquidoWebhooksHandler(request: LiquidoWebhookRequest) {
     return this.liquidoWebhookManager.liquidoWebhooksHandler(request);
   }
 
   createCashPayment(request: CreateReferenceRequest) {
     return this.liquidoDepositManager.createCashPayment(request);
+  }
+
+  makeWithdrawal(request: TransferMethodRequest) {
+    return this.liquidoWithdrawalManager.makeWithdrawal(request);
   }
 }

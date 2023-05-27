@@ -13,8 +13,7 @@ import { FacilitaWebhookRequest } from '~common/grpc/interfaces/payment-gateway'
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { VeriffService } from '../../../modules/veriff/services/veriff.service';
-import { CurrencyService } from '../../currency.service';
-import { countBrazilRate } from '../facilita-helpers';
+import { FacilitaMainManager } from './facilita-main.manager';
 import { FacilitaTokenManager } from './facilita-token.manager';
 
 @Injectable()
@@ -25,9 +24,9 @@ export class FacilitaWebhookManager {
     private readonly facilitaTokenManager: FacilitaTokenManager,
     private readonly httpService: HttpService,
 
-    private readonly currencyService: CurrencyService,
-
     private readonly veriffService: VeriffService,
+
+    private readonly facilitaMainManager: FacilitaMainManager,
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
   ) {
@@ -51,7 +50,11 @@ export class FacilitaWebhookManager {
       const documentNumber = transactionResponse.data.data.source_document_number;
 
       const { user_id } = await this.veriffService.getDocumentByNumber(documentNumber);
-      const { amount_usd, fee } = await this.calculateUsdFromBrl(amountCurrency, currency_type);
+      let amount_usd = 0;
+      const fee = 0;
+      if (currency_type === 'BRL') {
+        amount_usd = await this.convertBrlToUsd(amountCurrency);
+      }
 
       const currentTransfer = await this.depositEntityRepository.findOneBy({ user_id, uuid: transactionId });
       let currentStatus = TransferStatus.PENDING;
@@ -85,22 +88,11 @@ export class FacilitaWebhookManager {
     return { success: true };
   }
 
-  async calculateUsdFromBrl(
-    amountCurrency: number,
-    currency_type: string,
-  ): Promise<{ fee: number; amount_usd: number }> {
-    const ratesData = await this.currencyService.waitForRatesUpdate();
-    const pureRate = ratesData.get(currency_type);
-    const pureRateFraction = new Fraction(ratesData.get(currency_type));
-    const finalRateFraction = new Fraction(countBrazilRate(pureRate));
+  async convertBrlToUsd(amountCurrency: number): Promise<number> {
+    const { brlusd: finalRate } = await this.facilitaMainManager.countBrazilRate();
+    const finalRateFraction = new Fraction(finalRate);
     const amountCurrencyFraction = new Fraction(amountCurrency);
 
-    const feePercentFraction = finalRateFraction.sub(pureRateFraction).div(pureRateFraction).mul(100);
-
-    const feeFraction = Number(amountCurrencyFraction.mul(feePercentFraction).div(100).toString());
-
-    const amount_usdFraction = Number(amountCurrencyFraction.div(finalRateFraction).toString());
-
-    return { amount_usd: amount_usdFraction, fee: feeFraction };
+    return Number(amountCurrencyFraction.div(finalRateFraction).toString());
   }
 }

@@ -63,7 +63,6 @@ export class LiquidoWebhookManager {
             amount_usd: transfer.amount_usd,
             currency_type: transfer.currency_type,
           };
-          //   const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
 
           const { bank } = await this.koyweService.createReference(request, {
             wallet_address: this.skopaKoyweWallet, //we use wallet from Skopa,for cash payments (All payments goes to this wallet)

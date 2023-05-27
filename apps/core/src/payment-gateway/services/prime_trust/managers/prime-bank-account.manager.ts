@@ -17,9 +17,8 @@ export class PrimeBankAccountManager {
   ) {}
   async addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
     const { id, bank_account_name, bank_account_number, routing_number } = request;
-    this.logger.log(request);
     const userDetails = await this.userService.getUserInfo(id);
-    if (!routing_number) {
+    if (userDetails.country_code === 'US' && !routing_number) {
       throw new GrpcException(Status.INVALID_ARGUMENT, 'Please fill routing number!', 400);
     }
     const bankAccount = await this.bankAccountEntityRepository.findOne({ where: { bank_account_number, user_id: id } });

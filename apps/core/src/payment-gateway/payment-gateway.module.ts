@@ -34,6 +34,7 @@ import { CurrencyService } from './services/currency.service';
 import { WithdrawAuthorizationService } from './services/external-withdraw-authorization/withdraw-authorization.service';
 import { FacilitaService } from './services/facilita/facilita.service';
 import { FacilitaDepositManager } from './services/facilita/managers/facilita-deposit.manager';
+import { FacilitaMainManager } from './services/facilita/managers/facilita-main.manager';
 import { FacilitaTokenManager } from './services/facilita/managers/facilita-token.manager';
 import { FacilitaWebhookManager } from './services/facilita/managers/facilita-webhook.manager';
 import { DepositFlow } from './services/flow/deposit-flow.service';
@@ -133,6 +134,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     FacilitaTokenManager,
     WithdrawAuthorizationService,
     KYCService,
+    FacilitaMainManager,
   ],
   controllers: [PaymentGatewayController, DepositFlowController, KYCController],
   exports: [PaymentGatewayService, CurrencyService],

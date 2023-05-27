@@ -17,14 +17,12 @@ import {
 import { FacilitaService } from '../../services/facilita/facilita.service';
 import { KoyweService } from '../../services/koywe/koywe.service';
 import { LiquidoService } from '../../services/liquido/liquido.service';
-import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
 export class BrazilPaymentGateway
   implements PaymentGatewayInterface, BankInterface, WireDepositInterface, BankWithdrawalInterface
 {
   constructor(
-    private primeTrustService: PrimeTrustService,
     private koyweService: KoyweService,
     private facilitaService: FacilitaService,
     private liquidoService: LiquidoService,
@@ -47,9 +45,6 @@ export class BrazilPaymentGateway
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
-    const { id, amount } = request;
-    const wallet = await this.liquidoService.makeWithdrawal(request);
-
-    return this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
+    return this.liquidoService.makeWithdrawal(request);
   }
 }
