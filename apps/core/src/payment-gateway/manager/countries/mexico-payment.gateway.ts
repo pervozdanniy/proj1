@@ -58,7 +58,6 @@ export class MexicoPaymentGateway
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
-    //    const { success } = await this.primeTrustService.transferToSkopaKoyweAccount(amount, sender_id);
     return this.liquidoService.makeWithdrawal(request);
   }
 }

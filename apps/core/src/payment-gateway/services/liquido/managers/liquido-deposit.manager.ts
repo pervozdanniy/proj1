@@ -47,8 +47,6 @@ export class LiquidoDepositManager {
     const { token } = await this.liquidoTokenManager.getToken();
     const userDetails = await this.userService.getUserInfo(user_id);
     const { currency_type } = countriesData[userDetails.country_code];
-    // const liquidoFeeUsd = liquidoFees[userDetails.country_code].value;
-    // const amountWithLiquidoFee = amount_usd + liquidoFeeUsd;
     const { amountOut, networkFee, koyweFee } = await this.koyweMainManager.getCurrencyAmountByUsd(
       amount_usd,
       currency_type,

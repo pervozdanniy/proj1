@@ -6,6 +6,11 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
+export interface LiquidoPayoutWebhookRequest {
+  idempotencyKey: string;
+  transferStatus: string;
+}
+
 export interface LinkWebhookRequest {
   resourceId: string;
   resourceType: string;
@@ -445,6 +450,8 @@ export interface PaymentGatewayServiceClient {
 
   liquidoWebhooksHandler(request: LiquidoWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
+  liquidoPayoutHandler(request: LiquidoPayoutWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+
   linkHandler(request: LinkWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 }
 
@@ -554,6 +561,11 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
+  liquidoPayoutHandler(
+    request: LiquidoPayoutWebhookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
   linkHandler(
     request: LinkWebhookRequest,
     ...rest: any
@@ -582,6 +594,7 @@ export function PaymentGatewayServiceControllerMethods() {
       "koyweWebhooksHandler",
       "facilitaWebhooksHandler",
       "liquidoWebhooksHandler",
+      "liquidoPayoutHandler",
       "linkHandler",
     ];
     for (const method of grpcMethods) {

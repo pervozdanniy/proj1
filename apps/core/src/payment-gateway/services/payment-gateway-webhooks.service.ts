@@ -4,6 +4,7 @@ import {
   FacilitaWebhookRequest,
   KoyweWebhookRequest,
   LinkWebhookRequest,
+  LiquidoPayoutWebhookRequest,
   LiquidoWebhookRequest,
   PrimeWebhookRequest,
 } from '~common/grpc/interfaces/payment-gateway';
@@ -103,5 +104,9 @@ export class PaymentGatewayWebhooksService {
     } else {
       return { success: true };
     }
+  }
+
+  liquidoPayoutHandler(request: LiquidoPayoutWebhookRequest) {
+    return this.liquidoService.liquidoPayoutHandler(request);
   }
 }

@@ -9,11 +9,12 @@ import { Repository } from 'typeorm';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { LiquidoWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
+import { LiquidoPayoutWebhookRequest, LiquidoWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity, TransferStatus } from '../../../entities/transfers.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../koywe/koywe.service';
+import { PrimeFundsTransferManager } from '../../prime_trust/managers/prime-funds-transfer.manager';
 import { LiquidoTokenManager } from './liquido-token.manager';
 
 @Injectable()
@@ -30,14 +31,15 @@ export class LiquidoWebhookManager {
     private userService: UserService,
     private readonly httpService: HttpService,
 
+    private readonly primeFundsTransferManager: PrimeFundsTransferManager,
     @InjectRepository(TransfersEntity)
-    private readonly depositEntityRepository: Repository<TransfersEntity>,
+    private readonly transfersEntityRepository: Repository<TransfersEntity>,
   ) {
     const { api_url, x_api_key } = config.get('liquido', { infer: true });
     const { skopaKoyweWallet } = config.get('prime_trust', { infer: true });
     this.api_url = api_url;
     this.x_api_key = x_api_key;
-    this.skopaKoyweWallet = skopaKoyweWallet;
+    this.skopaKoyweWallet = skopaKoyweWallet; //Skopa wallet in our Prime Trust
   }
 
   async liquidoWebhooksHandler({
@@ -54,10 +56,10 @@ export class LiquidoWebhookManager {
 
     try {
       if (paymentStatus === 'SETTLED') {
-        await this.depositEntityRepository.update({ uuid: orderId }, { status: TransferStatus.SETTLED });
+        await this.transfersEntityRepository.update({ uuid: orderId }, { status: TransferStatus.SETTLED });
         let accountNumber;
         if (country === 'MX') {
-          const transfer = await this.depositEntityRepository.findOneBy({ uuid: orderId });
+          const transfer = await this.transfersEntityRepository.findOneBy({ uuid: orderId });
           const request: CreateReferenceRequest = {
             user_id: user.id,
             amount_usd: transfer.amount_usd,
@@ -99,5 +101,23 @@ export class LiquidoWebhookManager {
 
       throw new GrpcException(Status.ABORTED, 'Liquido payment exception!', 400);
     }
+  }
+
+  async liquidoPayoutHandler({
+    transferStatus,
+    idempotencyKey,
+  }: LiquidoPayoutWebhookRequest): Promise<SuccessResponse> {
+    let withdrawalStatus = TransferStatus.PENDING;
+    if (transferStatus === 'SETTLED') {
+      withdrawalStatus = TransferStatus.SETTLED;
+      const withdrawal = await this.transfersEntityRepository.findOneBy({ uuid: idempotencyKey });
+      await this.primeFundsTransferManager.transferToSkopaKoyweAccount(withdrawal.amount_usd, withdrawal.user_id);
+    }
+    if (transferStatus === 'FAILED' || transferStatus === 'REJECTED') {
+      withdrawalStatus = TransferStatus.FAILED;
+    }
+    await this.transfersEntityRepository.update({ uuid: idempotencyKey }, { status: withdrawalStatus });
+
+    return { success: true };
   }
 }

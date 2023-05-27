@@ -179,8 +179,4 @@ export class PrimeTrustService {
   verifyDocuments(userId: number, accountId: string) {
     return this.primeKycManager.verifyDocuments(userId, accountId);
   }
-
-  transferToSkopaKoyweAccount(amount: number, sender_id: number) {
-    return this.primeFundsTransferManager.transferToSkopaKoyweAccount(amount, sender_id);
-  }
 }

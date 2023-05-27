@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { LiquidoWebhookRequest, TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
+import {
+  LiquidoPayoutWebhookRequest,
+  LiquidoWebhookRequest,
+  TransferMethodRequest,
+} from '~common/grpc/interfaces/payment-gateway';
 import { CreateReferenceRequest } from '../../interfaces/payment-gateway.interface';
 import { LiquidoDepositManager } from './managers/liquido-deposit.manager';
 import { LiquidoWebhookManager } from './managers/liquido-webhook.manager';
@@ -24,5 +28,9 @@ export class LiquidoService {
 
   makeWithdrawal(request: TransferMethodRequest) {
     return this.liquidoWithdrawalManager.makeWithdrawal(request);
+  }
+
+  liquidoPayoutHandler(request: LiquidoPayoutWebhookRequest) {
+    return this.liquidoWebhookManager.liquidoPayoutHandler(request);
   }
 }

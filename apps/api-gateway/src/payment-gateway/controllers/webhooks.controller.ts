@@ -6,6 +6,7 @@ import {
   FacilitaWebhookType,
   KoyweWebhookType,
   LinkWebhookType,
+  LiquidoPayoutWebhookType,
   LiquidoWebhookType,
   PrimeTrustWebhookType,
 } from '../webhooks/data';
@@ -43,6 +44,11 @@ export class WebhooksController {
   @Post('/liquido')
   async liquidoHandler(@Body() payload: LiquidoWebhookType) {
     return this.paymentGatewayService.liquidoHandler(payload);
+  }
+
+  @Post('/liquido/payout')
+  async liquidoPayoutHandler(@Body() payload: LiquidoPayoutWebhookType) {
+    return this.paymentGatewayService.liquidoPayoutHandler(payload);
   }
 
   @ApiOperation({ summary: 'Catch webhooks.' })

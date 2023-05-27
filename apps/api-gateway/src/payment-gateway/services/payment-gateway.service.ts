@@ -16,6 +16,7 @@ import {
   FacilitaWebhookType,
   KoyweWebhookType,
   LinkWebhookType,
+  LiquidoPayoutWebhookType,
   LiquidoWebhookType,
   PrimeTrustWebhookType,
 } from '../webhooks/data';
@@ -113,5 +114,9 @@ export class PaymentGatewayService implements OnModuleInit {
 
   linkHandler({ metadata: { resourceId, resourceType }, eventType }: LinkWebhookType) {
     return lastValueFrom(this.paymentGatewayServiceClient.linkHandler({ resourceId, eventType, resourceType }));
+  }
+
+  liquidoPayoutHandler({ idempotencyKey, transferStatus }: LiquidoPayoutWebhookType) {
+    return lastValueFrom(this.paymentGatewayServiceClient.liquidoPayoutHandler({ idempotencyKey, transferStatus }));
   }
 }
