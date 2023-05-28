@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DepositFlowResponse, DepositNextStepRequest, TransferInfo } from '~common/grpc/interfaces/payment-gateway';
@@ -136,7 +137,19 @@ export class DepositFlow {
     }
 
     if (flow.resource_type === DepositResourceType.Bank && hasBankDeposit(paymentGateway)) {
-      await this.primeLinkManager.sendAmount(payload.user_id, payload.customer.id, flow.amount, flow.currency);
+      const payment = await this.primeLinkManager.makeDeposit(
+        payload.user_id,
+        payload.customer.id,
+        flow.amount,
+        flow.currency,
+      );
+      if (payment.paymentStatus === 'terminal_failed') {
+        throw new ConflictException('Payment failed,not enough money on account!');
+      }
+
+      if (payment.paymentStatus === 'failed') {
+        throw new ConflictException('Payment failed!');
+      }
       await this.depositFlowRepo.delete(payload.id);
 
       return {

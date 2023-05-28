@@ -2,6 +2,7 @@ import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
@@ -12,6 +13,7 @@ import { Providers } from '~common/enum/providers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { LinkSessionResponse, LinkTransferData, LinkWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
+import { NotificationService } from '../../../../notification/services/notification.service';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 
 @Injectable()
@@ -25,7 +27,7 @@ export class PrimeLinkManager {
   constructor(
     private userService: UserService,
     private readonly httpService: HttpService,
-
+    private readonly notificationService: NotificationService,
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
 
@@ -86,7 +88,33 @@ export class PrimeLinkManager {
     return { sessionKey: result.data.sessionKey };
   }
 
-  async sendAmount(user_id: number, customerId: string, amount: number, currency: string): Promise<LinkTransferData> {
+  async makeDeposit(user_id: number, customerId: string, amount: number, currency: string): Promise<LinkTransferData> {
+    const paymentResponse = await this.sendAmount(customerId, amount, currency);
+    let currentStatus = TransferStatus.PENDING;
+    if (paymentResponse.paymentStatus === 'terminal_failed' || paymentResponse.paymentStatus === 'failed') {
+      currentStatus = TransferStatus.FAILED;
+    }
+
+    const contributionPayload = {
+      user_id,
+      uuid: paymentResponse.paymentId,
+      currency_type: 'USD',
+      amount,
+      amount_usd: amount,
+      status: currentStatus,
+      type: TransferTypes.DEPOSIT,
+      provider: Providers.LINK,
+    };
+    await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
+
+    return paymentResponse;
+  }
+
+  async sendAmount(
+    customerId: string,
+    amount: number,
+    currency: string,
+  ): Promise<{ paymentId: string; paymentStatus: string }> {
     const { token } = await this.getToken();
     const headersRequest = {
       'Content-Type': 'application/json',
@@ -115,35 +143,14 @@ export class PrimeLinkManager {
       const paymentResponse = await lastValueFrom(
         this.httpService.post(`${this.url}/v1/payments`, formData, { headers: headersRequest }),
       );
+      const paymentStatus = paymentResponse.data.paymentStatus.toLowerCase();
 
-      const response = { paymentId: paymentResponse.data.paymentId, paymentStatus: paymentResponse.data.paymentStatus };
-      let currentStatus = TransferStatus.PENDING;
-      if (
-        response.paymentStatus.toLowerCase() === 'terminal_failed' ||
-        response.paymentStatus.toLowerCase() === 'failed'
-      ) {
-        currentStatus = TransferStatus.FAILED;
-      }
-
-      const contributionPayload = {
-        user_id,
-        uuid: response.paymentId,
-        currency_type: 'USD',
-        amount,
-        amount_usd: amount,
-        status: currentStatus,
-        type: TransferTypes.DEPOSIT,
-        provider: Providers.LINK,
+      return {
+        paymentId: paymentResponse.data.paymentId,
+        paymentStatus,
       };
-      await this.depositEntityRepository.save(this.depositEntityRepository.create(contributionPayload));
-
-      if (currentStatus === 'failed') {
-        throw new GrpcException(Status.INVALID_ARGUMENT, 'Not enough monet on balance!', 400);
-      }
-
-      return response;
     } catch (e) {
-      throw new GrpcException(Status.INVALID_ARGUMENT, 'Payment error!', 400);
+      throw new ConflictException('Payment error');
     }
   }
 
@@ -160,6 +167,16 @@ export class PrimeLinkManager {
 
       if (status === 'failed') {
         await this.depositEntityRepository.update({ uuid: resourceId }, { status: TransferStatus.FAILED });
+      }
+
+      const currentPayment = await this.depositEntityRepository.findOneBy({ uuid: resourceId });
+      if (currentPayment) {
+        if (currentPayment.status !== TransferStatus.IDENTIFIED) {
+          this.notificationService.createAsync(currentPayment.user_id, {
+            type: 'payment',
+            data: { description: `Your payment status ${currentPayment.status}` },
+          });
+        }
       }
     }
 
