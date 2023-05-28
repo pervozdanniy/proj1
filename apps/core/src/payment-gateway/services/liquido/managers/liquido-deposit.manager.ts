@@ -1,6 +1,5 @@
 import { TransfersEntity, TransferStatus, TransferTypes } from '@/payment-gateway/entities/transfers.entity';
 import { UserService } from '@/user/services/user.service';
-import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConflictException } from '@nestjs/common/exceptions';
@@ -12,7 +11,6 @@ import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
-import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { KoyweMainManager } from '../../koywe/managers/koywe-main.manager';
@@ -109,7 +107,7 @@ export class LiquidoDepositManager {
     } catch (e) {
       this.logger.error(e.response.data);
 
-      throw new GrpcException(Status.ABORTED, e.response.data.message, 400);
+      throw new ConflictException('Payment link creation error!');
     }
   }
 }

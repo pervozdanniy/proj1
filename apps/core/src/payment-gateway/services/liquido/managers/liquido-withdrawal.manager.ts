@@ -1,7 +1,7 @@
 import { UserService } from '@/user/services/user.service';
-import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,7 +11,6 @@ import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { TransferInfo, TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
-import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { countriesData } from '../../../country/data';
 import { ParamsTypes, TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { KoyweMainManager } from '../../koywe/managers/koywe-main.manager';
@@ -75,7 +74,7 @@ export class LiquidoWithdrawalManager {
         .andWhere('type = :type', { type: TransferTypes.WITHDRAWAL })
         .execute();
     } else {
-      this.logger.log('All liquido withdrawals money sended to koywe!');
+      this.logger.log('All liquido withdrawals money sent to koywe!');
     }
   }
 
@@ -131,7 +130,7 @@ export class LiquidoWithdrawalManager {
     } catch (e) {
       this.logger.error(e.response.data);
 
-      throw new GrpcException(Status.ABORTED, 'Liquido payout error!', 400);
+      throw new ConflictException('Liquido payout error!');
     }
 
     await this.transferRepository.save(

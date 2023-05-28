@@ -1,5 +1,5 @@
+import { UserEntity } from '@/user/entities/user.entity';
 import { UserService } from '@/user/services/user.service';
-import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConflictException } from '@nestjs/common/exceptions';
@@ -11,8 +11,6 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { BankCredentialsData } from '~common/grpc/interfaces/payment-gateway';
-import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { UserEntity } from '../../../../user/entities/user.entity';
 import { countriesData, CountryData } from '../../../country/data';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
@@ -92,7 +90,7 @@ export class FacilitaDepositManager {
     } catch (e) {
       this.logger.error(e.response.data);
 
-      throw new GrpcException(Status.ABORTED, 'Facilita create user error!', 400);
+      throw new ConflictException('Facilita create user error!');
     }
   }
 

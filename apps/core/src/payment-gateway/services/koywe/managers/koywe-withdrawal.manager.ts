@@ -43,7 +43,8 @@ export class KoyweWithdrawalManager {
     config: ConfigService<ConfigInterface>,
   ) {
     const { koywe_url } = config.get('app');
-    this.asset = 'USDC Polygon';
+    const { short } = config.get('asset');
+    this.asset = short;
     this.koywe_url = koywe_url;
   }
 

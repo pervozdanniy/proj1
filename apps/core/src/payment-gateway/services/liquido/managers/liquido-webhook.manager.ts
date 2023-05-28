@@ -1,7 +1,7 @@
 import { UserService } from '@/user/services/user.service';
-import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
@@ -10,7 +10,6 @@ import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { LiquidoPayoutWebhookRequest, LiquidoWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
-import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity, TransferStatus } from '../../../entities/transfers.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { KoyweService } from '../../koywe/koywe.service';
@@ -99,7 +98,7 @@ export class LiquidoWebhookManager {
     } catch (e) {
       this.logger.log(e);
 
-      throw new GrpcException(Status.ABORTED, 'Liquido payment exception!', 400);
+      throw new ConflictException('Liquido payout exception!');
     }
   }
 

@@ -1,6 +1,6 @@
-import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import Fraction from 'fraction.js';
@@ -10,7 +10,6 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { FacilitaWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
-import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { VeriffService } from '../../../modules/veriff/services/veriff.service';
 import { FacilitaMainManager } from './facilita-main.manager';
@@ -82,7 +81,7 @@ export class FacilitaWebhookManager {
         await this.depositEntityRepository.update({ uuid: transactionId }, { status: currentStatus });
       }
     } catch (e) {
-      throw new GrpcException(Status.ABORTED, 'Facilita transaction error!', 400);
+      throw new ConflictException('Facilita transaction error');
     }
 
     return { success: true };
