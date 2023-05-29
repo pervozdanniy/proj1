@@ -43,8 +43,8 @@ export class UserFacadeController implements UserServiceController {
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async create({ contacts, ...payload }: CreateRequestDto): Promise<User> {
-    return await this.userFacadeService.create({ contacts, ...payload });
+  create({ contacts, ...payload }: CreateRequestDto): Promise<User> {
+    return this.userFacadeService.create({ contacts, ...payload });
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))

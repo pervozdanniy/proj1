@@ -47,7 +47,7 @@ export class WithdrawAuthorizationService {
 
   async payApproved() {
     const iterator = await this.inswitch.startProcessing();
-    const barrier = new ConcurrencyBarrier(10);
+    const barrier = new ConcurrencyBarrier(100);
 
     for await (const { user_id, amount } of iterator) {
       await barrier.wait();

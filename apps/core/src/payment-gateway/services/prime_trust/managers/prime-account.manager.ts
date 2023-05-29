@@ -8,6 +8,7 @@ import { UserEntity } from '@/user/entities/user.entity';
 import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as process from 'process';
@@ -243,6 +244,9 @@ export class PrimeAccountManager {
 
   async getUserAccountStatus({ id }: IdRequest): Promise<AccountStatusResponse> {
     const user = await this.userService.get(id);
+    if (!user) {
+      throw new NotFoundException(`User with id=${id} does not exist`);
+    }
 
     return { status: user.status };
   }
