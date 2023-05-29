@@ -3,13 +3,12 @@ import { AuthModule } from '@modules/auth/auth.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from '../../../common/config/configuration';
-import coreDbConfig from './db/config/core-db.config';
 import dbConfig from './db/config/db.config';
 import { DatabaseModule } from './db/database.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ load: [configuration, dbConfig, coreDbConfig], isGlobal: true }),
+    ConfigModule.forRoot({ load: [configuration, dbConfig], isGlobal: true }),
     DatabaseModule,
     AdminModule,
     AuthModule,

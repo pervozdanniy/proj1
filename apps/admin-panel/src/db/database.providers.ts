@@ -23,22 +23,4 @@ export const databaseProviders = [
     },
     inject: [ConfigService],
   }),
-  TypeOrmModule.forRootAsync({
-    imports: [ConfigModule],
-    useFactory(config: ConfigService<ConfigInterface>) {
-      const { host, port, username, password, database } = config.get('readonly_database', { infer: true });
-
-      return {
-        name: 'core_readonly_database',
-        type: 'postgres',
-        host,
-        port,
-        username,
-        password,
-        database,
-        autoLoadEntities: true,
-      };
-    },
-    inject: [ConfigService],
-  }),
 ];

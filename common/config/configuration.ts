@@ -13,11 +13,6 @@ export interface ConfigInterface {
     password: string;
     database: string;
   };
-  readonly_database?: Addr & {
-    username: string;
-    password: string;
-    database: string;
-  };
   aws: {
     region: string;
     credentials: {
