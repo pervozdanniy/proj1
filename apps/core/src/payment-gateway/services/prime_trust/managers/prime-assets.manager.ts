@@ -137,7 +137,7 @@ export class PrimeAssetsManager {
 
     const amount = assetResponse['unit-count'];
     const type = amount < 0 ? TransferTypes.WITHDRAWAL : TransferTypes.DEPOSIT;
-
+    let provider = Providers.PRIME_TRUST;
     if (existedDeposit) {
       await this.depositEntityRepository.update({ uuid: resource_id }, { status: assetResponse['status'] });
     } else {
@@ -146,13 +146,13 @@ export class PrimeAssetsManager {
           user_id,
           uuid: resource_id,
           currency_type: 'USD',
+          provider,
           amount,
           status: assetResponse['status'],
           type,
         }),
       );
     }
-    let provider = Providers.PRIME_TRUST;
     if (account_id === this.skopaAccountId || account_id === this.skopaKoyweAccountId) {
       let transactions;
       if (account_id === this.skopaAccountId) {
@@ -181,7 +181,7 @@ export class PrimeAssetsManager {
           amount: t.amount_usd,
           currency_type: 'USD',
         });
-        await this.depositEntityRepository.update({ id: t.id }, { status: TransferStatus.SETTLED, provider });
+        await this.depositEntityRepository.update({ id: t.id }, { status: TransferStatus.SETTLED });
       });
     }
 
