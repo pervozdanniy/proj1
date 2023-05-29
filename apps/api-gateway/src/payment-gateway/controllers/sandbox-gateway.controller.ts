@@ -5,7 +5,7 @@ import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
 import { WebhookUrlDto } from '../dtos/sandbox/webhook-url.dto';
 import { SandboxService } from '../services/sandbox.service';
 
-@ApiTags('Prime Trust/Sandbox')
+@ApiTags('Sandbox')
 @ApiBearerAuth()
 @ApiExcludeController()
 @Controller({

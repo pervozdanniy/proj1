@@ -27,17 +27,22 @@ export class SandboxService {
     };
     try {
       const webhooks = await lastValueFrom(
-        this.httpService.get<{ data: Array<{ id: string }> }>(`https://sandbox.primetrust.com/v2/webhook-configs`, {
-          headers: headersRequest,
-        }),
+        this.httpService.get<{ data: Array<{ id: string; attributes: { url: string } }> }>(
+          `https://sandbox.primetrust.com/v2/webhook-configs`,
+          {
+            headers: headersRequest,
+          },
+        ),
       );
 
       webhooks.data.data.map(async (w) => {
-        await lastValueFrom(
-          this.httpService.patch(`https://sandbox.primetrust.com/v2/webhook-configs/${w.id}`, formData, {
-            headers: headersRequest,
-          }),
-        );
+        if (w.attributes.url !== 'https://dev-api.skopadev.com/webhook/prime_trust') {
+          await lastValueFrom(
+            this.httpService.patch(`https://sandbox.primetrust.com/v2/webhook-configs/${w.id}`, formData, {
+              headers: headersRequest,
+            }),
+          );
+        }
       });
 
       return { success: true };

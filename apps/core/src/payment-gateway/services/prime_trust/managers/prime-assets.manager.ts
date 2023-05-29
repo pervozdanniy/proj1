@@ -21,6 +21,7 @@ import {
 import { createDate } from '~common/helpers';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import {
+  PaymentTypes,
   TransfersEntity,
   TransferStatus,
   TransferTypes,
@@ -151,18 +152,24 @@ export class PrimeAssetsManager {
         }),
       );
     }
+    let provider = Providers.PRIME_TRUST;
     if (account_id === this.skopaAccountId || account_id === this.skopaKoyweAccountId) {
       let transactions;
       if (account_id === this.skopaAccountId) {
+        provider = Providers.FACILITA;
         transactions = await this.depositEntityRepository.findBy({
-          provider: Providers.FACILITA,
+          provider,
+          type: TransferTypes.DEPOSIT,
           status: TransferStatus.DELIVERED,
         });
       }
       if (account_id === this.skopaKoyweAccountId) {
+        provider = Providers.LIQUIDO;
         transactions = await this.depositEntityRepository.findBy({
-          provider: Providers.KOYWE,
-          status: TransferStatus.DELIVERED,
+          provider,
+          type: TransferTypes.DEPOSIT,
+          payment_type: PaymentTypes.CASH,
+          status: TransferStatus.SETTLED,
         });
       }
       const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
@@ -174,7 +181,7 @@ export class PrimeAssetsManager {
           amount: t.amount_usd,
           currency_type: 'USD',
         });
-        await this.depositEntityRepository.update({ id: t.id }, { status: TransferStatus.SETTLED });
+        await this.depositEntityRepository.update({ id: t.id }, { status: TransferStatus.SETTLED, provider });
       });
     }
 

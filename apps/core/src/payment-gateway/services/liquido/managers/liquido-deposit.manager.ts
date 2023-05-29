@@ -1,4 +1,9 @@
-import { TransfersEntity, TransferStatus, TransferTypes } from '@/payment-gateway/entities/transfers.entity';
+import {
+  PaymentTypes,
+  TransfersEntity,
+  TransferStatus,
+  TransferTypes,
+} from '@/payment-gateway/entities/transfers.entity';
 import { UserEntity } from '@/user/entities/user.entity';
 import { UserService } from '@/user/services/user.service';
 import { HttpService } from '@nestjs/axios';
@@ -68,6 +73,7 @@ export class LiquidoDepositManager {
         uuid: orderId,
         type: TransferTypes.DEPOSIT,
         amount: amountOut,
+        payment_type: PaymentTypes.CASH,
         amount_usd,
         provider: Providers.LIQUIDO,
         currency_type,
