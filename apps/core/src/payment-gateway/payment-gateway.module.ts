@@ -51,6 +51,8 @@ import { LiquidoDepositManager } from './services/liquido/managers/liquido-depos
 import { LiquidoTokenManager } from './services/liquido/managers/liquido-token.manager';
 import { LiquidoWebhookManager } from './services/liquido/managers/liquido-webhook.manager';
 import { LiquidoWithdrawalManager } from './services/liquido/managers/liquido-withdrawal.manager';
+import { BrazilPayoutService } from './services/liquido/payouts/brazil-payout.service';
+import { MexicoPayoutService } from './services/liquido/payouts/mexico-payout.service';
 import { MainService } from './services/main.service';
 import { PaymentGatewayWebhooksService } from './services/payment-gateway-webhooks.service';
 import { PaymentGatewayService } from './services/payment-gateway.service';
@@ -135,6 +137,8 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     WithdrawAuthorizationService,
     KYCService,
     FacilitaMainManager,
+    MexicoPayoutService,
+    BrazilPayoutService,
   ],
   controllers: [PaymentGatewayController, DepositFlowController, KYCController],
   exports: [PaymentGatewayService, CurrencyService],

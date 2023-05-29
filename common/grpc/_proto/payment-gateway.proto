@@ -324,6 +324,7 @@ message BankAccountParams{
   string bank_account_number = 3;
   optional string routing_number = 4;
   optional string bank_code = 5;
+  optional string bank_agency_code = 6;
 }
 
 message BankAccountsResponse {

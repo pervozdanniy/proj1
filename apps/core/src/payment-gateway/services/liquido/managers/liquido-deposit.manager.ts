@@ -6,13 +6,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConflictException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import Fraction from 'fraction.js';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
-import { countriesData } from '../../../country/data';
+import { countriesData, liquidoFees } from '../../../country/data';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import { VeriffDocumentEntity } from '../../../modules/veriff/entities/veriff-document.entity';
 import { KoyweMainManager } from '../../koywe/managers/koywe-main.manager';
@@ -46,8 +47,10 @@ export class LiquidoDepositManager {
   async createCashPayment({ user_id, amount_usd }: CreateReferenceRequest): Promise<DepositRedirectData> {
     const userDetails = await this.userService.getUserInfo(user_id);
     const { currency_type } = countriesData[userDetails.country_code];
+    const afterFeeAmount = this.calculateAmountAfterLiquidoFee(amount_usd, userDetails.country_code);
+
     const { amountOut, networkFee, koyweFee } = await this.koyweMainManager.getCurrencyAmountByUsd(
-      amount_usd,
+      afterFeeAmount,
       currency_type,
     );
     const totalFee = networkFee + koyweFee;
@@ -77,7 +80,7 @@ export class LiquidoDepositManager {
       url,
       info: {
         amount: amountOut,
-        rate: amountOut / amount_usd,
+        rate: (amountOut - totalFee) / amount_usd,
         fee: totalFee,
         currency: currency_type,
       },
@@ -125,5 +128,14 @@ export class LiquidoDepositManager {
 
       throw new ConflictException('Payment link creation error!');
     }
+  }
+
+  calculateAmountAfterLiquidoFee(amount_usd: number, country_code: string) {
+    const { feeUsd, feePercents } = liquidoFees[country_code];
+    const feePercentsFraction = new Fraction(feePercents, amount_usd);
+    const afterUsdFee = new Fraction(amount_usd).add(feeUsd);
+    const afterPercentFee = new Fraction(amount_usd).mul(feePercentsFraction).add(afterUsdFee);
+
+    return Number(afterPercentFee.toString());
   }
 }

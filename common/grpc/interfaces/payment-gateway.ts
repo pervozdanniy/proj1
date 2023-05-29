@@ -271,6 +271,7 @@ export interface BankAccountParams {
   bank_account_number: string;
   routing_number?: string | undefined;
   bank_code?: string | undefined;
+  bank_agency_code?: string | undefined;
 }
 
 export interface BankAccountsResponse {

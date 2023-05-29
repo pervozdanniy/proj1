@@ -17,6 +17,7 @@ import {
 import { FacilitaService } from '../../services/facilita/facilita.service';
 import { KoyweService } from '../../services/koywe/koywe.service';
 import { LiquidoService } from '../../services/liquido/liquido.service';
+import { PrimeTrustService } from '../../services/prime_trust/prime-trust.service';
 
 @Injectable()
 export class BrazilPaymentGateway
@@ -26,6 +27,8 @@ export class BrazilPaymentGateway
     private koyweService: KoyweService,
     private facilitaService: FacilitaService,
     private liquidoService: LiquidoService,
+
+    private primeTrustService: PrimeTrustService,
   ) {}
 
   getAvailablePaymentMethods(): PaymentMethod[] {
@@ -37,7 +40,7 @@ export class BrazilPaymentGateway
   }
 
   addBank(request: BankAccountParams): Promise<BankAccountParams> {
-    return this.koyweService.addBankAccountParams(request);
+    return this.primeTrustService.addBankAccountParams(request);
   }
 
   getAvailableBanks(country: string): Promise<BanksInfoResponse> {

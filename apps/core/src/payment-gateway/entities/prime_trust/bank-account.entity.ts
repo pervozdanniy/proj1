@@ -25,6 +25,9 @@ export class BankAccountEntity {
   bank_code: string;
 
   @Column('character varying', { length: 50, nullable: true })
+  bank_agency_code: string;
+
+  @Column('character varying', { length: 50, nullable: true })
   account_uuid: string;
 
   @Column('character varying', { length: 50, nullable: true })
