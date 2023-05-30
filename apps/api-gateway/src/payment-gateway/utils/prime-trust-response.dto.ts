@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import { SuccessResponse, UserAgreement } from '~common/grpc/interfaces/common';
 import {
   AccountResponse,
@@ -51,7 +51,7 @@ export class AgreementResponseDto implements UserAgreement {
   @ApiProperty({ description: 'HTML page to be shown' })
   content: string;
 
-  @ApiProperty()
+  @Exclude()
   id: string;
 }
 

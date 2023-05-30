@@ -46,12 +46,13 @@ export class Auth2FAService {
     }
   }
 
-  async requireConfirmation(session: SessionProxy) {
+  async registrationConfirmation(session: SessionProxy) {
     if (!isRegistration(session)) {
       throw new ConflictException('Registration process was not started');
     }
 
-    const settings = [{ method: TwoFactorMethod.Sms, destination: session.register.phone }];
+    // const settings = [{ method: TwoFactorMethod.Sms, destination: session.register.phone }];
+    const settings = [];
     if (!registerIsSocial(session)) {
       settings.push({ method: TwoFactorMethod.Email, destination: session.register.email });
     }

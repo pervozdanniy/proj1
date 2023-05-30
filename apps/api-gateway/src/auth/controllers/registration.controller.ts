@@ -1,4 +1,4 @@
-import { AgreementResponseDto, SuccessResponseDto } from '@/payment-gateway/utils/prime-trust-response.dto';
+import { AgreementResponseDto } from '@/payment-gateway/utils/prime-trust-response.dto';
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -14,7 +14,6 @@ import { JwtSessionAuth, JwtSessionId } from '../decorators/jwt-session.decorato
 import { TwoFactorVerifyResponseDto } from '../dto/2fa.reponse.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
 import {
-  ChangeAgreementStatusDto,
   CreateAgreementRequestDto,
   RegistrationFinishRequestDto,
   RegistrationStartRequestDto,
@@ -65,15 +64,6 @@ export class RegistrationController {
   @Post('create/agreement')
   createAgreement(@Body() payload: CreateAgreementRequestDto, @JwtSessionId() sessionId: string) {
     return this.registerService.createAgreement(payload, sessionId);
-  }
-
-  @ApiOperation({ summary: 'Approve agreement' })
-  @ApiCreatedResponse({ type: SuccessResponseDto })
-  @ApiBearerAuth()
-  @JwtSessionAuth({ allowUnauthorized: true, requireRegistration: true, require2FA: true, allowClosed: true })
-  @Post('approve/agreement')
-  approveAgreement(@Body() payload: ChangeAgreementStatusDto, @JwtSessionId() sessionId: string) {
-    return this.registerService.approveAgreement(payload, sessionId);
   }
 
   @ApiOperation({ summary: 'Finish registration process and login created user' })

@@ -52,7 +52,6 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayDisconnect {
       if (!proxy.user) {
         return next(new WsException('Unauthorized'));
       }
-      socket.emit('notification', 'sosi');
       this.sockets.set(proxy.user.id, socket.id);
       socket.data.session = proxy;
 

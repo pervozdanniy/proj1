@@ -32,8 +32,6 @@ service RegisterService {
 
   rpc CreateAgreement (CreateAgreementRequest) returns (common.UserAgreement);
 
-  rpc ApproveAgreement (ApproveAgreementRequest) returns (common.SuccessResponse);
-
   rpc RegisterFinish (RegisterFinishRequest) returns (common.User);
 }
 
@@ -210,10 +208,6 @@ message RegisterFinishRequest {
 message CreateAgreementRequest {
   string country_code = 1;
   common.UserDetails details = 2;
-}
-
-message ApproveAgreementRequest {
-  string id = 1;
 }
 
 message ResetPasswordStartRequest {

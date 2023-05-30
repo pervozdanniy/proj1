@@ -59,18 +59,6 @@ export class MainController {
     return this.paymentGatewayService.getBankAccounts({ id });
   }
 
-  @ApiOperation({ summary: 'Get Banks information from user country.' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: BankAccountResponseDto,
-  })
-  @ApiBearerAuth()
-  @JwtSessionAuth()
-  @Get('/banks/available')
-  async getBanksInfo(@JwtSessionUser() { id }: User) {
-    return this.paymentGatewayService.getBanksInfo({ id });
-  }
-
   @ApiOperation({ summary: 'Add Bank Account params.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -81,6 +69,18 @@ export class MainController {
   @Post('/banks/account')
   async addBankAccountParams(@JwtSessionUser() { id }: User, @Body() payload: BankParamsDto) {
     return this.paymentGatewayService.addBankAccountParams({ id, ...payload });
+  }
+
+  @ApiOperation({ summary: 'Get Banks information from user country.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: BankAccountResponseDto,
+  })
+  @ApiBearerAuth()
+  @JwtSessionAuth()
+  @Get('/banks/available')
+  async getBanksInfo(@JwtSessionUser() { id }: User) {
+    return this.paymentGatewayService.getBanksInfo({ id });
   }
 
   @ApiOperation({ summary: 'Get all transactions.' })

@@ -1,7 +1,6 @@
 import { Payload } from '@nestjs/microservices';
 import { GrpcSession, GrpcSessionAuth } from '~common/grpc-session';
 import {
-  ApproveAgreementRequest,
   AuthData,
   CreateAgreementRequest,
   RegisterFinishRequest,
@@ -11,7 +10,7 @@ import {
   TwoFactorCode,
   TwoFactorVerificationResponse,
 } from '~common/grpc/interfaces/auth';
-import { SuccessResponse, User, UserAgreement } from '~common/grpc/interfaces/common';
+import { User, UserAgreement } from '~common/grpc/interfaces/common';
 import { RegisterSessionInterface, SessionProxy } from '~common/session';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 import { ApiRegisterService } from '../services/register.service';
@@ -38,13 +37,6 @@ export class ApiRegisterController implements RegisterServiceController {
     @GrpcSession() session: SessionProxy,
   ): Promise<UserAgreement> {
     return this.registerService.createAgreement(request, session);
-  }
-
-  approveAgreement(
-    @Payload() request: ApproveAgreementRequest,
-    @GrpcSession() session: SessionProxy,
-  ): Promise<SuccessResponse> {
-    return this.registerService.approveAgreement(request, session);
   }
 
   @GrpcSessionAuth({ allowUnauthorized: true })

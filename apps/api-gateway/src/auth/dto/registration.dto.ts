@@ -11,7 +11,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { ApproveAgreementRequest, CreateAgreementRequest, RegisterFinishRequest } from '~common/grpc/interfaces/auth';
+import { CreateAgreementRequest, RegisterFinishRequest } from '~common/grpc/interfaces/auth';
 import { UserDetails } from '../../user/dtos/update-user.dto';
 import { TwoFactorVerificationDto } from './2fa.request.dto';
 
@@ -47,13 +47,6 @@ export class CreateAgreementRequestDto implements CreateAgreementRequest {
   @IsOptional()
   @Type(() => UserDetails)
   details: UserDetails;
-}
-
-export class ChangeAgreementStatusDto implements ApproveAgreementRequest {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  id: string;
 }
 
 export class RegistrationFinishRequestDto implements RegisterFinishRequest {
