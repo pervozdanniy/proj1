@@ -1,0 +1,19 @@
+export const PM = {
+  access: {
+    roles: {
+      read: 'access.roles.read',
+      create: 'access.roles.create',
+      update: 'access.roles.update',
+    },
+    permissions: {
+      read: 'access.permissions.read',
+      create: 'access.permissions.create',
+      update: 'access.permissions.update',
+    },
+    users: {
+      read: 'access.users.read',
+      create: 'access.users.create',
+      update: 'access.users.update',
+    },
+  },
+};

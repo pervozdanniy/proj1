@@ -4,6 +4,7 @@ import { Permissions, TOKEN_NAME } from '@auth';
 import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
 import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiConflictResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { PM } from '../../../../constants/permission/map.permission';
 import { CreateRoleRequestDto, RoleResponseDto, UpdateRoleRequestDto } from './dtos';
 
 @ApiTags('Roles')
@@ -23,7 +24,7 @@ export class RolesController {
     required: false,
     example: 'admin',
   })
-  @Permissions('admin.access.roles.read', 'admin.access.roles.create', 'admin.access.roles.update')
+  @Permissions(PM.access.roles.read)
   @Get()
   public getRoles(@PaginationParams() pagination: PaginationRequest): Promise<PaginationResponseDto<RoleResponseDto>> {
     return this.rolesService.getRoles(pagination);
@@ -31,7 +32,7 @@ export class RolesController {
 
   @ApiOperation({ description: 'Get role by id' })
   @ApiGlobalResponse(RoleResponseDto)
-  @Permissions('admin.access.roles.read', 'admin.access.roles.create', 'admin.access.roles.update')
+  @Permissions(PM.access.roles.read)
   @Get('/:id')
   public getRoleById(@Param('id', ParseIntPipe) id: number): Promise<RoleResponseDto> {
     return this.rolesService.getRoleById(id);
@@ -40,7 +41,7 @@ export class RolesController {
   @ApiOperation({ description: 'Create new role' })
   @ApiGlobalResponse(RoleResponseDto)
   @ApiConflictResponse({ description: 'Role already exists' })
-  @Permissions('admin.access.roles.create')
+  @Permissions(PM.access.roles.create)
   @Post()
   public createRole(@Body(ValidationPipe) roleDto: CreateRoleRequestDto): Promise<RoleResponseDto> {
     return this.rolesService.createRole(roleDto);
@@ -49,7 +50,7 @@ export class RolesController {
   @ApiOperation({ description: 'Update role by id' })
   @ApiGlobalResponse(RoleResponseDto)
   @ApiConflictResponse({ description: 'Role already exists' })
-  @Permissions('admin.access.roles.update')
+  @Permissions(PM.access.roles.update)
   @Put('/:id')
   public updateRole(
     @Param('id', ParseIntPipe) id: number,

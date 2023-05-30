@@ -3,6 +3,7 @@ import { Permissions, SuperUserGuard, TOKEN_NAME } from '@auth';
 import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
 import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, UseGuards, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiConflictResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { PM } from '../../../../constants/permission/map.permission';
 import { CreatePermissionRequestDto, PermissionResponseDto, UpdatePermissionRequestDto } from './dtos';
 import { PermissionsService } from './permissions.service';
 
@@ -23,13 +24,7 @@ export class PermissionsController {
     example: 'admin',
   })
   @ApiPaginatedResponse(PermissionResponseDto)
-  @Permissions(
-    'admin.access.permissions.read',
-    'admin.access.permissions.create',
-    'admin.access.permissions.update',
-    'admin.access.roles.create',
-    'admin.access.roles.update',
-  )
+  @Permissions(PM.access.permissions.read)
   @Get()
   public getPermissions(
     @PaginationParams() pagination: PaginationRequest,
@@ -39,13 +34,7 @@ export class PermissionsController {
 
   @ApiOperation({ description: 'Get permission by id' })
   @ApiGlobalResponse(PermissionResponseDto)
-  @Permissions(
-    'admin.access.permissions.read',
-    'admin.access.permissions.create',
-    'admin.access.permissions.update',
-    'admin.access.roles.create',
-    'admin.access.roles.update',
-  )
+  @Permissions(PM.access.permissions.read)
   @Get('/:id')
   public getPermissionById(@Param('id', ParseIntPipe) id: number): Promise<PermissionResponseDto> {
     return this.permissionsService.getPermissionById(id);
@@ -55,7 +44,7 @@ export class PermissionsController {
   @ApiGlobalResponse(PermissionResponseDto)
   @ApiConflictResponse({ description: 'Permission already exists' })
   @UseGuards(SuperUserGuard)
-  @Permissions('admin.access.permissions.create')
+  @Permissions(PM.access.permissions.create)
   @Post()
   public createPermission(
     @Body(ValidationPipe) permissionDto: CreatePermissionRequestDto,
@@ -67,7 +56,7 @@ export class PermissionsController {
   @ApiGlobalResponse(PermissionResponseDto)
   @ApiConflictResponse({ description: 'Permission already exists' })
   @UseGuards(SuperUserGuard)
-  @Permissions('admin.access.permissions.update')
+  @Permissions(PM.access.permissions.update)
   @Put('/:id')
   public updatePermission(
     @Param('id', ParseIntPipe) id: number,

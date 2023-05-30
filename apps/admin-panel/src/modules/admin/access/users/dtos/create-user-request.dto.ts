@@ -35,7 +35,6 @@ export class CreateUserRequestDto {
   password: string;
 
   @ApiProperty({ example: [1, 2] })
-  @ArrayNotEmpty()
   @IsArray()
   @IsInt({ each: true })
   permissions: number[];

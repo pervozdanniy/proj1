@@ -3,6 +3,7 @@ import { CurrentUser, Permissions, TOKEN_NAME } from '@auth';
 import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiConflictResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { PM } from '../../../../constants/permission/map.permission';
 import { ChangePasswordRequestDto, CreateUserRequestDto, UpdateUserRequestDto, UserResponseDto } from './dtos';
 import { UserEntity } from './user.entity';
 import { UsersService } from './users.service';
@@ -24,7 +25,7 @@ export class UsersController {
     required: false,
     example: 'admin',
   })
-  @Permissions('admin.access.users.read', 'admin.access.users.create', 'admin.access.users.update')
+  @Permissions(PM.access.users.read)
   @Get()
   public getUsers(@PaginationParams() pagination: PaginationRequest): Promise<PaginationResponseDto<UserResponseDto>> {
     return this.usersService.getUsers(pagination);
@@ -32,7 +33,7 @@ export class UsersController {
 
   @ApiOperation({ description: 'Get user by id' })
   @ApiGlobalResponse(UserResponseDto)
-  @Permissions('admin.access.users.read', 'admin.access.users.create', 'admin.access.users.update')
+  @Permissions(PM.access.users.read)
   @Get('/:id')
   public getUserById(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
     return this.usersService.getUserById(id);
@@ -42,7 +43,7 @@ export class UsersController {
   @ApiGlobalResponse(UserResponseDto)
   @ApiConflictResponse({ description: 'User already exists' })
   @ApiGlobalResponse(UserResponseDto)
-  @Permissions('admin.access.users.create')
+  @Permissions(PM.access.users.create)
   @Post()
   public createUser(@Body(ValidationPipe) UserDto: CreateUserRequestDto): Promise<UserResponseDto> {
     return this.usersService.createUser(UserDto);
@@ -51,7 +52,7 @@ export class UsersController {
   @ApiOperation({ description: 'Update user by id' })
   @ApiGlobalResponse(UserResponseDto)
   @ApiConflictResponse({ description: 'User already exists' })
-  @Permissions('admin.access.users.update')
+  @Permissions(PM.access.users.update)
   @Put('/:id')
   public updateUser(
     @Param('id', ParseUUIDPipe) id: string,

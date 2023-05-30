@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import * as _ from 'lodash';
 import { In, MigrationInterface, QueryRunner } from 'typeorm';
+import { PM } from '../../constants/permission/map.permission';
 import { HashHelper } from '../../helpers/hash.helper';
 import { PermissionEntity } from '../../modules/admin/access/permissions/permission.entity';
 import { RoleEntity } from '../../modules/admin/access/roles/role.entity';
@@ -21,29 +22,29 @@ const users = [
 
 const rolePermissions: Record<string, { slug: string; description: string }[]> = {
   Developer: [
-    { slug: 'admin.access.users.read', description: 'Read users' },
-    { slug: 'admin.access.users.create', description: 'Create users' },
-    { slug: 'admin.access.users.update', description: 'Update users' },
-    { slug: 'admin.access.roles.read', description: 'Read Roles' },
-    { slug: 'admin.access.roles.create', description: 'Create Roles' },
-    { slug: 'admin.access.roles.update', description: 'Update Roles' },
-    { slug: 'admin.access.permissions.read', description: 'Read permissions' },
+    { slug: PM.access.users.read, description: 'Read users' },
+    { slug: PM.access.users.create, description: 'Create users' },
+    { slug: PM.access.users.update, description: 'Update users' },
+    { slug: PM.access.roles.read, description: 'Read Roles' },
+    { slug: PM.access.roles.create, description: 'Create Roles' },
+    { slug: PM.access.roles.update, description: 'Update Roles' },
+    { slug: PM.access.permissions.read, description: 'Read permissions' },
     {
-      slug: 'admin.access.permissions.create',
+      slug: PM.access.permissions.create,
       description: 'Create permissions',
     },
     {
-      slug: 'admin.access.permissions.update',
+      slug: PM.access.permissions.update,
       description: 'Update permissions',
     },
   ],
   Admin: [
-    { slug: 'admin.access.users.read', description: 'Read users' },
-    { slug: 'admin.access.users.create', description: 'Create users' },
-    { slug: 'admin.access.users.update', description: 'Update users' },
-    { slug: 'admin.access.roles.read', description: 'Read Roles' },
-    { slug: 'admin.access.roles.create', description: 'Create Roles' },
-    { slug: 'admin.access.roles.update', description: 'Update Roles' },
+    { slug: PM.access.users.read, description: 'Read users' },
+    { slug: PM.access.users.create, description: 'Create users' },
+    { slug: PM.access.users.update, description: 'Update users' },
+    { slug: PM.access.roles.read, description: 'Read Roles' },
+    { slug: PM.access.roles.create, description: 'Create Roles' },
+    { slug: PM.access.roles.update, description: 'Update Roles' },
   ],
 };
 
