@@ -17,7 +17,7 @@ export type KoyweWebhookType = {
   signature: string;
 };
 
-export type LiquidoWebhookType = {
+export type LiquidoDepositWebhookType = {
   eventType: 'CHARGE_SUCCEEDED';
   data: {
     linkId: string;

@@ -89,9 +89,7 @@ export class FacilitaWebhookManager {
 
   async convertBrlToUsd(amountCurrency: number): Promise<number> {
     const { brlusd: finalRate } = await this.facilitaMainManager.countBrazilRate();
-    const finalRateFraction = new Fraction(finalRate);
-    const amountCurrencyFraction = new Fraction(amountCurrency);
 
-    return Number(amountCurrencyFraction.div(finalRateFraction).toString());
+    return new Fraction(amountCurrency).div(finalRate).valueOf();
   }
 }

@@ -6,7 +6,7 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
-export interface LiquidoPayoutWebhookRequest {
+export interface LiquidoWithdrawalWebhookRequest {
   idempotencyKey: string;
   transferStatus: string;
 }
@@ -119,7 +119,7 @@ export interface SelectCardRequest {
   cvv: string;
 }
 
-export interface LiquidoWebhookRequest {
+export interface LiquidoDepositWebhookRequest {
   amount: number;
   currency: string;
   country: string;
@@ -449,9 +449,9 @@ export interface PaymentGatewayServiceClient {
 
   facilitaWebhooksHandler(request: FacilitaWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
-  liquidoWebhooksHandler(request: LiquidoWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+  liquidoDepositHandler(request: LiquidoDepositWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
-  liquidoPayoutHandler(request: LiquidoPayoutWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+  liquidoWithdrawHandler(request: LiquidoWithdrawalWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
   linkHandler(request: LinkWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 }
@@ -557,13 +557,13 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  liquidoWebhooksHandler(
-    request: LiquidoWebhookRequest,
+  liquidoDepositHandler(
+    request: LiquidoDepositWebhookRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  liquidoPayoutHandler(
-    request: LiquidoPayoutWebhookRequest,
+  liquidoWithdrawHandler(
+    request: LiquidoWithdrawalWebhookRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
@@ -594,8 +594,8 @@ export function PaymentGatewayServiceControllerMethods() {
       "primeWebhooksHandler",
       "koyweWebhooksHandler",
       "facilitaWebhooksHandler",
-      "liquidoWebhooksHandler",
-      "liquidoPayoutHandler",
+      "liquidoDepositHandler",
+      "liquidoWithdrawHandler",
       "linkHandler",
     ];
     for (const method of grpcMethods) {

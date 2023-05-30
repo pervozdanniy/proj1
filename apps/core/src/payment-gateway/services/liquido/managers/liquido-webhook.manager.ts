@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
-import { LiquidoPayoutWebhookRequest, LiquidoWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
+import { LiquidoDepositWebhookRequest, LiquidoWithdrawalWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
 import {
   LiquidoAuthorizationStatus,
   LiquidoWithdrawAuthorizationEntity,
@@ -52,14 +52,14 @@ export class LiquidoWebhookManager {
     this.skopaKoyweAccountId = skopaKoyweAccountId;
   }
 
-  async liquidoWebhooksHandler({
+  async liquidoDepositHandler({
     amount,
     currency,
     country,
     paymentStatus,
     email,
     orderId,
-  }: LiquidoWebhookRequest): Promise<SuccessResponse> {
+  }: LiquidoDepositWebhookRequest): Promise<SuccessResponse> {
     const { token } = await this.liquidoTokenManager.getToken();
     const user = await this.userService.findByLogin({ email });
     const userDetails = await this.userService.getUserInfo(user.id);
@@ -131,10 +131,10 @@ export class LiquidoWebhookManager {
     }
   }
 
-  async liquidoPayoutHandler({
+  async liquidoWithdrawHandler({
     transferStatus,
     idempotencyKey,
-  }: LiquidoPayoutWebhookRequest): Promise<SuccessResponse> {
+  }: LiquidoWithdrawalWebhookRequest): Promise<SuccessResponse> {
     const withdrawal = await this.transfersEntityRepository.findOneBy({ uuid: idempotencyKey });
     let withdrawalStatus = TransferStatus.PENDING;
     if (transferStatus === 'SETTLED') {

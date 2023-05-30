@@ -38,7 +38,7 @@ export class LiquidoWithdrawalManager {
     this.koyweLiquidoWallet = koyweLiquidoWallet;
   }
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron(CronExpression.EVERY_DAY_AT_NOON)
   async handleCron() {
     const { amount } = await this.getWithdrawalSumAmount();
     if (amount) {

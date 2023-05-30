@@ -16,8 +16,8 @@ import {
   FacilitaWebhookType,
   KoyweWebhookType,
   LinkWebhookType,
+  LiquidoDepositWebhookType,
   LiquidoPayoutWebhookType,
-  LiquidoWebhookType,
   PrimeTrustWebhookType,
 } from '../webhooks/data';
 
@@ -97,9 +97,11 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.primeWebhooksHandler(data));
   }
 
-  liquidoHandler({ data: { amount, currency, country, email, paymentStatus, orderId } }: LiquidoWebhookType) {
+  liquidoDepositHandler({
+    data: { amount, currency, country, email, paymentStatus, orderId },
+  }: LiquidoDepositWebhookType) {
     return lastValueFrom(
-      this.paymentGatewayServiceClient.liquidoWebhooksHandler({
+      this.paymentGatewayServiceClient.liquidoDepositHandler({
         amount,
         currency,
         country,
@@ -118,7 +120,7 @@ export class PaymentGatewayService implements OnModuleInit {
     return lastValueFrom(this.paymentGatewayServiceClient.linkHandler({ resourceId, eventType, resourceType }));
   }
 
-  liquidoPayoutHandler({ idempotencyKey, transferStatus }: LiquidoPayoutWebhookType) {
-    return lastValueFrom(this.paymentGatewayServiceClient.liquidoPayoutHandler({ idempotencyKey, transferStatus }));
+  liquidoWithdrawHandler({ idempotencyKey, transferStatus }: LiquidoPayoutWebhookType) {
+    return lastValueFrom(this.paymentGatewayServiceClient.liquidoWithdrawHandler({ idempotencyKey, transferStatus }));
   }
 }

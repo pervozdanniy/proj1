@@ -137,10 +137,7 @@ export class LiquidoDepositManager {
 
   calculateAmountAfterLiquidoFee(amount_usd: number, country_code: string) {
     const { feeUsd, feePercents } = liquidoFees[country_code];
-    const feePercentsFraction = new Fraction(feePercents, amount_usd);
-    const afterUsdFee = new Fraction(amount_usd).add(feeUsd);
-    const afterPercentFee = new Fraction(amount_usd).mul(feePercentsFraction).add(afterUsdFee);
 
-    return Number(afterPercentFee.toString());
+    return new Fraction(amount_usd).mul(new Fraction(feePercents, 100)).add(feeUsd).add(amount_usd).valueOf();
   }
 }

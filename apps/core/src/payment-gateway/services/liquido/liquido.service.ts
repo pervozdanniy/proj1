@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
-  LiquidoPayoutWebhookRequest,
-  LiquidoWebhookRequest,
+  LiquidoDepositWebhookRequest,
+  LiquidoWithdrawalWebhookRequest,
   TransferMethodRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { CreateReferenceRequest } from '../../interfaces/payment-gateway.interface';
@@ -18,8 +18,8 @@ export class LiquidoService {
     private readonly liquidoDepositManager: LiquidoDepositManager,
   ) {}
 
-  liquidoWebhooksHandler(request: LiquidoWebhookRequest) {
-    return this.liquidoWebhookManager.liquidoWebhooksHandler(request);
+  liquidoDepositHandler(request: LiquidoDepositWebhookRequest) {
+    return this.liquidoWebhookManager.liquidoDepositHandler(request);
   }
 
   createCashPayment(request: CreateReferenceRequest) {
@@ -30,7 +30,7 @@ export class LiquidoService {
     return this.liquidoWithdrawalManager.makeWithdrawal(request);
   }
 
-  liquidoPayoutHandler(request: LiquidoPayoutWebhookRequest) {
-    return this.liquidoWebhookManager.liquidoPayoutHandler(request);
+  liquidoWithdrawHandler(request: LiquidoWithdrawalWebhookRequest) {
+    return this.liquidoWebhookManager.liquidoWithdrawHandler(request);
   }
 }

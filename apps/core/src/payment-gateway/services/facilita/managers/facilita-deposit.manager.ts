@@ -96,13 +96,10 @@ export class FacilitaDepositManager {
 
   async calculateFeeFromBrazil(amount_usd: number) {
     const { usdbrl: pureRate, brlusd: finalRate } = await this.facilitaMainManager.countBrazilRate();
-    const finalRateFraction = new Fraction(finalRate);
-    const pureRateFraction = new Fraction(pureRate);
-    const beforeTaxesAmount = new Fraction(amount_usd).mul(pureRateFraction);
-    const afterTaxesAmount = new Fraction(amount_usd).mul(finalRateFraction);
+    const beforeTaxesAmount = new Fraction(amount_usd).mul(pureRate);
 
-    const fee = Number(afterTaxesAmount.sub(beforeTaxesAmount));
-    const amount = Number(afterTaxesAmount.toString());
+    const fee = new Fraction(amount_usd).mul(finalRate).sub(beforeTaxesAmount).valueOf();
+    const amount = new Fraction(amount_usd).mul(finalRate).valueOf();
 
     return {
       amount,
