@@ -11,7 +11,13 @@ import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { TransferInfo, TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
 import { countriesData, liquidoPayoutTypes } from '../../../country/data';
-import { ParamsTypes, TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
+import {
+  ParamsTypes,
+  PaymentTypes,
+  TransfersEntity,
+  TransferStatus,
+  TransferTypes,
+} from '../../../entities/transfers.entity';
 import { KoyweMainManager } from '../../koywe/managers/koywe-main.manager';
 import { PrimeAccountManager } from '../../prime_trust/managers/prime-account.manager';
 import { PrimeBalanceManager } from '../../prime_trust/managers/prime-balance.manager';
@@ -20,7 +26,7 @@ import { PrimeWithdrawalManager } from '../../prime_trust/managers/prime-withdra
 import { LiquidoTokenManager } from '../managers/liquido-token.manager';
 
 @Injectable()
-export class MexicoPayoutService {
+export class ChilePayoutService {
   private readonly api_url: string;
   private readonly x_api_key: string;
 
@@ -28,14 +34,13 @@ export class MexicoPayoutService {
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: HttpService,
-    private readonly koyweMainManager: KoyweMainManager,
     private readonly userService: UserService,
-    private readonly primeAccountManager: PrimeAccountManager,
-    private readonly primeFundsTransferManager: PrimeFundsTransferManager,
+    private readonly koyweMainManager: KoyweMainManager,
     private liquidoTokenManager: LiquidoTokenManager,
-    private readonly primeWithdrawalManager: PrimeWithdrawalManager,
-
+    private readonly primeFundsTransferManager: PrimeFundsTransferManager,
     private readonly primeBalanceManager: PrimeBalanceManager,
+    private readonly primeAccountManager: PrimeAccountManager,
+    private readonly primeWithdrawalManager: PrimeWithdrawalManager,
     @InjectRepository(TransfersEntity)
     private readonly transferRepository: Repository<TransfersEntity>,
   ) {
@@ -74,19 +79,20 @@ export class MexicoPayoutService {
     const withdrawalParams = await this.primeWithdrawalManager.getWithdrawalParamByUuid(funds_transfer_method_id);
     const { amountOut } = await this.koyweMainManager.getCurrencyAmountByUsd(amount, currency_type);
     const bank = await this.primeWithdrawalManager.getBankByWithdrawalParamId(withdrawalParams.id);
-
     const idempotencyKey = await uid(18);
     const formData = {
       idempotencyKey,
       country: userDetails.country_code,
       targetName: userDetails.details.first_name,
       targetLastName: userDetails.details.last_name,
-      targetEmail: userDetails.email,
       targetDocument: document.person_id_number,
+      targetEmail: userDetails.email,
+      targetBankCode: bank.bank_agency_code,
       targetBankAccountId: bank.bank_account_number,
+      targetBankAccountType: 'CHECKING',
       amountInCents: amountOut,
       currency: currency_type,
-      comment: 'Mexico payout',
+      comment: 'Chile payout',
     };
 
     let payoutStatus = TransferStatus.FAILED;
@@ -103,7 +109,6 @@ export class MexicoPayoutService {
     if (payoutResponse.data.transferStatus === 'SETTLED') {
       payoutStatus = TransferStatus.SETTLED;
     }
-
     if (payoutResponse.data.statusCode !== 200) {
       throw new ConflictException(payoutResponse.data.errorMsg);
     }
@@ -124,6 +129,7 @@ export class MexicoPayoutService {
         amount: amountOut,
         user_id,
         type: TransferTypes.WITHDRAWAL,
+        payment_type: PaymentTypes.CASH,
         param_type: ParamsTypes.WITHDRAWAL,
         param_id: withdrawalParams.id,
         amount_usd: amount,

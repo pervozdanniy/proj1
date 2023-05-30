@@ -34,7 +34,6 @@ export class LiquidoDepositManager {
     config: ConfigService<ConfigInterface>,
     private readonly liquidoTokenManager: LiquidoTokenManager,
     private readonly httpService: HttpService,
-
     private readonly koyweMainManager: KoyweMainManager,
 
     @InjectRepository(TransfersEntity)

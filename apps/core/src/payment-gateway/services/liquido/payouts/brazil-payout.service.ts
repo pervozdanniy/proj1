@@ -13,6 +13,9 @@ import { TransferInfo, TransferMethodRequest } from '~common/grpc/interfaces/pay
 import { countriesData, liquidoPayoutTypes } from '../../../country/data';
 import { ParamsTypes, TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { FacilitaMainManager } from '../../facilita/managers/facilita-main.manager';
+import { PrimeAccountManager } from '../../prime_trust/managers/prime-account.manager';
+import { PrimeBalanceManager } from '../../prime_trust/managers/prime-balance.manager';
+import { PrimeFundsTransferManager } from '../../prime_trust/managers/prime-funds-transfer.manager';
 import { PrimeWithdrawalManager } from '../../prime_trust/managers/prime-withdrawal.manager';
 import { LiquidoTokenManager } from '../managers/liquido-token.manager';
 
@@ -20,19 +23,26 @@ import { LiquidoTokenManager } from '../managers/liquido-token.manager';
 export class BrazilPayoutService {
   private readonly api_url: string;
   private readonly x_api_key: string;
+
+  private readonly skopaKoyweAccountId: string;
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: HttpService,
     private readonly userService: UserService,
     private readonly facilitaMainManager: FacilitaMainManager,
     private liquidoTokenManager: LiquidoTokenManager,
+    private readonly primeFundsTransferManager: PrimeFundsTransferManager,
+    private readonly primeBalanceManager: PrimeBalanceManager,
+    private readonly primeAccountManager: PrimeAccountManager,
     private readonly primeWithdrawalManager: PrimeWithdrawalManager,
     @InjectRepository(TransfersEntity)
     private readonly transferRepository: Repository<TransfersEntity>,
   ) {
+    const { skopaKoyweAccountId } = config.get('prime_trust', { infer: true });
     const { x_api_key, api_url } = config.get('liquido', { infer: true });
     this.x_api_key = x_api_key;
     this.api_url = api_url;
+    this.skopaKoyweAccountId = skopaKoyweAccountId;
   }
 
   async makePayout({
@@ -96,6 +106,16 @@ export class BrazilPayoutService {
     }
     if (payoutResponse.data.statusCode !== 200) {
       throw new ConflictException(payoutResponse.data.errorMsg);
+    }
+
+    if (payoutStatus !== TransferStatus.FAILED) {
+      const balance = await this.primeBalanceManager.getAccountBalance(user_id);
+      let hotStatus = false;
+      if (balance.cold_balance < amount && balance.hot_balance > amount) {
+        hotStatus = true;
+      }
+      const userAccount = await this.primeAccountManager.getAccount(user_id);
+      await this.primeFundsTransferManager.sendFunds(userAccount.uuid, this.skopaKoyweAccountId, amount, hotStatus); //send funds to skopa koywe account after withdrawal
     }
 
     await this.transferRepository.save(

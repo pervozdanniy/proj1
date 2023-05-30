@@ -29,7 +29,6 @@ export enum TransferStatus {
   IDENTIFIED = 'identified',
   DELIVERED = 'delivered',
   SETTLED = 'settled',
-  EXECUTED = 'executed',
 }
 
 @Entity('transfers')

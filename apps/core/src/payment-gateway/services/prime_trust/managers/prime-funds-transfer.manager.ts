@@ -24,7 +24,7 @@ export class PrimeFundsTransferManager {
   private readonly prime_trust_url: string;
   private readonly asset_id: string;
   private readonly skopaAccountId: string;
-  private readonly skopaKoyweAccountId: string;
+
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
@@ -35,12 +35,11 @@ export class PrimeFundsTransferManager {
     private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
   ) {
     const { prime_trust_url } = config.get('app', { infer: true });
-    const { skopaAccountId, skopaKoyweAccountId } = config.get('prime_trust', { infer: true });
+    const { skopaAccountId } = config.get('prime_trust', { infer: true });
     const { id } = config.get('asset');
     this.asset_id = id;
     this.prime_trust_url = prime_trust_url;
     this.skopaAccountId = skopaAccountId;
-    this.skopaKoyweAccountId = skopaKoyweAccountId;
   }
 
   async convertUSDtoAsset(account_id: string, amount: number, cancel?: boolean): Promise<UsDtoAssetResponse> {
@@ -261,17 +260,5 @@ export class PrimeFundsTransferManager {
     }
 
     return { success: true };
-  }
-
-  async transferToSkopaKoyweAccount(amount: number, sender_id: number): Promise<SuccessResponse> {
-    const accountId = this.skopaKoyweAccountId;
-    const { user_id: receiver_id } = await this.primeAccountRepository.findOneBy({ uuid: accountId });
-    try {
-      await this.transferFunds({ sender_id, receiver_id, amount, currency_type: 'USD' });
-
-      return { success: true };
-    } catch (e) {
-      return { success: false };
-    }
   }
 }

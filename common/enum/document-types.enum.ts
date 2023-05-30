@@ -12,7 +12,7 @@ export enum WithdrawalTypes {
 
   ACH = 'ach',
 
-  CHECK = 'check',
+  CASH = 'cash',
 }
 
 export enum DepositTypes {
