@@ -64,6 +64,9 @@ import { ChangeAllNumericTypesToDouble1684863902686 } from './migrations/1684863
 import { AlterTransfersTable1684992546927 } from './migrations/1684992546927-AlterTransfersTable';
 import { ChangeNotificationEntity1685024382736 } from './migrations/1685024382736-ChangeNotificationEntity';
 import { AddPersonIdToDocumentData1685118506461 } from './migrations/1685118506461-AddPersonIdToDocumentData';
+import { AlterBanksTable1685340163240 } from './migrations/1685340163240-AlterBanksTable';
+import { AlterTransfersTable1685367927168 } from './migrations/1685367927168-AlterTransfersTable';
+import { CreateLiquidoWithdrawalsTable1685427957775 } from './migrations/1685427957775-CreateLiquidoWithdrawalsTable';
 
 export default [
   createUserTable1669901299726,
@@ -132,4 +135,7 @@ export default [
   ChangeNotificationEntity1685024382736,
   AlterTransfersTable1684992546927,
   AddPersonIdToDocumentData1685118506461,
+  AlterBanksTable1685340163240,
+  AlterTransfersTable1685367927168,
+  CreateLiquidoWithdrawalsTable1685427957775,
 ];

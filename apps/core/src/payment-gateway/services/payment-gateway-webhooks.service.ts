@@ -4,7 +4,8 @@ import {
   FacilitaWebhookRequest,
   KoyweWebhookRequest,
   LinkWebhookRequest,
-  LiquidoWebhookRequest,
+  LiquidoDepositWebhookRequest,
+  LiquidoWithdrawalWebhookRequest,
   PrimeWebhookRequest,
 } from '~common/grpc/interfaces/payment-gateway';
 import { webhookData } from '../types/prime-trust';
@@ -33,8 +34,8 @@ export class PaymentGatewayWebhooksService {
     return this.facilitaService.facilitaWebhooksHandler(request);
   }
 
-  liquidoWebhooksHandler(request: LiquidoWebhookRequest) {
-    return this.liquidoService.liquidoWebhooksHandler(request);
+  liquidoDepositHandler(request: LiquidoDepositWebhookRequest) {
+    return this.liquidoService.liquidoDepositHandler(request);
   }
 
   linkWebhookHandler(request: LinkWebhookRequest) {
@@ -103,5 +104,9 @@ export class PaymentGatewayWebhooksService {
     } else {
       return { success: true };
     }
+  }
+
+  liquidoWithdrawHandler(request: LiquidoWithdrawalWebhookRequest) {
+    return this.liquidoService.liquidoWithdrawHandler(request);
   }
 }

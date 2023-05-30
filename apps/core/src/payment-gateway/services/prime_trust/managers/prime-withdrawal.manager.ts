@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import process from 'process';
 import { Repository } from 'typeorm';
+import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { WithdrawalTypes } from '~common/enum/document-types.enum';
 import { Providers } from '~common/enum/providers';
@@ -47,6 +48,32 @@ export class PrimeWithdrawalManager {
   ) {
     const { prime_trust_url } = config.get('app');
     this.prime_trust_url = prime_trust_url;
+  }
+
+  async addWithdrawalParamsOtherCountries(request: WithdrawalParams): Promise<WithdrawalResponse> {
+    const { id, bank_account_id, funds_transfer_type } = request;
+    await this.checkBankExists(id, bank_account_id);
+    const transferMethod = await this.withdrawalParamsEntityRepository.findOneBy({
+      user_id: id,
+      bank_account_id,
+      funds_transfer_type,
+    });
+    let transferMethodId;
+    if (!transferMethod) {
+      transferMethodId = await uid(18);
+      await this.withdrawalParamsEntityRepository.save(
+        this.withdrawalParamsEntityRepository.create({
+          user_id: id,
+          uuid: transferMethodId,
+          bank_account_id,
+          funds_transfer_type,
+        }),
+      );
+    } else {
+      transferMethodId = transferMethod.uuid;
+    }
+
+    return { transfer_method_id: transferMethodId };
   }
 
   async addWithdrawalParams(request: WithdrawalParams): Promise<WithdrawalResponse> {
@@ -122,6 +149,20 @@ export class PrimeWithdrawalManager {
         throw new GrpcException(Status.ABORTED, 'Connection error!', 400);
       }
     }
+  }
+
+  async getWithdrawalParamByUuid(uuid: string) {
+    return await this.withdrawalParamsEntityRepository.findOneByOrFail({
+      uuid,
+    });
+  }
+
+  async getBankByWithdrawalParamId(id: number) {
+    const withdrawalParam = await this.withdrawalParamsEntityRepository.findOneByOrFail({
+      id,
+    });
+
+    return await this.primeBankAccountManager.getBankAccountById(withdrawalParam.bank_account_id);
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {

@@ -17,7 +17,7 @@ export type KoyweWebhookType = {
   signature: string;
 };
 
-export type LiquidoWebhookType = {
+export type LiquidoDepositWebhookType = {
   eventType: 'CHARGE_SUCCEEDED';
   data: {
     linkId: string;
@@ -36,6 +36,32 @@ export type LiquidoWebhookType = {
     phone: string;
     documentId: string;
   };
+};
+
+export type LiquidoPayoutWebhookType = {
+  statusCode: number;
+  errorMsg: string;
+  transactionId: string;
+  idempotencyKey: string;
+  referenceNumber: string;
+  targetName: string;
+  targetDocument: string;
+  targetBankName: string;
+  targetBankCode: string;
+  targetBankBranchId: string;
+  targetBankAccountId: string;
+  amount: string;
+  amountInCents: number;
+  currency: string;
+  paidAmount: number;
+  paidCurrency: string;
+  exchangeRate: number;
+  paidTax: number;
+  createTime: string;
+  finalStatusTime: string;
+  transferStatus: string;
+  transferStatusCode: number;
+  transferErrorMsg: string;
 };
 
 export type LinkWebhookType = {

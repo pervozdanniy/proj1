@@ -1,0 +1,29 @@
+SKOPA_ACCOUNT_ID=d4a538c0-97cb-4de4-b830-d07e4e834009
+SKOPA_ACCOUNT_ID is account which opened in Prime Trust,it receive all payments from Link and Facilita and send it to users
+when we get webhook from Prime Trust, that we get assets from Link or Facilita,we find users in our db whose payed this money and send them money from this SKOPA_ACCOUNT_ID
+
+SKOPA_FACILITA_WALLET=0xec25F85c446Fb8eCf1b49E42850bbE2F418c7EDF
+SKOPA_FACILITA_WALLET depends on SKOPA_ACCOUNT_ID,if Facilita send money to this wallet,we receive money on SKOPA_ACCOUNT_ID
+
+
+
+---------------------------------------------------------------------------------------
+
+SKOPA_KOYWE_ACCOUNT_ID=0de9c0ba-c4f9-4644-897f-c7bed4aa3f3a
+SKOPA_KOYWE_ACCOUNT_ID account have been using from the same reason us SKOPA_ACCOUNT_ID account but receive payments from Koywe and send it to users
+
+SKOPA_KOYWE_WALLET=0x8FcACA5c29dfD6b197b110AB91BfdfFB3498347e
+SKOPA_KOYWE_WALLET uses when we get webbhook after Liquido pay in that Liquido received money we send this money to Koywe and send them send crypto to this wallet
+we receive money on SKOPA_KOYWE_ACCOUNT_ID
+
+
+
+------------------------------------------------------------------
+
+KOYWE_LIQUIDO_WALLET=0x5694EC757E5Ea514906752e0BB92022D52205221
+
+this wallet we must get from Koywe
+when we withdraw money by Liqudo,we only send them withdraw request,and they pay out of their own pocket
+when user receive settled webhook,we handle this and send user money to SKOPA_KOYWE_ACCOUNT
+and after end of day we send this all collected money to KOYWE_LIQUIDO_WALLET
+Koywe receive this crypto convert it to fiat and somehow send to Liquido

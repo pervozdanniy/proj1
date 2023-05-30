@@ -2,6 +2,7 @@ import { BankAccountEntity } from '@/payment-gateway/entities/prime_trust/bank-a
 import { UserService } from '@/user/services/user.service';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BankAccountParams, BankAccountsResponse, BanksInfoResponse } from '~common/grpc/interfaces/payment-gateway';
@@ -16,11 +17,18 @@ export class PrimeBankAccountManager {
     private readonly bankAccountEntityRepository: Repository<BankAccountEntity>,
   ) {}
   async addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
-    const { id, bank_account_name, bank_account_number, routing_number } = request;
-    this.logger.log(request);
+    const { id, bank_account_number, routing_number, bank_agency_code, bank_code } = request;
     const userDetails = await this.userService.getUserInfo(id);
-    if (!routing_number) {
-      throw new GrpcException(Status.INVALID_ARGUMENT, 'Please fill routing number!', 400);
+    if (userDetails.country_code === 'US' && !routing_number) {
+      throw new ConflictException('Please fill routing number!');
+    }
+    if (userDetails.country_code === 'BR') {
+      if (!bank_agency_code) {
+        throw new ConflictException('Please fill bank_agency_code!');
+      }
+      if (!bank_code) {
+        throw new ConflictException('Please fill bank_code!');
+      }
     }
     const bankAccount = await this.bankAccountEntityRepository.findOne({ where: { bank_account_number, user_id: id } });
     if (bankAccount) {
@@ -31,9 +39,7 @@ export class PrimeBankAccountManager {
       this.bankAccountEntityRepository.create({
         user_id: id,
         country: userDetails.country_code,
-        bank_account_name,
-        bank_account_number,
-        routing_number,
+        ...request,
       }),
     );
 

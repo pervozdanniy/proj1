@@ -14,6 +14,11 @@ export enum TransferTypes {
   WITHDRAWAL = 'withdrawal',
   TRANSFER = 'transfer',
 }
+
+export enum PaymentTypes {
+  BANK = 'bank',
+  CASH = 'cash',
+}
 export enum ParamsTypes {
   WITHDRAWAL = 'withdrawal_param',
 }
@@ -48,6 +53,9 @@ export class TransfersEntity {
 
   @Column('character varying', { length: 50, nullable: true })
   type: TransferTypes;
+
+  @Column('character varying', { length: 50, nullable: true })
+  payment_type: PaymentTypes;
 
   @Column('character varying', { length: 50, nullable: true })
   provider: string;

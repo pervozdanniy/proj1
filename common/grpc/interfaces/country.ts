@@ -12,6 +12,7 @@ export interface CountryListResponse {
 export interface Country {
   code: string;
   name: string;
+  currency_type: string;
 }
 
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";

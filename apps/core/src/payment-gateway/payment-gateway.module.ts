@@ -11,6 +11,7 @@ import { DepositFlowController } from './controllers/deposit-flow.controller';
 import { KYCController } from './controllers/kyc.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
+import { LiquidoWithdrawAuthorizationEntity } from './entities/liquido_withdraw_authorization.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from './entities/prime_trust/deposit-params.entity';
@@ -34,6 +35,7 @@ import { CurrencyService } from './services/currency.service';
 import { WithdrawAuthorizationService } from './services/external-withdraw-authorization/withdraw-authorization.service';
 import { FacilitaService } from './services/facilita/facilita.service';
 import { FacilitaDepositManager } from './services/facilita/managers/facilita-deposit.manager';
+import { FacilitaMainManager } from './services/facilita/managers/facilita-main.manager';
 import { FacilitaTokenManager } from './services/facilita/managers/facilita-token.manager';
 import { FacilitaWebhookManager } from './services/facilita/managers/facilita-webhook.manager';
 import { DepositFlow } from './services/flow/deposit-flow.service';
@@ -50,6 +52,9 @@ import { LiquidoDepositManager } from './services/liquido/managers/liquido-depos
 import { LiquidoTokenManager } from './services/liquido/managers/liquido-token.manager';
 import { LiquidoWebhookManager } from './services/liquido/managers/liquido-webhook.manager';
 import { LiquidoWithdrawalManager } from './services/liquido/managers/liquido-withdrawal.manager';
+import { BrazilPayoutService } from './services/liquido/payouts/brazil-payout.service';
+import { ChilePayoutService } from './services/liquido/payouts/chile-payout.service';
+import { MexicoPayoutService } from './services/liquido/payouts/mexico-payout.service';
 import { MainService } from './services/main.service';
 import { PaymentGatewayWebhooksService } from './services/payment-gateway-webhooks.service';
 import { PaymentGatewayService } from './services/payment-gateway.service';
@@ -84,6 +89,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
       BankAccountEntity,
       DepositParamsEntity,
       DepositFlowEntity,
+      LiquidoWithdrawAuthorizationEntity,
     ]),
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
     InswitchModule,
@@ -133,6 +139,10 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     FacilitaTokenManager,
     WithdrawAuthorizationService,
     KYCService,
+    FacilitaMainManager,
+    MexicoPayoutService,
+    BrazilPayoutService,
+    ChilePayoutService,
   ],
   controllers: [PaymentGatewayController, DepositFlowController, KYCController],
   exports: [PaymentGatewayService, CurrencyService],

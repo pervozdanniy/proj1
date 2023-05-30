@@ -1,5 +1,5 @@
+import { UserEntity } from '@/user/entities/user.entity';
 import { UserService } from '@/user/services/user.service';
-import { Status } from '@grpc/grpc-js/build/src/constants';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConflictException } from '@nestjs/common/exceptions';
@@ -11,14 +11,11 @@ import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
 import { BankCredentialsData } from '~common/grpc/interfaces/payment-gateway';
-import { GrpcException } from '~common/utils/exceptions/grpc.exception';
-import { UserEntity } from '../../../../user/entities/user.entity';
 import { countriesData, CountryData } from '../../../country/data';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
-import { CurrencyService } from '../../currency.service';
 import { facilitaBank } from '../constants';
-import { countBrazilRate } from '../facilita-helpers';
+import { FacilitaMainManager } from './facilita-main.manager';
 import { FacilitaTokenManager } from './facilita-token.manager';
 
 @Injectable()
@@ -30,8 +27,9 @@ export class FacilitaDepositManager {
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
     private userService: UserService,
-    private readonly currencyService: CurrencyService,
     private readonly httpService: HttpService,
+
+    private readonly facilitaMainManager: FacilitaMainManager,
 
     config: ConfigService<ConfigInterface>,
   ) {
@@ -48,29 +46,23 @@ export class FacilitaDepositManager {
     await this.createUserIfNotExist(user);
     const countries: CountryData = countriesData;
     const { currency_type } = countries[user.country_code];
-    const ratesData = await this.currencyService.waitForRatesUpdate();
-    const rate = ratesData.get(currency_type);
-    const amount = amount_usd * rate;
-    let currentFee = 0;
     if (user.country_code === 'BR') {
-      const { fee } = this.calculateFeeFromBrazil(rate, amount);
-      currentFee = fee;
+      const { fee, amount } = await this.calculateFeeFromBrazil(amount_usd);
+      await this.depositEntityRepository.save(
+        this.depositEntityRepository.create({
+          user_id,
+          type: TransferTypes.DEPOSIT,
+          amount: amount,
+          amount_usd,
+          provider: Providers.FACILITA,
+          currency_type,
+          status: TransferStatus.PENDING,
+          fee,
+        }),
+      );
+
+      return { info: { currency, amount, fee }, bank: facilitaBank };
     }
-
-    await this.depositEntityRepository.save(
-      this.depositEntityRepository.create({
-        user_id,
-        type: TransferTypes.DEPOSIT,
-        amount: amount + currentFee,
-        amount_usd,
-        provider: Providers.FACILITA,
-        currency_type,
-        status: TransferStatus.PENDING,
-        fee: currentFee,
-      }),
-    );
-
-    return { info: { currency, amount: amount + currentFee, fee: currentFee }, bank: facilitaBank };
   }
 
   async createUserIfNotExist(user: UserEntity) {
@@ -98,21 +90,19 @@ export class FacilitaDepositManager {
     } catch (e) {
       this.logger.error(e.response.data);
 
-      throw new GrpcException(Status.ABORTED, 'Facilita create user error!', 400);
+      throw new ConflictException('Facilita create user error!');
     }
   }
 
-  calculateFeeFromBrazil(pureRate: number, amount: number) {
-    const finalRate = countBrazilRate(pureRate);
-    const finalRateFraction = new Fraction(finalRate);
-    const pureRateFraction = new Fraction(pureRate);
-    const amountFraction = new Fraction(amount);
+  async calculateFeeFromBrazil(amount_usd: number) {
+    const { usdbrl: pureRate, brlusd: finalRate } = await this.facilitaMainManager.countBrazilRate();
+    const beforeTaxesAmount = new Fraction(amount_usd).mul(pureRate);
 
-    const difference = finalRateFraction.sub(pureRateFraction).div(pureRateFraction).mul(100);
-
-    const fee = Number(amountFraction.mul(difference).div(100).toString());
+    const fee = new Fraction(amount_usd).mul(finalRate).sub(beforeTaxesAmount).valueOf();
+    const amount = new Fraction(amount_usd).mul(finalRate).valueOf();
 
     return {
+      amount,
       fee,
     };
   }

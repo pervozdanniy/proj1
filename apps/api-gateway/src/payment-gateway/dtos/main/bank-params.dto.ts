@@ -7,7 +7,12 @@ export class BankParamsDto {
   @IsOptional()
   bank_code: string;
 
-  @ApiProperty({ example: 'Test Test' })
+  @ApiProperty({ example: '3563' })
+  @IsString()
+  @IsOptional()
+  bank_agency_code: string;
+
+  @ApiProperty({ example: 'Bank Test' })
   @IsString()
   @IsNotEmpty()
   bank_account_name: string;

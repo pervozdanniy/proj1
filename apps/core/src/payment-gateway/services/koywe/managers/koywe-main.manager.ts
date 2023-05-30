@@ -9,7 +9,7 @@ import { lastValueFrom } from 'rxjs';
 import { ConfigInterface } from '~common/config/configuration';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 
-export type KoywePaymentMethod = 'KHIPU' | 'WIRECL' | 'PALOMMA' | 'WIREMX';
+export type KoywePaymentMethod = 'KHIPU' | 'WIRECL' | 'PALOMMA' | 'WIREMX' | 'WIRECO';
 
 @Injectable()
 export class KoyweMainManager {
@@ -46,7 +46,6 @@ export class KoyweMainManager {
     const paymentMethodResponse = await lastValueFrom(
       this.httpService.get(`${this.koywe_url}/payment-providers?symbol=${currency}&clientId=${clientId}`),
     );
-
     //temporary solution,must be changed
     let id: string = null;
     paymentMethodResponse.data.forEach((method: { _id: string; name: string }) => {

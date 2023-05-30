@@ -28,11 +28,25 @@ export type ConvertedRates = {
 
 export type LiquidoFee = {
   [code: string]: {
-    value: number;
+    feeUsd: number;
+    feePercents: number;
     currency_type: string;
   };
 };
 
 export const liquidoFees: LiquidoFee = {
-  MX: { value: 3.5, currency_type: 'USD' },
+  MX: { feeUsd: 3.5, feePercents: 0, currency_type: 'USD' },
+  BR: { feeUsd: 0.05, feePercents: 3.1, currency_type: 'USD' },
+};
+
+export type PayoutType = {
+  [code: string]: {
+    type: string;
+  };
+};
+
+export const liquidoPayoutTypes: PayoutType = {
+  CL: { type: 'transfer' },
+  MX: { type: 'spei' },
+  BR: { type: 'transfer' },
 };

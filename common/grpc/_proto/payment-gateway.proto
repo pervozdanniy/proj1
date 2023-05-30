@@ -39,8 +39,14 @@ service PaymentGatewayService {
   rpc PrimeWebhooksHandler (PrimeWebhookRequest)   returns (common.SuccessResponse);
   rpc KoyweWebhooksHandler (KoyweWebhookRequest)   returns (common.SuccessResponse);
   rpc FacilitaWebhooksHandler (FacilitaWebhookRequest) returns (common.SuccessResponse);
-  rpc LiquidoWebhooksHandler (LiquidoWebhookRequest) returns (common.SuccessResponse);
+  rpc LiquidoDepositHandler (LiquidoDepositWebhookRequest) returns (common.SuccessResponse);
+  rpc LiquidoWithdrawHandler (LiquidoWithdrawalWebhookRequest) returns (common.SuccessResponse);
   rpc LinkHandler(LinkWebhookRequest) returns (common.SuccessResponse);
+}
+
+message LiquidoWithdrawalWebhookRequest{
+    string idempotencyKey = 1;
+    string transferStatus = 2;
 }
 
 message LinkWebhookRequest {
@@ -162,7 +168,7 @@ message SelectCardRequest {
   string cvv = 2;
 }
 
-message LiquidoWebhookRequest {
+message LiquidoDepositWebhookRequest {
   float amount = 1;
   string currency = 2;
   string country = 3;
@@ -318,6 +324,7 @@ message BankAccountParams{
   string bank_account_number = 3;
   optional string routing_number = 4;
   optional string bank_code = 5;
+  optional string bank_agency_code = 6;
 }
 
 message BankAccountsResponse {

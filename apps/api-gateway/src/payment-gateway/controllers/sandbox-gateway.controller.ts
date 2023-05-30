@@ -1,13 +1,12 @@
 import { Body, Controller, HttpStatus, Patch, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtSessionAuth } from '~common/http-session';
 import { CardResourceDto } from '../dtos/deposit/card-resource.dto';
 import { WebhookUrlDto } from '../dtos/sandbox/webhook-url.dto';
 import { SandboxService } from '../services/sandbox.service';
 
-@ApiTags('Prime Trust/Sandbox')
+@ApiTags('Sandbox')
 @ApiBearerAuth()
-@ApiExcludeController()
 @Controller({
   version: '1',
   path: 'sandbox',

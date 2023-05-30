@@ -6,6 +6,11 @@ import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
+export interface LiquidoWithdrawalWebhookRequest {
+  idempotencyKey: string;
+  transferStatus: string;
+}
+
 export interface LinkWebhookRequest {
   resourceId: string;
   resourceType: string;
@@ -114,7 +119,7 @@ export interface SelectCardRequest {
   cvv: string;
 }
 
-export interface LiquidoWebhookRequest {
+export interface LiquidoDepositWebhookRequest {
   amount: number;
   currency: string;
   country: string;
@@ -266,6 +271,7 @@ export interface BankAccountParams {
   bank_account_number: string;
   routing_number?: string | undefined;
   bank_code?: string | undefined;
+  bank_agency_code?: string | undefined;
 }
 
 export interface BankAccountsResponse {
@@ -443,7 +449,9 @@ export interface PaymentGatewayServiceClient {
 
   facilitaWebhooksHandler(request: FacilitaWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
-  liquidoWebhooksHandler(request: LiquidoWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+  liquidoDepositHandler(request: LiquidoDepositWebhookRequest, ...rest: any): Observable<SuccessResponse>;
+
+  liquidoWithdrawHandler(request: LiquidoWithdrawalWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 
   linkHandler(request: LinkWebhookRequest, ...rest: any): Observable<SuccessResponse>;
 }
@@ -549,8 +557,13 @@ export interface PaymentGatewayServiceController {
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
-  liquidoWebhooksHandler(
-    request: LiquidoWebhookRequest,
+  liquidoDepositHandler(
+    request: LiquidoDepositWebhookRequest,
+    ...rest: any
+  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
+
+  liquidoWithdrawHandler(
+    request: LiquidoWithdrawalWebhookRequest,
     ...rest: any
   ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
 
@@ -581,7 +594,8 @@ export function PaymentGatewayServiceControllerMethods() {
       "primeWebhooksHandler",
       "koyweWebhooksHandler",
       "facilitaWebhooksHandler",
-      "liquidoWebhooksHandler",
+      "liquidoDepositHandler",
+      "liquidoWithdrawHandler",
       "linkHandler",
     ];
     for (const method of grpcMethods) {

@@ -21,6 +21,7 @@ import {
 import { createDate } from '~common/helpers';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import {
+  PaymentTypes,
   TransfersEntity,
   TransferStatus,
   TransferTypes,
@@ -136,7 +137,7 @@ export class PrimeAssetsManager {
 
     const amount = assetResponse['unit-count'];
     const type = amount < 0 ? TransferTypes.WITHDRAWAL : TransferTypes.DEPOSIT;
-
+    let provider = Providers.PRIME_TRUST;
     if (existedDeposit) {
       await this.depositEntityRepository.update({ uuid: resource_id }, { status: assetResponse['status'] });
     } else {
@@ -145,36 +146,44 @@ export class PrimeAssetsManager {
           user_id,
           uuid: resource_id,
           currency_type: 'USD',
+          provider,
           amount,
           status: assetResponse['status'],
           type,
         }),
       );
     }
-    let transactions;
-    if (account_id === this.skopaAccountId) {
-      transactions = await this.depositEntityRepository.findBy({
-        provider: Providers.FACILITA,
-        status: TransferStatus.DELIVERED,
-      });
-    }
-    if (account_id === this.skopaKoyweAccountId) {
-      transactions = await this.depositEntityRepository.findBy({
-        provider: Providers.KOYWE,
-        status: TransferStatus.DELIVERED,
-      });
-    }
-    const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
+    if (account_id === this.skopaAccountId || account_id === this.skopaKoyweAccountId) {
+      let transactions;
+      if (account_id === this.skopaAccountId) {
+        provider = Providers.FACILITA;
+        transactions = await this.depositEntityRepository.findBy({
+          provider,
+          type: TransferTypes.DEPOSIT,
+          status: TransferStatus.DELIVERED,
+        });
+      }
+      if (account_id === this.skopaKoyweAccountId) {
+        provider = Providers.LIQUIDO;
+        transactions = await this.depositEntityRepository.findBy({
+          provider,
+          type: TransferTypes.DEPOSIT,
+          payment_type: PaymentTypes.CASH,
+          status: TransferStatus.SETTLED,
+        });
+      }
+      const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
 
-    transactions.map(async (t) => {
-      await this.primeFundsTransferManager.transferFunds({
-        sender_id: sender.user_id,
-        receiver_id: t.user_id,
-        amount: t.amount_usd,
-        currency_type: 'USD',
+      transactions.map(async (t) => {
+        await this.primeFundsTransferManager.transferFunds({
+          sender_id: sender.user_id,
+          receiver_id: t.user_id,
+          amount: t.amount_usd,
+          currency_type: 'USD',
+        });
+        await this.depositEntityRepository.update({ id: t.id }, { status: TransferStatus.SETTLED });
       });
-      await this.depositEntityRepository.update({ id: t.id }, { status: TransferStatus.SETTLED });
-    });
+    }
 
     await this.primeBalanceManager.updateAccountBalance(account_id);
 

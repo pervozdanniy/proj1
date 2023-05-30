@@ -14,7 +14,8 @@ import {
   FacilitaWebhookRequest,
   KoyweWebhookRequest,
   LinkWebhookRequest,
-  LiquidoWebhookRequest,
+  LiquidoDepositWebhookRequest,
+  LiquidoWithdrawalWebhookRequest,
   PaymentGatewayServiceController,
   PaymentGatewayServiceControllerMethods,
   PaymentMethodsResponse,
@@ -36,9 +37,6 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
 @RpcController()
 @PaymentGatewayServiceControllerMethods()
 export class PaymentGatewayController implements PaymentGatewayServiceController {
-  linkHandler(request: LinkWebhookRequest): Promise<SuccessResponse> {
-    return this.webhooksService.linkWebhookHandler(request);
-  }
   constructor(
     private mainService: MainService,
     private paymentGatewayService: PaymentGatewayService,
@@ -116,7 +114,14 @@ export class PaymentGatewayController implements PaymentGatewayServiceController
     return this.webhooksService.facilitaWebhooksHandler(request);
   }
 
-  liquidoWebhooksHandler(request: LiquidoWebhookRequest): Promise<SuccessResponse> {
-    return this.webhooksService.liquidoWebhooksHandler(request);
+  liquidoDepositHandler(request: LiquidoDepositWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.liquidoDepositHandler(request);
+  }
+
+  liquidoWithdrawHandler(request: LiquidoWithdrawalWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.liquidoWithdrawHandler(request);
+  }
+  linkHandler(request: LinkWebhookRequest): Promise<SuccessResponse> {
+    return this.webhooksService.linkWebhookHandler(request);
   }
 }

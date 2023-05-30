@@ -24,10 +24,11 @@ export class BrazilPaymentGateway
   implements PaymentGatewayInterface, BankInterface, WireDepositInterface, BankWithdrawalInterface
 {
   constructor(
-    private primeTrustService: PrimeTrustService,
     private koyweService: KoyweService,
     private facilitaService: FacilitaService,
     private liquidoService: LiquidoService,
+
+    private primeTrustService: PrimeTrustService,
   ) {}
 
   getAvailablePaymentMethods(): PaymentMethod[] {
@@ -39,7 +40,7 @@ export class BrazilPaymentGateway
   }
 
   addBank(request: BankAccountParams): Promise<BankAccountParams> {
-    return this.koyweService.addBankAccountParams(request);
+    return this.primeTrustService.addBankAccountParams(request);
   }
 
   getAvailableBanks(country: string): Promise<BanksInfoResponse> {
@@ -47,9 +48,6 @@ export class BrazilPaymentGateway
   }
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
-    const { id, amount } = request;
-    const wallet = await this.liquidoService.makeWithdrawal(request);
-
-    return this.primeTrustService.makeAssetWithdrawal({ id, amount, wallet });
+    return this.liquidoService.makeWithdrawal(request);
   }
 }

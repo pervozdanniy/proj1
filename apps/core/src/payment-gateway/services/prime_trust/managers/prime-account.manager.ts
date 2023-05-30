@@ -162,6 +162,10 @@ export class PrimeAccountManager {
     return { success: true };
   }
 
+  async getAccountByUuid(uuid: string): Promise<PrimeTrustAccountEntity> {
+    return this.primeAccountRepository.findOneBy({ uuid });
+  }
+
   async getAccountInfo(account_id: string) {
     try {
       const accountResponse = await this.httpService.request({
