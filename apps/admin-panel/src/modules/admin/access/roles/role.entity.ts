@@ -17,15 +17,6 @@ export class RoleEntity extends BaseEntity {
   name: string;
 
   @Column({
-    name: 'slug',
-    type: 'varchar',
-    nullable: false,
-    unique: true,
-    length: 60,
-  })
-  slug: string;
-
-  @Column({
     name: 'active',
     type: 'boolean',
     nullable: false,

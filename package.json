@@ -26,10 +26,7 @@
     "typeorm:generate": "cross-var npm run typeorm -- -d ./apps/$npm_config_component/src/db/data-source.ts migration:generate ./apps/$npm_config_component/src/db/migrations/$npm_config_name",
     "typeorm:create": "cross-var npm run typeorm -- migration:create ./apps/$npm_config_component/src/db/migrations/$npm_config_name",
     "typeorm:revert": "cross-var npm run typeorm -- -d ./apps/$npm_config_component/src/db/data-source.ts migration:revert",
-    "proto:generate": "node_modules/.bin/protoc --plugin=node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_opt=nestJs=true --ts_proto_opt=addGrpcMetadata=false --ts_proto_opt=snakeToCamel=false --ts_proto_opt=addNestjsRestParameter=true --ts_proto_out=./common/grpc/interfaces --proto_path=./common/grpc/_proto ./common/grpc/_proto/*.proto",
-    "typeorm-seeding": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-seeding/dist/cli.js --root=./apps/$npm_config_component/",
-    "seed:config": "npm run typeorm-seeding config --root=./apps/$npm_config_component/",
-    "seed": "npm run typeorm-seeding seed --root=./apps/$npm_config_component/"
+    "proto:generate": "node_modules/.bin/protoc --plugin=node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_opt=nestJs=true --ts_proto_opt=addGrpcMetadata=false --ts_proto_opt=snakeToCamel=false --ts_proto_opt=addNestjsRestParameter=true --ts_proto_out=./common/grpc/interfaces --proto_path=./common/grpc/_proto ./common/grpc/_proto/*.proto"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "~3.272.0",
@@ -75,7 +72,6 @@
     "rxjs": "^7.2.0",
     "socket.io": "^4.5.4",
     "typeorm": "^0.3.10",
-    "typeorm-seeding": "^1.6.1",
     "uid-safe": "^2.1.5"
   },
   "devDependencies": {

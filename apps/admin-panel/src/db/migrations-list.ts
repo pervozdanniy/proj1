@@ -1,3 +1,4 @@
-import { InitTables1685139173386 } from './migrations/1685139173386-InitTables';
+import { initTables1685450829202 } from './migrations/1685450829202-initTables';
+import { SeedBaseData1685450848322 } from './migrations/1685450848322-SeedBaseData';
 
-export default [InitTables1685139173386];
+export default [initTables1685450829202, SeedBaseData1685450848322];

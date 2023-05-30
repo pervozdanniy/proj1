@@ -8,7 +8,6 @@ export class RoleMapper {
     const dto = new RoleResponseDto();
     dto.id = entity.id;
     dto.name = entity.name;
-    dto.slug = entity.slug;
     dto.active = entity.active;
 
     return dto;
@@ -18,7 +17,6 @@ export class RoleMapper {
     const dto = new RoleResponseDto();
     dto.id = entity.id;
     dto.name = entity.name;
-    dto.slug = entity.slug;
     dto.permissions = await Promise.all((await entity.permissions).map(PermissionMapper.toDto));
     dto.active = entity.active;
 
@@ -28,7 +26,6 @@ export class RoleMapper {
   public static toCreateEntity(dto: CreateRoleRequestDto): RoleEntity {
     const entity = new RoleEntity();
     entity.name = dto.name;
-    entity.slug = dto.slug;
     entity.permissions = Promise.resolve(dto.permissions.map((id) => new PermissionEntity({ id })));
     entity.active = true;
 
@@ -37,7 +34,6 @@ export class RoleMapper {
 
   public static toUpdateEntity(entity: RoleEntity, dto: UpdateRoleRequestDto): RoleEntity {
     entity.name = dto.name;
-    entity.slug = dto.slug;
     entity.permissions = Promise.resolve(dto.permissions.map((id) => new PermissionEntity({ id })));
     entity.active = dto.active;
 
