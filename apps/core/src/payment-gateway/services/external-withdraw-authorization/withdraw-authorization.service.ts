@@ -40,46 +40,56 @@ export class WithdrawAuthorizationService {
   }
 
   async authorize(payload: AuthorizationWebhookRequest): Promise<AutorizationWebhookResponse> {
-    const { withdraw, user } = await this.inswitch.parseWithdrawRequest(payload);
-    const { settled, hot_balance, cold_balance } = await this.balance.getAccountBalance(user.id);
-    const usdAmount = new Fraction(withdraw.amount).div(withdraw.rate);
-    if (usdAmount.compare(settled) < 0) {
-      const amount = usdAmount.round(6).valueOf();
-      const account = await this.primeTrust.getAccount(user.id);
-      const hotStatus = cold_balance < amount && hot_balance > amount;
-      await this.primeTrustClient.assetTransfer(account.uuid, this.intermediateAccountId, amount, hotStatus);
+    try {
+      const { withdraw, user } = await this.inswitch.parseWithdrawRequest(payload);
+      const { settled, hot_balance, cold_balance } = await this.balance.getAccountBalance(user.id);
+      const usdAmount = new Fraction(withdraw.amount).div(withdraw.rate);
+      if (usdAmount.compare(settled) < 0) {
+        const amount = usdAmount.round(6).valueOf();
+        const account = await this.primeTrust.getAccount(user.id);
+        const hotStatus = cold_balance < amount && hot_balance > amount;
+        await this.primeTrustClient.assetTransfer(account.uuid, this.intermediateAccountId, amount, hotStatus);
 
-      return this.inswitch.approve(payload);
+        return this.inswitch.approve(payload);
+      }
+    } catch (error) {
+      this.logger.error('Authorization request failed', error.message, { payload, error });
+
+      return this.inswitch.decline(payload);
     }
 
     return this.inswitch.decline(payload);
   }
 
   async update(payload: AuthorizationWebhookRequest) {
-    const { withdraw, user } = await this.inswitch.parseWithdrawRequest(payload);
-    const { approved, amount } = await this.inswitch.updateWithdraw(payload);
-    const usdAmount = new Fraction(withdraw.amount).div(withdraw.rate);
-    const account = await this.primeTrust.getAccount(user.id);
-    if (approved) {
-      await this.transfersRepo.save(
-        this.transfersRepo.create({
-          user_id: user.id,
-          type: TransferTypes.WITHDRAWAL,
-          status: TransferStatus.SETTLED,
-          amount: Number.parseFloat(amount),
-          amount_usd: usdAmount.valueOf(),
-          currency_type: withdraw.currency,
-          fee: 0,
-        }),
-      );
-      await this.primeTrust.updateBalance({ id: account.uuid });
-    } else {
-      await this.primeTrustClient.assetTransfer(
-        this.intermediateAccountId,
-        account.uuid,
-        usdAmount.round(6).valueOf(),
-        false,
-      );
+    try {
+      const { withdraw, user } = await this.inswitch.parseWithdrawRequest(payload);
+      const { approved, amount } = await this.inswitch.updateWithdraw(payload);
+      const usdAmount = new Fraction(withdraw.amount).div(withdraw.rate);
+      const account = await this.primeTrust.getAccount(user.id);
+      if (approved) {
+        await this.transfersRepo.save(
+          this.transfersRepo.create({
+            user_id: user.id,
+            type: TransferTypes.WITHDRAWAL,
+            status: TransferStatus.SETTLED,
+            amount: Number.parseFloat(amount),
+            amount_usd: usdAmount.valueOf(),
+            currency_type: withdraw.currency,
+            fee: 0,
+          }),
+        );
+        await this.primeTrust.updateBalance({ id: account.uuid });
+      } else {
+        await this.primeTrustClient.assetTransfer(
+          this.intermediateAccountId,
+          account.uuid,
+          usdAmount.round(6).valueOf(),
+          false,
+        );
+      }
+    } catch (error) {
+      this.logger.error('Update failed', error.message, { payload, error });
     }
   }
 
