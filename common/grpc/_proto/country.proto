@@ -15,5 +15,6 @@ message CountryListResponse {
 message Country {
   string code = 1;
   string name = 2;
+  string currency_type = 3;
 }
 

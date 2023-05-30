@@ -68,14 +68,13 @@ export class LiquidoWebhookManager {
       if (paymentStatus === 'SETTLED') {
         await this.transfersEntityRepository.update({ uuid: orderId }, { status: TransferStatus.SETTLED });
         let accountNumber;
+        const transfer = await this.transfersEntityRepository.findOneBy({ uuid: orderId });
+        const request: CreateReferenceRequest = {
+          user_id: user.id,
+          amount_usd: transfer.amount_usd,
+          currency_type: transfer.currency_type,
+        };
         if (country === 'MX') {
-          const transfer = await this.transfersEntityRepository.findOneBy({ uuid: orderId });
-          const request: CreateReferenceRequest = {
-            user_id: user.id,
-            amount_usd: transfer.amount_usd,
-            currency_type: transfer.currency_type,
-          };
-
           const { bank } = await this.koyweService.createReference(request, {
             wallet_address: this.skopaKoyweWallet, //we use wallet from Skopa,for cash payments (All payments goes to this wallet)
             method: 'WIREMX',
@@ -84,6 +83,25 @@ export class LiquidoWebhookManager {
 
           accountNumber = lines[1];
         }
+        if (country === 'CO') {
+          const { bank } = await this.koyweService.createReference(request, {
+            wallet_address: this.skopaKoyweWallet,
+            method: 'WIRECO',
+          });
+          const lines = bank.account_number.split('\n');
+
+          accountNumber = lines[3];
+        }
+
+        if (country === 'CL') {
+          const { bank } = await this.koyweService.createReference(request, {
+            wallet_address: this.skopaKoyweWallet,
+            method: 'WIRECL',
+          });
+          const lines = bank.account_number.split('\n');
+          accountNumber = lines[1].match(/\d+/)[0];
+        }
+
         const headersRequest = {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,

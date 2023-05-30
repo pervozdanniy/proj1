@@ -6,11 +6,13 @@ import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { UserDetailsDto } from '../user/dto/user-request.dto';
 
 const countries: Country[] = [
-  { code: 'US', name: 'United States of America' },
-  { code: 'CL', name: 'Chile' },
-  { code: 'MX', name: 'Mexico' },
-  { code: 'CO', name: 'Colombia' },
-  { code: 'PE', name: 'Peru' },
+  { code: 'US', name: 'United States of America', currency_type: 'USD' },
+  { code: 'CL', name: 'Chile', currency_type: 'CLP' },
+  { code: 'MX', name: 'Mexico', currency_type: 'MXN' },
+  { code: 'CO', name: 'Colombia', currency_type: 'COP' },
+  { code: 'PE', name: 'Peru', currency_type: 'PEN' },
+  { code: 'BR', name: 'Brazil', currency_type: 'BRL' },
+  { code: 'AR', name: 'Argentine', currency_type: 'ARS' },
 ];
 
 @Injectable()
