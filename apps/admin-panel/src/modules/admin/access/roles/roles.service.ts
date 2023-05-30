@@ -121,6 +121,28 @@ export class RolesService extends Repository<RoleEntity> {
   }
 
   /**
+   * Delete role by id
+   * @param id {number}
+   * @returns {Promise<void>}
+   */
+  public async deleteRole(id: number): Promise<void> {
+    const roleEntity = await this.findOne({ where: { id } });
+    if (!roleEntity) {
+      throw new NotFoundException();
+    }
+
+    try {
+      await this.remove(roleEntity);
+    } catch (error) {
+      if (error instanceof TimeoutError) {
+        throw new RequestTimeoutException();
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
+  }
+
+  /**
    * Get roles list
    * @param pagination {PaginationRequest}
    * @returns [roleEntities: RoleEntity[], totalRoles: number]

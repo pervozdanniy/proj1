@@ -130,6 +130,28 @@ export class UsersService extends Repository<UserEntity> {
   }
 
   /**
+   * Delete User by id
+   * @param id {string}
+   * @returns {Promise<void>}
+   */
+  public async deleteUser(id: string): Promise<void> {
+    const userEntity = await this.findOne({ where: { id } });
+    if (!userEntity) {
+      throw new NotFoundException();
+    }
+
+    try {
+      await this.remove(userEntity);
+    } catch (error) {
+      if (error instanceof TimeoutError) {
+        throw new RequestTimeoutException();
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
+  }
+
+  /**
    * Change user password
    * @param changePassword {ChangePasswordRequestDto}
    * @param user {string}

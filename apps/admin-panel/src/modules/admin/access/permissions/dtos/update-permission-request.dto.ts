@@ -1,8 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty } from 'class-validator';
-import { CreatePermissionRequestDto } from './create-permission-request.dto';
+import { IsBoolean, IsNotEmpty, Length } from 'class-validator';
 
-export class UpdatePermissionRequestDto extends CreatePermissionRequestDto {
+export class UpdatePermissionRequestDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @Length(3, 160)
+  description: string;
+
   @ApiProperty()
   @IsNotEmpty()
   @IsBoolean()

@@ -2,8 +2,30 @@ import { RolesService } from '@admin/access/roles/roles.service';
 import { ApiGlobalResponse } from '@adminCommon/decorators';
 import { Permissions, TOKEN_NAME } from '@auth';
 import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiConflictResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  ValidationPipe,
+} from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiConflictResponse,
+  ApiForbiddenResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PM } from '../../../../constants/permission/map.permission';
 import { CreateRoleRequestDto, RoleResponseDto, UpdateRoleRequestDto } from './dtos';
 
@@ -57,5 +79,17 @@ export class RolesController {
     @Body(ValidationPipe) roleDto: UpdateRoleRequestDto,
   ): Promise<RoleResponseDto> {
     return this.rolesService.updateRole(id, roleDto);
+  }
+
+  @ApiOperation({ description: 'Delete role by id' })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse()
+  @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions(PM.access.roles.delete)
+  @Delete('/:id')
+  public deleteRole(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.rolesService.deleteRole(id);
   }
 }

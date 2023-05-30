@@ -4,16 +4,17 @@ export const PM = {
       read: 'access.roles.read',
       create: 'access.roles.create',
       update: 'access.roles.update',
+      delete: 'access.roles.delete',
     },
     permissions: {
       read: 'access.permissions.read',
-      create: 'access.permissions.create',
       update: 'access.permissions.update',
     },
     users: {
       read: 'access.users.read',
       create: 'access.users.create',
       update: 'access.users.update',
+      delete: 'access.users.delete',
     },
   },
 };

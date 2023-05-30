@@ -25,14 +25,12 @@ const rolePermissions: Record<string, { slug: string; description: string }[]> =
     { slug: PM.access.users.read, description: 'Read users' },
     { slug: PM.access.users.create, description: 'Create users' },
     { slug: PM.access.users.update, description: 'Update users' },
+    { slug: PM.access.users.delete, description: 'Delete users' },
     { slug: PM.access.roles.read, description: 'Read Roles' },
     { slug: PM.access.roles.create, description: 'Create Roles' },
     { slug: PM.access.roles.update, description: 'Update Roles' },
+    { slug: PM.access.roles.delete, description: 'Delete Roles' },
     { slug: PM.access.permissions.read, description: 'Read permissions' },
-    {
-      slug: PM.access.permissions.create,
-      description: 'Create permissions',
-    },
     {
       slug: PM.access.permissions.update,
       description: 'Update permissions',
@@ -42,9 +40,11 @@ const rolePermissions: Record<string, { slug: string; description: string }[]> =
     { slug: PM.access.users.read, description: 'Read users' },
     { slug: PM.access.users.create, description: 'Create users' },
     { slug: PM.access.users.update, description: 'Update users' },
+    { slug: PM.access.users.delete, description: 'Delete users' },
     { slug: PM.access.roles.read, description: 'Read Roles' },
     { slug: PM.access.roles.create, description: 'Create Roles' },
     { slug: PM.access.roles.update, description: 'Update Roles' },
+    { slug: PM.access.roles.delete, description: 'Delete Roles' },
   ],
 };
 

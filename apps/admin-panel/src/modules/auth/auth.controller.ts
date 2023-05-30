@@ -3,7 +3,18 @@ import { REFRESH_TOKEN_NAME } from '@modules/auth/constants';
 import { Cookies } from '@modules/auth/decorators/cookies.decorator';
 import { GetMeResponseDto } from '@modules/auth/dtos/get-me-response.dto';
 import { JwtRefreshAuthGuard } from '@modules/auth/guards/jwt-refresh-auth.guard';
-import { Body, Controller, Delete, Get, Post, Res, UseGuards, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+  UseGuards,
+  ValidationPipe
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiInternalServerErrorResponse,
@@ -48,6 +59,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'Successfully User Logout' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/logout')
   logout(@Res({ passthrough: true }) response: Response): void {
     this.authService.setLogoutCookie(response);

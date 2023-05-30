@@ -1,8 +1,30 @@
 import { ApiGlobalResponse } from '@adminCommon/decorators';
 import { CurrentUser, Permissions, TOKEN_NAME } from '@auth';
 import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiConflictResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  ValidationPipe,
+} from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiConflictResponse,
+  ApiForbiddenResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PM } from '../../../../constants/permission/map.permission';
 import { ChangePasswordRequestDto, CreateUserRequestDto, UpdateUserRequestDto, UserResponseDto } from './dtos';
 import { UserEntity } from './user.entity';
@@ -59,6 +81,18 @@ export class UsersController {
     @Body(ValidationPipe) UserDto: UpdateUserRequestDto,
   ): Promise<UserResponseDto> {
     return this.usersService.updateUser(id, UserDto);
+  }
+
+  @ApiOperation({ description: 'Delete user by id' })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse()
+  @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Permissions(PM.access.users.delete)
+  @Delete('/:id')
+  public deleteUser(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    return this.usersService.deleteUser(id);
   }
 
   @ApiOperation({ description: 'Change user password' })

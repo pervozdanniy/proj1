@@ -22,7 +22,6 @@ export class PermissionMapper {
   }
 
   public static toUpdateEntity(entity: PermissionEntity, dto: UpdatePermissionRequestDto): PermissionEntity {
-    entity.slug = dto.slug;
     entity.description = dto.description;
     entity.active = dto.active;
 

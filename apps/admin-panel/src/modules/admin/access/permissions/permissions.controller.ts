@@ -1,10 +1,10 @@
 import { ApiGlobalResponse } from '@adminCommon/decorators';
 import { Permissions, SuperUserGuard, TOKEN_NAME } from '@auth';
 import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Put, UseGuards, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiConflictResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PM } from '../../../../constants/permission/map.permission';
-import { CreatePermissionRequestDto, PermissionResponseDto, UpdatePermissionRequestDto } from './dtos';
+import { PermissionResponseDto, UpdatePermissionRequestDto } from './dtos';
 import { PermissionsService } from './permissions.service';
 
 @ApiTags('Permissions')
@@ -38,18 +38,6 @@ export class PermissionsController {
   @Get('/:id')
   public getPermissionById(@Param('id', ParseIntPipe) id: number): Promise<PermissionResponseDto> {
     return this.permissionsService.getPermissionById(id);
-  }
-
-  @ApiOperation({ description: 'Create new permission' })
-  @ApiGlobalResponse(PermissionResponseDto)
-  @ApiConflictResponse({ description: 'Permission already exists' })
-  @UseGuards(SuperUserGuard)
-  @Permissions(PM.access.permissions.create)
-  @Post()
-  public createPermission(
-    @Body(ValidationPipe) permissionDto: CreatePermissionRequestDto,
-  ): Promise<PermissionResponseDto> {
-    return this.permissionsService.createPermission(permissionDto);
   }
 
   @ApiOperation({ description: 'Update permission by id' })

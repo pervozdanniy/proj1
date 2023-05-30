@@ -95,7 +95,7 @@ export class PermissionsService extends Repository<PermissionEntity> {
       return PermissionMapper.toDto(permissionEntity);
     } catch (error) {
       if (error.code == DBErrorCode.PgUniqueConstraintViolation) {
-        throw new PermissionExistsException(permissionDto.slug);
+        throw new PermissionExistsException('');
       }
       if (error instanceof TimeoutError) {
         throw new RequestTimeoutException();
