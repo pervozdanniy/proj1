@@ -1,6 +1,7 @@
-import { Body, Controller, HttpStatus, Logger, Param, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Logger, Param, Post, Put, RawBodyRequest, Req } from '@nestjs/common';
 import { ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { ExternalWithdrawService } from '../services/external-withdraw.service';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import {
   FacilitaWebhookType,
@@ -19,7 +20,10 @@ import {
 })
 export class WebhooksController {
   private readonly logger = new Logger(WebhooksController.name);
-  constructor(private paymentGatewayService: PaymentGatewayService) {}
+  constructor(
+    private paymentGatewayService: PaymentGatewayService,
+    private readonly externalWithdraw: ExternalWithdrawService,
+  ) {}
   @Post('/prime_trust')
   async primeTrustHandler(@Body() payload: PrimeTrustWebhookType) {
     this.logger.log(payload);
@@ -63,12 +67,17 @@ export class WebhooksController {
   }
 
   @Post('inswitch')
-  async inswitchHandler(@Req() req: Request) {
-    this.logger.debug('INSWITCH POST', req.body, req.headers);
+  inswitchHandler(@Req() req: RawBodyRequest<Request>) {
+    // this.logger.debug('INSWITCH POST', req.body, req.headers);
+
+    return this.externalWithdraw.authorize(req.rawBody);
   }
 
   @Put('inswitch/:authorizationId')
-  async inswitchPutHandler(@Param('authorizationId') authorizationId: string, @Req() req: Request) {
-    this.logger.debug('INSWITCH PUT', req.body, authorizationId);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async inswitchPutHandler(@Param('authorizationId') authorizationId: string, @Req() req: RawBodyRequest<Request>) {
+    // this.logger.debug('INSWITCH PUT', req.body, authorizationId);
+
+    return this.externalWithdraw.update(authorizationId, req.rawBody);
   }
 }

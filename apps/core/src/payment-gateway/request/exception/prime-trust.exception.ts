@@ -15,6 +15,7 @@ export class PrimeTrustException extends Error {
     super('Prime trust');
     this.code = Status.ABORTED;
     this.errors = response.data.errors;
+    this.message = this.getFirstError().detail;
   }
 
   getFirstError() {

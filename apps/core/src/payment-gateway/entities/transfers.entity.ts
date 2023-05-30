@@ -40,46 +40,46 @@ export class TransfersEntity {
   user_id: number;
 
   @Column('integer', { nullable: true })
-  receiver_id: number;
+  receiver_id?: number;
 
   @Column('character varying', { length: 50, nullable: true })
-  uuid: string;
+  uuid?: string;
 
   @Column('integer', { nullable: true })
-  param_id: number;
+  param_id?: number;
 
   @Column('character varying', { length: 50, nullable: true })
-  param_type: ParamsTypes;
+  param_type?: ParamsTypes;
 
   @Column('character varying', { length: 50, nullable: true })
-  type: TransferTypes;
+  type?: TransferTypes;
 
   @Column('character varying', { length: 50, nullable: true })
-  payment_type: PaymentTypes;
+  payment_type?: PaymentTypes;
 
   @Column('character varying', { length: 50, nullable: true })
-  provider: string;
+  provider?: string;
 
   @Column('double precision', { nullable: true })
-  amount: number;
+  amount?: number;
 
   @Column('double precision', { nullable: true })
-  amount_usd: number;
+  amount_usd?: number;
 
   @Column('double precision', { nullable: true })
-  fee: number;
+  fee?: number;
 
   @Column('character varying', { length: 50, nullable: true })
-  currency_type: string;
+  currency_type?: string;
 
   @Column('character varying', { length: 50, nullable: true })
-  status: TransferStatus;
+  status?: TransferStatus;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at?: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at?: Date;
 
   @ManyToOne(() => PrimeTrustContactEntity, (contact) => contact.transferFunds, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
