@@ -68,7 +68,7 @@ export class WebhooksController {
 
   @Post('inswitch')
   inswitchHandler(@Req() req: RawBodyRequest<Request>) {
-    // this.logger.debug('INSWITCH POST', req.body, req.headers);
+    this.logger.debug('INSWITCH POST', req.body);
 
     return this.externalWithdraw.authorize(req.rawBody);
   }
@@ -76,7 +76,7 @@ export class WebhooksController {
   @Put('inswitch/:authorizationId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async inswitchPutHandler(@Param('authorizationId') authorizationId: string, @Req() req: RawBodyRequest<Request>) {
-    // this.logger.debug('INSWITCH PUT', req.body, authorizationId);
+    this.logger.debug('INSWITCH PUT', req.body, authorizationId);
 
     return this.externalWithdraw.update(authorizationId, req.rawBody);
   }
