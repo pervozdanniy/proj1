@@ -173,8 +173,8 @@ export class PrimeLinkManager {
       if (currentPayment) {
         if (currentPayment.status !== TransferStatus.IDENTIFIED) {
           this.notificationService.createAsync(currentPayment.user_id, {
-            type: 'payment',
-            data: { description: `Your payment status ${currentPayment.status}` },
+            type: 'payment_status_changed',
+            data: { status: currentPayment.status },
           });
         }
       }

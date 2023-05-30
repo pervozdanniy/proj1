@@ -18,7 +18,7 @@ export class PaymentAccountCreationData {
 
 @ApiExtraModels(KYCEventData, PaymentAccountCreationData)
 export class NotificationEventDto {
-  @ApiProperty({ enum: ['payment_account_creation', 'balance_updated', 'kyc'] })
+  @ApiProperty({ enum: ['payment_account_creation', 'balance_updated', 'kyc', 'payment_status_changed'] })
   type: string;
 
   @ApiProperty({ oneOf: [{ $ref: getSchemaPath(KYCEventData) }, { $ref: getSchemaPath(PaymentAccountCreationData) }] })

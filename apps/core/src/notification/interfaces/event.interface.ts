@@ -5,10 +5,10 @@ export interface BaseNotificationEvent {
 
 export type NotificationEvent = PaymentAccountCreationEvent | BalanceUpdatedEvent | KYCEvent | PaymentEvent;
 
-export interface PaymentEvent {
-  type: 'payment';
+export interface PaymentEvent extends BaseNotificationEvent {
+  type: 'payment_status_changed';
   data: {
-    description: string;
+    status: string;
   };
 }
 
