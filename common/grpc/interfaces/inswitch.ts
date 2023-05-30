@@ -80,6 +80,20 @@ export interface ExternalPaymentMethodResponse {
   reference: string;
 }
 
+export interface ExternalWithdrawAuthorizationRequest {
+  payload: Uint8Array;
+}
+
+export interface ExternalWithdrawAuthorizationResponse {
+  authorization_id: string;
+  status: string;
+}
+
+export interface ExternalWithdrawUpdateRequest {
+  authorization_id: string;
+  payload: Uint8Array;
+}
+
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface CardsServiceClient {
@@ -186,3 +200,45 @@ export function ExternalBalanceServiceControllerMethods() {
 }
 
 export const EXTERNAL_BALANCE_SERVICE_NAME = "ExternalBalanceService";
+
+export interface ExternalWithdrawAuthorizationServiceClient {
+  authorize(
+    request: ExternalWithdrawAuthorizationRequest,
+    ...rest: any
+  ): Observable<ExternalWithdrawAuthorizationResponse>;
+
+  update(request: ExternalWithdrawUpdateRequest, ...rest: any): Observable<Empty>;
+}
+
+export interface ExternalWithdrawAuthorizationServiceController {
+  authorize(
+    request: ExternalWithdrawAuthorizationRequest,
+    ...rest: any
+  ):
+    | Promise<ExternalWithdrawAuthorizationResponse>
+    | Observable<ExternalWithdrawAuthorizationResponse>
+    | ExternalWithdrawAuthorizationResponse;
+
+  update(request: ExternalWithdrawUpdateRequest, ...rest: any): void;
+}
+
+export function ExternalWithdrawAuthorizationServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = ["authorize", "update"];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("ExternalWithdrawAuthorizationService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("ExternalWithdrawAuthorizationService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
+    }
+  };
+}
+
+export const EXTERNAL_WITHDRAW_AUTHORIZATION_SERVICE_NAME = "ExternalWithdrawAuthorizationService";

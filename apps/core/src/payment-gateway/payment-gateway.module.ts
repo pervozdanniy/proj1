@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { asyncClientOptions } from '~common/grpc/helpers';
 import { CountryModule } from '../country/country.module';
 import { DepositFlowController } from './controllers/deposit-flow.controller';
+import { ExternalWithdrawAuthorizationController } from './controllers/external-withdraw-authorization.controller';
 import { KYCController } from './controllers/kyc.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
@@ -32,6 +33,7 @@ import { InswitchModule } from './modules/inswitch/inswitch.module';
 import { VeriffModule } from './modules/veriff/veriff.module';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { CurrencyService } from './services/currency.service';
+import { PrimeTrustClient } from './services/external-withdraw-authorization/prime-trust.client';
 import { WithdrawAuthorizationService } from './services/external-withdraw-authorization/withdraw-authorization.service';
 import { FacilitaService } from './services/facilita/facilita.service';
 import { FacilitaDepositManager } from './services/facilita/managers/facilita-deposit.manager';
@@ -138,13 +140,19 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     LiquidoDepositManager,
     FacilitaTokenManager,
     WithdrawAuthorizationService,
+    PrimeTrustClient,
     KYCService,
     FacilitaMainManager,
     MexicoPayoutService,
     BrazilPayoutService,
     ChilePayoutService,
   ],
-  controllers: [PaymentGatewayController, DepositFlowController, KYCController],
+  controllers: [
+    PaymentGatewayController,
+    DepositFlowController,
+    KYCController,
+    ExternalWithdrawAuthorizationController,
+  ],
   exports: [PaymentGatewayService, CurrencyService],
 })
 export class PaymentGatewayModule {}

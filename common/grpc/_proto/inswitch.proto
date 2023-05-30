@@ -31,6 +31,12 @@ service ExternalBalanceService {
     rpc GetPaymentMethodReference (common.UserIdRequest) returns (ExternalPaymentMethodResponse);
 }
 
+service ExternalWithdrawAuthorizationService {
+    rpc Authorize (ExternalWithdrawAuthorizationRequest) returns (ExternalWithdrawAuthorizationResponse);
+
+    rpc Update (ExternalWithdrawUpdateRequest) returns (google.protobuf.Empty);
+}
+
 message CardId {
     string reference = 1;
     uint32 user_id = 2;
@@ -102,4 +108,18 @@ message ExternalBalanceResponse {
 
 message ExternalPaymentMethodResponse {
     string reference = 1;
+}
+
+message ExternalWithdrawAuthorizationRequest {
+    bytes payload = 1;
+}
+
+message ExternalWithdrawAuthorizationResponse {
+    string authorization_id = 1;
+    string status = 2;
+}
+
+message ExternalWithdrawUpdateRequest {
+    string authorization_id = 1;
+    bytes payload = 2;
 }

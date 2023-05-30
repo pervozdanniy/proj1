@@ -1,5 +1,6 @@
 import { UserEntity } from '@/user/entities/user.entity';
 import { ConflictException, Injectable } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -101,9 +102,9 @@ export class InswitchService {
   async parseWithdrawRequest(payload: AuthorizationWebhookRequest) {
     const withdraw = {
       id: payload.transactionInfo.authorizationId,
-      amount: Number.parseFloat(payload.transactionInfo.amount),
+      amount: payload.transactionInfo.amount,
       currency: payload.transactionInfo.currency,
-      rate: Number.parseFloat(payload.transactionInfo.fx_rate),
+      rate: payload.transactionInfo.fx_rate,
     };
     const user = await this.userRepo
       .createQueryBuilder('u')
@@ -142,16 +143,21 @@ export class InswitchService {
   async updateWithdraw(payload: AuthorizationWebhookRequest) {
     const entity = await this.withdrawRepo.findOneBy({ id: payload.transactionInfo.authorizationId });
     if (!entity) {
-      return;
+      throw new UnauthorizedException();
     }
     switch (payload.transactionInfo.status) {
       case TransactionStatus.Finished:
         await this.withdrawRepo.update(entity.id, { status: InswitchAuthorizationStatus.Approved });
-        break;
+
+        return { approved: true, amount: entity.amount };
       case TransactionStatus.Reverted:
       case TransactionStatus.Declined:
         await this.withdrawRepo.delete(entity.id);
-        break;
+
+        return { approved: false, amount: entity.amount };
+
+      default:
+        return { approved: true, amount: entity.amount };
     }
   }
 
@@ -164,12 +170,8 @@ export class InswitchService {
     return this.withdrawRepo
       .createQueryBuilder('iw')
       .select('SUM(iw.amount / iw.usd_rate)', 'amount')
-      .addSelect('ia.user_id', 'user_id')
-      .innerJoin(InswitchAccountEntity, 'ia', 'iw.entity_id = ia.entity_id')
-      .where('iw.status = :status', { status: InswitchAuthorizationStatus.Approved })
-      .groupBy('iw.entity_id')
-      .addGroupBy('ia.user_id')
-      .getRawIterator<{ amount: string; user_id: number }>();
+      .where('iw.status = :status', { status: InswitchAuthorizationStatus.Processing })
+      .getRawOne<{ amount: string }>();
   }
 
   async finishProcessing() {
