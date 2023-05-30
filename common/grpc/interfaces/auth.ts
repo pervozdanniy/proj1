@@ -129,10 +129,6 @@ export interface CreateAgreementRequest {
   details: UserDetails | undefined;
 }
 
-export interface ApproveAgreementRequest {
-  id: string;
-}
-
 export interface ResetPasswordStartRequest {
   email?: string | undefined;
   phone?: string | undefined;
@@ -216,8 +212,6 @@ export interface RegisterServiceClient {
 
   createAgreement(request: CreateAgreementRequest, ...rest: any): Observable<UserAgreement>;
 
-  approveAgreement(request: ApproveAgreementRequest, ...rest: any): Observable<SuccessResponse>;
-
   registerFinish(request: RegisterFinishRequest, ...rest: any): Observable<User>;
 }
 
@@ -234,23 +228,12 @@ export interface RegisterServiceController {
     ...rest: any
   ): Promise<UserAgreement> | Observable<UserAgreement> | UserAgreement;
 
-  approveAgreement(
-    request: ApproveAgreementRequest,
-    ...rest: any
-  ): Promise<SuccessResponse> | Observable<SuccessResponse> | SuccessResponse;
-
   registerFinish(request: RegisterFinishRequest, ...rest: any): Promise<User> | Observable<User> | User;
 }
 
 export function RegisterServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = [
-      "registerStart",
-      "registerVerify",
-      "createAgreement",
-      "approveAgreement",
-      "registerFinish",
-    ];
+    const grpcMethods: string[] = ["registerStart", "registerVerify", "createAgreement", "registerFinish"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("RegisterService", method)(constructor.prototype[method], method, descriptor);

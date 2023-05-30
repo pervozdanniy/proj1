@@ -5,7 +5,6 @@ import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { User } from '~common/grpc/interfaces/common';
 import {
-  Contact,
   RecepientsRequest,
   SearchContactRequest,
   UpdateRequest,
@@ -25,9 +24,9 @@ export class UserService implements OnModuleInit {
     this.userService = this.core.getService('UserService');
   }
 
-  private withAvatarUrl(user: User): User;
-  private withAvatarUrl(user: Contact): Contact;
-  private withAvatarUrl(user: any): any {
+  withAvatarUrl(user: User): User;
+  withAvatarUrl<T extends { avatar?: string }>(user: T): T;
+  withAvatarUrl(user: any): any {
     if (user.details?.avatar) {
       user.details.avatar = this.s3.getUrl(user.details.avatar);
     }

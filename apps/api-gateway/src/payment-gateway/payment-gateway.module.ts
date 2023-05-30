@@ -34,6 +34,7 @@ import { SandboxService } from './services/sandbox.service';
     ExternalBalanceController,
   ],
   providers: [PaymentGatewayService, SandboxService, DepositService, CardsService, ExternalBalanceService, KYCService],
+  exports: [PaymentGatewayService, ExternalBalanceService],
 })
 export class PaymentGatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

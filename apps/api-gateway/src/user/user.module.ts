@@ -25,6 +25,7 @@ import { UserController } from './user.controller';
     },
     PaymentGatewayService,
   ],
+  exports: [UserService],
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

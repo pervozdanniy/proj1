@@ -28,7 +28,6 @@ export type UserDetailsSessionData = {
       avatar?: string | undefined;
     };
   };
-  agreement: AgreementSessionData;
 };
 
 export interface RegisterSessionInterface extends SessionInterface {

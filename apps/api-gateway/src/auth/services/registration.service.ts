@@ -7,7 +7,6 @@ import { RegisterServiceClient } from '~common/grpc/interfaces/auth';
 import { TwoFactorVerifyResponseDto } from '../dto/2fa.reponse.dto';
 import { AuthResponseDto } from '../dto/auth.response.dto';
 import {
-  ChangeAgreementStatusDto,
   CreateAgreementRequestDto,
   RegistrationFinishRequestDto,
   RegistrationStartRequestDto,
@@ -40,24 +39,19 @@ export class RegistrationService implements OnModuleInit {
     return parseVerificationResponse(resp);
   }
 
+  async createAgreement(payload: CreateAgreementRequestDto, sessionId: string) {
+    const metadata = new Metadata();
+    metadata.set('sessionId', sessionId);
+
+    const { content } = await firstValueFrom(this.authClient.createAgreement(payload, metadata));
+
+    return { content };
+  }
+
   async finish(payload: RegistrationFinishRequestDto, sessionId: string) {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 
     return firstValueFrom(this.authClient.registerFinish(payload, metadata));
-  }
-
-  async createAgreement(payload: CreateAgreementRequestDto, sessionId: string) {
-    const metadata = new Metadata();
-    metadata.set('sessionId', sessionId);
-
-    return firstValueFrom(this.authClient.createAgreement(payload, metadata));
-  }
-
-  async approveAgreement(payload: ChangeAgreementStatusDto, sessionId: string) {
-    const metadata = new Metadata();
-    metadata.set('sessionId', sessionId);
-
-    return firstValueFrom(this.authClient.approveAgreement(payload, metadata));
   }
 }

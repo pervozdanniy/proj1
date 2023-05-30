@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import configuration from '~common/config/configuration';
+import { AccountModule } from './account/account.module';
 import { AuthModule } from './auth';
 import { CountryModule } from './country/country.module';
 import { HealthModule } from './health/health.module';
@@ -11,6 +12,7 @@ import { UserModule } from './user/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [configuration], isGlobal: true }),
+    AccountModule,
     UserModule,
     PaymentGatewayModule,
     AuthModule,
