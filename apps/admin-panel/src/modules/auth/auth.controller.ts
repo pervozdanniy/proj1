@@ -13,11 +13,13 @@ import {
   Post,
   Res,
   UseGuards,
-  ValidationPipe
-} from "@nestjs/common";
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiCookieAuth,
   ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -55,8 +57,9 @@ export class AuthController {
     return await this.authService.login(authCredentialsDto, response);
   }
 
+  @SkipAuth()
   @ApiOperation({ description: 'User Logout' })
-  @ApiOkResponse({ description: 'Successfully User Logout' })
+  @ApiNoContentResponse({ description: 'Successfully User Logout' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiInternalServerErrorResponse({ description: 'Server error' })
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -77,6 +80,7 @@ export class AuthController {
 
   @SkipAuth()
   @UseGuards(JwtRefreshAuthGuard)
+  @ApiCookieAuth()
   @ApiOperation({ description: 'Renew access in the application' })
   @ApiOkResponse({ description: 'token successfully renewed', type: TokenDto })
   @ApiUnauthorizedResponse({ description: 'Refresh token invalid or expired' })

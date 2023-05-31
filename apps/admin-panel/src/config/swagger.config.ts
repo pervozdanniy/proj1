@@ -1,4 +1,5 @@
 import { AUTH_OPTIONS, TOKEN_NAME } from '@auth';
+import { REFRESH_TOKEN_NAME } from '@modules/auth/constants';
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
@@ -15,6 +16,7 @@ export const SwaggerConfig = (app: INestApplication, apiVersion: string) => {
     .setDescription(description)
     .setVersion(apiVersion)
     .addBearerAuth(AUTH_OPTIONS, TOKEN_NAME)
+    .addCookieAuth(REFRESH_TOKEN_NAME)
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
