@@ -52,12 +52,10 @@ export class InswitchApiService {
 
   #handleHttpException = (error: any): never => {
     if (axios.isAxiosError(error) && error.response) {
-      console.log('INSWITCH', error.response.data);
-
-      throw new HttpException(error.response.data.errorDescription, error.response.status, error);
+      throw new HttpException(error.response.data.errorDescription, error.response.status, { cause: error });
     }
 
-    throw new InternalServerErrorException(error.message);
+    throw new InternalServerErrorException(error.message, { cause: error });
   };
 
   private async authorize(refreshToken?: string): Promise<AuthToken> {
