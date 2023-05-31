@@ -19,6 +19,7 @@ import { PrimeTrustClient } from './prime-trust.client';
 export class WithdrawAuthorizationService {
   private readonly intermediateAccountId: string;
   private readonly logger = new Logger(WithdrawAuthorizationService.name);
+
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly inswitch: InswitchService,

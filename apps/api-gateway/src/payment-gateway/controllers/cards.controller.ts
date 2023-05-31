@@ -27,6 +27,7 @@ export class CardsController {
   @ApiOperation({ summary: "List user's cards" })
   @ApiOkResponse({ type: CardDto })
   @ApiBearerAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Get()
   list(@JwtSessionUser() { id }: User): Promise<CardsListDto> {
     return this.cards.list(id);
@@ -44,6 +45,7 @@ export class CardsController {
   @ApiOperation({ summary: "Get card's details" })
   @ApiOkResponse({ type: CardDetailsDto })
   @ApiBearerAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @Get(':reference')
   details(@Param('reference') reference: string, @JwtSessionUser() { id }: User): Promise<CardDetailsDto> {
     return this.cards.details(reference, id);
@@ -52,6 +54,7 @@ export class CardsController {
   @ApiOperation({ summary: 'Set pin for physical card' })
   @ApiNoContentResponse()
   @ApiBearerAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':reference/pin')
   async setPin(@Param('reference') reference: string, @Body() { pin }: SetPinDto, @JwtSessionUser() { id }: User) {
@@ -61,6 +64,7 @@ export class CardsController {
   @ApiOperation({ summary: 'Regenerate cvv for virtual card' })
   @ApiNoContentResponse()
   @ApiBearerAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':reference/regenerate_cvv')
   async regenerateCvv(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
@@ -70,6 +74,7 @@ export class CardsController {
   @ApiOperation({ summary: 'Activate card' })
   @ApiNoContentResponse()
   @ApiBearerAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':reference/activate')
   async activate(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
@@ -79,6 +84,7 @@ export class CardsController {
   @ApiOperation({ summary: 'Deactivate card' })
   @ApiNoContentResponse()
   @ApiBearerAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':reference/activate')
   async deactivate(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
@@ -88,6 +94,7 @@ export class CardsController {
   @ApiOperation({ summary: 'Block card' })
   @ApiNoContentResponse()
   @ApiBearerAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':reference/block')
   async block(@Param('reference') reference: string, @Body() { reason }: CardBlockDto, @JwtSessionUser() { id }: User) {
@@ -97,6 +104,7 @@ export class CardsController {
   @ApiOperation({ summary: 'Unblock card' })
   @ApiNoContentResponse()
   @ApiBearerAuth()
+  @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':reference/unblock')
   async unblock(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {

@@ -3,6 +3,7 @@ import { ArgumentsHost, Catch, HttpException } from '@nestjs/common';
 import { isObject } from '@nestjs/common/utils/shared.utils';
 import { BaseRpcExceptionFilter } from '@nestjs/microservices';
 import * as Sentry from '@sentry/node';
+import axios from 'axios';
 import { Observable, throwError } from 'rxjs';
 import { EntityNotFoundError, QueryFailedError } from 'typeorm';
 import { GrpcException } from '../exceptions/grpc.exception';
@@ -35,7 +36,11 @@ export class BaseGrpcExceptionFilter extends BaseRpcExceptionFilter {
 export class AllExceptionFilter extends BaseGrpcExceptionFilter {
   catch(exception: any, host: ArgumentsHost): Observable<any> {
     if (process.env.NODE_ENV === 'dev') {
-      console.log('EX', exception);
+      if (axios.isAxiosError(exception)) {
+        console.log('HTTP EX', exception.response.data);
+      } else {
+        console.log('EX', exception);
+      }
     }
     let finalException = exception;
 
