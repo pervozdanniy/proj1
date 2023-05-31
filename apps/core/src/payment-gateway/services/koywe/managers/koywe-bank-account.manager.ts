@@ -46,9 +46,17 @@ export class KoyweBankAccountManager {
 
   async addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
     const { bank_code, bank_account_number, id, bank_account_name, bank_agency_code } = request;
+
     const { country_code, email, documents } = await this.userService.getUserInfo(id);
     const { code, currency_type } = countriesData[country_code];
-
+    if (country_code === 'CL') {
+      if (!bank_agency_code) {
+        throw new ConflictException('Please fill bank_agency_code!');
+      }
+      if (!bank_code) {
+        throw new ConflictException('Please fill bank_code!');
+      }
+    }
     const document = documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
