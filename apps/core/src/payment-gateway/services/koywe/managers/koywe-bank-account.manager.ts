@@ -45,7 +45,7 @@ export class KoyweBankAccountManager {
   }
 
   async addBankAccountParams(request: BankAccountParams): Promise<BankAccountParams> {
-    const { bank_code, bank_account_number, id, bank_account_name } = request;
+    const { bank_code, bank_account_number, id, bank_account_name, bank_agency_code } = request;
     const { country_code, email, documents } = await this.userService.getUserInfo(id);
     const { code, currency_type } = countriesData[country_code];
 
@@ -78,6 +78,7 @@ export class KoyweBankAccountManager {
           country: country_code,
           bank_account_name,
           bank_account_number,
+          bank_agency_code: `0${bank_agency_code}`,
           account_uuid: bankResponse.data._id,
           account: bankResponse.data.account,
         }),
