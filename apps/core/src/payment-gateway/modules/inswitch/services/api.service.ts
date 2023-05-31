@@ -123,11 +123,13 @@ export class InswitchApiService {
               country: request.country,
             },
           },
-          idDocuments: {
-            idType: request.documentType,
-            idNumber: request.documentNumber,
-            issuerCountry: request.documentCountry,
-          },
+          idDocuments: [
+            {
+              idType: request.documentType,
+              idNumber: request.documentNumber,
+              issuerCountry: request.documentCountry,
+            },
+          ],
           entityType: 'naturalPerson',
         },
         { headers: { 'X-User-Bearer': token, apikey: this.apiKey } },
