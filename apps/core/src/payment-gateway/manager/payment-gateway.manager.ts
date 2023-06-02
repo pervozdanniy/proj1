@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import {
   BankDepositInterface,
@@ -62,7 +62,7 @@ export class PaymentGatewayManager {
       case 'PE':
         return this.moduleRef.get(PeruPaymentGateway);
       default:
-        throw new Error(`Unsupported country: "${type}"`);
+        throw new NotImplementedException(`Unsupported country: "${type}"`);
     }
   }
 }

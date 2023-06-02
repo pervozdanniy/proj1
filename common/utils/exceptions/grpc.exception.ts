@@ -11,6 +11,7 @@ const httpToGrpc: Partial<Record<HttpStatus, status>> = {
   [HttpStatus.PRECONDITION_FAILED]: status.FAILED_PRECONDITION,
   [HttpStatus.UNPROCESSABLE_ENTITY]: status.INVALID_ARGUMENT,
   [HttpStatus.INTERNAL_SERVER_ERROR]: status.INTERNAL,
+  [HttpStatus.NOT_IMPLEMENTED]: status.UNIMPLEMENTED,
 };
 
 const grpcToHttp: Partial<Record<status, HttpStatus>> = {
