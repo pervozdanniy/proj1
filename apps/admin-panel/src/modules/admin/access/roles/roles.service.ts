@@ -65,8 +65,9 @@ export class RolesService extends Repository<RoleEntity> {
     try {
       let roleEntity = RoleMapper.toCreateEntity(roleDto);
       roleEntity = await this.save(roleEntity);
+      roleEntity = await this.findOneOrFail({ where: { id: roleEntity.id }, relations: ['permissions'] });
 
-      return RoleMapper.toDto(roleEntity);
+      return RoleMapper.toDtoWithRelations(roleEntity);
     } catch (error) {
       if (error.code == DBErrorCode.PgUniqueConstraintViolation) {
         throw new RoleExistsException(roleDto.name);
@@ -100,8 +101,9 @@ export class RolesService extends Repository<RoleEntity> {
     try {
       roleEntity = RoleMapper.toUpdateEntity(roleEntity, roleDto);
       roleEntity = await this.save(roleEntity);
+      roleEntity = await this.findOneOrFail({ where: { id: roleEntity.id }, relations: ['permissions'] });
 
-      return RoleMapper.toDto(roleEntity);
+      return RoleMapper.toDtoWithRelations(roleEntity);
     } catch (error) {
       if (error.code == DBErrorCode.PgUniqueConstraintViolation) {
         throw new RoleExistsException(roleDto.name);
