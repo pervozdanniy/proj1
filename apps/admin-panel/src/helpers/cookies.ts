@@ -1,6 +1,6 @@
-import { REFRESH_TOKEN_NAME } from '@modules/auth/constants';
 import * as cookie from 'cookie';
 import { Response } from 'express';
+import { REFRESH_TOKEN_NAME } from '../modules/auth/constants';
 
 export function prepareAuthCookie(response: Response, refreshToken: string, domain: string, maxAge: number) {
   const cookieOptions = getCommonCookiesOptions(domain);

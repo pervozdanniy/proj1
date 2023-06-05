@@ -1,8 +1,8 @@
-import { InvalidTokenException } from '@adminCommon/http/exceptions';
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { ExtractJwt } from 'passport-jwt';
+import { InvalidTokenException } from '../../../common/http/exceptions';
 import { SKIP_AUTH } from '../constants';
 import { TokenType } from '../enums';
 import { TokenService } from '../services';

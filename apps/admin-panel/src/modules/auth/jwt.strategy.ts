@@ -1,12 +1,12 @@
-import { UserStatus } from '@admin/access/users/user-status.enum';
-import { UserEntity } from '@admin/access/users/user.entity';
-import { UsersService } from '@admin/access/users/users.service';
-import { ErrorType } from '@adminCommon/enums';
-import { DisabledUserException, InvalidCredentialsException } from '@adminCommon/http/exceptions';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ErrorType } from '../../common/enums';
+import { DisabledUserException, InvalidCredentialsException } from '../../common/http/exceptions';
+import { UserStatus } from '../admin/access/users/user-status.enum';
+import { UserEntity } from '../admin/access/users/user.entity';
+import { UsersService } from '../admin/access/users/users.service';
 import { JwtPayload } from './dtos';
 
 @Injectable()

@@ -1,8 +1,8 @@
-import { InvalidTokenException } from '@adminCommon/http/exceptions';
-import { REFRESH_TOKEN_NAME } from '@modules/auth/constants';
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ExtractJwt } from 'passport-jwt';
+import { InvalidTokenException } from '../../../common/http/exceptions';
+import { REFRESH_TOKEN_NAME } from '../../auth/constants';
 import { TokenType } from '../enums';
 import { TokenService } from '../services';
 

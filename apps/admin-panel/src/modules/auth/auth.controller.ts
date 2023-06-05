@@ -1,8 +1,3 @@
-import { UserEntity } from '@admin/access/users/user.entity';
-import { REFRESH_TOKEN_NAME } from '@modules/auth/constants';
-import { Cookies } from '@modules/auth/decorators/cookies.decorator';
-import { GetMeResponseDto } from '@modules/auth/dtos/get-me-response.dto';
-import { JwtRefreshAuthGuard } from '@modules/auth/guards/jwt-refresh-auth.guard';
 import {
   Body,
   Controller,
@@ -27,6 +22,11 @@ import {
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import { CurrentUser, SkipAuth, TOKEN_NAME } from '.';
+import { UserEntity } from '../admin/access/users/user.entity';
+import { REFRESH_TOKEN_NAME } from '../auth/constants';
+import { Cookies } from '../auth/decorators/cookies.decorator';
+import { GetMeResponseDto } from '../auth/dtos/get-me-response.dto';
+import { JwtRefreshAuthGuard } from '../auth/guards/jwt-refresh-auth.guard';
 import {
   AuthCredentialsRequestDto,
   LoginResponseDto,

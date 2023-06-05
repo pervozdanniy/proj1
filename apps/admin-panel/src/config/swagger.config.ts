@@ -1,7 +1,6 @@
-import { AUTH_OPTIONS, TOKEN_NAME } from '@auth';
-import { REFRESH_TOKEN_NAME } from '@modules/auth/constants';
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AUTH_OPTIONS, REFRESH_TOKEN_NAME, TOKEN_NAME } from '../modules/auth/constants';
 
 const title = 'Skopa Admin Panel API';
 const description = 'Skopa Admin Panel API';

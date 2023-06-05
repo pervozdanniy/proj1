@@ -6,13 +6,14 @@ import "common.proto";
 import public "payment-gateway.proto";
 import public "country.proto";
 import public "notification.proto";
+import public "admin_panel.proto";
 
 service UserService {
   rpc GetById (common.IdRequest) returns (common.User);
 
-  rpc FindByLogin (FindByLoginRequest) returns (NullableUser);
+  rpc FindByLogin (FindByLoginRequest) returns (common.NullableUser);
 
-  rpc FindBySocialId (FindBySocialIdRequest) returns (NullableUser);
+  rpc FindBySocialId (FindBySocialIdRequest) returns (common.NullableUser);
 
   rpc Create (CreateRequest) returns (common.User);
 
@@ -58,10 +59,6 @@ message RecepientsRequest {
 
 message RecepientsResponse {
   repeated Contact recepients = 1;
-}
-
-message NullableUser {
-  optional common.User user = 1;
 }
 
 message UserContacts {

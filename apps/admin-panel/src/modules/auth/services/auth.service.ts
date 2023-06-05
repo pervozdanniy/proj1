@@ -1,17 +1,17 @@
-import { UserStatus } from '@admin/access/users/user-status.enum';
-import { UserEntity } from '@admin/access/users/user.entity';
-import { UserMapper } from '@admin/access/users/users.mapper';
-import { UsersService } from '@admin/access/users/users.service';
-import { ErrorType } from '@adminCommon/enums';
-import { DisabledUserException, InvalidCredentialsException } from '@adminCommon/http/exceptions';
-import { HashHelper } from '@helpers';
-import { GetMeResponseDto } from '@modules/auth/dtos/get-me-response.dto';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import ms from 'ms';
-import { ConfigInterface } from '../../../../../../common/config/configuration';
+import { ConfigInterface } from '~common/config/configuration';
+import { ErrorType } from '../../../common/enums';
+import { DisabledUserException, InvalidCredentialsException } from '../../../common/http/exceptions';
+import { HashHelper } from '../../../helpers';
 import { prepareAuthCookie, prepareLogoutCookie } from '../../../helpers/cookies';
+import { UserStatus } from '../../admin/access/users/user-status.enum';
+import { UserEntity } from '../../admin/access/users/user.entity';
+import { UserMapper } from '../../admin/access/users/users.mapper';
+import { UsersService } from '../../admin/access/users/users.service';
+import { GetMeResponseDto } from '../../auth/dtos/get-me-response.dto';
 import { AuthCredentialsRequestDto, JwtPayload, LoginResponseDto } from '../dtos';
 import { TokenService } from './token.service';
 

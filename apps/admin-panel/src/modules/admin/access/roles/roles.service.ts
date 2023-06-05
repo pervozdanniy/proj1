@@ -1,11 +1,11 @@
-import { RoleEntity } from '@admin/access/roles/role.entity';
-import { DBErrorCode } from '@adminCommon/enums';
-import { ForeignKeyConflictException, RoleExistsException } from '@adminCommon/http/exceptions';
-import { Pagination, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
+import { Pagination, PaginationRequest, PaginationResponseDto } from '@/libs/pagination';
 import { Injectable, InternalServerErrorException, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TimeoutError } from 'rxjs';
 import { Repository } from 'typeorm';
+import { DBErrorCode } from '../../../../common/enums';
+import { ForeignKeyConflictException, RoleExistsException } from '../../../../common/http/exceptions';
+import { RoleEntity } from '../roles/role.entity';
 import { CreateRoleRequestDto, RoleResponseDto, UpdateRoleRequestDto } from './dtos';
 import { RoleMapper } from './role.mapper';
 

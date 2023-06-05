@@ -1,10 +1,10 @@
-import { HttpExceptionFilter, HttpResponseInterceptor } from '@adminCommon/http';
-import { SwaggerConfig } from '@config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import * as process from 'process';
 import { AdminPanelModule } from './admin-panel.module';
+import { HttpExceptionFilter, HttpResponseInterceptor } from './common/http';
+import { SwaggerConfig } from './config/swagger.config';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AdminPanelModule);

@@ -1,14 +1,14 @@
-import { UserStatus } from '@admin/access/users/user-status.enum';
-import { UsersService } from '@admin/access/users/users.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import {
   AccessTokenExpiredException,
   InvalidTokenException,
   RefreshTokenExpiredException,
-} from '@adminCommon/http/exceptions';
-import { IGenerateRefreshTokenPayload } from '@modules/auth/interfaces/token.interface';
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+} from '../../../common/http/exceptions';
+import { UserStatus } from '../../admin/access/users/user-status.enum';
+import { UsersService } from '../../admin/access/users/users.service';
+import { IGenerateRefreshTokenPayload } from '../../auth/interfaces/token.interface';
 import { JwtPayload, ValidateTokenResponseDto } from '../dtos';
 import { TokenError, TokenType } from '../enums';
 

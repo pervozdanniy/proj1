@@ -1,6 +1,4 @@
-import { ApiGlobalResponse } from '@adminCommon/decorators';
-import { CurrentUser, Permissions, TOKEN_NAME } from '@auth';
-import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
+import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@/libs/pagination';
 import {
   Body,
   Controller,
@@ -25,12 +23,14 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { ApiGlobalResponse } from '../../../../common/decorators';
 import { PM } from '../../../../constants/permission/map.permission';
+import { CurrentUser, Permissions, TOKEN_NAME } from '../../../auth';
 import { ChangePasswordRequestDto, CreateUserRequestDto, UpdateUserRequestDto, UserResponseDto } from './dtos';
 import { UserEntity } from './user.entity';
 import { UsersService } from './users.service';
 
-@ApiTags('Users')
+@ApiTags('Admin.Users')
 @ApiBearerAuth(TOKEN_NAME)
 @Controller({
   path: 'access/users',

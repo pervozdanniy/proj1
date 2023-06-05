@@ -1,7 +1,7 @@
-import { UserEntity } from '@admin/access/users/user.entity';
-import { UserMapper } from '@admin/access/users/users.mapper';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { UserEntity } from '../../admin/access/users/user.entity';
+import { UserMapper } from '../../admin/access/users/users.mapper';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {

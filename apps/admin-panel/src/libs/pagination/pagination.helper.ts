@@ -1,4 +1,4 @@
-import { PaginationRequest } from './interfaces';
+import { PaginationRequest } from '~common/libs/pagination/interfaces';
 import { PaginationResponseDto } from './pagination-response.dto';
 
 export class Pagination {

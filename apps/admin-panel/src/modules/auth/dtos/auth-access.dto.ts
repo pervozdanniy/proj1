@@ -1,5 +1,5 @@
-import { RolesAccessDto } from '@modules/auth/dtos/roles-access.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { RolesAccessDto } from '../../auth/dtos/roles-access.dto';
 
 export class AuthAccessDto {
   @ApiProperty()

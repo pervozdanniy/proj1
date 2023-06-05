@@ -1,17 +1,17 @@
-import { UserEntity } from '@admin/access/users/user.entity';
-import { DBErrorCode } from '@adminCommon/enums';
-import {
-  ForeignKeyConflictException,
-  InvalidCurrentPasswordException,
-  UserExistsException,
-} from '@adminCommon/http/exceptions';
-import { HashHelper } from '@helpers';
-import { Pagination, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
+import { Pagination, PaginationRequest, PaginationResponseDto } from '@/libs/pagination';
 import { Injectable, InternalServerErrorException, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TimeoutError } from 'rxjs';
 import { Repository } from 'typeorm';
+import { DBErrorCode } from '../../../../common/enums';
+import {
+  ForeignKeyConflictException,
+  InvalidCurrentPasswordException,
+  UserExistsException,
+} from '../../../../common/http/exceptions';
+import { HashHelper } from '../../../../helpers';
 import { ChangePasswordRequestDto, CreateUserRequestDto, UpdateUserRequestDto, UserResponseDto } from './dtos';
+import { UserEntity } from './user.entity';
 import { UserMapper } from './users.mapper';
 
 @Injectable()

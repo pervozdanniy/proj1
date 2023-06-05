@@ -1,7 +1,7 @@
-import { ResponseDto } from '@adminCommon/dtos';
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ResponseDto } from '../../common/dtos';
 
 @Injectable()
 export class HttpResponseInterceptor<T> implements NestInterceptor<T> {

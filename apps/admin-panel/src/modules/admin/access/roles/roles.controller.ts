@@ -1,7 +1,4 @@
-import { RolesService } from '@admin/access/roles/roles.service';
-import { ApiGlobalResponse } from '@adminCommon/decorators';
-import { Permissions, TOKEN_NAME } from '@auth';
-import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
+import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@/libs/pagination';
 import {
   Body,
   Controller,
@@ -26,10 +23,13 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { ApiGlobalResponse } from '../../../../common/decorators';
 import { PM } from '../../../../constants/permission/map.permission';
+import { Permissions, TOKEN_NAME } from '../../../auth';
 import { CreateRoleRequestDto, RoleResponseDto, UpdateRoleRequestDto } from './dtos';
+import { RolesService } from './roles.service';
 
-@ApiTags('Roles')
+@ApiTags('Admin.Roles')
 @ApiBearerAuth(TOKEN_NAME)
 @Controller({
   path: 'access/roles',

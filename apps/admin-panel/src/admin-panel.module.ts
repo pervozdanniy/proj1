@@ -1,10 +1,11 @@
-import { AdminModule } from '@admin/admin.module';
-import { AuthModule } from '@modules/auth/auth.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from '../../../common/config/configuration';
 import dbConfig from './db/config/db.config';
 import { DatabaseModule } from './db/database.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { DatabaseModule } from './db/database.module';
     DatabaseModule,
     AdminModule,
     AuthModule,
+    UserModule,
   ],
 })
 export class AdminPanelModule {

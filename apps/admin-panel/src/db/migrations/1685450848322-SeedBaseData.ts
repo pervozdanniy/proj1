@@ -35,6 +35,10 @@ const rolePermissions: Record<string, { slug: string; description: string }[]> =
       slug: PM.access.permissions.update,
       description: 'Update permissions',
     },
+    {
+      slug: PM.users.read,
+      description: 'Read App Users Data',
+    },
   ],
   Admin: [
     { slug: PM.access.users.read, description: 'Read users' },

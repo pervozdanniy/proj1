@@ -1,11 +1,11 @@
-import { PermissionEntity } from '@admin/access/permissions/permission.entity';
-import { DBErrorCode } from '@adminCommon/enums';
-import { PermissionExistsException } from '@adminCommon/http/exceptions';
-import { Pagination, PaginationRequest, PaginationResponseDto } from '@libs/pagination';
+import { Pagination, PaginationRequest, PaginationResponseDto } from '@/libs/pagination';
 import { Injectable, InternalServerErrorException, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TimeoutError } from 'rxjs';
 import { Repository } from 'typeorm';
+import { DBErrorCode } from '../../../../common/enums';
+import { PermissionEntity } from '../permissions/permission.entity';
+import { PermissionExistsException } from './../../../../common/http/exceptions';
 import { CreatePermissionRequestDto, PermissionResponseDto, UpdatePermissionRequestDto } from './dtos';
 import { PermissionMapper } from './permission.mapper';
 

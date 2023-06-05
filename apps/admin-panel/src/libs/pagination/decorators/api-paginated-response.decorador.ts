@@ -1,5 +1,3 @@
-import { ResponseDto } from '@adminCommon/dtos';
-import { PaginationResponseDto } from '@libs/pagination';
 import { applyDecorators, Type } from '@nestjs/common';
 import {
   ApiExtraModels,
@@ -11,6 +9,8 @@ import {
   ApiUnauthorizedResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
+import { ResponseDto } from '../../../common/dtos';
+import { PaginationResponseDto } from '../index';
 
 export const ApiPaginatedResponse = <TModel extends Type<any>>(model: TModel) => {
   return applyDecorators(

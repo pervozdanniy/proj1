@@ -17,4 +17,7 @@ export const PM = {
       delete: 'access.users.delete',
     },
   },
+  users: {
+    read: 'users.read',
+  },
 };
