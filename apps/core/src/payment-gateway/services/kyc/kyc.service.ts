@@ -16,7 +16,7 @@ export class KYCService {
     try {
       await this.veriff.eventHandler(request);
     } catch (error) {
-      this.logger.error('Event handler', error, request);
+      this.logger.error('Event handler', error.message, { request, error });
 
       throw new InternalServerErrorException(error.message);
     }
@@ -29,7 +29,7 @@ export class KYCService {
         await this.verifyPaymentAccount(user_id);
       }
     } catch (error) {
-      this.logger.error('Decision handler', error, request);
+      this.logger.error('Decision handler', error.message, { request, error });
 
       throw new InternalServerErrorException(error.message);
     }
