@@ -2,7 +2,7 @@ import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PaginationRequest } from '~common/libs/pagination/interfaces';
+import { PaginationRequest } from '~common/interfaces/pagination';
 
 @Injectable()
 export class UserAdminService {

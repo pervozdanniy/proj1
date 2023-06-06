@@ -1,3 +1,4 @@
+import { TransferModule } from '@/modules/transfer/transfer.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from '../../../common/config/configuration';
@@ -14,6 +15,7 @@ import { UserModule } from './modules/user/user.module';
     AdminModule,
     AuthModule,
     UserModule,
+    TransferModule,
   ],
 })
 export class AdminPanelModule {

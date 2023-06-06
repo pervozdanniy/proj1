@@ -7,7 +7,7 @@ export interface PaginationRequest {
   /**
    * The index of the page where the pagination should start from.
    *
-   * Its intended for the same purpose that `skip`, but the latter represents an amount of
+   * It's intended for the same purpose that `skip`, but the latter represents an amount of
    * records that should be skipped.
    *
    * Should be used only when needed to handle the pagination by the current page index.

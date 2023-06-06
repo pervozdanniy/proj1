@@ -20,4 +20,7 @@ export const PM = {
   users: {
     read: 'users.read',
   },
+  transfers: {
+    read: 'transfers.read',
+  },
 };

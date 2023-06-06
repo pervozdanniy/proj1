@@ -21,7 +21,7 @@ const users = [
 ];
 
 const rolePermissions: Record<string, { slug: string; description: string }[]> = {
-  Developer: [
+  Admin: [
     { slug: PM.access.users.read, description: 'Read users' },
     { slug: PM.access.users.create, description: 'Create users' },
     { slug: PM.access.users.update, description: 'Update users' },
@@ -39,8 +39,12 @@ const rolePermissions: Record<string, { slug: string; description: string }[]> =
       slug: PM.users.read,
       description: 'Read App Users Data',
     },
+    {
+      slug: PM.transfers.read,
+      description: 'Read Transactions Data',
+    },
   ],
-  Admin: [
+  Developer: [
     { slug: PM.access.users.read, description: 'Read users' },
     { slug: PM.access.users.create, description: 'Create users' },
     { slug: PM.access.users.update, description: 'Update users' },

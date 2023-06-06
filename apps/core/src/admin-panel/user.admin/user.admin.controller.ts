@@ -1,5 +1,5 @@
 import { RequestByIdDto } from '@/admin-panel/user.admin/dto/request-by-id.dto';
-import { RequestListDto } from '@/admin-panel/user.admin/dto/request-list.dto';
+import { PaginationArgumentDto } from '@/admin-panel/shared/dto/pagination-argument.dto';
 import { ResponseUserListDto } from '@/admin-panel/user.admin/dto/response-user-list.dto';
 import { UserAdminService } from '@/admin-panel/user.admin/user.admin.service';
 import { UserResponseDto } from '@/user/dto/user-response.dto';
@@ -11,7 +11,7 @@ import {
   UserList,
 } from '~common/grpc/interfaces/admin_panel';
 import { NullableUser } from '~common/grpc/interfaces/common';
-import { PaginationRequest } from '~common/libs/pagination/interfaces';
+import { PaginationRequest } from '~common/interfaces/pagination';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
 
 @RpcController()
@@ -31,7 +31,7 @@ export class UserAdminController implements UserAdminServiceController {
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async getUserList({ pagination_params }: RequestListDto): Promise<UserList> {
+  async getUserList({ pagination_params }: PaginationArgumentDto): Promise<UserList> {
     const pagination: PaginationRequest = JSON.parse(pagination_params);
     const [users, total] = await this.userAdminService.getUserList(pagination);
 
