@@ -1,22 +1,19 @@
+import { passwordRegex } from '@/constants/regex/password.regex';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsAlphanumeric, IsNotEmpty, Length, Matches } from 'class-validator';
-
-const passwordRegex = /((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/;
+import { IsNotEmpty, Length, Matches } from 'class-validator';
 
 export class ChangePasswordRequestDto {
   @IsNotEmpty()
-  @IsAlphanumeric()
   @ApiProperty({
-    example: 'Hello123',
+    example: 'berg1!lo',
   })
   currentPassword: string;
 
   @Matches(passwordRegex, { message: 'Password too weak' })
   @IsNotEmpty()
-  @IsAlphanumeric()
   @Length(6, 20)
   @ApiProperty({
-    example: 'Hello123',
+    example: 'berg2!lo',
   })
   newPassword: string;
 }

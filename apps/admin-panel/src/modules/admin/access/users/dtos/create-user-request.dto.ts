@@ -1,7 +1,6 @@
+import { passwordRegex } from '@/constants/regex/password.regex';
 import { ApiProperty } from '@nestjs/swagger';
 import { ArrayNotEmpty, IsAlphanumeric, IsArray, IsInt, IsNotEmpty, Length, Matches, MaxLength } from 'class-validator';
-
-const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
 
 export class CreateUserRequestDto {
   @IsNotEmpty()
@@ -27,10 +26,9 @@ export class CreateUserRequestDto {
 
   @Matches(passwordRegex, { message: 'Password too weak' })
   @IsNotEmpty()
-  @IsAlphanumeric()
   @Length(6, 20)
   @ApiProperty({
-    example: 'Hello123',
+    example: 'berg1!lo',
   })
   password: string;
 
