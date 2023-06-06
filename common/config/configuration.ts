@@ -70,8 +70,9 @@ export interface ConfigInterface {
     skopaKoyweWallet: string;
     koyweLiquidoWallet: string;
     inswitchAccountId: string;
+    intermediateAccountId: string;
+    feeAccountId: string;
   };
-
   koywe: {
     client_id: string;
     secret: string;
@@ -219,6 +220,8 @@ export default (): ConfigInterface => ({
     skopaKoyweWallet: process.env.SKOPA_KOYWE_WALLET,
     koyweLiquidoWallet: process.env.KOYWE_LIQUIDO_WALLET,
     inswitchAccountId: process.env.SKOPA_INSWITCH_ACCOUNT_ID,
+    intermediateAccountId: process.env.SKOPA_INTERMEDIATE_ACCOUNT_ID,
+    feeAccountId: process.env.SKOPA_FEE_ACCOUNT_ID,
   },
   sendgrid: {
     email: process.env.SENDGRID_EMAIL,

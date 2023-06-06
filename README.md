@@ -67,15 +67,19 @@ You'll be able to find them in `common/grpc/interfaces`.
     * `POST /auth/registration/start`
 
         Provide user's identification details - email and phone number and start registration session. You'll get `201 Created` response with auth tokens pair and `verify` object with required 2fa methods. 
+
     * `POST /auth/registration/verify`
 
         This is an alias to `POST /auth/2fa/verify_one` endpoint. Authorize this requiest with `access_token` from previous step.
+
     * `POST /auth/registration/create/agreement`
 
         Generate user agreement in `html` format and show it to end user.
+
     * `POST /auth/registration/approve/agreement`
 
         Send `id` from previous step response to approve user agreement.
+
     * `POST /auth/registration/finish`
 
         Provide rest of user data and become logged in with the same `access_token`
@@ -89,9 +93,11 @@ You'll be able to find them in `common/grpc/interfaces`.
         * `action='redirect'`: 
 
             Follow link `redirect.url` in response. No further actions required.
+
         * `action='link_transfer'`: 
 
             Generate [Link](https://developer.link-sandbox.money/products/quickstart) widget using provided `link_transfer.sessionKey` from response. After you'll get `CUSTOMER_ID` from Link widget send it to `POST /deposit/pay_with_bank` togather with `flowId` from our API response.
+            
         * `action='pay_with_bank'`: 
 
             Show user provided bank details to make a bank transfer. No further actions required.
@@ -122,9 +128,11 @@ You'll be able to find them in `common/grpc/interfaces`.
     * `POST /cards`
 
         Issue a card. `pin` is required if `is_virtual=false`
+
     * `POST /cards/{reference}/activate`
 
         Activate card. If `is_virtual=true` you can do it right after issuing. Otherwise user should wait until he gets a card. (can't be tested in sandbox)
+
     * `GET /cards`
     
         List all your issued cards
@@ -133,22 +141,23 @@ You'll be able to find them in `common/grpc/interfaces`.
 
     Used for users that can't access their account
 
-    * POST /auth/reset_password/start
-    * POST /auth/reset_password/verify
-    * POST /auth/reset_password/finish
+    * `POST /auth/reset_password/start`
+    * `POST /auth/reset_password/verify`
+    * `POST /auth/reset_password/finish`
 
 9. Change password flow:
 
     Used by authorized user to change password for future logins. Requires `Authorization`
 
-    * POST /auth/change_password/start
-    * POST /auth/change_password/verify
-    * POST /auth/change_password/finish
+    * `POST /auth/change_password/start`
+    * `POST /auth/change_password/verify`
+    * `POST /auth/change_password/finish`
 
 10. KYC
 
     We are using 3rd party provider to verify customers. Make a request to `POST /kyc/link` and follow `verification.url` link in response.    
     To check if KYC process is finished:
+
     * subscribe to Websocket `notification` events: 
 
         ```
@@ -165,6 +174,7 @@ You'll be able to find them in `common/grpc/interfaces`.
     
     For example `GET /notifications/list` or `GET /payment_gateway/transactions`.
     Paginated list request has 2 key query params: 
+    
     * `limit`: used to specify number of records per page.
     * `search_after`: used to specify record id to scroll after. Don't send this value on first request. For further requests take this value from `last_id` field from response.
 

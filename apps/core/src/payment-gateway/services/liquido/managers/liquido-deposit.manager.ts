@@ -20,6 +20,7 @@ import { Providers } from '~common/enum/providers';
 import { DepositRedirectData } from '~common/grpc/interfaces/payment-gateway';
 import { countriesData, liquidoFees } from '../../../country/data';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
+import { FeeService } from '../../../modules/fee/fee.service';
 import { VeriffDocumentEntity } from '../../../modules/veriff/entities/veriff-document.entity';
 import { KoyweMainManager } from '../../koywe/managers/koywe-main.manager';
 import { LiquidoTokenManager } from './liquido-token.manager';
@@ -35,11 +36,10 @@ export class LiquidoDepositManager {
     private readonly liquidoTokenManager: LiquidoTokenManager,
     private readonly httpService: HttpService,
     private readonly koyweMainManager: KoyweMainManager,
-
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
-
-    private userService: UserService,
+    private readonly userService: UserService,
+    private readonly feeService: FeeService,
   ) {
     const { domain } = config.get('app', { infer: true });
     const { x_api_key, api_url } = config.get('liquido', { infer: true });
@@ -50,43 +50,42 @@ export class LiquidoDepositManager {
 
   async createCashPayment({ user_id, amount_usd }: CreateReferenceRequest): Promise<DepositRedirectData> {
     const userDetails = await this.userService.getUserInfo(user_id);
-    const { currency_type } = countriesData[userDetails.country_code];
-    const afterFeeAmount = this.calculateAmountAfterLiquidoFee(amount_usd, userDetails.country_code);
-
-    const { amountOut, networkFee, koyweFee } = await this.koyweMainManager.getCurrencyAmountByUsd(
-      afterFeeAmount,
-      currency_type,
-    );
-    const totalFee = networkFee + koyweFee;
-
     const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document) {
       throw new ConflictException('KYC is not completed');
     }
 
-    const { orderId, url } = await this.createPaymentLink(amountOut, currency_type, userDetails, document);
+    const { currency_type } = countriesData[userDetails.country_code];
+    const { total, fee: internalFee } = await this.feeService.calculate(amount_usd, userDetails.country_code);
+    const { amount, fee } = this.calculateAmountAfterLiquidoFee(total, internalFee, userDetails.country_code);
+
+    const quote = await this.koyweMainManager.getCurrencyAmountByUsd(amount.valueOf(), currency_type);
+    const totalFee = fee.add(quote.networkFee).add(quote.koyweFee);
+
+    const { orderId, url } = await this.createPaymentLink(quote.amountOut, currency_type, userDetails, document);
 
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
         user_id,
         uuid: orderId,
         type: TransferTypes.DEPOSIT,
-        amount: amountOut,
+        amount: quote.amountOut,
         payment_type: PaymentTypes.CASH,
         amount_usd,
         provider: Providers.LIQUIDO,
         currency_type,
-        fee: totalFee,
+        fee: totalFee.valueOf(),
         status: TransferStatus.PENDING,
+        internal_fee_usd: internalFee.valueOf(),
       }),
     );
 
     return {
       url,
       info: {
-        amount: amountOut,
-        rate: (amountOut - totalFee) / amount_usd,
-        fee: totalFee,
+        amount: quote.amountOut,
+        rate: quote.exchangeRate,
+        fee: totalFee.valueOf(),
         currency: currency_type,
       },
     };
@@ -135,9 +134,10 @@ export class LiquidoDepositManager {
     }
   }
 
-  calculateAmountAfterLiquidoFee(amount_usd: number, country_code: string) {
+  calculateAmountAfterLiquidoFee(amount_usd: Fraction, fee_usd: Fraction, country_code: string) {
     const { feeUsd, feePercents } = liquidoFees[country_code];
+    const fee = amount_usd.mul(new Fraction(feePercents, 100)).add(feeUsd);
 
-    return new Fraction(amount_usd).mul(new Fraction(feePercents, 100)).add(feeUsd).add(amount_usd).valueOf();
+    return { amount: amount_usd.add(fee).add(fee_usd), fee: fee.add(fee_usd) };
   }
 }

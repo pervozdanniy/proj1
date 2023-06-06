@@ -24,6 +24,7 @@ import {
 } from '~common/grpc/interfaces/payment-gateway';
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { ParamsTypes, TransfersEntity, TransferTypes } from '~svc/core/src/payment-gateway/entities/transfers.entity';
+import { FeeService } from '../../../modules/fee/fee.service';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeFundsTransferManager } from './prime-funds-transfer.manager';
 
@@ -45,6 +46,7 @@ export class PrimeWithdrawalManager {
     private readonly transferRepository: Repository<TransfersEntity>,
     @InjectRepository(WithdrawalParamsEntity)
     private readonly withdrawalParamsEntityRepository: Repository<WithdrawalParamsEntity>,
+    private readonly feeService: FeeService,
   ) {
     const { prime_trust_url } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -177,11 +179,17 @@ export class PrimeWithdrawalManager {
     const withdrawalParams = await this.withdrawalParamsEntityRepository.findOneByOrFail({
       uuid: funds_transfer_method_id,
     });
+    const { total, fee: internalFee } = await this.feeService.calculate(request.amount, 'US');
     const {
       funds: fundsResponse,
       fee,
       amount,
-    } = await this.sendWithdrawalRequest(request, account.uuid, funds_transfer_method_id);
+    } = await this.sendWithdrawalRequest(
+      { ...request, amount: total.valueOf() },
+      account.uuid,
+      funds_transfer_method_id,
+    );
+    const totalFee = internalFee.add(fee).valueOf();
     await this.transferRepository.save(
       this.transferRepository.create({
         user_id,
@@ -191,9 +199,10 @@ export class PrimeWithdrawalManager {
         currency_type: fundsResponse.attributes['currency-type'],
         param_type: ParamsTypes.WITHDRAWAL,
         param_id: withdrawalParams.id,
-        fee,
+        fee: totalFee,
         type: TransferTypes.WITHDRAWAL,
         provider: Providers.PRIME_TRUST,
+        internal_fee_usd: internalFee.valueOf(),
       }),
     );
     const response = {
@@ -213,7 +222,7 @@ export class PrimeWithdrawalManager {
 
     return {
       amount,
-      fee,
+      fee: totalFee,
       currency: fundsResponse.attributes['currency-type'],
     };
   }

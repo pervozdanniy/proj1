@@ -21,6 +21,7 @@ export enum PaymentTypes {
 }
 export enum ParamsTypes {
   WITHDRAWAL = 'withdrawal_param',
+  DEPOSIT = 'deposit_param',
 }
 
 export enum TransferStatus {
@@ -68,6 +69,9 @@ export class TransfersEntity {
 
   @Column('double precision', { nullable: true })
   fee?: number;
+
+  @Column('double precision', { nullable: true })
+  internal_fee_usd?: number;
 
   @Column('character varying', { length: 50, nullable: true })
   currency_type?: string;

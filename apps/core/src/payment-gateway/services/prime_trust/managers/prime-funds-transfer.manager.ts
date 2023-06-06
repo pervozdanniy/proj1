@@ -7,6 +7,7 @@ import { Status } from '@grpc/grpc-js/build/src/constants';
 import { ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import Fraction from 'fraction.js';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { Providers } from '~common/enum/providers';
@@ -24,6 +25,7 @@ export class PrimeFundsTransferManager {
   private readonly prime_trust_url: string;
   private readonly asset_id: string;
   private readonly skopaAccountId: string;
+  private readonly feeAccountId: string;
 
   constructor(
     config: ConfigService<ConfigInterface>,
@@ -35,11 +37,12 @@ export class PrimeFundsTransferManager {
     private readonly transferFundsEntityRepository: Repository<TransfersEntity>,
   ) {
     const { prime_trust_url } = config.get('app', { infer: true });
-    const { skopaAccountId } = config.get('prime_trust', { infer: true });
+    const { skopaAccountId, feeAccountId } = config.get('prime_trust', { infer: true });
     const { id } = config.get('asset');
     this.asset_id = id;
     this.prime_trust_url = prime_trust_url;
     this.skopaAccountId = skopaAccountId;
+    this.feeAccountId = feeAccountId;
   }
 
   async convertUSDtoAsset(account_id: string, amount: number, cancel?: boolean): Promise<UsDtoAssetResponse> {
@@ -239,22 +242,25 @@ export class PrimeFundsTransferManager {
       await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);
 
       if (account_id === this.skopaAccountId) {
-        const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
         const linkTransactions = await this.transferFundsEntityRepository.findBy({
           provider: Providers.LINK,
           status: TransferStatus.DELIVERED,
         });
-
-        linkTransactions.map(async (l) => {
-          await this.transferFunds({
-            sender_id: sender.user_id,
-            receiver_id: l.user_id,
-            amount: l.amount,
-            currency_type: l.currency_type,
-          });
-          await this.transferFundsEntityRepository.update({ id: l.id }, { status: TransferStatus.SETTLED });
+        let internalFee = new Fraction(0);
+        await Promise.all(
+          linkTransactions.map(async (l) => {
+            const recipient = await this.primeAccountRepository.findOneBy({ user_id: l.user_id });
+            await this.sendFunds(account_id, recipient.uuid, l.amount_usd, false);
+            await this.transferFundsEntityRepository.update({ id: l.id }, { status: TransferStatus.SETTLED });
+            if (l.internal_fee_usd) {
+              internalFee = internalFee.add(l.internal_fee_usd);
+            }
+          }),
+        ).finally(() => {
+          if (internalFee.compare(0) > 0) {
+            return this.sendFunds(account_id, this.feeAccountId, internalFee.valueOf(), false);
+          }
         });
-
         await this.convertUSDtoAsset(account_id, cashResponse.data.included[0].attributes.settled, false);
       }
     }

@@ -2,11 +2,11 @@ import { PrimeTrustAccountEntity } from '@/payment-gateway/entities/prime_trust/
 import { PrimeTrustContactEntity } from '@/payment-gateway/entities/prime_trust/prime-trust-contact.entity';
 import { PrimeTrustException } from '@/payment-gateway/request/exception/prime-trust.exception';
 import { PrimeTrustHttpService } from '@/payment-gateway/request/prime-trust-http.service';
-import { UserEntity } from '@/user/entities/user.entity';
 import { Status } from '@grpc/grpc-js/build/src/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import Fraction from 'fraction.js';
 import process from 'process';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
@@ -38,8 +38,11 @@ export class PrimeAssetsManager {
 
   private readonly logger = new Logger(PrimeAssetsManager.name);
   private readonly skopaKoyweAccountId: string;
-
   private readonly skopaAccountId: string;
+  private readonly intermediateAccountId: string;
+  private readonly feeAccountId: string;
+  private intermediateContactId?: string;
+
   constructor(
     config: ConfigService<ConfigInterface>,
     private readonly httpService: PrimeTrustHttpService,
@@ -52,44 +55,63 @@ export class PrimeAssetsManager {
     private readonly depositEntityRepository: Repository<TransfersEntity>,
   ) {
     const { prime_trust_url } = config.get('app');
-    const { skopaKoyweAccountId, skopaAccountId } = config.get('prime_trust', { infer: true });
+    const { skopaKoyweAccountId, skopaAccountId, intermediateAccountId, feeAccountId } = config.get('prime_trust', {
+      infer: true,
+    });
     const { id, type } = config.get('asset');
     this.asset_id = id;
     this.asset_type = type;
     this.prime_trust_url = prime_trust_url;
     this.skopaKoyweAccountId = skopaKoyweAccountId;
     this.skopaAccountId = skopaAccountId;
+    this.intermediateAccountId = intermediateAccountId;
+    this.feeAccountId = feeAccountId;
   }
 
-  async createWallet(depositParams: CreateReferenceRequest): Promise<WalletResponse> {
-    const { user_id, amount_usd } = depositParams;
-    const prime_trust_params = await this.primeAccountRepository
-      .createQueryBuilder('a')
-      .leftJoinAndSelect(PrimeTrustContactEntity, 'c', 'a.user_id = c.user_id')
-      .where('a.user_id = :user_id', { user_id })
-      .select(['a.uuid as account_id', 'c.uuid as contact_id'])
-      .getRawOne();
+  async getIntermediateAccount() {
+    if (!this.intermediateContactId) {
+      const owner = await this.getAccountOwner(this.intermediateAccountId);
+      this.intermediateContactId = owner.id;
+    }
 
-    const { account_id, contact_id } = prime_trust_params;
-    const walletPayload = await this.createAssetTransferMethod(account_id, contact_id, amount_usd, 'USD');
+    return {
+      account_id: this.intermediateAccountId,
+      contact_id: this.intermediateContactId,
+    };
+  }
+
+  async getAccountOwner(accountId: string) {
+    const contactData = await this.httpService.request({
+      method: 'get',
+      url: `${this.prime_trust_url}/v2/accounts/${accountId}?include=contacts`,
+    });
+
+    return contactData.data.included[0];
+  }
+
+  async createWallet(_depositParams: CreateReferenceRequest): Promise<WalletResponse> {
+    // const { user_id } = depositParams;
+    // const prime_trust_params = await this.primeAccountRepository
+    //   .createQueryBuilder('a')
+    //   .leftJoinAndSelect(PrimeTrustContactEntity, 'c', 'a.user_id = c.user_id')
+    //   .where('a.user_id = :user_id', { user_id })
+    //   .select(['a.uuid as account_id', 'c.uuid as contact_id'])
+    //   .getRawOne();
+
+    const { account_id, contact_id } = await this.getIntermediateAccount();
+    const walletPayload = await this.createAssetTransferMethod(account_id, contact_id);
 
     return walletPayload;
   }
 
-  async createAssetTransferMethod(
-    account_id: string,
-    contact_id: string,
-    amount: number,
-    currency_type: string,
-  ): Promise<WalletResponse> {
+  async createAssetTransferMethod(account_id: string, contact_id: string): Promise<WalletResponse> {
     const formData = {
       data: {
         type: 'asset-transfer-methods',
         attributes: {
           label: 'Deposit Address',
-          'cost-basis': amount,
           'acquisition-on': createDate(),
-          'currency-type': currency_type,
+          'currency-type': 'USD',
           'asset-id': this.asset_id,
           'contact-id': contact_id,
           'account-id': account_id,
@@ -124,65 +146,98 @@ export class PrimeAssetsManager {
 
   async updateAssetDeposit(request: AccountIdRequest): Promise<SuccessResponse> {
     const { resource_id, id: account_id } = request;
-    const accountData = await this.primeAccountRepository
-      .createQueryBuilder('a')
-      .leftJoinAndSelect(UserEntity, 'u', 'a.user_id = u.id')
-      .select(['u.id as user_id'])
-      .where('a.uuid = :account_id', { account_id })
-      .getRawOne();
 
-    const { user_id } = accountData;
     const assetResponse = await this.getAssetResponse(resource_id);
-    const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
 
     const amount = assetResponse['unit-count'];
     const type = amount < 0 ? TransferTypes.WITHDRAWAL : TransferTypes.DEPOSIT;
-    let provider = Providers.PRIME_TRUST;
-    if (existedDeposit) {
-      await this.depositEntityRepository.update({ uuid: resource_id }, { status: assetResponse['status'] });
-    } else {
-      await this.depositEntityRepository.save(
-        this.depositEntityRepository.create({
-          user_id,
-          uuid: resource_id,
-          currency_type: 'USD',
-          provider,
-          amount,
-          status: assetResponse['status'],
-          type,
-        }),
-      );
-    }
     if (account_id === this.skopaAccountId || account_id === this.skopaKoyweAccountId) {
       let transactions;
       if (account_id === this.skopaAccountId) {
-        provider = Providers.FACILITA;
         transactions = await this.depositEntityRepository.findBy({
-          provider,
+          provider: Providers.FACILITA,
           type: TransferTypes.DEPOSIT,
           status: TransferStatus.DELIVERED,
         });
       }
       if (account_id === this.skopaKoyweAccountId) {
-        provider = Providers.LIQUIDO;
         transactions = await this.depositEntityRepository.findBy({
-          provider,
+          provider: Providers.LIQUIDO,
           type: TransferTypes.DEPOSIT,
           payment_type: PaymentTypes.CASH,
-          status: TransferStatus.SETTLED,
+          status: TransferStatus.DELIVERED,
         });
       }
       const sender = await this.primeAccountRepository.findOneBy({ uuid: account_id });
-
-      transactions.map(async (t) => {
-        await this.primeFundsTransferManager.transferFunds({
-          sender_id: sender.user_id,
-          receiver_id: t.user_id,
-          amount: t.amount_usd,
-          currency_type: 'USD',
-        });
-        await this.depositEntityRepository.update({ id: t.id }, { status: TransferStatus.SETTLED });
+      let internalFee = new Fraction(0);
+      await Promise.all(
+        transactions.map(async (t) => {
+          await this.primeFundsTransferManager.transferFunds({
+            sender_id: sender.user_id,
+            receiver_id: t.user_id,
+            amount: t.amount_usd,
+            currency_type: 'USD',
+          });
+          if (t.internal_fee_usd) {
+            internalFee = internalFee.add(t.internal_fee_usd);
+          }
+          await this.depositEntityRepository.update({ id: t.id }, { status: TransferStatus.SETTLED });
+        }),
+      ).finally(() => {
+        if (internalFee.compare(0) > 0) {
+          return this.primeFundsTransferManager.sendFunds(
+            this.intermediateAccountId,
+            this.feeAccountId,
+            internalFee.valueOf(),
+            assetResponse.attributes['hot-transfer'],
+          );
+        }
       });
+    } else if (account_id === this.intermediateAccountId) {
+      const existedDeposit = await this.depositEntityRepository.findOneBy({ uuid: resource_id });
+      if (existedDeposit) {
+        const receiverAccount = await this.primeAccountRepository
+          .createQueryBuilder('a')
+          .where('a.user_id = :user_id', { user_id: existedDeposit.receiver_id })
+          .getOne();
+
+        await this.primeFundsTransferManager.sendFunds(
+          this.intermediateAccountId,
+          receiverAccount.uuid,
+          existedDeposit.amount_usd,
+          assetResponse.attributes['hot-transfer'],
+        );
+        if (existedDeposit.internal_fee_usd) {
+          await this.primeFundsTransferManager.sendFunds(
+            this.intermediateAccountId,
+            this.feeAccountId,
+            existedDeposit.internal_fee_usd,
+            assetResponse.attributes['hot-transfer'],
+          );
+        }
+
+        await this.depositEntityRepository.update({ uuid: resource_id }, { status: TransferStatus.SETTLED });
+      } else {
+        this.logger.warn(`Transfer with id: ${resource_id} does not exist`, { assetResponse });
+      }
+    } else {
+      const receiverAccount = await this.primeAccountRepository
+        .createQueryBuilder('a')
+        .where('a.uuid = :account_id', { account_id })
+        .getOne();
+      const { user_id } = receiverAccount;
+
+      await this.depositEntityRepository.save(
+        this.depositEntityRepository.create({
+          user_id,
+          uuid: resource_id,
+          currency_type: 'USD',
+          provider: Providers.PRIME_TRUST,
+          amount,
+          status: assetResponse['status'],
+          type,
+        }),
+      );
     }
 
     await this.primeBalanceManager.updateAccountBalance(account_id);

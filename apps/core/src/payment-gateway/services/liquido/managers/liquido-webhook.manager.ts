@@ -6,16 +6,15 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
-import uid from 'uid-safe';
 import { ConfigInterface } from '~common/config/configuration';
 import { SuccessResponse } from '~common/grpc/interfaces/common';
 import { LiquidoDepositWebhookRequest, LiquidoWithdrawalWebhookRequest } from '~common/grpc/interfaces/payment-gateway';
+import { TransfersEntity, TransferStatus } from '../../../entities/transfers.entity';
+import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
 import {
   LiquidoAuthorizationStatus,
   LiquidoWithdrawAuthorizationEntity,
-} from '../../../entities/liquido_withdraw_authorization.entity';
-import { TransfersEntity, TransferStatus } from '../../../entities/transfers.entity';
-import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
+} from '../../../modules/liquido/entities/liquido_withdraw_authorization.entity';
 import { KoyweService } from '../../koywe/koywe.service';
 import { PrimeAccountManager } from '../../prime_trust/managers/prime-account.manager';
 import { PrimeFundsTransferManager } from '../../prime_trust/managers/prime-funds-transfer.manager';
@@ -66,17 +65,19 @@ export class LiquidoWebhookManager {
 
     try {
       if (paymentStatus === 'SETTLED') {
-        await this.transfersEntityRepository.update({ uuid: orderId }, { status: TransferStatus.SETTLED });
         let accountNumber;
         const transfer = await this.transfersEntityRepository.findOneBy({ uuid: orderId });
+        await this.transfersEntityRepository.delete(transfer.id);
         const request: CreateReferenceRequest = {
           user_id: user.id,
           amount_usd: transfer.amount_usd,
           currency_type: transfer.currency_type,
         };
+        // TODO: use different methods to make payments for already exisiting transfers
         if (country === 'MX') {
           const { bank } = await this.koyweService.createReference(request, {
             wallet_address: this.skopaKoyweWallet, //we use wallet from Skopa,for cash payments (All payments goes to this wallet)
+            asset_transfer_method_id: orderId,
             method: 'WIREMX',
           });
           const lines = bank.account_number.split('\n');
@@ -86,6 +87,7 @@ export class LiquidoWebhookManager {
         if (country === 'CO') {
           const { bank } = await this.koyweService.createReference(request, {
             wallet_address: this.skopaKoyweWallet,
+            asset_transfer_method_id: orderId,
             method: 'WIRECO',
           });
           const lines = bank.account_number.split('\n');
@@ -96,6 +98,7 @@ export class LiquidoWebhookManager {
         if (country === 'CL') {
           const { bank } = await this.koyweService.createReference(request, {
             wallet_address: this.skopaKoyweWallet,
+            asset_transfer_method_id: orderId,
             method: 'WIRECL',
           });
           const lines = bank.account_number.split('\n');
@@ -109,7 +112,7 @@ export class LiquidoWebhookManager {
         };
 
         const formData = {
-          idempotencyKey: await uid(18),
+          idempotencyKey: orderId,
           country,
           targetName: userDetails.details.first_name,
           targetBankAccountId: accountNumber,

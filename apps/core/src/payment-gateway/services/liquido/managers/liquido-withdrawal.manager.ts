@@ -6,10 +6,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { TransferInfo, TransferMethodRequest } from '~common/grpc/interfaces/payment-gateway';
+import { FeeService } from '../../../modules/fee/fee.service';
 import {
   LiquidoAuthorizationStatus,
   LiquidoWithdrawAuthorizationEntity,
-} from '../../../entities/liquido_withdraw_authorization.entity';
+} from '../../../modules/liquido/entities/liquido_withdraw_authorization.entity';
 import { PrimeAccountManager } from '../../prime_trust/managers/prime-account.manager';
 import { PrimeAssetsManager } from '../../prime_trust/managers/prime-assets.manager';
 import { BrazilPayoutService } from '../payouts/brazil-payout.service';
@@ -29,9 +30,9 @@ export class LiquidoWithdrawalManager {
     private readonly chilePayoutService: ChilePayoutService,
     private readonly primeAccountManager: PrimeAccountManager,
     private readonly primeAssetsManager: PrimeAssetsManager,
-
     @InjectRepository(LiquidoWithdrawAuthorizationEntity)
     private readonly liquidoAuthRepo: Repository<LiquidoWithdrawAuthorizationEntity>,
+    private readonly feeService: FeeService,
   ) {
     const { skopaKoyweAccountId, koyweLiquidoWallet } = config.get('prime_trust', { infer: true });
     this.skopaKoyweAccountId = skopaKoyweAccountId;
@@ -58,14 +59,23 @@ export class LiquidoWithdrawalManager {
 
   async makeWithdrawal(request: TransferMethodRequest): Promise<TransferInfo> {
     const userDetails = await this.userService.getUserInfo(request.id);
+    const { total, fee } = await this.feeService.calculate(request.amount, userDetails.country_code);
+    let info: TransferInfo;
     switch (userDetails.country_code) {
       case 'MX':
-        return this.mexicoPayoutService.makePayout(request);
+        info = await this.mexicoPayoutService.makePayout({ ...request, amount: total.valueOf() });
+        break;
       case 'BR':
-        return this.brazilPayoutService.makePayout(request);
+        info = await this.brazilPayoutService.makePayout({ ...request, amount: total.valueOf() });
+        break;
       case 'CL':
-        return this.chilePayoutService.makePayout(request);
+        info = await this.chilePayoutService.makePayout({ ...request, amount: total.valueOf() });
+        break;
     }
+
+    info.fee = fee.add(info.fee).valueOf();
+
+    return info;
   }
 
   async getWithdrawalSumAmount(): Promise<{ amount: number }> {

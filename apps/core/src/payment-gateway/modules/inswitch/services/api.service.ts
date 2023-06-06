@@ -33,6 +33,8 @@ type AuthToken = {
   refreshExpiresAt: number;
 };
 
+const TIME_DIFF_MS = 10 * 1000 * 1000;
+
 @Injectable()
 export class InswitchApiService {
   #token?: AuthToken;
@@ -79,8 +81,8 @@ export class InswitchApiService {
     return {
       accessToken: resp.data.access_token,
       refreshToken: resp.data.refresh_token,
-      expiresAt: Date.now() + resp.data.expires_in * 1000,
-      refreshExpiresAt: Date.now() + resp.data.refresh_expires_in * 1000,
+      expiresAt: Date.now() + resp.data.expires_in * 1000 - TIME_DIFF_MS,
+      refreshExpiresAt: Date.now() + resp.data.refresh_expires_in * 1000 - TIME_DIFF_MS,
     };
   }
 

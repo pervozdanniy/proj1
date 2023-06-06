@@ -33,10 +33,11 @@ export class ChilePaymentGateway
   }
 
   async createRedirectReference(request: CreateReferenceRequest): Promise<DepositRedirectData> {
-    const { wallet_address } = await this.primeTrustService.createWallet(request);
+    const { wallet_address, asset_transfer_method_id } = await this.primeTrustService.createWallet(request);
 
     return this.koyweService.createRedirectReference(request, {
       wallet_address,
+      asset_transfer_method_id,
       method: 'KHIPU',
     });
   }

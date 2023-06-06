@@ -26,6 +26,10 @@ export class FacilitaMainManager {
       this.httpService.get(`${this.url}/api/v1/exchange_rates`, { headers: headersRequest }),
     );
 
-    return { usdbrl: Number(rateResult.data.data.usdbrl), brlusd: Number(rateResult.data.data.brlusd) };
+    return {
+      brlusdspot: Number(rateResult.data.data.brlusdspot),
+      brlusd: Number(rateResult.data.data.brlusd),
+      usdbrl: Number(rateResult.data.data.usdbrl),
+    };
   }
 }

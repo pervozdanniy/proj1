@@ -21,11 +21,13 @@ import {
 } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData } from '../../../country/data';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
+import { FeeService } from '../../../modules/fee/fee.service';
 import { KoyweMainManager, KoywePaymentMethod } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
 
 export type KoyweReferenceParams = {
   wallet_address: string;
+  asset_transfer_method_id: string;
   method?: KoywePaymentMethod;
 };
 
@@ -39,8 +41,8 @@ export class KoyweDepositManager {
     private readonly koyweMainManager: KoyweMainManager,
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
-
-    private userService: UserService,
+    private readonly userService: UserService,
+    private readonly feeService: FeeService,
     config: ConfigService<ConfigInterface>,
     @InjectRedis() private readonly redis: Redis,
   ) {
@@ -52,35 +54,36 @@ export class KoyweDepositManager {
 
   async createReference(request: CreateReferenceRequest, params: KoyweReferenceParams): Promise<BankCredentialsData> {
     const { amount_usd, user_id } = request;
-    const { wallet_address, method } = params;
+    const { wallet_address, asset_transfer_method_id, method } = params;
 
     const userDetails = await this.userService.getUserInfo(user_id);
-    await this.koyweTokenManager.getToken(userDetails.email);
-    const { currency_type } = countriesData[userDetails.country_code];
-
-    const quote = await this.createQuote({
-      amount_usd,
-      currency: currency_type,
-      method,
-    });
-
     const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document?.person_id_number) {
       throw new ConflictException('KYC is not completed');
     }
 
-    const { orderId, providedAddress } = await this.createOrder(
+    await this.koyweTokenManager.getToken(userDetails.email);
+    const { currency_type } = countriesData[userDetails.country_code];
+    const { total, fee: internalFee } = await this.feeService.calculate(amount_usd, userDetails.country_code);
+
+    const quote = await this.createQuote({
+      amount_usd: total.valueOf(),
+      currency: currency_type,
+      method,
+    });
+
+    const { providedAddress } = await this.createOrder(
       quote.quoteId,
       userDetails.email,
       wallet_address,
       document.person_id_number,
     );
 
-    const totalFee = quote.networkFee + quote.koyweFee;
+    const totalFee = internalFee.mul(quote.exchangeRate).add(quote.networkFee).add(quote.koyweFee).valueOf();
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
         user_id,
-        uuid: orderId,
+        uuid: asset_transfer_method_id,
         type: TransferTypes.DEPOSIT,
         amount: quote.amountIn,
         amount_usd,
@@ -88,6 +91,7 @@ export class KoyweDepositManager {
         currency_type,
         status: TransferStatus.PENDING,
         fee: totalFee,
+        internal_fee_usd: internalFee.valueOf(),
       }),
     );
     const info = {
@@ -106,42 +110,44 @@ export class KoyweDepositManager {
     transferParams: KoyweReferenceParams,
   ): Promise<DepositRedirectData> {
     const { amount_usd, user_id } = depositParams;
-    const { wallet_address, method } = transferParams;
+    const { wallet_address, asset_transfer_method_id, method } = transferParams;
 
     const userDetails = await this.userService.getUserInfo(user_id);
-    await this.koyweTokenManager.getToken(userDetails.email);
-    const { currency_type } = countriesData[userDetails.country_code];
-
-    const quote = await this.createQuote({
-      amount_usd,
-      currency: currency_type,
-      method,
-    });
-
     const document = userDetails.documents?.find((d) => d.status === 'approved');
     if (!document?.person_id_number) {
       throw new ConflictException('KYC is not completed');
     }
 
-    const { orderId, providedAddress, providedAction } = await this.createOrder(
+    await this.koyweTokenManager.getToken(userDetails.email);
+    const { currency_type } = countriesData[userDetails.country_code];
+    const { total, fee: internalFee } = await this.feeService.calculate(amount_usd, userDetails.country_code);
+
+    const quote = await this.createQuote({
+      amount_usd: total.valueOf(),
+      currency: currency_type,
+      method,
+    });
+
+    const { providedAddress, providedAction } = await this.createOrder(
       quote.quoteId,
       userDetails.email,
       wallet_address,
       document.person_id_number,
     );
 
-    const totalFee = quote.networkFee + quote.koyweFee;
+    const totalFee = internalFee.mul(quote.exchangeRate).add(quote.networkFee).add(quote.koyweFee).valueOf();
     await this.depositEntityRepository.save(
       this.depositEntityRepository.create({
         user_id,
-        uuid: orderId,
+        uuid: asset_transfer_method_id,
         type: TransferTypes.DEPOSIT,
         amount: quote.amountIn,
-        amount_usd: amount_usd,
+        amount_usd,
         provider: Providers.KOYWE,
         currency_type,
         status: TransferStatus.PENDING,
         fee: totalFee,
+        internal_fee_usd: internalFee.valueOf(),
       }),
     );
     const info = {

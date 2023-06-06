@@ -96,9 +96,9 @@ export class WithdrawAuthorizationService {
 
   async payApproved() {
     const { amount } = await this.inswitch.startProcessing();
-    const contactId = await this.primeTrustClient.getAccountOwner(this.intermediateAccountId);
+    const contact = await this.primeTrustClient.getAccountOwner(this.intermediateAccountId);
     await this.primeTrustClient.assetWidthdraw({
-      contactId,
+      contactId: contact.id,
       accountId: this.intermediateAccountId,
       amount: new Fraction(amount).round(6).valueOf(),
       wallet: this.inswitch.wallet,

@@ -14,6 +14,7 @@ import { BankCredentialsData } from '~common/grpc/interfaces/payment-gateway';
 import { countriesData, CountryData } from '../../../country/data';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../../entities/transfers.entity';
 import { CreateReferenceRequest } from '../../../interfaces/payment-gateway.interface';
+import { FeeService } from '../../../modules/fee/fee.service';
 import { facilitaBank } from '../constants';
 import { FacilitaMainManager } from './facilita-main.manager';
 import { FacilitaTokenManager } from './facilita-token.manager';
@@ -26,11 +27,10 @@ export class FacilitaDepositManager {
     private readonly facilitaTokenManager: FacilitaTokenManager,
     @InjectRepository(TransfersEntity)
     private readonly depositEntityRepository: Repository<TransfersEntity>,
-    private userService: UserService,
+    private readonly userService: UserService,
     private readonly httpService: HttpService,
-
     private readonly facilitaMainManager: FacilitaMainManager,
-
+    private readonly feeService: FeeService,
     config: ConfigService<ConfigInterface>,
   ) {
     const { facilita_url } = config.get('app', { infer: true });
@@ -47,17 +47,20 @@ export class FacilitaDepositManager {
     const countries: CountryData = countriesData;
     const { currency_type } = countries[user.country_code];
     if (user.country_code === 'BR') {
-      const { fee, amount } = await this.calculateFeeFromBrazil(amount_usd);
+      const { total, fee: internalFee } = await this.feeService.calculate(amount_usd, user.country_code);
+      const { fee, amount } = await this.calculateFeeFromBrazil(total, internalFee);
+
       await this.depositEntityRepository.save(
         this.depositEntityRepository.create({
           user_id,
           type: TransferTypes.DEPOSIT,
-          amount: amount,
+          amount,
           amount_usd,
           provider: Providers.FACILITA,
           currency_type,
           status: TransferStatus.PENDING,
           fee,
+          internal_fee_usd: internalFee.valueOf(),
         }),
       );
 
@@ -94,15 +97,15 @@ export class FacilitaDepositManager {
     }
   }
 
-  async calculateFeeFromBrazil(amount_usd: number) {
-    const { usdbrl: pureRate, brlusd: finalRate } = await this.facilitaMainManager.countBrazilRate();
-    const beforeTaxesAmount = new Fraction(amount_usd).mul(pureRate);
+  async calculateFeeFromBrazil(amount_usd: Fraction, fee_usd: Fraction) {
+    const { brlusdspot: pureRate, brlusd: finalRate } = await this.facilitaMainManager.countBrazilRate();
+    const beforeTaxesAmount = amount_usd.mul(pureRate);
 
-    const fee = new Fraction(amount_usd).mul(finalRate).sub(beforeTaxesAmount).valueOf();
-    const amount = new Fraction(amount_usd).mul(finalRate).valueOf();
+    const amount = amount_usd.add(fee_usd).mul(finalRate);
+    const fee = amount.sub(beforeTaxesAmount).valueOf();
 
     return {
-      amount,
+      amount: amount.valueOf(),
       fee,
     };
   }

@@ -30,6 +30,7 @@ import {
 import { GrpcException } from '~common/utils/exceptions/grpc.exception';
 import { TransfersEntity, TransferTypes } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { CreateReferenceRequest, MakeDepositRequest } from '../../../interfaces/payment-gateway.interface';
+import { FeeService } from '../../../modules/fee/fee.service';
 import { CardResourceType } from '../../../types/prime-trust';
 import { PrimeBalanceManager } from './prime-balance.manager';
 import { PrimeBankAccountManager } from './prime-bank-account.manager';
@@ -62,6 +63,8 @@ export class PrimeDepositManager {
 
     @InjectRepository(CardResourceEntity)
     private readonly cardResourceEntityRepository: Repository<CardResourceEntity>,
+
+    private readonly feeService: FeeService,
   ) {
     const { prime_trust_url } = config.get('app');
     this.prime_trust_url = prime_trust_url;
@@ -362,11 +365,12 @@ export class PrimeDepositManager {
       .getRawOne();
 
     const { account_id, contact_id } = accountData;
+    const { total, fee: internalFee } = await this.feeService.calculate(amount, 'US');
     const formData = {
       data: {
         type: 'contributions',
         attributes: {
-          amount,
+          amount: total.toString(),
           'contact-id': contact_id,
           'funds-transfer-method-id': funds_transfer_method_id,
           'account-id': account_id,
@@ -393,6 +397,7 @@ export class PrimeDepositManager {
         currency_type: contributionAttributes['currency-type'],
         amount: contributionAttributes['amount'],
         status: contributionAttributes['status'],
+        internal_fee_usd: internalFee.valueOf(),
       };
       if (contributionAttributes['payment-type'] !== 'credit_card') {
         const depositParam = await this.depositParamsEntityRepository.findOne({

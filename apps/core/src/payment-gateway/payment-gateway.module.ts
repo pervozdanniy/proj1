@@ -12,7 +12,6 @@ import { ExternalWithdrawAuthorizationController } from './controllers/external-
 import { KYCController } from './controllers/kyc.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
-import { LiquidoWithdrawAuthorizationEntity } from './entities/liquido_withdraw_authorization.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
 import { DepositParamsEntity } from './entities/prime_trust/deposit-params.entity';
@@ -29,7 +28,9 @@ import { MexicoPaymentGateway } from './manager/countries/mexico-payment.gateway
 import { PeruPaymentGateway } from './manager/countries/peru-payment.gateway';
 import { USPaymentGateway } from './manager/countries/us-payment.gateway';
 import { PaymentGatewayManager } from './manager/payment-gateway.manager';
+import { FeeModule } from './modules/fee/fee.module';
 import { InswitchModule } from './modules/inswitch/inswitch.module';
+import { LiquidoWithdrawAuthorizationEntity } from './modules/liquido/entities/liquido_withdraw_authorization.entity';
 import { VeriffModule } from './modules/veriff/veriff.module';
 import { PrimeTrustHttpService } from './request/prime-trust-http.service';
 import { CurrencyService } from './services/currency.service';
@@ -96,6 +97,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     ClientsModule.registerAsync([asyncClientOptions('auth')]),
     InswitchModule,
     VeriffModule,
+    FeeModule,
   ],
   providers: [
     PaymentGatewayService,

@@ -20,6 +20,7 @@ import {
   TransferTypes,
 } from '~svc/core/src/payment-gateway/entities/transfers.entity';
 import { countriesData, CountryData } from '../../../country/data';
+import { FeeService } from '../../../modules/fee/fee.service';
 import { KoyweCreateOrder, KoyweQuote } from '../../../types/koywe';
 import { KoyweMainManager } from './koywe-main.manager';
 import { KoyweTokenManager } from './koywe-token.manager';
@@ -39,7 +40,7 @@ export class KoyweWithdrawalManager {
     @InjectRepository(TransfersEntity)
     private readonly transferRepository: Repository<TransfersEntity>,
     @InjectRedis() private readonly redis: Redis,
-
+    private readonly feeService: FeeService,
     config: ConfigService<ConfigInterface>,
   ) {
     const { koywe_url } = config.get('app');
@@ -51,30 +52,33 @@ export class KoyweWithdrawalManager {
   async makeWithdrawal(request: TransferMethodRequest): Promise<{ wallet: string; info: TransferInfo }> {
     const { id, bank_account_id, amount } = request;
     const { country_code, email, documents } = await this.userService.getUserInfo(id);
+    const document = documents?.find((d) => d.status === 'approved');
+    if (!document) {
+      throw new ConflictException('KYC is not completed');
+    }
+
     const bank = await this.bankAccountEntityRepository.findOneBy({
       user_id: id,
       id: bank_account_id,
       country: country_code,
     });
     if (!bank) {
-      throw new GrpcException(Status.INVALID_ARGUMENT, 'Bank doesnt exist!', 400);
+      throw new GrpcException(Status.INVALID_ARGUMENT, 'Bank does not exist!', 400);
     }
     await this.koyweTokenManager.getToken(email);
 
     const countries: CountryData = countriesData;
     const { currency_type } = countries[country_code];
-    const quote = await this.createQuote(amount, currency_type);
-    const document = documents?.find((d) => d.status === 'approved');
-    if (!document) {
-      throw new ConflictException('KYC is not completed');
-    }
+    const { total, fee: internalFee } = await this.feeService.calculate(amount, country_code);
+    const quote = await this.createQuote(total.valueOf(), currency_type);
+
     const { orderId, providedAddress } = await this.createOrder(
       quote.quoteId,
       email,
       bank.account_uuid,
       document.document_number,
     );
-    const totalFee = (quote.networkFee + quote.koyweFee) * quote.exchangeRate;
+    const totalFee = internalFee.add(quote.networkFee).add(quote.koyweFee).mul(quote.exchangeRate).valueOf();
     await this.transferRepository.save(
       this.transferRepository.create({
         user_id: id,
@@ -86,6 +90,7 @@ export class KoyweWithdrawalManager {
         currency_type,
         status: TransferStatus.PENDING,
         fee: totalFee,
+        internal_fee_usd: internalFee.valueOf(),
       }),
     );
     const info = {
