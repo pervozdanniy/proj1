@@ -53,10 +53,6 @@ export class ApiRegisterService {
     }
 
     const agreement = await this.auth.createAgreement({ ...payload, ...session.register });
-    if (!agreement) {
-      console.log('NO_AGREEMENT', payload, session);
-    }
-
     registerRequestAgreement(session, { user_details: payload });
 
     const contentResponse = agreement.content.replace(/\n|\t/g, '').replace(/\\"/g, '"');
