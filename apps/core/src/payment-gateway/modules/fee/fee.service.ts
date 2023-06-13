@@ -8,7 +8,7 @@ import { FeeEntity } from './entities/fee.entity';
 export class FeeService {
   constructor(@InjectRepository(FeeEntity) private readonly fees: Repository<FeeEntity>) {}
 
-  async calculate(amountUsd: number | string, country: string) {
+  async calculate(amountUsd: number | string | Fraction, country: string) {
     const fee = await this.fees.findOneBy([{ country }, { country: IsNull() }]);
     if (!fee) {
       return { total: new Fraction(amountUsd), fee: new Fraction(0) };

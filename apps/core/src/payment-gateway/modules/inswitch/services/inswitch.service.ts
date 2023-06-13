@@ -3,6 +3,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { UnauthorizedException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import Fraction from 'fraction.js';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { KYCDocumentType } from '~svc/core/src/payment-gateway/modules/veriff/entities/veriff-document.entity';
@@ -115,15 +116,19 @@ export class InswitchService {
     return { withdraw, user };
   }
 
-  async approve(payload: AuthorizationWebhookRequest): Promise<AutorizationWebhookResponse> {
+  async approve(
+    payload: AuthorizationWebhookRequest,
+    amounts: { user: Fraction; fee: Fraction },
+  ): Promise<AutorizationWebhookResponse> {
     await this.withdrawRepo.insert(
       this.withdrawRepo.create({
         id: payload.transactionInfo.authorizationId,
         amount: payload.transactionInfo.amount,
+        amount_usd: amounts.user.toString(),
+        fee_usd: amounts.fee.toString(),
         currency: payload.transactionInfo.currency,
         status: InswitchAuthorizationStatus.Pending,
         entity_id: payload.cardInfo.entityId,
-        usd_rate: payload.transactionInfo.fx_rate,
       }),
     );
 
@@ -169,9 +174,10 @@ export class InswitchService {
 
     return this.withdrawRepo
       .createQueryBuilder('iw')
-      .select('SUM(iw.amount / iw.usd_rate)', 'amount')
+      .select('SUM(iw.amount_usd)', 'amount')
+      .addSelect('SUM(iw.fee_usd)', 'fee')
       .where('iw.status = :status', { status: InswitchAuthorizationStatus.Processing })
-      .getRawOne<{ amount: string }>();
+      .getRawOne<{ amount: string; fee: string }>();
   }
 
   async finishProcessing() {

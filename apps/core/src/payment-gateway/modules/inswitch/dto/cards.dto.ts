@@ -7,6 +7,7 @@ import {
   IsNumberString,
   IsString,
   IsUUID,
+  Length,
   MaxLength,
   ValidateIf,
   ValidateNested,
@@ -33,6 +34,17 @@ export class CreateCardDto implements IssueCardRequest {
   @IsNumberString()
   @MaxLength(4)
   pin?: string;
+}
+
+export class UpgradeCardDto {
+  @IsNotEmpty()
+  @IsInt()
+  user_id: number;
+
+  @IsNotEmpty()
+  @IsNumberString()
+  @Length(4)
+  pin: string;
 }
 
 export class CardIdDto implements CardId {

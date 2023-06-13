@@ -19,7 +19,7 @@ export class CardsController implements CardsServiceController {
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   activate(request: CardIdDto) {
-    return this.inswitch.activate(request);
+    return this.inswitch.activatePhysical(request.user_id);
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))

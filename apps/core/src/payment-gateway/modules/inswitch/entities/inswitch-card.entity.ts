@@ -5,7 +5,14 @@ export enum CardType {
   Physical,
 }
 
-export type CardStatus = 'created' | 'ordered' | 'assigned' | 'active' | 'blocked' | 'cancelled';
+export enum CardStatus {
+  Created = 'created',
+  Ordered = 'ordered',
+  Assigned = 'assigned',
+  Active = 'active',
+  Blocked = 'blocked',
+  Cancelled = 'cancelled',
+}
 
 @Entity('inswitch_card')
 export class InswitchCardEntity {
@@ -26,6 +33,9 @@ export class InswitchCardEntity {
 
   @Column('varchar', { length: 20, nullable: true })
   pan?: string;
+
+  @Column('boolean', { default: false })
+  is_active: boolean;
 
   get isVirtual() {
     return this.type === CardType.Virtual;

@@ -6,6 +6,7 @@ import Fraction from 'fraction.js';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
 import { TransfersEntity, TransferStatus, TransferTypes } from '../../entities/transfers.entity';
+import { FeeService } from '../../modules/fee/fee.service';
 import {
   AuthorizationWebhookRequest,
   AutorizationWebhookResponse,
@@ -17,7 +18,8 @@ import { PrimeTrustClient } from './prime-trust.client';
 
 @Injectable()
 export class WithdrawAuthorizationService {
-  private readonly intermediateAccountId: string;
+  private readonly inswitchAccountId: string;
+  private readonly feeAccountId: string;
   private readonly logger = new Logger(WithdrawAuthorizationService.name);
 
   constructor(
@@ -27,8 +29,11 @@ export class WithdrawAuthorizationService {
     private readonly balance: PrimeBalanceManager,
     private readonly primeTrustClient: PrimeTrustClient,
     @InjectRepository(TransfersEntity) private readonly transfersRepo: Repository<TransfersEntity>,
+    private readonly feeService: FeeService,
   ) {
-    this.intermediateAccountId = config.get('prime_trust.inswitchAccountId', { infer: true });
+    const { feeAccountId, inswitchAccountId } = config.get('prime_trust', { infer: true });
+    this.feeAccountId = feeAccountId;
+    this.inswitchAccountId = inswitchAccountId;
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -44,14 +49,16 @@ export class WithdrawAuthorizationService {
     try {
       const { withdraw, user } = await this.inswitch.parseWithdrawRequest(payload);
       const { settled, hot_balance, cold_balance } = await this.balance.getAccountBalance(user.id);
+
       const usdAmount = new Fraction(withdraw.amount).div(withdraw.rate);
-      if (usdAmount.compare(settled) < 0) {
-        const amount = usdAmount.round(6).valueOf();
+      const { total, fee } = await this.feeService.calculate(usdAmount, user.country_code);
+      if (total.compare(settled) < 0) {
+        const amount = total.round(6).valueOf();
         const account = await this.primeTrust.getAccount(user.id);
         const hotStatus = cold_balance < amount && hot_balance > amount;
-        await this.primeTrustClient.assetTransfer(account.uuid, this.intermediateAccountId, amount, hotStatus);
+        await this.primeTrustClient.assetTransfer(account.uuid, this.inswitchAccountId, amount, hotStatus);
 
-        return this.inswitch.approve(payload);
+        return this.inswitch.approve(payload, { user: usdAmount, fee });
       }
     } catch (error) {
       this.logger.error('Authorization request failed', error.message, { payload, error });
@@ -67,6 +74,7 @@ export class WithdrawAuthorizationService {
       const { withdraw, user } = await this.inswitch.parseWithdrawRequest(payload);
       const { approved, amount } = await this.inswitch.updateWithdraw(payload);
       const usdAmount = new Fraction(withdraw.amount).div(withdraw.rate);
+      const { fee } = await this.feeService.calculate(usdAmount, user.country_code);
       const account = await this.primeTrust.getAccount(user.id);
       if (approved) {
         await this.transfersRepo.save(
@@ -77,13 +85,14 @@ export class WithdrawAuthorizationService {
             amount: Number.parseFloat(amount),
             amount_usd: usdAmount.valueOf(),
             currency_type: withdraw.currency,
-            fee: 0,
+            fee: fee.valueOf(),
+            internal_fee_usd: fee.valueOf(),
           }),
         );
         await this.primeTrust.updateBalance({ id: account.uuid });
       } else {
         await this.primeTrustClient.assetTransfer(
-          this.intermediateAccountId,
+          this.inswitchAccountId,
           account.uuid,
           usdAmount.round(6).valueOf(),
           false,
@@ -95,15 +104,25 @@ export class WithdrawAuthorizationService {
   }
 
   async payApproved() {
-    const { amount } = await this.inswitch.startProcessing();
-    const contact = await this.primeTrustClient.getAccountOwner(this.intermediateAccountId);
-    await this.primeTrustClient.assetWidthdraw({
-      contactId: contact.id,
-      accountId: this.intermediateAccountId,
-      amount: new Fraction(amount).round(6).valueOf(),
-      wallet: this.inswitch.wallet,
-      hot: false,
-    });
+    const { amount, fee } = await this.inswitch.startProcessing();
+    const contact = await this.primeTrustClient.getAccountOwner(this.inswitchAccountId);
+
+    await Promise.all([
+      this.primeTrustClient.assetWidthdraw({
+        contactId: contact.id,
+        accountId: this.inswitchAccountId,
+        amount: new Fraction(amount).round(6).valueOf(),
+        wallet: this.inswitch.wallet,
+        hot: false,
+      }),
+      this.primeTrustClient.assetTransfer(
+        this.inswitchAccountId,
+        this.feeAccountId,
+        new Fraction(fee).round(6).valueOf(),
+        false,
+      ),
+    ]);
+
     await this.inswitch.finishProcessing();
   }
 }

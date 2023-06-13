@@ -22,7 +22,10 @@ export class InswitchWithdrawAuthorizationEntity {
   currency: string;
 
   @Column('decimal')
-  usd_rate: string;
+  amount_usd: string;
+
+  @Column('decimal')
+  fee_usd: string;
 
   @Column('smallint')
   status: InswitchAuthorizationStatus;
