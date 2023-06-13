@@ -50,23 +50,39 @@ export interface PaginationArgument {
   pagination_params: string;
 }
 
+export interface UpdateUserStatusArgument {
+  id: number;
+  status: string;
+}
+
+export interface NullableUserBase {
+  user?: UserBase | undefined;
+}
+
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface UserAdminServiceClient {
   getUserById(request: IdRequest, ...rest: any): Observable<NullableUser>;
 
   getUserList(request: PaginationArgument, ...rest: any): Observable<UserList>;
+
+  updateUserStatus(request: UpdateUserStatusArgument, ...rest: any): Observable<NullableUserBase>;
 }
 
 export interface UserAdminServiceController {
   getUserById(request: IdRequest, ...rest: any): Promise<NullableUser> | Observable<NullableUser> | NullableUser;
 
   getUserList(request: PaginationArgument, ...rest: any): Promise<UserList> | Observable<UserList> | UserList;
+
+  updateUserStatus(
+    request: UpdateUserStatusArgument,
+    ...rest: any
+  ): Promise<NullableUserBase> | Observable<NullableUserBase> | NullableUserBase;
 }
 
 export function UserAdminServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getUserById", "getUserList"];
+    const grpcMethods: string[] = ["getUserById", "getUserList", "updateUserStatus"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("UserAdminService", method)(constructor.prototype[method], method, descriptor);

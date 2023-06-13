@@ -40,6 +40,10 @@ const rolePermissions: Record<string, { slug: string; description: string }[]> =
       description: 'Read App Users Data',
     },
     {
+      slug: PM.users.update,
+      description: 'Update App Users Data',
+    },
+    {
       slug: PM.transfers.read,
       description: 'Read Transactions Data',
     },

@@ -2,6 +2,7 @@ import { UserEntity } from '@/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserBase } from '~common/grpc/interfaces/admin_panel';
 import { PaginationRequest } from '~common/interfaces/pagination';
 
 @Injectable()
@@ -25,5 +26,16 @@ export class UserAdminService {
     const { skip: offset, limit, order } = pagination;
 
     return this.userRepository.createQueryBuilder('user').orderBy(order).offset(offset).limit(limit).getManyAndCount();
+  }
+
+  updateUserStatus(user_id: number, status: string): Promise<UserBase> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .update()
+      .set({ status })
+      .where('id = :user_id', { user_id })
+      .returning('*')
+      .execute()
+      .then((result) => result.raw[0]);
   }
 }

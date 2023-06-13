@@ -1,7 +1,8 @@
 import { ApiGlobalResponse } from '@/common/decorators';
 import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@/libs/pagination';
+import { UpdateUserStatusRequestDto } from '@/modules/user/dtos/update-user-status-request.dto';
 import { UserByIdResponseDto } from '@/modules/user/dtos/user-by-id-response.dto';
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Put, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PM } from '../../constants/permission/map.permission';
 import { Permissions, TOKEN_NAME } from '../auth';
@@ -33,5 +34,16 @@ export class UserController {
   @Get(':id')
   public getUserById(@Param('id', ParseIntPipe) id: number): Promise<UserByIdResponseDto> {
     return this.userService.getUserById(id);
+  }
+
+  @ApiOperation({ description: 'Update user status by id' })
+  @ApiGlobalResponse(BaseUserResponseDto)
+  @Permissions(PM.users.update)
+  @Put(':id/status')
+  public updateUserStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) { status }: UpdateUserStatusRequestDto,
+  ): Promise<BaseUserResponseDto> {
+    return this.userService.updateUserStatus(id, status);
   }
 }

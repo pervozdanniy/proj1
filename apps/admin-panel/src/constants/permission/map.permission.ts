@@ -19,6 +19,7 @@ export const PM = {
   },
   users: {
     read: 'users.read',
+    update: 'users.update',
   },
   transfers: {
     read: 'transfers.read',

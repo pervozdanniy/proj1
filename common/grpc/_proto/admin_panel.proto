@@ -6,6 +6,7 @@ import "common.proto";
 service UserAdminService {
   rpc GetUserById (common.IdRequest) returns (common.NullableUser);
   rpc GetUserList (PaginationArgument) returns (UserList);
+  rpc UpdateUserStatus (UpdateUserStatusArgument) returns (NullableUserBase);
 }
 
 service TransferAdminService {
@@ -55,4 +56,13 @@ message UserList {
 
 message PaginationArgument {
   string pagination_params = 1;
+}
+
+message UpdateUserStatusArgument {
+  uint32 id = 1;
+  string status = 2;
+}
+
+message NullableUserBase {
+  optional UserBase user = 1;
 }

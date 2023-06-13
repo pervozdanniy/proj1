@@ -37,4 +37,14 @@ export class UserService implements OnModuleInit {
 
     return plainToInstance(UserByIdResponseDto, response.user, { excludePrefixes: ['_'] });
   }
+
+  async updateUserStatus(id: number, status: string): Promise<BaseUserResponseDto> {
+    const response = await firstValueFrom(this.adminPanelService.updateUserStatus({ id, status }));
+
+    if (!response.user) {
+      throw new NotFoundException();
+    }
+
+    return plainToInstance(BaseUserResponseDto, response.user, { excludePrefixes: ['_'] });
+  }
 }
