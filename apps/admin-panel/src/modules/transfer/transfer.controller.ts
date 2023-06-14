@@ -2,7 +2,7 @@ import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationRe
 import { TransferResponseDto } from '@/modules/transfer/dtos/transfer-response.dto';
 import { TransferService } from '@/modules/transfer/transfer.service';
 import { Controller, Get } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PM } from '../../constants/permission/map.permission';
 import { Permissions, TOKEN_NAME } from '../auth';
 
@@ -17,6 +17,13 @@ export class TransferController {
 
   @ApiOperation({ description: 'Get a paginated transfer list' })
   @ApiPaginatedResponse(TransferResponseDto)
+  @ApiQuery({
+    name: 'filter',
+    type: 'string',
+    required: false,
+    description: 'JSON String Where Key=Column Name, Value=Array of Values',
+    example: '{ "user_id": [31, 35], "type": ["deposit", "withdrawal"], "provider": ["prime_trust"] }',
+  })
   @Permissions(PM.transfers.read)
   @Get()
   public getTransferList(

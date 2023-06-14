@@ -8,14 +8,19 @@ import { PaginationRequest } from '~common/interfaces/pagination';
 export class TransferAdminService {
   constructor(@InjectRepository(TransfersEntity) private transferRepository: Repository<TransfersEntity>) {}
 
-  getTransferList(pagination: PaginationRequest): Promise<[TransfersEntity[], number]> {
+  getTransferList(
+    pagination: PaginationRequest<{ filter: { [key: string]: string[] } }>,
+  ): Promise<[TransfersEntity[], number]> {
     const { skip: offset, limit, order } = pagination;
 
-    return this.transferRepository
-      .createQueryBuilder('transfers')
-      .orderBy(order)
-      .offset(offset)
-      .limit(limit)
-      .getManyAndCount();
+    const query = this.transferRepository.createQueryBuilder('transfers').orderBy(order).offset(offset).limit(limit);
+
+    if (pagination?.params?.filter) {
+      for (const [key, value] of Object.entries(pagination.params.filter)) {
+        query.andWhere(`transfers.${key} IN (:...${key}s)`, { [`${key}s`]: value });
+      }
+    }
+
+    return query.getManyAndCount();
   }
 }

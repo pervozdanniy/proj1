@@ -3,7 +3,7 @@ import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationRe
 import { UpdateUserStatusRequestDto } from '@/modules/user/dtos/update-user-status-request.dto';
 import { UserByIdResponseDto } from '@/modules/user/dtos/user-by-id-response.dto';
 import { Body, Controller, Get, Param, ParseIntPipe, Put, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PM } from '../../constants/permission/map.permission';
 import { Permissions, TOKEN_NAME } from '../auth';
 import { BaseUserResponseDto } from '../user/dtos/base-user-response.dto';
@@ -20,6 +20,13 @@ export class UserController {
 
   @ApiOperation({ description: 'Get a paginated user list' })
   @ApiPaginatedResponse(BaseUserResponseDto)
+  @ApiQuery({
+    name: 'filter',
+    type: 'string',
+    required: false,
+    description: 'JSON String Where Key=Column Name, Value=Array of Values',
+    example: '{ "id": [31, 35], "status": ["active"], "country_code": ["US"] }',
+  })
   @Permissions(PM.users.read)
   @Get()
   public getUserList(

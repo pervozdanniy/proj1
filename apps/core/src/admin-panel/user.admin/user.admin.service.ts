@@ -22,10 +22,17 @@ export class UserAdminService {
       .getOne();
   }
 
-  getUserList(pagination: PaginationRequest): Promise<[UserEntity[], number]> {
+  getUserList(pagination: PaginationRequest<{ filter: { [key: string]: string[] } }>): Promise<[UserEntity[], number]> {
     const { skip: offset, limit, order } = pagination;
+    const query = this.userRepository.createQueryBuilder('user').orderBy(order).offset(offset).limit(limit);
 
-    return this.userRepository.createQueryBuilder('user').orderBy(order).offset(offset).limit(limit).getManyAndCount();
+    if (pagination?.params?.filter) {
+      for (const [key, value] of Object.entries(pagination.params.filter)) {
+        query.andWhere(`user.${key} IN (:...${key}s)`, { [`${key}s`]: value });
+      }
+    }
+
+    return query.getManyAndCount();
   }
 
   updateUserStatus(user_id: number, status: string): Promise<UserBase> {
