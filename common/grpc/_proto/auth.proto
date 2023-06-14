@@ -33,6 +33,8 @@ service RegisterService {
   rpc CreateAgreement (CreateAgreementRequest) returns (common.UserAgreement);
 
   rpc RegisterFinish (RegisterFinishRequest) returns (common.User);
+
+  rpc RegisterSimple (RegisterSimpleRequest) returns (common.User);
 }
 
 service ResetPasswordService {
@@ -198,7 +200,6 @@ message RegisterStartRequest {
     string password = 3;
     string source = 4;
   }
-  
 }
 
 message RegisterFinishRequest {
@@ -219,4 +220,12 @@ message ResetPasswordStartRequest {
 
 message ResetPasswordFinishRequest {
   string password = 1;
+}
+
+message RegisterSimpleRequest {
+  string email = 1;
+  string phone = 2;
+  string password = 3;
+  string country_code = 4;
+  common.UserDetails details = 5;
 }

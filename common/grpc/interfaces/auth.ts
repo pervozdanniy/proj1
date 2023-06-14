@@ -138,6 +138,14 @@ export interface ResetPasswordFinishRequest {
   password: string;
 }
 
+export interface RegisterSimpleRequest {
+  email: string;
+  phone: string;
+  password: string;
+  country_code: string;
+  details: UserDetails | undefined;
+}
+
 export const SKOPA_AUTH_PACKAGE_NAME = "skopa.auth";
 
 export interface AuthServiceClient {
@@ -213,6 +221,8 @@ export interface RegisterServiceClient {
   createAgreement(request: CreateAgreementRequest, ...rest: any): Observable<UserAgreement>;
 
   registerFinish(request: RegisterFinishRequest, ...rest: any): Observable<User>;
+
+  registerSimple(request: RegisterSimpleRequest, ...rest: any): Observable<User>;
 }
 
 export interface RegisterServiceController {
@@ -229,11 +239,19 @@ export interface RegisterServiceController {
   ): Promise<UserAgreement> | Observable<UserAgreement> | UserAgreement;
 
   registerFinish(request: RegisterFinishRequest, ...rest: any): Promise<User> | Observable<User> | User;
+
+  registerSimple(request: RegisterSimpleRequest, ...rest: any): Promise<User> | Observable<User> | User;
 }
 
 export function RegisterServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["registerStart", "registerVerify", "createAgreement", "registerFinish"];
+    const grpcMethods: string[] = [
+      "registerStart",
+      "registerVerify",
+      "createAgreement",
+      "registerFinish",
+      "registerSimple",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("RegisterService", method)(constructor.prototype[method], method, descriptor);

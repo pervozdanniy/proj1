@@ -4,6 +4,7 @@ import {
   AuthData,
   CreateAgreementRequest,
   RegisterFinishRequest,
+  RegisterSimpleRequest,
   RegisterStartRequest,
   TwoFactorCode,
 } from '~common/grpc/interfaces/auth';
@@ -80,5 +81,9 @@ export class ApiRegisterService {
     // }
 
     return user;
+  }
+
+  simple(payload: RegisterSimpleRequest) {
+    return this.auth.createUser({ ...payload, contacts: [] });
   }
 }

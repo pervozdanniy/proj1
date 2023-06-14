@@ -11,6 +11,7 @@ import {
   RegistrationFinishRequestDto,
   RegistrationStartRequestDto,
   RegistrationVerifyRequestDto,
+  SimpleRegistrationRequestDto,
 } from '../dto/registration.dto';
 import { parseAuthResponse, parseVerificationResponse } from '../helpers/2fa';
 
@@ -48,10 +49,14 @@ export class RegistrationService implements OnModuleInit {
     return { content };
   }
 
-  async finish(payload: RegistrationFinishRequestDto, sessionId: string) {
+  finish(payload: RegistrationFinishRequestDto, sessionId: string) {
     const metadata = new Metadata();
     metadata.set('sessionId', sessionId);
 
     return firstValueFrom(this.authClient.registerFinish(payload, metadata));
+  }
+
+  simple(payload: SimpleRegistrationRequestDto) {
+    return firstValueFrom(this.authClient.registerSimple(payload));
   }
 }

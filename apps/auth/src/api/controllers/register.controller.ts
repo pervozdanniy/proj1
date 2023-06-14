@@ -6,6 +6,7 @@ import {
   RegisterFinishRequest,
   RegisterServiceController,
   RegisterServiceControllerMethods,
+  RegisterSimpleRequest,
   RegisterStartRequest,
   TwoFactorCode,
   TwoFactorVerificationResponse,
@@ -45,5 +46,9 @@ export class ApiRegisterController implements RegisterServiceController {
     @GrpcSession() session: SessionProxy<RegisterSessionInterface>,
   ): Promise<User> {
     return this.registerService.registerFinish(request, session);
+  }
+
+  registerSimple(request: RegisterSimpleRequest): Promise<User> {
+    return this.registerService.simple(request);
   }
 }
