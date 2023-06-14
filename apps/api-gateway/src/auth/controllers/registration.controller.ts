@@ -18,6 +18,7 @@ import {
   RegistrationFinishRequestDto,
   RegistrationStartRequestDto,
   RegistrationVerifyRequestDto,
+  SimpleRegistrationRequestDto,
 } from '../dto/registration.dto';
 import { IpqualityScoreService } from '../services/ipquality-score.service';
 import { RegistrationService } from '../services/registration.service';
@@ -73,6 +74,15 @@ export class RegistrationController {
   @Post('finish')
   async finish(@Body() payload: RegistrationFinishRequestDto, @JwtSessionId() sessionId: string) {
     const user = await this.registerService.finish(payload, sessionId);
+
+    return plainToInstance(PublicUserWithContactsDto, user);
+  }
+
+  @ApiOperation({ summary: 'Perform user registration with one step' })
+  @ApiCreatedResponse({ type: PublicUserWithContactsDto })
+  @Post('simple')
+  async simple(@Body() payload: SimpleRegistrationRequestDto) {
+    const user = await this.registerService.simple(payload);
 
     return plainToInstance(PublicUserWithContactsDto, user);
   }

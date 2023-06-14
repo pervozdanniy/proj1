@@ -11,7 +11,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { CreateAgreementRequest, RegisterFinishRequest } from '~common/grpc/interfaces/auth';
+import { CreateAgreementRequest, RegisterFinishRequest, RegisterSimpleRequest } from '~common/grpc/interfaces/auth';
 import { UserDetails } from '../../user/dtos/update-user.dto';
 import { TwoFactorVerificationDto } from './2fa.request.dto';
 
@@ -55,4 +55,34 @@ export class RegistrationFinishRequestDto implements RegisterFinishRequest {
   @IsArray()
   @IsPhoneNumber(undefined, { each: true })
   contacts: string[];
+}
+
+export class SimpleRegistrationRequestDto implements RegisterSimpleRequest {
+  @ApiProperty({ example: 'test453_sd@gmail.com' })
+  @Transform(({ value }) => value.toLowerCase())
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({ example: '+37495017680' })
+  @IsNotEmpty()
+  @IsPhoneNumber()
+  phone: string;
+
+  @ApiProperty({ example: '12345678' })
+  @IsString()
+  @IsNotEmpty()
+  @Length(8, 200)
+  password: string;
+
+  @ApiProperty({ example: 'US' })
+  @IsISO31661Alpha2()
+  @IsNotEmpty()
+  country_code: string;
+
+  @ApiProperty({ type: UserDetails })
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => UserDetails)
+  details: UserDetails;
 }
