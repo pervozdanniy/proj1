@@ -1,4 +1,3 @@
-import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
@@ -6,19 +5,11 @@ import {
   IsNotEmpty,
   IsNumberString,
   IsString,
-  IsUUID,
   Length,
   MaxLength,
   ValidateIf,
-  ValidateNested,
 } from 'class-validator';
-import {
-  BlockCardRequest,
-  BlockReason,
-  CardId,
-  IssueCardRequest,
-  SetPinRequest,
-} from '~common/grpc/interfaces/inswitch';
+import { BlockCardRequest, BlockReason, IssueCardRequest, SetPinRequest } from '~common/grpc/interfaces/inswitch';
 
 export class CreateCardDto implements IssueCardRequest {
   @IsNotEmpty()
@@ -47,25 +38,15 @@ export class UpgradeCardDto {
   pin: string;
 }
 
-export class CardIdDto implements CardId {
-  @IsNotEmpty()
-  @IsUUID()
-  reference: string;
-
-  @IsNotEmpty()
-  @IsInt()
-  user_id: number;
-}
-
 export class SetPinDto implements SetPinRequest {
   @IsNotEmpty()
   @IsString()
   @MaxLength(4)
   pin: string;
 
-  @ValidateNested()
-  @Type(() => CardIdDto)
-  card_id: CardIdDto;
+  @IsNotEmpty()
+  @IsInt()
+  user_id: number;
 }
 
 export class CardBlockDto implements BlockCardRequest {
@@ -73,7 +54,7 @@ export class CardBlockDto implements BlockCardRequest {
   @IsEnum(BlockReason)
   reason: BlockReason;
 
-  @ValidateNested()
-  @Type(() => CardIdDto)
-  card_id: CardIdDto;
+  @IsNotEmpty()
+  @IsInt()
+  user_id: number;
 }

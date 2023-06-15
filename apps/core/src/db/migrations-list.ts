@@ -68,6 +68,7 @@ import { AlterBanksTable1685340163240 } from './migrations/1685340163240-AlterBa
 import { AlterTransfersTable1685367927168 } from './migrations/1685367927168-AlterTransfersTable';
 import { CreateLiquidoWithdrawalsTable1685427957775 } from './migrations/1685427957775-CreateLiquidoWithdrawalsTable';
 import { AddInternalFee1685972292989 } from './migrations/1685972292989-AddInternalFee';
+import { AlterInswitchCardsTable1686847368050 } from './migrations/1686847368050-AlterInswitchCardsTable';
 
 export default [
   createUserTable1669901299726,
@@ -140,4 +141,5 @@ export default [
   AlterTransfersTable1685367927168,
   CreateLiquidoWithdrawalsTable1685427957775,
   AddInternalFee1685972292989,
+  AlterInswitchCardsTable1686847368050,
 ];

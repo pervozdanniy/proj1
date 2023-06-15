@@ -4,8 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { BlockReason, Card, CardDetails } from '~common/grpc/interfaces/inswitch';
-import { CardBlockDto, CardIdDto, CreateCardDto, SetPinDto, UpgradeCardDto } from '../dto/cards.dto';
+import { BlockReason, Card, CardDetails, CardResponse } from '~common/grpc/interfaces/inswitch';
+import { CardBlockDto, CreateCardDto, SetPinDto, UpgradeCardDto } from '../dto/cards.dto';
 import { InswitchAccountEntity } from '../entities/inswitch-account.entity';
 import { CardStatus, CardType, InswitchCardEntity } from '../entities/inswitch-card.entity';
 import { BlockCardReason, UnblockCardReason } from '../interfaces/api.interface';
@@ -29,14 +29,11 @@ export class InswitchCardsService {
     this.virtualCardProductId = cards.virtualCardProductId;
   }
 
-  private async getCardOrFail({ user_id, reference }: CardIdDto, reload = false) {
-    const entity = await this.cardRepo
-      .createQueryBuilder('c')
-      .innerJoin(InswitchAccountEntity, 'a', 'a.id = c.account_id')
-      .where('a.user_id = :userId', { userId: user_id })
-      .andWhere({ reference })
-      .getOneOrFail();
-
+  private async getCardOrFail(userId: number, reload = false) {
+    const entity = await this.findActive(userId);
+    if (!entity) {
+      throw new ConflictException('You have no active cards');
+    }
     if (reload) {
       const card = await this.api.getCardDetails(entity.reference);
       if (entity.status !== card.status) {
@@ -50,7 +47,7 @@ export class InswitchCardsService {
     return entity;
   }
 
-  async findActive(userId: number) {
+  private findActive(userId: number) {
     return this.cardRepo
       .createQueryBuilder('c')
       .innerJoin(InswitchAccountEntity, 'a', 'a.id = c.account_id')
@@ -59,20 +56,21 @@ export class InswitchCardsService {
       .getOne();
   }
 
-  async list(userId: number): Promise<Card[]> {
-    const cards = await this.cardRepo
-      .createQueryBuilder('c')
-      .innerJoin(InswitchAccountEntity, 'a', 'a.id = c.account_id')
-      .where('a.user_id = :userId', { userId })
-      .getMany();
+  async find(userId: number): Promise<CardResponse> {
+    const card = await this.findActive(userId);
+    if (!card) {
+      return { card: null };
+    }
 
-    return cards.map((c) => ({
-      reference: c.reference,
-      is_virtual: c.isVirtual,
-      currency: c.currency,
-      status: c.status,
-      pan: c.pan,
-    }));
+    return {
+      card: {
+        reference: card.reference,
+        is_virtual: card.isVirtual,
+        currency: card.currency,
+        status: card.status,
+        pan: card.pan,
+      },
+    };
   }
 
   async issueCard(payload: CreateCardDto): Promise<Card> {
@@ -152,8 +150,8 @@ export class InswitchCardsService {
     };
   }
 
-  async details(request: CardIdDto): Promise<CardDetails> {
-    const card = await this.getCardOrFail(request);
+  async details(user_id: number): Promise<CardDetails> {
+    const card = await this.findActive(user_id);
     const details = await this.api.getCardDetails(card.reference);
 
     const data: CardDetails = {
@@ -175,11 +173,11 @@ export class InswitchCardsService {
     return data;
   }
 
-  async regenerateCvv(request: CardIdDto): Promise<string> {
-    const card = await this.getCardOrFail(request);
+  async regenerateCvv(userId: number): Promise<string> {
+    const card = await this.getCardOrFail(userId);
     if (card.type === CardType.Virtual) {
-      await this.api.cardRegenerateCvv(request.reference);
-      const details = await this.api.getCardDetails(request.reference);
+      await this.api.cardRegenerateCvv(card.reference);
+      const details = await this.api.getCardDetails(card.reference);
 
       return details.expanded_card_info.cvv;
     }
@@ -187,8 +185,8 @@ export class InswitchCardsService {
     throw new ConflictException('This operation is applicalble only to "virtual" cards!');
   }
 
-  async setPin({ card_id, pin }: SetPinDto) {
-    const card = await this.getCardOrFail(card_id, true);
+  async setPin({ user_id, pin }: SetPinDto) {
+    const card = await this.getCardOrFail(user_id, true);
     if (card.status !== 'active') {
       throw new ConflictException('You can change pin only for active cards');
     }
@@ -196,7 +194,7 @@ export class InswitchCardsService {
       throw new ConflictException('This operation is applicalble only to "physical" cards!');
     }
 
-    return this.api.cardSetPin(card_id.reference, pin);
+    return this.api.cardSetPin(card.reference, pin);
   }
 
   private mapGrpcToApiReason(reason: BlockReason): BlockCardReason {
@@ -217,7 +215,7 @@ export class InswitchCardsService {
   }
 
   async block(request: CardBlockDto) {
-    const card = await this.getCardOrFail(request.card_id, true);
+    const card = await this.getCardOrFail(request.user_id, true);
     if (card.status !== CardStatus.Active) {
       throw new ConflictException('Only "active" cards can be blocked');
     }
@@ -228,8 +226,8 @@ export class InswitchCardsService {
     await this.cardRepo.update(card.reference, { status: CardStatus.Blocked });
   }
 
-  async unblock(request: CardIdDto) {
-    const card = await this.getCardOrFail(request, true);
+  async unblock(user_id: number) {
+    const card = await this.getCardOrFail(user_id, true);
     if (card.status !== CardStatus.Blocked) {
       throw new ConflictException('Your card is not blocked!');
     }
@@ -240,36 +238,37 @@ export class InswitchCardsService {
     await this.cardRepo.update(card.reference, { status: CardStatus.Active });
   }
 
+  async deactivate(userId: number) {
+    const card = await this.getCardOrFail(userId, true);
+    if (card.status !== CardStatus.Active) {
+      throw new ConflictException('Only "active" cards can be deativated!');
+    }
+    await this.api.deactivateCard(card.reference);
+    await this.cardRepo.update(card.reference, { status: CardStatus.Cancelled });
+  }
+
   async activatePhysical(userId: number) {
     const cards = await this.cardRepo
       .createQueryBuilder('c')
       .innerJoin(InswitchAccountEntity, 'a', 'a.id = c.account_id')
       .where('a.user_id = :userId', { userId })
       .getMany();
-    const card = cards.find((c) => c.type === CardType.Physical);
-    if (!card) {
+    const entity = cards.find((c) => c.type === CardType.Physical);
+    if (!entity) {
       throw new ConflictException('No physical card found');
     }
+    const card = await this.api.getCardDetails(entity.reference);
     if (card.status !== CardStatus.Assigned) {
       throw new ConflictException('Only "assigned" cards can be activated');
     }
-    await this.api.activateCard(card.reference);
-    const refs = cards.filter((c) => c.isVirtual).map((c) => c.reference);
+    await this.api.activateCard(entity.reference);
+    const virtualRefs = cards.filter((c) => c.isVirtual).map((c) => c.reference);
     this.cardRepo.manager.transaction(async (tm) => {
       const repo = tm.getRepository(InswitchCardEntity);
-      await repo.update(refs, { is_active: false });
-      await repo.update(card.reference, { status: CardStatus.Active, is_active: true });
+      await repo.update(virtualRefs, { is_active: false });
+      await repo.update(entity.reference, { status: CardStatus.Active, is_active: true });
     });
-    await Promise.all(refs.map((ref) => this.api.cardBlock(ref, { reason: BlockCardReason.CardReplaced })));
-    await this.cardRepo.update(refs, { status: CardStatus.Blocked });
-  }
-
-  async deactivate(request: CardIdDto) {
-    const card = await this.getCardOrFail(request, true);
-    if (card.status !== CardStatus.Active) {
-      throw new ConflictException('Only "active" cards can be deativated!');
-    }
-    await this.api.deactivateCard(card.reference);
-    await this.cardRepo.update(card.reference, { status: CardStatus.Active });
+    await Promise.all(virtualRefs.map((ref) => this.api.cardBlock(ref, { reason: BlockCardReason.CardReplaced })));
+    await this.cardRepo.update(virtualRefs, { status: CardStatus.Blocked });
   }
 }

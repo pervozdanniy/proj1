@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -13,7 +13,7 @@ import {
   CardBlockDto,
   CardDetailsDto,
   CardDto,
-  CardsListDto,
+  CardResponseDto,
   IssueCardRequestDto,
   SetPinDto,
 } from '../dtos/cards/cards.dto';
@@ -29,8 +29,8 @@ export class CardsController {
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @Get()
-  list(@JwtSessionUser() { id }: User): Promise<CardsListDto> {
-    return this.cards.list(id);
+  find(@JwtSessionUser() { id }: User): Promise<CardResponseDto> {
+    return this.cards.find(id);
   }
 
   @ApiOperation({ summary: 'Issue card' })
@@ -46,9 +46,9 @@ export class CardsController {
   @ApiOkResponse({ type: CardDetailsDto })
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
-  @Get(':reference')
-  details(@Param('reference') reference: string, @JwtSessionUser() { id }: User): Promise<CardDetailsDto> {
-    return this.cards.details(reference, id);
+  @Get('')
+  details(@JwtSessionUser() { id }: User): Promise<CardDetailsDto> {
+    return this.cards.details(id);
   }
 
   @ApiOperation({ summary: 'Set pin for physical card' })
@@ -56,9 +56,9 @@ export class CardsController {
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Patch(':reference/pin')
-  async setPin(@Param('reference') reference: string, @Body() { pin }: SetPinDto, @JwtSessionUser() { id }: User) {
-    await this.cards.setPin({ pin, reference }, id);
+  @Patch('pin')
+  async setPin(@Body() { pin }: SetPinDto, @JwtSessionUser() { id }: User) {
+    await this.cards.setPin(pin, id);
   }
 
   @ApiOperation({ summary: 'Regenerate cvv for virtual card' })
@@ -66,19 +66,19 @@ export class CardsController {
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Patch(':reference/regenerate_cvv')
-  async regenerateCvv(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
-    await this.cards.regenerateCvv(reference, id);
+  @Patch('regenerate_cvv')
+  async regenerateCvv(@JwtSessionUser() { id }: User) {
+    await this.cards.regenerateCvv(id);
   }
 
-  @ApiOperation({ summary: 'Activate card' })
+  @ApiOperation({ summary: 'Activate physical card' })
   @ApiNoContentResponse()
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Patch(':reference/activate')
-  async activate(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
-    await this.cards.activate(reference, id);
+  @Patch('activate')
+  async activate(@JwtSessionUser() { id }: User) {
+    await this.cards.activate(id);
   }
 
   @ApiOperation({ summary: 'Deactivate card' })
@@ -86,9 +86,9 @@ export class CardsController {
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Patch(':reference/activate')
-  async deactivate(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
-    await this.cards.deactivate(reference, id);
+  @Patch('deactivate')
+  async deactivate(@JwtSessionUser() { id }: User) {
+    await this.cards.deactivate(id);
   }
 
   @ApiOperation({ summary: 'Block card' })
@@ -96,9 +96,9 @@ export class CardsController {
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Patch(':reference/block')
-  async block(@Param('reference') reference: string, @Body() { reason }: CardBlockDto, @JwtSessionUser() { id }: User) {
-    await this.cards.block({ reference, reason }, id);
+  @Patch('block')
+  async block(@Body() { reason }: CardBlockDto, @JwtSessionUser() { id }: User) {
+    await this.cards.block(reason, id);
   }
 
   @ApiOperation({ summary: 'Unblock card' })
@@ -106,8 +106,8 @@ export class CardsController {
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Patch(':reference/unblock')
-  async unblock(@Param('reference') reference: string, @JwtSessionUser() { id }: User) {
-    await this.cards.unblock(reference, id);
+  @Patch('unblock')
+  async unblock(@JwtSessionUser() { id }: User) {
+    await this.cards.unblock(id);
   }
 }

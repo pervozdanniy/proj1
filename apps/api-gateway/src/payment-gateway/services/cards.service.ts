@@ -15,34 +15,32 @@ export class CardsService {
     this.cardsClient = this.client.getService('CardsService');
   }
 
-  list(userId: number) {
-    return firstValueFrom(this.cardsClient.list({ user_id: userId }));
+  find(userId: number) {
+    return firstValueFrom(this.cardsClient.find({ user_id: userId }));
   }
 
   issue(payload: IssueCardRequestDto, userId: number) {
     return firstValueFrom(this.cardsClient.issue({ user_id: userId, ...payload }));
   }
 
-  details(reference: string, userId: number) {
-    return firstValueFrom(this.cardsClient.details({ reference, user_id: userId }));
+  details(userId: number) {
+    return firstValueFrom(this.cardsClient.details({ user_id: userId }));
   }
 
-  setPin(payload: { pin: string; reference: string }, userId: number) {
-    return firstValueFrom(
-      this.cardsClient.setPin({ card_id: { reference: payload.reference, user_id: userId }, pin: payload.pin }),
-    );
+  setPin(pin: string, userId: number) {
+    return firstValueFrom(this.cardsClient.setPin({ user_id: userId, pin }));
   }
 
-  regenerateCvv(reference: string, userId: number) {
-    return firstValueFrom(this.cardsClient.regenerateCvv({ user_id: userId, reference }));
+  regenerateCvv(userId: number) {
+    return firstValueFrom(this.cardsClient.regenerateCvv({ user_id: userId }));
   }
 
-  activate(reference: string, userId: number) {
-    return firstValueFrom(this.cardsClient.activate({ user_id: userId, reference }));
+  activate(userId: number) {
+    return firstValueFrom(this.cardsClient.activate({ user_id: userId }));
   }
 
-  deactivate(reference: string, userId: number) {
-    return firstValueFrom(this.cardsClient.deactivate({ user_id: userId, reference }));
+  deactivate(userId: number) {
+    return firstValueFrom(this.cardsClient.deactivate({ user_id: userId }));
   }
 
   private mapApiToGrpcReason(reason: CardBlockReason): BlockReason {
@@ -58,16 +56,16 @@ export class CardsService {
     }
   }
 
-  block(payload: { reference: string; reason: CardBlockReason }, userId: number) {
+  block(reason: CardBlockReason, userId: number) {
     return firstValueFrom(
       this.cardsClient.block({
-        card_id: { reference: payload.reference, user_id: userId },
-        reason: this.mapApiToGrpcReason(payload.reason),
+        user_id: userId,
+        reason: this.mapApiToGrpcReason(reason),
       }),
     );
   }
 
-  unblock(reference: string, userId: number) {
-    return firstValueFrom(this.cardsClient.unblock({ user_id: userId, reference }));
+  unblock(userId: number) {
+    return firstValueFrom(this.cardsClient.unblock({ user_id: userId }));
   }
 }

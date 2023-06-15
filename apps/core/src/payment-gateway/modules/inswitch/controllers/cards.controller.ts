@@ -3,13 +3,13 @@ import { UserIdRequest } from '~common/grpc/interfaces/common';
 import {
   Card,
   CardDetails,
-  CardsList,
+  CardResponse,
   CardsServiceController,
   CardsServiceControllerMethods,
   RegenerateCvvResponse,
 } from '~common/grpc/interfaces/inswitch';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { CardBlockDto, CardIdDto, CreateCardDto, SetPinDto } from '../dto/cards.dto';
+import { CardBlockDto, CreateCardDto, SetPinDto } from '../dto/cards.dto';
 import { InswitchCardsService } from '../services/cards.service';
 
 @RpcController()
@@ -18,13 +18,13 @@ export class CardsController implements CardsServiceController {
   constructor(private readonly inswitch: InswitchCardsService) {}
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  activate(request: CardIdDto) {
-    return this.inswitch.activatePhysical(request.user_id);
+  activate({ user_id }: UserIdRequest) {
+    return this.inswitch.activatePhysical(user_id);
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  deactivate(request: CardIdDto) {
-    return this.inswitch.deactivate(request);
+  deactivate({ user_id }: UserIdRequest) {
+    return this.inswitch.deactivate(user_id);
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
@@ -33,14 +33,12 @@ export class CardsController implements CardsServiceController {
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  unblock(request: CardIdDto) {
-    return this.inswitch.unblock(request);
+  unblock({ user_id }: UserIdRequest) {
+    return this.inswitch.unblock(user_id);
   }
 
-  async list({ user_id }: UserIdRequest): Promise<CardsList> {
-    const cards = await this.inswitch.list(user_id);
-
-    return { cards };
+  find({ user_id }: UserIdRequest): Promise<CardResponse> {
+    return this.inswitch.find(user_id);
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
@@ -48,9 +46,8 @@ export class CardsController implements CardsServiceController {
     return this.inswitch.issueCard(request);
   }
 
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  details(request: CardIdDto): Promise<CardDetails> {
-    return this.inswitch.details(request);
+  details({ user_id }: UserIdRequest): Promise<CardDetails> {
+    return this.inswitch.details(user_id);
   }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
@@ -58,9 +55,8 @@ export class CardsController implements CardsServiceController {
     return this.inswitch.setPin(request);
   }
 
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async regenerateCvv(request: CardIdDto): Promise<RegenerateCvvResponse> {
-    const cvv = await this.inswitch.regenerateCvv(request);
+  async regenerateCvv(request: UserIdRequest): Promise<RegenerateCvvResponse> {
+    const cvv = await this.inswitch.regenerateCvv(request.user_id);
 
     return { cvv };
   }

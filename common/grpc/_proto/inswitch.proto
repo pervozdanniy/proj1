@@ -6,23 +6,23 @@ import "google/protobuf/empty.proto";
 import "common.proto";
 
 service CardsService {
-    rpc List (common.UserIdRequest) returns (CardsList);
+    rpc Find (common.UserIdRequest) returns (CardResponse);
   
     rpc Issue (IssueCardRequest) returns (Card);
   
-    rpc Details (CardId) returns (CardDetails);
+    rpc Details (common.UserIdRequest) returns (CardDetails);
 
     rpc SetPin (SetPinRequest) returns (google.protobuf.Empty);
 
-    rpc RegenerateCvv (CardId) returns (RegenerateCvvResponse);
+    rpc RegenerateCvv (common.UserIdRequest) returns (RegenerateCvvResponse);
 
-    rpc Activate (CardId) returns (google.protobuf.Empty);
+    rpc Activate (common.UserIdRequest) returns (google.protobuf.Empty);
 
-    rpc Deactivate (CardId) returns (google.protobuf.Empty);
+    rpc Deactivate (common.UserIdRequest) returns (google.protobuf.Empty);
 
     rpc Block (BlockCardRequest) returns (google.protobuf.Empty);
 
-    rpc Unblock (CardId) returns (google.protobuf.Empty);
+    rpc Unblock (common.UserIdRequest) returns (google.protobuf.Empty);
 }
 
 service ExternalBalanceService {
@@ -37,11 +37,6 @@ service ExternalWithdrawAuthorizationService {
     rpc Update (ExternalWithdrawUpdateRequest) returns (google.protobuf.Empty);
 }
 
-message CardId {
-    string reference = 1;
-    uint32 user_id = 2;
-}
-
 message Card {
     string reference = 1;
     bool is_virtual = 2;
@@ -50,8 +45,8 @@ message Card {
     optional string pan = 5;
 }
 
-message CardsList {
-    repeated Card cards = 1;
+message CardResponse {
+    optional Card card = 1;
 }
 
 message ExpandedCardInfo {
@@ -76,7 +71,7 @@ message IssueCardRequest {
 }
 
 message SetPinRequest {
-    CardId card_id = 1;
+    uint32 user_id = 1;
     string pin = 2;
 }
 
@@ -93,7 +88,7 @@ enum BlockReason {
   }
 
 message BlockCardRequest {
-    CardId card_id = 1;
+    uint32 user_id = 1;
     BlockReason reason = 2;
 }
 

@@ -15,11 +15,6 @@ export enum BlockReason {
   UNRECOGNIZED = -1,
 }
 
-export interface CardId {
-  reference: string;
-  user_id: number;
-}
-
 export interface Card {
   reference: string;
   is_virtual: boolean;
@@ -28,8 +23,8 @@ export interface Card {
   pan?: string | undefined;
 }
 
-export interface CardsList {
-  cards: Card[];
+export interface CardResponse {
+  card?: Card | undefined;
 }
 
 export interface ExpandedCardInfo {
@@ -54,7 +49,7 @@ export interface IssueCardRequest {
 }
 
 export interface SetPinRequest {
-  card_id: CardId | undefined;
+  user_id: number;
   pin: string;
 }
 
@@ -63,7 +58,7 @@ export interface RegenerateCvvResponse {
 }
 
 export interface BlockCardRequest {
-  card_id: CardId | undefined;
+  user_id: number;
   reason: BlockReason;
 }
 
@@ -97,52 +92,52 @@ export interface ExternalWithdrawUpdateRequest {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface CardsServiceClient {
-  list(request: UserIdRequest, ...rest: any): Observable<CardsList>;
+  find(request: UserIdRequest, ...rest: any): Observable<CardResponse>;
 
   issue(request: IssueCardRequest, ...rest: any): Observable<Card>;
 
-  details(request: CardId, ...rest: any): Observable<CardDetails>;
+  details(request: UserIdRequest, ...rest: any): Observable<CardDetails>;
 
   setPin(request: SetPinRequest, ...rest: any): Observable<Empty>;
 
-  regenerateCvv(request: CardId, ...rest: any): Observable<RegenerateCvvResponse>;
+  regenerateCvv(request: UserIdRequest, ...rest: any): Observable<RegenerateCvvResponse>;
 
-  activate(request: CardId, ...rest: any): Observable<Empty>;
+  activate(request: UserIdRequest, ...rest: any): Observable<Empty>;
 
-  deactivate(request: CardId, ...rest: any): Observable<Empty>;
+  deactivate(request: UserIdRequest, ...rest: any): Observable<Empty>;
 
   block(request: BlockCardRequest, ...rest: any): Observable<Empty>;
 
-  unblock(request: CardId, ...rest: any): Observable<Empty>;
+  unblock(request: UserIdRequest, ...rest: any): Observable<Empty>;
 }
 
 export interface CardsServiceController {
-  list(request: UserIdRequest, ...rest: any): Promise<CardsList> | Observable<CardsList> | CardsList;
+  find(request: UserIdRequest, ...rest: any): Promise<CardResponse> | Observable<CardResponse> | CardResponse;
 
   issue(request: IssueCardRequest, ...rest: any): Promise<Card> | Observable<Card> | Card;
 
-  details(request: CardId, ...rest: any): Promise<CardDetails> | Observable<CardDetails> | CardDetails;
+  details(request: UserIdRequest, ...rest: any): Promise<CardDetails> | Observable<CardDetails> | CardDetails;
 
   setPin(request: SetPinRequest, ...rest: any): void;
 
   regenerateCvv(
-    request: CardId,
+    request: UserIdRequest,
     ...rest: any
   ): Promise<RegenerateCvvResponse> | Observable<RegenerateCvvResponse> | RegenerateCvvResponse;
 
-  activate(request: CardId, ...rest: any): void;
+  activate(request: UserIdRequest, ...rest: any): void;
 
-  deactivate(request: CardId, ...rest: any): void;
+  deactivate(request: UserIdRequest, ...rest: any): void;
 
   block(request: BlockCardRequest, ...rest: any): void;
 
-  unblock(request: CardId, ...rest: any): void;
+  unblock(request: UserIdRequest, ...rest: any): void;
 }
 
 export function CardsServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "list",
+      "find",
       "issue",
       "details",
       "setPin",

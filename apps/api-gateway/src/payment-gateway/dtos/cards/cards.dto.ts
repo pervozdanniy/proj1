@@ -34,10 +34,10 @@ export class CardDto implements Card {
   pan?: string;
 }
 
-export class CardsListDto {
-  @ApiProperty({ type: CardDto, isArray: true })
+export class CardResponseDto {
+  @ApiProperty({ type: CardDto })
   @Type(() => CardDto)
-  cards: CardDto[];
+  card?: CardDto;
 }
 
 export class SetPinDto {
