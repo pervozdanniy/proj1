@@ -1,20 +1,30 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import { Response } from 'express';
+import { GrpcException, isGrpcException } from '~common/utils/exceptions/grpc.exception';
 import { ErrorType } from '../enums';
 import { HttpErrorType } from './http-error-type';
 
-@Catch(HttpException)
+@Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
+    let wrappedEx = exception;
+    let errorType, message;
+
+    if (isGrpcException(exception)) {
+      wrappedEx = GrpcException.toHttp(exception);
+      message = exception.details;
+    } else {
+      ({ errorType, message } = wrappedEx.getResponse() as {
+        errorType: ErrorType | string;
+        message: string | string[];
+      });
+    }
+
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const status = +exception.getStatus();
+    const status = +wrappedEx.getStatus();
 
     // eslint-disable-next-line prefer-const
-    let { errorType, message } = exception.getResponse() as {
-      errorType: ErrorType | string;
-      message: string | string[];
-    };
 
     if (!errorType) {
       errorType = HttpErrorType[status as keyof typeof HttpErrorType];

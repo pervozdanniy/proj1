@@ -47,6 +47,10 @@ const rolePermissions: Record<string, { slug: string; description: string }[]> =
       slug: PM.transfers.read,
       description: 'Read Transactions Data',
     },
+    { slug: PM.fees.read, description: 'Read fees' },
+    { slug: PM.fees.create, description: 'Create fees' },
+    { slug: PM.fees.update, description: 'Update fees' },
+    { slug: PM.fees.delete, description: 'Delete fees' },
   ],
   Developer: [
     { slug: PM.access.users.read, description: 'Read users' },

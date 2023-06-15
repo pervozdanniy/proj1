@@ -2,6 +2,7 @@
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { IdRequest, NullableUser } from "./common";
+import { Empty } from "./google/protobuf/empty";
 
 export const protobufPackage = "skopa.core";
 
@@ -36,8 +37,32 @@ export interface Transfer {
   updated_at?: string | undefined;
 }
 
+export interface Fee {
+  id: number;
+  country?: string | undefined;
+  percent: number;
+  fixed_usd?: number | undefined;
+}
+
+export interface UpdateFee {
+  country?: string | undefined;
+  percent?: number | undefined;
+  fixed_usd?: number | undefined;
+}
+
+export interface CreateFeeArgument {
+  country?: string | undefined;
+  percent: number;
+  fixed_usd?: number | undefined;
+}
+
 export interface TransferList {
   transfers: Transfer[];
+  total: number;
+}
+
+export interface FeeList {
+  fees: Fee[];
   total: number;
 }
 
@@ -53,6 +78,11 @@ export interface PaginationArgument {
 export interface UpdateUserStatusArgument {
   id: number;
   status: string;
+}
+
+export interface UpdateFeeArgument {
+  id: number;
+  data: UpdateFee | undefined;
 }
 
 export interface NullableUserBase {
@@ -124,3 +154,40 @@ export function TransferAdminServiceControllerMethods() {
 }
 
 export const TRANSFER_ADMIN_SERVICE_NAME = "TransferAdminService";
+
+export interface FeeAdminServiceClient {
+  createFee(request: CreateFeeArgument, ...rest: any): Observable<Fee>;
+
+  getFeeList(request: PaginationArgument, ...rest: any): Observable<FeeList>;
+
+  updateFeeById(request: UpdateFeeArgument, ...rest: any): Observable<Fee>;
+
+  deleteFeeById(request: IdRequest, ...rest: any): Observable<Empty>;
+}
+
+export interface FeeAdminServiceController {
+  createFee(request: CreateFeeArgument, ...rest: any): Promise<Fee> | Observable<Fee> | Fee;
+
+  getFeeList(request: PaginationArgument, ...rest: any): Promise<FeeList> | Observable<FeeList> | FeeList;
+
+  updateFeeById(request: UpdateFeeArgument, ...rest: any): Promise<Fee> | Observable<Fee> | Fee;
+
+  deleteFeeById(request: IdRequest, ...rest: any): void;
+}
+
+export function FeeAdminServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = ["createFee", "getFeeList", "updateFeeById", "deleteFeeById"];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("FeeAdminService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("FeeAdminService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
+
+export const FEE_ADMIN_SERVICE_NAME = "FeeAdminService";

@@ -22,13 +22,17 @@ export class UserAdminService {
       .getOne();
   }
 
-  getUserList(pagination: PaginationRequest<{ filter: { [key: string]: string[] } }>): Promise<[UserEntity[], number]> {
+  getUserList(
+    pagination: PaginationRequest<{ filter: { [key: string]: string[] | number[] } }>,
+  ): Promise<[UserEntity[], number]> {
     const { skip: offset, limit, order } = pagination;
-    const query = this.userRepository.createQueryBuilder('user').orderBy(order).offset(offset).limit(limit);
+    const query = this.userRepository.createQueryBuilder('users').orderBy(order).offset(offset).limit(limit);
 
     if (pagination?.params?.filter) {
-      for (const [key, value] of Object.entries(pagination.params.filter)) {
-        query.andWhere(`user.${key} IN (:...${key}s)`, { [`${key}s`]: value });
+      for (const [key, values] of Object.entries(pagination.params.filter)) {
+        if (values.length === 0) continue;
+        // todo: Implement filter by date range
+        query.andWhere(`(${values.map((value) => `CAST(users.${key} as varchar) ILIKE '%${value}%'`).join(' OR ')})`);
       }
     }
 

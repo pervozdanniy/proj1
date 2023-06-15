@@ -13,7 +13,7 @@ import { Permissions, TOKEN_NAME } from '../auth';
   version: '1',
 })
 export class TransferController {
-  constructor(private readonly trasnferService: TransferService) {}
+  constructor(private readonly transferService: TransferService) {}
 
   @ApiOperation({ description: 'Get a paginated transfer list' })
   @ApiPaginatedResponse(TransferResponseDto)
@@ -29,6 +29,6 @@ export class TransferController {
   public getTransferList(
     @PaginationParams() pagination: PaginationRequest,
   ): Promise<PaginationResponseDto<TransferResponseDto>> {
-    return this.trasnferService.getTransferList(pagination);
+    return this.transferService.getTransferList(pagination);
   }
 }

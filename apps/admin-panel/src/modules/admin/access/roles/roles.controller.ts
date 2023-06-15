@@ -1,17 +1,5 @@
 import { ApiPaginatedResponse, PaginationParams, PaginationRequest, PaginationResponseDto } from '@/libs/pagination';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseIntPipe,
-  Post,
-  Put,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, ValidationPipe } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -86,7 +74,6 @@ export class RolesController {
   @ApiBadRequestResponse()
   @ApiNotFoundResponse()
   @ApiForbiddenResponse()
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Permissions(PM.access.roles.delete)
   @Delete('/:id')
   public deleteRole(@Param('id', ParseIntPipe) id: number): Promise<void> {

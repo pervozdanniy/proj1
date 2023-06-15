@@ -1,3 +1,4 @@
+import { FeeModule } from '@/modules/fee/fee.module';
 import { TransferModule } from '@/modules/transfer/transfer.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -16,6 +17,7 @@ import { UserModule } from './modules/user/user.module';
     AuthModule,
     UserModule,
     TransferModule,
+    FeeModule,
   ],
 })
 export class AdminPanelModule {

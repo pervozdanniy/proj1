@@ -9,15 +9,19 @@ export class TransferAdminService {
   constructor(@InjectRepository(TransfersEntity) private transferRepository: Repository<TransfersEntity>) {}
 
   getTransferList(
-    pagination: PaginationRequest<{ filter: { [key: string]: string[] } }>,
+    pagination: PaginationRequest<{ filter: { [key: string]: string[] | number[] } }>,
   ): Promise<[TransfersEntity[], number]> {
     const { skip: offset, limit, order } = pagination;
 
     const query = this.transferRepository.createQueryBuilder('transfers').orderBy(order).offset(offset).limit(limit);
 
     if (pagination?.params?.filter) {
-      for (const [key, value] of Object.entries(pagination.params.filter)) {
-        query.andWhere(`transfers.${key} IN (:...${key}s)`, { [`${key}s`]: value });
+      for (const [key, values] of Object.entries(pagination.params.filter)) {
+        if (values.length === 0) continue;
+        // todo: Implement filter by date range
+        query.andWhere(
+          `(${values.map((value) => `CAST(transfers.${key} as varchar) ILIKE '%${value}%'`).join(' OR ')})`,
+        );
       }
     }
 

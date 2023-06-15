@@ -2,6 +2,7 @@ syntax = "proto3";
 package skopa.core;
 
 import "common.proto";
+import "google/protobuf/empty.proto";
 
 service UserAdminService {
   rpc GetUserById (common.IdRequest) returns (common.NullableUser);
@@ -11,6 +12,13 @@ service UserAdminService {
 
 service TransferAdminService {
   rpc GetTransferList (PaginationArgument) returns (TransferList);
+}
+
+service FeeAdminService {
+  rpc CreateFee (CreateFeeArgument) returns (Fee);
+  rpc GetFeeList (PaginationArgument) returns (FeeList);
+  rpc UpdateFeeById (UpdateFeeArgument) returns (Fee);
+  rpc DeleteFeeById (common.IdRequest) returns (google.protobuf.Empty);
 }
 
 message UserBase {
@@ -44,8 +52,32 @@ message Transfer {
   optional string updated_at = 16;
 }
 
+message Fee {
+  uint32 id = 1;
+  optional string country = 2;
+  float percent = 3;
+  optional float fixed_usd = 4;
+}
+
+message UpdateFee {
+  optional string country = 2;
+  optional float percent = 3;
+  optional float fixed_usd = 4;
+}
+
+message CreateFeeArgument {
+  optional string country = 1;
+  float percent = 2;
+  optional float fixed_usd = 3;
+}
+
 message TransferList {
   repeated Transfer transfers = 1;
+  uint32 total = 2;
+}
+
+message FeeList {
+  repeated Fee fees = 1;
   uint32 total = 2;
 }
 
@@ -61,6 +93,11 @@ message PaginationArgument {
 message UpdateUserStatusArgument {
   uint32 id = 1;
   string status = 2;
+}
+
+message UpdateFeeArgument {
+  uint32 id = 1;
+  UpdateFee data = 2;
 }
 
 message NullableUserBase {

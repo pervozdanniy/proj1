@@ -4,8 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseUUIDPipe,
   Post,
@@ -88,7 +86,6 @@ export class UsersController {
   @ApiBadRequestResponse()
   @ApiNotFoundResponse()
   @ApiForbiddenResponse()
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Permissions(PM.access.users.delete)
   @Delete('/:id')
   public deleteUser(@Param('id', ParseUUIDPipe) id: string): Promise<void> {

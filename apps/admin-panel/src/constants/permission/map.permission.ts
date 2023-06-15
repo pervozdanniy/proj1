@@ -24,4 +24,10 @@ export const PM = {
   transfers: {
     read: 'transfers.read',
   },
+  fees: {
+    read: 'fees.read',
+    create: 'fees.create',
+    update: 'fees.update',
+    delete: 'fees.delete',
+  },
 };
