@@ -96,24 +96,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-  
-  sdk-gateway:
-    build: 
-      context: .
-      dockerfile: Dockerfile.local
-    volumes:
-      - ./apps/sdk-gateway:/usr/src/apps/sdk-gateway
-      - ./common:/usr/src/common
-    networks:
-      - backend
-    env_file:
-      - .env
-    command: "start -w sdk-gateway"
-    ports:
-      - ${SDK_LOCAL_PORT}:3000
-    depends_on:
-      redis:
-        condition: service_healthy
 
   redis:
     image: "redis:alpine"

@@ -146,6 +146,7 @@ export class PrimeAccountManager {
     const { account_id, user_id } = accountData;
 
     const accountResponse = await this.getAccountInfo(account_id);
+    const contactResponse = await this.primeKycManager.getContactByAccount(account_id);
     await this.primeAccountRepository.update(
       { uuid: account_id },
       {
@@ -153,6 +154,20 @@ export class PrimeAccountManager {
       },
     );
     if (accountResponse.status === 'opened') {
+      const formData = {
+        data: {
+          type: 'push-transfer-methods',
+          attributes: {
+            'account-id': account_id,
+            'contact-id': contactResponse.id,
+          },
+        },
+      };
+      await this.httpService.request({
+        method: 'post',
+        url: `${this.prime_trust_url}/v2/push-transfer-methods`,
+        data: formData,
+      });
       this.notificationService.createAsync(user_id, {
         type: 'payment_account_creation',
         data: { completed: true },

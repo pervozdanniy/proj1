@@ -382,7 +382,7 @@ export class PrimeKycManager {
     return contactData.data;
   }
 
-  private async getContactByAccount(account_id: string): Promise<ContactType> {
+  async getContactByAccount(account_id: string): Promise<ContactType> {
     const contactData = await this.httpService.request({
       method: 'get',
       url: `${this.prime_trust_url}/v2/accounts/${account_id}?include=contacts`,
