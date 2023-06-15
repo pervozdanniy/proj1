@@ -96,9 +96,9 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-  
+
   sdk-gateway:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile.local
     volumes:

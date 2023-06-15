@@ -116,6 +116,7 @@ export class PrimeAssetsManager {
           'contact-id': contact_id,
           'account-id': account_id,
           'transfer-direction': 'incoming',
+          'cost-basis': '1',
           'single-use': true,
           'asset-transfer-type': this.asset_type,
         },
