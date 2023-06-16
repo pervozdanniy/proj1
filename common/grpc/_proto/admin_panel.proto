@@ -55,20 +55,20 @@ message Transfer {
 message Fee {
   uint32 id = 1;
   optional string country = 2;
-  float percent = 3;
-  optional float fixed_usd = 4;
+  double percent = 3;
+  optional double fixed_usd = 4;
 }
 
 message UpdateFee {
   optional string country = 2;
-  optional float percent = 3;
-  optional float fixed_usd = 4;
+  optional double percent = 3;
+  optional double fixed_usd = 4;
 }
 
 message CreateFeeArgument {
   optional string country = 1;
-  float percent = 2;
-  optional float fixed_usd = 3;
+  double percent = 2;
+  optional double fixed_usd = 3;
 }
 
 message TransferList {
