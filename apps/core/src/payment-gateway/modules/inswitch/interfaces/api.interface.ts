@@ -113,7 +113,6 @@ export type CardResponse = {
   paymentMethodReference: string;
   maskedPan?: string;
   last4?: string;
-  [key: string]: any;
 };
 
 export type ExtendedCardResponse = CardResponse & {

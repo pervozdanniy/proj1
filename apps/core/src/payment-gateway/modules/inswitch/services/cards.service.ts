@@ -89,7 +89,7 @@ export class InswitchCardsService {
       type: 'virtual',
       paymentMethodReference: account.payment_reference,
     });
-    await this.api.activateCard(card.reference);
+    await this.api.activateCard(card.cardIdentifier);
 
     const entity = await this.cardRepo.save(
       this.cardRepo.create({
