@@ -24,8 +24,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status = +wrappedEx.getStatus();
 
-    // eslint-disable-next-line prefer-const
-
     if (!errorType) {
       errorType = HttpErrorType[status as keyof typeof HttpErrorType];
       errorType = errorType ?? 'UNEXPECTED_ERROR';
