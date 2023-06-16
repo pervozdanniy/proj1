@@ -52,7 +52,6 @@ export class UsersController {
   @ApiOperation({ description: 'Create new user' })
   @ApiGlobalResponse(UserResponseDto)
   @ApiConflictResponse({ description: 'User already exists' })
-  @ApiGlobalResponse(UserResponseDto)
   @Permissions(PM.access.users.create)
   @Post()
   public createUser(@Body(ValidationPipe) UserDto: CreateUserRequestDto): Promise<UserResponseDto> {

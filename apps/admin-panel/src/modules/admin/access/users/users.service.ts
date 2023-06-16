@@ -74,8 +74,9 @@ export class UsersService extends Repository<UserEntity> {
       let userEntity = UserMapper.toCreateEntity(userDto);
       userEntity.password = await HashHelper.encrypt(userEntity.password);
       userEntity = await this.save(userEntity);
+      userEntity = await this.findOneOrFail({ where: { id: userEntity.id }, relations: ['permissions', 'roles'] });
 
-      return UserMapper.toDto(userEntity);
+      return UserMapper.toDtoWithRelations(userEntity);
     } catch (error) {
       if (error.code == DBErrorCode.PgUniqueConstraintViolation) {
         throw new UserExistsException(userDto.username);
@@ -109,8 +110,9 @@ export class UsersService extends Repository<UserEntity> {
     try {
       userEntity = UserMapper.toUpdateEntity(userEntity, userDto);
       userEntity = await this.save(userEntity);
+      userEntity = await this.findOneOrFail({ where: { id: userEntity.id }, relations: ['permissions', 'roles'] });
 
-      return UserMapper.toDto(userEntity);
+      return UserMapper.toDtoWithRelations(userEntity);
     } catch (error) {
       if (error.code == DBErrorCode.PgUniqueConstraintViolation) {
         throw new UserExistsException(userDto.username);

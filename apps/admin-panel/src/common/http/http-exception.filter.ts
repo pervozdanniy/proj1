@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import { Response } from 'express';
+import process from 'process';
 import { GrpcException, isGrpcException } from '~common/utils/exceptions/grpc.exception';
 import { ErrorType } from '../enums';
 import { HttpErrorType } from './http-error-type';
@@ -9,6 +10,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     let wrappedEx = exception;
     let errorType, message;
+
+    if (process.env.NODE_ENV === 'dev') {
+      // eslint-disable-next-line no-console
+      console.error(exception);
+    }
 
     if (isGrpcException(exception)) {
       wrappedEx = GrpcException.toHttp(exception);
