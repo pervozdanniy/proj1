@@ -23,6 +23,10 @@ export class CardsService {
     return firstValueFrom(this.cardsClient.issue({ user_id: userId, ...payload }));
   }
 
+  upgrade(pin: string, userId: number) {
+    return firstValueFrom(this.cardsClient.upgrade({ user_id: userId, pin }));
+  }
+
   details(userId: number) {
     return firstValueFrom(this.cardsClient.details({ user_id: userId }));
   }

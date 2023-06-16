@@ -9,6 +9,8 @@ service CardsService {
     rpc Find (common.UserIdRequest) returns (CardResponse);
   
     rpc Issue (IssueCardRequest) returns (Card);
+
+    rpc Upgrade (SetPinRequest) returns (Card);
   
     rpc Details (common.UserIdRequest) returns (CardDetails);
 

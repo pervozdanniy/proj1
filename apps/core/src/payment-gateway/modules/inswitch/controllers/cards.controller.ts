@@ -1,4 +1,5 @@
 import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { UserIdRequest } from '~common/grpc/interfaces/common';
 import {
   Card,
@@ -9,13 +10,17 @@ import {
   RegenerateCvvResponse,
 } from '~common/grpc/interfaces/inswitch';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { CardBlockDto, CreateCardDto, SetPinDto } from '../dto/cards.dto';
+import { CardBlockDto, CreateCardDto, SetPinDto, UpgradeCardDto } from '../dto/cards.dto';
 import { InswitchCardsService } from '../services/cards.service';
 
 @RpcController()
 @CardsServiceControllerMethods()
 export class CardsController implements CardsServiceController {
   constructor(private readonly inswitch: InswitchCardsService) {}
+
+  upgrade(request: UpgradeCardDto): Promise<Card> {
+    return this.inswitch.upgrade(request);
+  }
 
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   activate({ user_id }: UserIdRequest) {

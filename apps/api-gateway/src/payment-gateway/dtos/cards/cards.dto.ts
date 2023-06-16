@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEnum, IsNotEmpty, IsNumberString, MaxLength, ValidateIf } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumberString, Length, MaxLength, ValidateIf } from 'class-validator';
 import { Card, CardDetails, ExpandedCardInfo } from '~common/grpc/interfaces/inswitch';
 
 export class IssueCardRequestDto {
@@ -44,7 +44,7 @@ export class SetPinDto {
   @ApiProperty({ type: 'string' })
   @IsNotEmpty()
   @IsNumberString()
-  @MaxLength(4)
+  @Length(4)
   pin: string;
 }
 

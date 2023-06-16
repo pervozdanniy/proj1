@@ -27,7 +27,7 @@ export class CreateCardDto implements IssueCardRequest {
   pin?: string;
 }
 
-export class UpgradeCardDto {
+export class UpgradeCardDto implements SetPinRequest {
   @IsNotEmpty()
   @IsInt()
   user_id: number;
@@ -40,8 +40,8 @@ export class UpgradeCardDto {
 
 export class SetPinDto implements SetPinRequest {
   @IsNotEmpty()
-  @IsString()
-  @MaxLength(4)
+  @IsNumberString()
+  @Length(4)
   pin: string;
 
   @IsNotEmpty()

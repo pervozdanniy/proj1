@@ -96,6 +96,8 @@ export interface CardsServiceClient {
 
   issue(request: IssueCardRequest, ...rest: any): Observable<Card>;
 
+  upgrade(request: SetPinRequest, ...rest: any): Observable<Card>;
+
   details(request: UserIdRequest, ...rest: any): Observable<CardDetails>;
 
   setPin(request: SetPinRequest, ...rest: any): Observable<Empty>;
@@ -115,6 +117,8 @@ export interface CardsServiceController {
   find(request: UserIdRequest, ...rest: any): Promise<CardResponse> | Observable<CardResponse> | CardResponse;
 
   issue(request: IssueCardRequest, ...rest: any): Promise<Card> | Observable<Card> | Card;
+
+  upgrade(request: SetPinRequest, ...rest: any): Promise<Card> | Observable<Card> | Card;
 
   details(request: UserIdRequest, ...rest: any): Promise<CardDetails> | Observable<CardDetails> | CardDetails;
 
@@ -139,6 +143,7 @@ export function CardsServiceControllerMethods() {
     const grpcMethods: string[] = [
       "find",
       "issue",
+      "upgrade",
       "details",
       "setPin",
       "regenerateCvv",

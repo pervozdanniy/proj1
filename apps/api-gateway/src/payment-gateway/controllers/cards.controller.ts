@@ -42,6 +42,15 @@ export class CardsController {
     return this.cards.issue(payload, id);
   }
 
+  @ApiOperation({ summary: 'Upgrade virtual to physical card' })
+  @ApiNoContentResponse()
+  @ApiBearerAuth()
+  @JwtSessionAuth({ requireKYC: true })
+  @Patch('upgrade')
+  async upgrade(@Body() { pin }: SetPinDto, @JwtSessionUser() { id }: User): Promise<CardDto> {
+    return this.cards.upgrade(pin, id);
+  }
+
   @ApiOperation({ summary: "Get card's details" })
   @ApiOkResponse({ type: CardDetailsDto })
   @ApiBearerAuth()
