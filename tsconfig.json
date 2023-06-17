@@ -33,7 +33,8 @@
         "apps/core/src/*",
         "apps/auth/src/*",
         "apps/api-gateway/src/*",
-        "apps/sdk-gateway/src/*"
+        "apps/sdk-gateway/src/*",
+        "apps/admin-panel/src/*"
       ]
     }
   }

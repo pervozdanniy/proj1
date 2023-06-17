@@ -17,7 +17,7 @@ message User {
     optional UserAgreement agreement = 13;
     optional string country_code = 14;
     optional string social_id = 15;
-    repeated UserDocument documents = 16; 
+    repeated UserDocument documents = 16;
 }
 
 message UserAgreement {
@@ -54,6 +54,11 @@ message SuccessResponse {
     optional string error = 2;
 }
 
+
 message UserIdRequest {
     uint32 user_id = 1;
+}
+
+message NullableUser {
+    optional common.User user = 1;
 }
