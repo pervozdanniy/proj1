@@ -135,6 +135,16 @@ export interface ConfigInterface {
   api_layer: {
     key: string;
   };
+  admin_panel: {
+    port: number;
+    api_version: string;
+    api_prefix: string;
+    token_secret: string;
+    token_type: string;
+    access_token_ttl: string;
+    refresh_token_ttl: string;
+    cookie_domain: string;
+  };
 }
 
 export default (): ConfigInterface => ({
@@ -280,5 +290,15 @@ export default (): ConfigInterface => ({
   },
   api_layer: {
     key: process.env.API_LAYER_KEY,
+  },
+  admin_panel: {
+    port: parseInt(process.env.ADMIN_PANEL_PORT, 10) || 3002,
+    api_version: process.env.ADMIN_PANEL_API_VERSION || 'v1',
+    api_prefix: process.env.ADMIN_PANEL_API_PREFIX || 'api',
+    token_secret: process.env.ADMIN_PANEL_TOKEN_SECRET || 'Sma12z23x',
+    token_type: process.env.ADMIN_PANEL_TOKEN_TYPE || 'Bearer',
+    access_token_ttl: process.env.ADMIN_PANEL_ACCESS_TOKEN_TTL || '1h',
+    refresh_token_ttl: process.env.ADMIN_PANEL_REFRESH_TOKEN_TTL || '2h',
+    cookie_domain: process.env.ADMIN_PANEL_COOKIE_DOMAIN,
   },
 });

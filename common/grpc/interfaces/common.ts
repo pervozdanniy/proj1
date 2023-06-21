@@ -58,4 +58,8 @@ export interface UserIdRequest {
   user_id: number;
 }
 
+export interface NullableUser {
+  user?: User | undefined;
+}
+
 export const SKOPA_COMMON_PACKAGE_NAME = "skopa.common";

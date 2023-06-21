@@ -1,10 +1,9 @@
 import { Logger, UsePipes, ValidationPipe } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { SuccessResponse, User } from '~common/grpc/interfaces/common';
+import { NullableUser, SuccessResponse, User } from '~common/grpc/interfaces/common';
 import {
   CheckIfUniqueRequest,
   ContactsResponse,
-  NullableUser,
   RecepientsRequest,
   RecepientsResponse,
   SearchContactRequest,

@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { IdRequest, SuccessResponse, User, UserDetails } from "./common";
+import { IdRequest, NullableUser, SuccessResponse, User, UserDetails } from "./common";
 
 export const protobufPackage = "skopa.core";
 
@@ -34,10 +34,6 @@ export interface RecepientsRequest {
 
 export interface RecepientsResponse {
   recepients: Contact[];
-}
-
-export interface NullableUser {
-  user?: User | undefined;
 }
 
 export interface UserContacts {

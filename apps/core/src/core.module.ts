@@ -1,3 +1,4 @@
+import { AdminPanelModule } from '@/admin-panel/admin-panel.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -51,6 +52,7 @@ import { UserModule } from './user/user.module';
     PaymentGatewayModule,
     HealthModule,
     UserFacadeModule,
+    AdminPanelModule,
   ],
 })
 export class CoreModule {}

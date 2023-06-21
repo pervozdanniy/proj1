@@ -1,0 +1,105 @@
+syntax = "proto3";
+package skopa.core;
+
+import "common.proto";
+import "google/protobuf/empty.proto";
+
+service UserAdminService {
+  rpc GetUserById (common.IdRequest) returns (common.NullableUser);
+  rpc GetUserList (PaginationArgument) returns (UserList);
+  rpc UpdateUserStatus (UpdateUserStatusArgument) returns (NullableUserBase);
+}
+
+service TransferAdminService {
+  rpc GetTransferList (PaginationArgument) returns (TransferList);
+}
+
+service FeeAdminService {
+  rpc CreateFee (CreateFeeArgument) returns (Fee);
+  rpc GetFeeList (PaginationArgument) returns (FeeList);
+  rpc UpdateFeeById (UpdateFeeArgument) returns (Fee);
+  rpc DeleteFeeById (common.IdRequest) returns (google.protobuf.Empty);
+}
+
+message UserBase {
+  uint32 id = 1;
+  string email = 2;
+  string country_code = 3;
+  optional string phone = 4;
+  string status = 5;
+  optional string email_verified_at = 6;
+  string created_at = 8;
+  string updated_at = 9;
+  string source = 10;
+}
+
+message Transfer {
+  uint32 id = 1;
+  uint32 user_id = 2;
+  optional uint32 receiver_id = 3;
+  optional string uuid = 4;
+  optional uint32 param_id = 5;
+  optional string param_type = 6;
+  optional string type = 7;
+  optional string payment_type = 8;
+  optional string provider = 9;
+  optional uint32 amount = 10;
+  optional uint32 amount_usd = 11;
+  optional uint32 fee = 12;
+  optional string currency_type = 13;
+  optional string status = 14;
+  optional string created_at = 15;
+  optional string updated_at = 16;
+}
+
+message Fee {
+  uint32 id = 1;
+  optional string country = 2;
+  double percent = 3;
+  optional double fixed_usd = 4;
+}
+
+message UpdateFee {
+  optional string country = 2;
+  optional double percent = 3;
+  optional double fixed_usd = 4;
+}
+
+message CreateFeeArgument {
+  optional string country = 1;
+  double percent = 2;
+  optional double fixed_usd = 3;
+}
+
+message TransferList {
+  repeated Transfer transfers = 1;
+  uint32 total = 2;
+}
+
+message FeeList {
+  repeated Fee fees = 1;
+  uint32 total = 2;
+}
+
+message UserList {
+  repeated UserBase users = 1;
+  uint32 total = 2;
+}
+
+message PaginationArgument {
+  string pagination_params = 1;
+}
+
+message UpdateUserStatusArgument {
+  uint32 id = 1;
+  string status = 2;
+}
+
+message UpdateFeeArgument {
+  uint32 id = 1;
+  UpdateFee data = 2;
+}
+
+message NullableUserBase {
+  optional UserBase user = 1;
+}

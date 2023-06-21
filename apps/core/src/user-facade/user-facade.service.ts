@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { SuccessResponse, User } from '~common/grpc/interfaces/common';
-import { CheckIfUniqueRequest, NullableUser } from '~common/grpc/interfaces/core';
+import { NullableUser, SuccessResponse, User } from '~common/grpc/interfaces/common';
+import { CheckIfUniqueRequest } from '~common/grpc/interfaces/core';
 //import { PaymentGatewayService } from '../payment-gateway/services/payment-gateway.service';
 import { FindRequestDto } from '../user/dto/find.request.dto';
 import { CreateRequestDto, UpdateContactsRequestDto, UpdateRequestDto } from '../user/dto/user-request.dto';
