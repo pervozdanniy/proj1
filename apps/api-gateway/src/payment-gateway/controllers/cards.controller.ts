@@ -55,7 +55,7 @@ export class CardsController {
   @ApiOkResponse({ type: CardDetailsDto })
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
-  @Get('')
+  @Get('details')
   details(@JwtSessionUser() { id }: User): Promise<CardDetailsDto> {
     return this.cards.details(id);
   }

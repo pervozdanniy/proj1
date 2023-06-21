@@ -1,14 +1,4 @@
-import {
-  IsBoolean,
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsNumberString,
-  IsString,
-  Length,
-  MaxLength,
-  ValidateIf,
-} from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumberString, Length, MaxLength, ValidateIf } from 'class-validator';
 import { BlockCardRequest, BlockReason, IssueCardRequest, SetPinRequest } from '~common/grpc/interfaces/inswitch';
 
 export class CreateCardDto implements IssueCardRequest {

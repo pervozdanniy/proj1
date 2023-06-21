@@ -1,5 +1,4 @@
 import { UsePipes, ValidationPipe } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { UserIdRequest } from '~common/grpc/interfaces/common';
 import {
   Card,
