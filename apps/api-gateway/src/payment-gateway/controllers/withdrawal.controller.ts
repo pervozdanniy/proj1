@@ -2,6 +2,7 @@ import { JwtSessionAuth, JwtSessionUser } from '@/auth';
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
+import { StartWithdrawFlowRequest } from '../dtos/deposit/flow.dto';
 import { WithdrawalMakeDto } from '../dtos/withdrawal/withdrawal-make.dto';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { TransferInfoDto } from '../utils/prime-trust-response.dto';
@@ -25,4 +26,6 @@ export class WithdrawalController {
   async makeWithdrawal(@JwtSessionUser() { id }: User, @Body() payload: WithdrawalMakeDto) {
     return this.paymentGatewayService.makeWithdrawal({ id, ...payload });
   }
+
+  start(@Body() payload: StartWithdrawFlowRequest) {}
 }

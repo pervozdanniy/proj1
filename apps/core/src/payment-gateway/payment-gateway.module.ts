@@ -11,6 +11,7 @@ import { DepositFlowController } from './controllers/deposit-flow.controller';
 import { ExternalWithdrawAuthorizationController } from './controllers/external-withdraw-authorization.controller';
 import { KYCController } from './controllers/kyc.controller';
 import { PaymentGatewayController } from './controllers/payment-gateway.controller';
+import { WithdrawFlowController } from './controllers/withdraw-flow.controller';
 import { DepositFlowEntity } from './entities/flow/deposit.entity';
 import { BankAccountEntity } from './entities/prime_trust/bank-account.entity';
 import { CardResourceEntity } from './entities/prime_trust/card-resource.entity';
@@ -42,6 +43,7 @@ import { FacilitaMainManager } from './services/facilita/managers/facilita-main.
 import { FacilitaTokenManager } from './services/facilita/managers/facilita-token.manager';
 import { FacilitaWebhookManager } from './services/facilita/managers/facilita-webhook.manager';
 import { DepositFlow } from './services/flow/deposit-flow.service';
+import { WithdrawFlowService } from './services/flow/withdraw-flow.service';
 import { KoyweService } from './services/koywe/koywe.service';
 import { KoyweBankAccountManager } from './services/koywe/managers/koywe-bank-account.manager';
 import { KoyweDepositManager } from './services/koywe/managers/koywe-deposit.manager';
@@ -138,6 +140,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
     LiquidoWithdrawalManager,
     LiquidoWebhookManager,
     DepositFlow,
+    WithdrawFlowService,
     PrimeLinkManager,
     LiquidoDepositManager,
     FacilitaTokenManager,
@@ -152,6 +155,7 @@ import { PrimeTrustService } from './services/prime_trust/prime-trust.service';
   controllers: [
     PaymentGatewayController,
     DepositFlowController,
+    WithdrawFlowController,
     KYCController,
     ExternalWithdrawAuthorizationController,
   ],

@@ -54,24 +54,37 @@ export interface LinkTransferData {
 export interface DepositFlowResponse {
   action: string;
   flow_id?: number | undefined;
-  banks?: DepositSelectBankData | undefined;
-  cards?: DepositSelectCardData | undefined;
+  banks?: SelectBankData | undefined;
+  cards?: SelectCardData | undefined;
   redirect?: DepositRedirectData | undefined;
   link_transfer?: LinkTransferData | undefined;
   bank_params?: BankCredentialsData | undefined;
 }
 
-export interface DepositSelectBankData {
+export interface SelectBankData {
   list: BankAccountParams[];
 }
 
-export interface DepositSelectCardData {
+export interface SelectCardData {
   list: CreditCard[];
 }
 
 export interface DepositRedirectData {
   url: string;
   info: TransferInfo | undefined;
+}
+
+export interface WithdrawFlowRequest {
+  user_id: number;
+  amount: number;
+  currency: string;
+  type: string;
+}
+
+export interface WithdrawFlowResponse {
+  action: string;
+  flow_id?: number | undefined;
+  banks?: SelectBankData | undefined;
 }
 
 export interface BankData {
@@ -107,6 +120,12 @@ export interface DepositNextStepRequest {
   bank?: SelectBankRequest | undefined;
   card?: SelectCardRequest | undefined;
   customer?: LinkCustomerRequest | undefined;
+}
+
+export interface WithdrawNextStepRequest {
+  id: number;
+  user_id: number;
+  bank?: SelectBankRequest | undefined;
 }
 
 export interface SelectBankRequest {
@@ -646,3 +665,38 @@ export function DepositFlowServiceControllerMethods() {
 }
 
 export const DEPOSIT_FLOW_SERVICE_NAME = "DepositFlowService";
+
+export interface WithdrawFlowServiceClient {
+  start(request: WithdrawFlowRequest, ...rest: any): Observable<WithdrawFlowResponse>;
+
+  payWithSelectedResource(request: DepositNextStepRequest, ...rest: any): Observable<TransferInfo>;
+}
+
+export interface WithdrawFlowServiceController {
+  start(
+    request: WithdrawFlowRequest,
+    ...rest: any
+  ): Promise<WithdrawFlowResponse> | Observable<WithdrawFlowResponse> | WithdrawFlowResponse;
+
+  payWithSelectedResource(
+    request: DepositNextStepRequest,
+    ...rest: any
+  ): Promise<TransferInfo> | Observable<TransferInfo> | TransferInfo;
+}
+
+export function WithdrawFlowServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = ["start", "payWithSelectedResource"];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("WithdrawFlowService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("WithdrawFlowService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
+
+export const WITHDRAW_FLOW_SERVICE_NAME = "WithdrawFlowService";
