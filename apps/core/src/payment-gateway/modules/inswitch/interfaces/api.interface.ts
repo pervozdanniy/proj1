@@ -106,7 +106,7 @@ export type CardResponse = {
   entityId: string;
   status: 'created' | 'ordered' | 'assigned' | 'active' | 'cancelled' | 'blocked';
   issueDate: string;
-  type: string;
+  type: 'virtual' | 'physical';
   productId: string;
   brand: string;
   currency: string;

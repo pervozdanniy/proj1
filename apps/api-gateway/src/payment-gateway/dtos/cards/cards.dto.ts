@@ -60,13 +60,13 @@ export class CardDetailsDto implements CardDetails {
   @ApiProperty()
   reference: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: ['created', 'ordered', 'assigned', 'active', 'blocked', 'cancelled'] })
   status: string;
 
   @ApiProperty()
   issue_date: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: ['physical', 'virtual'] })
   type: string;
 
   @ApiProperty()
