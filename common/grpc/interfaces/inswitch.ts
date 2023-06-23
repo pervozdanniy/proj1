@@ -42,12 +42,6 @@ export interface CardDetails {
   expanded?: ExpandedCardInfo | undefined;
 }
 
-export interface IssueCardRequest {
-  user_id: number;
-  is_virtual: boolean;
-  pin?: string | undefined;
-}
-
 export interface SetPinRequest {
   user_id: number;
   pin: string;
@@ -92,9 +86,7 @@ export interface ExternalWithdrawUpdateRequest {
 export const SKOPA_CORE_PACKAGE_NAME = "skopa.core";
 
 export interface CardsServiceClient {
-  find(request: UserIdRequest, ...rest: any): Observable<CardResponse>;
-
-  issue(request: IssueCardRequest, ...rest: any): Observable<Card>;
+  getOrCreate(request: UserIdRequest, ...rest: any): Observable<CardResponse>;
 
   upgrade(request: SetPinRequest, ...rest: any): Observable<Card>;
 
@@ -114,9 +106,7 @@ export interface CardsServiceClient {
 }
 
 export interface CardsServiceController {
-  find(request: UserIdRequest, ...rest: any): Promise<CardResponse> | Observable<CardResponse> | CardResponse;
-
-  issue(request: IssueCardRequest, ...rest: any): Promise<Card> | Observable<Card> | Card;
+  getOrCreate(request: UserIdRequest, ...rest: any): Promise<CardResponse> | Observable<CardResponse> | CardResponse;
 
   upgrade(request: SetPinRequest, ...rest: any): Promise<Card> | Observable<Card> | Card;
 
@@ -141,8 +131,7 @@ export interface CardsServiceController {
 export function CardsServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "find",
-      "issue",
+      "getOrCreate",
       "upgrade",
       "details",
       "setPin",

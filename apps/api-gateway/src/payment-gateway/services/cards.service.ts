@@ -3,7 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { InjectGrpc } from '~common/grpc/helpers';
 import { BlockReason, CardsServiceClient } from '~common/grpc/interfaces/inswitch';
-import { CardBlockReason, IssueCardRequestDto } from '../dtos/cards/cards.dto';
+import { CardBlockReason } from '../dtos/cards/cards.dto';
 
 @Injectable()
 export class CardsService {
@@ -16,11 +16,7 @@ export class CardsService {
   }
 
   find(userId: number) {
-    return firstValueFrom(this.cardsClient.find({ user_id: userId }));
-  }
-
-  issue(payload: IssueCardRequestDto, userId: number) {
-    return firstValueFrom(this.cardsClient.issue({ user_id: userId, ...payload }));
+    return firstValueFrom(this.cardsClient.getOrCreate({ user_id: userId }));
   }
 
   upgrade(pin: string, userId: number) {

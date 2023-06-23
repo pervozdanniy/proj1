@@ -6,9 +6,7 @@ import "google/protobuf/empty.proto";
 import "common.proto";
 
 service CardsService {
-    rpc Find (common.UserIdRequest) returns (CardResponse);
-  
-    rpc Issue (IssueCardRequest) returns (Card);
+    rpc GetOrCreate (common.UserIdRequest) returns (CardResponse);
 
     rpc Upgrade (SetPinRequest) returns (Card);
   
@@ -64,12 +62,6 @@ message CardDetails {
     string brand = 5;
     string currency = 6;
     optional ExpandedCardInfo expanded = 7;
-}
-
-message IssueCardRequest {
-    uint32 user_id = 1;
-    bool is_virtual = 2;
-    optional string pin = 3;
 }
 
 message SetPinRequest {

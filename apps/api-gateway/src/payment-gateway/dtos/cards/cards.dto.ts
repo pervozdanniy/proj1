@@ -1,21 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEnum, IsNotEmpty, IsNumberString, Length, MaxLength, ValidateIf } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumberString, Length } from 'class-validator';
 import { Card, CardDetails, ExpandedCardInfo } from '~common/grpc/interfaces/inswitch';
-
-export class IssueCardRequestDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsBoolean()
-  is_virtual: boolean;
-
-  @ApiPropertyOptional()
-  @ValidateIf((obj: IssueCardRequestDto) => !obj.is_virtual)
-  @IsNotEmpty()
-  @IsNumberString()
-  @MaxLength(4)
-  pin?: string;
-}
 
 export class CardDto implements Card {
   @ApiProperty()

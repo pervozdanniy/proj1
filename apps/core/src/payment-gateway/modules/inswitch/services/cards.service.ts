@@ -4,8 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigInterface } from '~common/config/configuration';
-import { BlockReason, Card, CardDetails, CardResponse } from '~common/grpc/interfaces/inswitch';
-import { CardBlockDto, CreateCardDto, SetPinDto, UpgradeCardDto } from '../dto/cards.dto';
+import { BlockReason, CardDetails, CardResponse } from '~common/grpc/interfaces/inswitch';
+import { CardBlockDto, SetPinDto, UpgradeCardDto } from '../dto/cards.dto';
 import { InswitchAccountEntity } from '../entities/inswitch-account.entity';
 import { CardStatus, CardType, InswitchCardEntity } from '../entities/inswitch-card.entity';
 import { BlockCardReason, UnblockCardReason } from '../interfaces/api.interface';
@@ -56,10 +56,10 @@ export class InswitchCardsService {
       .getOne();
   }
 
-  async find(userId: number): Promise<CardResponse> {
-    const card = await this.findActive(userId);
+  async getOrCreateVirtual(userId: number): Promise<CardResponse> {
+    let card = await this.findActive(userId);
     if (!card) {
-      return { card: null };
+      card = await this.issueCard(userId);
     }
 
     return {
@@ -73,7 +73,7 @@ export class InswitchCardsService {
     };
   }
 
-  async issueCard(payload: CreateCardDto): Promise<Card> {
+  async issueCard(userId: number): Promise<InswitchCardEntity> {
     if (!this.virtualCardProductId) {
       throw new ConflictException('Virtual cards are not supported at the moment');
     }
@@ -82,7 +82,7 @@ export class InswitchCardsService {
       throw new ConflictException(`You've already requested a card`);
     }
 
-    const account = await this.inswitch.accountGetOrCreate(payload.user_id);
+    const account = await this.inswitch.accountGetOrCreate(userId);
     const card = await this.api.createCard({
       entity: account.entity_id,
       productId: this.virtualCardProductId,
@@ -91,7 +91,7 @@ export class InswitchCardsService {
     });
     await this.api.activateCard(card.cardIdentifier);
 
-    const entity = await this.cardRepo.save(
+    return this.cardRepo.save(
       this.cardRepo.create({
         reference: card.cardIdentifier,
         account_id: account.id,
@@ -102,14 +102,6 @@ export class InswitchCardsService {
         is_active: true,
       }),
     );
-
-    return {
-      reference: entity.reference,
-      is_virtual: entity.isVirtual,
-      pan: entity.pan,
-      currency: entity.currency,
-      status: entity.status,
-    };
   }
 
   async upgrade(payload: UpgradeCardDto) {

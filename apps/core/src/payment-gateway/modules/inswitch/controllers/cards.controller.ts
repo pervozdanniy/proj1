@@ -9,7 +9,7 @@ import {
   RegenerateCvvResponse,
 } from '~common/grpc/interfaces/inswitch';
 import { RpcController } from '~common/utils/decorators/rpc-controller.decorator';
-import { CardBlockDto, CreateCardDto, SetPinDto, UpgradeCardDto } from '../dto/cards.dto';
+import { CardBlockDto, SetPinDto, UpgradeCardDto } from '../dto/cards.dto';
 import { InswitchCardsService } from '../services/cards.service';
 
 @RpcController()
@@ -41,13 +41,8 @@ export class CardsController implements CardsServiceController {
     return this.inswitch.unblock(user_id);
   }
 
-  find({ user_id }: UserIdRequest): Promise<CardResponse> {
-    return this.inswitch.find(user_id);
-  }
-
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  issue(request: CreateCardDto): Promise<Card> {
-    return this.inswitch.issueCard(request);
+  getOrCreate({ user_id }: UserIdRequest): Promise<CardResponse> {
+    return this.inswitch.getOrCreateVirtual(user_id);
   }
 
   details({ user_id }: UserIdRequest): Promise<CardDetails> {

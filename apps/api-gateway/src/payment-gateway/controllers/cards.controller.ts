@@ -1,22 +1,8 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiNoContentResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, HttpCode, HttpStatus, Patch } from '@nestjs/common';
+import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from '~common/grpc/interfaces/common';
 import { JwtSessionAuth, JwtSessionUser } from '~common/http-session';
-import {
-  CardBlockDto,
-  CardDetailsDto,
-  CardDto,
-  CardResponseDto,
-  IssueCardRequestDto,
-  SetPinDto,
-} from '../dtos/cards/cards.dto';
+import { CardBlockDto, CardDetailsDto, CardDto, CardResponseDto, SetPinDto } from '../dtos/cards/cards.dto';
 import { CardsService } from '../services/cards.service';
 
 @ApiTags('Cards')
@@ -29,17 +15,8 @@ export class CardsController {
   @ApiBearerAuth()
   @JwtSessionAuth({ requireKYC: true })
   @Get()
-  find(@JwtSessionUser() { id }: User): Promise<CardResponseDto> {
+  getOrCreate(@JwtSessionUser() { id }: User): Promise<CardResponseDto> {
     return this.cards.find(id);
-  }
-
-  @ApiOperation({ summary: 'Issue card' })
-  @ApiCreatedResponse({ type: CardDto })
-  @ApiBearerAuth()
-  @Post()
-  @JwtSessionAuth({ requireKYC: true })
-  issue(@Body() payload: IssueCardRequestDto, @JwtSessionUser() { id }: User): Promise<CardDto> {
-    return this.cards.issue(payload, id);
   }
 
   @ApiOperation({ summary: 'Upgrade virtual to physical card' })
