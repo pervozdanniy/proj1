@@ -147,21 +147,3 @@ export class DepositStartResponseDto {
   @ApiPropertyOptional({ type: BankCredentialsDataDto })
   bank_params?: BankCredentialsDataDto;
 }
-
-export class StartWithdrawFlowRequest {
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty()
-  amount: number;
-
-  @IsString()
-  @Length(3)
-  @IsNotEmpty()
-  @ApiProperty()
-  currency: string;
-
-  @IsNotEmpty()
-  @IsEnum(PaymentType)
-  @ApiProperty({ enum: Object.values(PaymentType) })
-  type: PaymentType;
-}

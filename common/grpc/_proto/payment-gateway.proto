@@ -77,7 +77,7 @@ service DepositFlowService {
 service WithdrawFlowService {
   rpc Start(WithdrawFlowRequest) returns (WithdrawFlowResponse);
 
-  rpc PayWithSelectedResource(DepositNextStepRequest) returns (TransferInfo);
+  rpc PayWithSelectedResource(WithdrawNextStepRequest) returns (TransferInfo);
 }
 
 message LinkSessionResponse {

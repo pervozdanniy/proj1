@@ -20,6 +20,7 @@ import { ExternalWithdrawService } from './services/external-withdraw.service';
 import { KYCService } from './services/kyc.service';
 import { PaymentGatewayService } from './services/payment-gateway.service';
 import { SandboxService } from './services/sandbox.service';
+import { WithdrawService } from './services/withdraw.service';
 
 @Module({
   imports: [HttpModule, AuthModule, ClientsModule.registerAsync([asyncClientOptions('core')])],
@@ -38,6 +39,7 @@ import { SandboxService } from './services/sandbox.service';
     PaymentGatewayService,
     SandboxService,
     DepositService,
+    WithdrawService,
     CardsService,
     ExternalBalanceService,
     KYCService,

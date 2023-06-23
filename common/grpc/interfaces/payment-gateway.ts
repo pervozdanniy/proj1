@@ -669,7 +669,7 @@ export const DEPOSIT_FLOW_SERVICE_NAME = "DepositFlowService";
 export interface WithdrawFlowServiceClient {
   start(request: WithdrawFlowRequest, ...rest: any): Observable<WithdrawFlowResponse>;
 
-  payWithSelectedResource(request: DepositNextStepRequest, ...rest: any): Observable<TransferInfo>;
+  payWithSelectedResource(request: WithdrawNextStepRequest, ...rest: any): Observable<TransferInfo>;
 }
 
 export interface WithdrawFlowServiceController {
@@ -679,7 +679,7 @@ export interface WithdrawFlowServiceController {
   ): Promise<WithdrawFlowResponse> | Observable<WithdrawFlowResponse> | WithdrawFlowResponse;
 
   payWithSelectedResource(
-    request: DepositNextStepRequest,
+    request: WithdrawNextStepRequest,
     ...rest: any
   ): Promise<TransferInfo> | Observable<TransferInfo> | TransferInfo;
 }

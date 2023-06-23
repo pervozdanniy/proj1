@@ -18,7 +18,7 @@ export class ContactDto implements Contact {
 }
 
 export class ContactsResponseDto implements ContactsResponse {
-  @ApiProperty({ type: ContactDto })
+  @ApiProperty({ type: ContactDto, isArray: true })
   @Type(() => ContactDto)
   contacts: ContactDto[];
   @ApiProperty()
