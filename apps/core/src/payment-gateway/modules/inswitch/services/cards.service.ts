@@ -77,10 +77,6 @@ export class InswitchCardsService {
     if (!this.virtualCardProductId) {
       throw new ConflictException('Virtual cards are not supported at the moment');
     }
-    const exists = await this.cardRepo.exist({ where: { is_active: true } });
-    if (exists) {
-      throw new ConflictException(`You've already requested a card`);
-    }
 
     const account = await this.inswitch.accountGetOrCreate(userId);
     const card = await this.api.createCard({
