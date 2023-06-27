@@ -2,7 +2,12 @@ import { UserService } from '@/user/services/user.service';
 import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TransferInfo, WithdrawFlowRequest, WithdrawNextStepRequest } from '~common/grpc/interfaces/payment-gateway';
+import {
+  TransferInfo,
+  WithdrawFlowRequest,
+  WithdrawFlowResponse,
+  WithdrawNextStepRequest,
+} from '~common/grpc/interfaces/payment-gateway';
 import { DepositFlowEntity, DepositResourceType } from '../../entities/flow/deposit.entity';
 import { BankAccountEntity } from '../../entities/prime_trust/bank-account.entity';
 import { hasBank, hasWithdrawal, PaymentGatewayManager } from '../../manager/payment-gateway.manager';
@@ -17,7 +22,7 @@ export class WithdrawFlowService {
     private depositFlowRepo: Repository<DepositFlowEntity>,
   ) {}
 
-  async start(payload: WithdrawFlowRequest) {
+  async start(payload: WithdrawFlowRequest): Promise<WithdrawFlowResponse> {
     const userDetails = await this.userService.getUserInfo(payload.user_id);
     const paymentGateway = this.paymentGatewayManager.createApiGatewayService(userDetails.country_code);
 
@@ -32,7 +37,7 @@ export class WithdrawFlowService {
       const banks = await this.bankAccountEntityRepository.findBy({ user_id: userDetails.id });
 
       return {
-        flowId: identifiers[0].id,
+        flow_id: identifiers[0].id,
         action: 'select_bank',
         banks: {
           list: banks,
