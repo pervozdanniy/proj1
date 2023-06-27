@@ -91,6 +91,8 @@ export class InswitchApiService {
       if (this.#token.expiresAt > Date.now()) {
       } else if (this.#token.refreshExpiresAt > Date.now()) {
         this.#token = await this.authorize(this.#token.refreshToken);
+      } else {
+        this.#token = await this.authorize();
       }
     } else {
       this.#token = await this.authorize();
